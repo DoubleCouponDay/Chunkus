@@ -1,12 +1,14 @@
 
 # OBJECTIVE
-Convert a vector file to a bitmap in C with no libraries.
+Convert a raster image into a scalable vector graphic and back.
 
 # TASKS
 
 - /*DONE*/ Create Local Structures for common SVG structures (eg. struct Rect {})
 
 - /*DONE*/ install xmake and get the build working
+
+- install conan and add jpeg, png libraries
 
 - create an API surface for basic SVG elements
 
@@ -17,6 +19,8 @@ Convert a vector file to a bitmap in C with no libraries.
     - \<g\>
 
     - \<line\>
+
+    - \<curve\>\
 
 - Create functions that can convert known SVG elements to a matrix of pixels.  It has to know the colour of an element and plot the colour of each pixel.
 
