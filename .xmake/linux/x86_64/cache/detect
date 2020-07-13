@@ -1,0 +1,54 @@
+{
+    find_program = {
+        ["g++"] = "/usr/bin/g++",
+        ["/usr/bin/gcc"] = "/usr/bin/gcc",
+        ccache = false,
+        gcc = "/usr/bin/gcc"
+    },
+    ["lib.detect.has_flags"] = {
+        ["linux_x86_64_/usr/bin/gcc_9.3.0-10ubuntu2_cc___-O3"] = true,
+        ["linux_x86_64_/usr/bin/gcc_9.3.0-10ubuntu2_cc_cxflags_-m64_-fcolor-diagnostics"] = false,
+        ["linux_x86_64_/usr/bin/gcc_9.3.0-10ubuntu2_cc_cxflags_-m64_-MMD -MF"] = true,
+        ["linux_x86_64_/usr/bin/gcc_9.3.0-10ubuntu2_cc_cxflags_-m64_-fdiagnostics-color=always"] = true
+    },
+    find_programver = {
+        ["/usr/bin/gcc"] = "9.3.0-10ubuntu2"
+    },
+    __version = "2.3.5",
+    ["detect.tools.gcc.has_flags"] = {
+        ["/usr/bin/gcc_9.3.0-10ubuntu2"] = {
+            ["--help"] = true,
+            ["-pie"] = true,
+            ["-c"] = true,
+            ["-shared"] = true,
+            ["-v"] = true,
+            ["-o"] = true,
+            ["-Xassembler"] = true,
+            ["-Xlinker"] = true,
+            ["-E"] = true,
+            ["-save-temps"] = true,
+            ["-print-multiarch"] = true,
+            ["-pass-exit-codes"] = true,
+            ["-pipe"] = true,
+            ["-print-sysroot"] = true,
+            ["--target-help"] = true,
+            ["-dumpversion"] = true,
+            ["-print-multi-lib"] = true,
+            ["--param"] = true,
+            ["-S"] = true,
+            ["-time"] = true,
+            ["-print-search-dirs"] = true,
+            ["-Xpreprocessor"] = true,
+            ["--version"] = true,
+            ["-dumpspecs"] = true,
+            ["-x"] = true,
+            ["-B"] = true,
+            ["-print-multi-directory"] = true,
+            ["-no-canonical-prefixes"] = true,
+            ["-print-libgcc-file-name"] = true,
+            ["-print-multi-os-directory"] = true,
+            ["-print-sysroot-headers-suffix"] = true,
+            ["-dumpmachine"] = true
+        }
+    }
+}

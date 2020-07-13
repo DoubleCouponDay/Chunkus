@@ -1,0 +1,9 @@
+{
+    __version = "2.3.5",
+    cmdlines = {
+        "xmake lua /home/sjsui/.local/share/xmake/actions/build/cleaner.lua",
+        "xmake b",
+        "xmake b",
+        "xmake "
+    }
+}
