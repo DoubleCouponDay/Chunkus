@@ -8,7 +8,7 @@ Convert a raster image into a scalable vector graphic and back.
 
 - /*DONE*/ install xmake and get the build working
 
-- install conan and add jpeg, png libraries
+- /*DONE*/ install conan and add jpeg, png libraries
 
 - create an API surface for basic SVG elements
 
@@ -27,6 +27,9 @@ Convert a raster image into a scalable vector graphic and back.
 - Create a file parser that utilizes those functions in a very specific order. It spits out a 2D array of Pixels.
 
 - Create a bitmap creator that can generate the file header and data segments.
+
+- upload the project to conan
+
 <br>
 <br>
 
