@@ -42,6 +42,9 @@ Convert a raster image into a scalable vector graphic and back.
 
 - http://www.libpng.org/pub/png/libpng-manual.txt
 
+- http://ijg.org/ 
+    libjpeg docs
+
 - https://en.wikipedia.org/wiki/Image_tracing
 
 - https://www.w3.org/TR/SVG2/shapes.html
