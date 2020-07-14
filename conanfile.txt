@@ -1,6 +1,7 @@
 [requires]
 libpng/1.6.37
 libjpeg/9d
+nanosvg/20190405
 
 [generators]
 cmake
