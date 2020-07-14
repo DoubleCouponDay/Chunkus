@@ -1,3 +1,6 @@
 [requires]
-libpng
-libjpeg
+libpng/1.6.37
+libjpeg/9d
+
+[generators]
+cmake
