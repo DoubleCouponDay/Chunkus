@@ -1,10 +1,11 @@
 #pragma once
 
 #include "map.h"
+#include "colour.h"
 
 typedef unsigned char uint8;
 
-typedef coordinate3D RGBcolour;
+
 
 typedef struct
 {
