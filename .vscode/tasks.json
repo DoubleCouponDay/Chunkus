@@ -6,7 +6,7 @@
         {
             "label": "linux build",
             "type": "shell",
-            "command": "xmake f -m debug",
+            "command": "xmake",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
