@@ -10,4 +10,4 @@ add each package used to your xmake.lue file
 
 # Building 
 
-`xmake -w`
+`xmake f -m debug`

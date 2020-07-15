@@ -6,7 +6,15 @@
         {
             "label": "linux build",
             "type": "shell",
-            "command": "make"
+            "command": "xmake f -m debug",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }

@@ -8,13 +8,9 @@
             "name": "linux build then debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/rasterizer.exe",
-            "args": [],
-            "stopAtEntry": false,
+            "program": "${workspaceFolder}/build/linux/x86_64/release/vectorizer.exe",
+            "args": ["../../../pepe.jpeg"],
             "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -22,8 +18,12 @@
                     "ignoreFailures": false
                 }
             ],
+            "launchCompleteCommand": "exec-run",
             "preLaunchTask": "linux build",
-            "miDebuggerPath": "/usr/bin/gdb"
+            "linux": {
+                "MIMode": "gdb",
+                "miDebuggerPath": "/usr/bin/gdb",                    
+            }
         }
     ]
 }

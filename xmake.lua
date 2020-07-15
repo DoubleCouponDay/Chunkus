@@ -1,19 +1,16 @@
 
 -- add modes: debug and release
-add_rules("mode.debug", "mode.release")
+add_rules("mode.debug")
 add_requires("CONAN::libpng/1.6.37", {alias = "libpng"})
 add_requires("CONAN::libjpeg/9d", {alias = "libjpeg"})
 add_requires("CONAN::nanosvg/20190405", {alias = "nanosvg"})
 
 -- add target
 target("vectorizer.exe")
-
     -- set kind
     set_kind("binary")
-
     -- add files
     add_files("src/**.c")
-
     add_packages("libpng", "libjpeg", "nanosvg")
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
