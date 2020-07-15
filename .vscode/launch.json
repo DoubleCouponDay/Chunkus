@@ -8,7 +8,7 @@
             "name": "linux build then debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/linux/x86_64/release/vectorizer.exe",
+            "program": "${workspaceFolder}/build/linux/x86_64/debug/vectorizer.exe",
             "args": ["../../../pepe.jpeg"],
             "cwd": "${workspaceFolder}",
             "setupCommands": [
