@@ -19,3 +19,9 @@
 - https://code.visualstudio.com/docs/cpp/c-cpp-properties-schema-reference
 
 - https://github.com/memononen/nanosvg#using-nanosvg-in-your-project
+
+- https://devdocs.io/c/
+
+- http://aceunit.sourceforge.net/manual
+
+- https://nemequ.github.io/munit/
