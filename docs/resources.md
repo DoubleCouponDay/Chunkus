@@ -22,6 +22,4 @@
 
 - https://devdocs.io/c/
 
-- http://aceunit.sourceforge.net/manual
-
 - https://nemequ.github.io/munit/

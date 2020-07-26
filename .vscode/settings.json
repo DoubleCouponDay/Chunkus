@@ -22,5 +22,11 @@
         ]
     },
     "gtest-adapter.debugConfig": "linux build then debug",
-    "gtest-adapter.supportLocation": false
+    "gtest-adapter.supportLocation": false,
+    "telemetry.enableTelemetry": false,
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}/**", 
+        "~/.conan/data/**"
+    ],
+    "C_Cpp.default.compilerPath": "/usr/bin/gcc",
 }

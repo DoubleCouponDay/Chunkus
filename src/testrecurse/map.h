@@ -1,12 +1,12 @@
 #pragma once
 
-typedef struct coordinate2D {
+typedef struct {
     int x;
     int y;
-};
+} coordinate2D;
 
-typedef struct coordinate3D {
+typedef struct {
     int x;
     int y;
     int z;
-};
+} coordinate3D;

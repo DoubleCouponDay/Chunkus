@@ -10,7 +10,15 @@ target("vectorizer.exe")
     -- set kind
     set_kind("binary")
     -- add files
-    add_files("src/**.c")
+    add_files("./src/**.c")
+    add_packages("libpng", "libjpeg", "nanosvg")
+
+target("tests.exe")
+    -- set kind
+    set_kind("binary")
+    -- add files
+    add_files("./src/**.c|main.c")
+    add_files("./test/tests.c", "./test/munit.c")
     add_packages("libpng", "libjpeg", "nanosvg")
 --
 -- If you want to known more usage about xmake, please see https://xmake.io

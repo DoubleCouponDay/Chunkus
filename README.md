@@ -6,7 +6,7 @@ conan.io
 
 xmake.io
 
-add each package used to your xmake.lue file
+add each package used to your xmake.lua file
 
 # Building 
 
