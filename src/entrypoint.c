@@ -39,5 +39,8 @@ int entrypoint(int argc, char* argv[]) {
 	printf("turning %s into a vector... \n", firstargument);
 	printf("program completed. \n");
 	getchar();	
+
+	//vectorize(firstargument);
+
 	return 0;
 }

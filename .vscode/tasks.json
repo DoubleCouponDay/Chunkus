@@ -4,9 +4,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "linux build",
+            "label": "linux build tests",
             "type": "shell",
-            "command": "xmake",
+            "command": "xmake -b tests.exe",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
