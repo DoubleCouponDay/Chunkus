@@ -1,3 +1,13 @@
+#ifndef _OUR_MATH_H
+#define _OUR_MATH_H
+
+#include <math.h>
+
+typedef struct 
+{
+    float x, y;
+} floaty2;
+
 typedef union 
 {
     struct
@@ -82,21 +92,21 @@ static inline bool IsInvertible()
     return Determinant() != 0.f;
 }
 
-static inline bool Invert() noexcept
+static inline bool Invert(mat2x3 *mat) noexcept
 {
-    float det = Determinant();
+    float det = mat2x3_Determinant(mat);
     if (det == 0.f)
         return false;
 
     float invdet = 1.f / det;
 
     mat2x3 minv; // inverse of matrix m
-    minv.m[0][0] = (m[1][1] * 1.f - 0.f * m[1][2]) * invdet;
-    minv.m[0][1] = (m[0][2] * 0.f - m[0][1] * 1.f) * invdet;
-    minv.m[0][2] = (m[0][1] * m[1][2] - m[0][2] * m[1][1]) * invdet;
-    minv.m[1][0] = (m[1][2] * 0.f - m[1][0] * 1.f) * invdet;
-    minv.m[1][1] = (m[0][0] * 1.f - m[0][2] * 0.f) * invdet;
-    minv.m[1][2] = (m[1][0] * m[0][2] - m[0][0] * m[1][2]) * invdet;
+    minv.m[0][0] = ((*mat)[1][1] * 1.f - 0.f * (*m)[1][2]) * invdet;
+    minv.m[0][1] = ((*m)[0][2] * 0.f - (*m)[0][1] * 1.f) * invdet;
+    minv.m[0][2] = ((*m)[0][1] * (*m)[1][2] - (*m)[0][2] * (*m)[1][1]) * invdet;
+    minv.m[1][0] = ((*m)[1][2] * 0.f - (*m)[1][0] * 1.f) * invdet;
+    minv.m[1][1] = ((*m)[0][0] * 1.f - (*m)[0][2] * 0.f) * invdet;
+    minv.m[1][2] = ((*m)[1][0] * (*m)[0][2] - (*m)[0][0] * (*m)[1][2]) * invdet;
     *a = minv;
 
     return true;
@@ -158,3 +168,5 @@ inline PointRect TransformRect(PointRect rect)
     tmpb = TransformPoint({rect.right, rect.bottom});
     return {tmpa.x, tmpa.y, tmpb.x, tmpb.y};
 }*/
+
+#endif

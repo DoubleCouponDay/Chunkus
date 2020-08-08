@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdio.h>
+#include <png.h>
 #include "entrypoint.h"
 
 const char *format1 = "png";
@@ -38,9 +39,6 @@ int entrypoint(int argc, char* argv[]) {
 	}
 	printf("turning %s into a vector... \n", firstargument);
 	printf("program completed. \n");
-	getchar();	
-
-	//vectorize(firstargument);
-
+	getchar();
 	return 0;
 }

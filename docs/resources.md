@@ -23,3 +23,5 @@
 - https://devdocs.io/c/
 
 - https://nemequ.github.io/munit/
+
+- https://xmake.io/#/getting_started
