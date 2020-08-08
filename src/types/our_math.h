@@ -2,6 +2,7 @@
 #define _OUR_MATH_H
 
 #include <math.h>
+#include <string.h>
 
 typedef struct 
 {
@@ -32,7 +33,12 @@ static inline mat2x3 mat2x3_Create(float _11, float _12, float _13, float _21, f
     return { _11, _12, _13, _21, _22, _23 };
 }
 
-static inline mat2x3 mat2x3_Copy(mat2x3 *other)
+static inline void mat2x3_Copy(mat2x3 *dst, mat2x3 *src)
+{
+    memcpy(dst, src, sizeof(mat2x3));
+}
+
+static inline mat2x3 mat2x3_Clone(mat2x3 *other)
 {
     return {other->_11, other->_12, other->_13, other->_21, other->_22, other->_23};
 }
@@ -77,9 +83,12 @@ static inline mat2x3 mat2x3_RotationR(float angle, floaty2 center)
     // | cos(θ), sin(θ) |
     // |_-sin(θ),cos(θ)_|
 
-    rotation = rotation * RotationR(angle);
+    mat2x3 rot_temp = mat2x3_RotationR(angle);
+    rotation = mat2x3_Multiply(&rotation, &rot_temp);
 
-    return rotation * Translation(center.x, center.y);
+    mat2x3 out = mat2x3_Multiply(rotation, mat2x3_Translation(center.x, center.y));
+
+    return out;
 }
 
 static inline float mat2x3_Determinant(mat2x3 *mat)
@@ -87,9 +96,9 @@ static inline float mat2x3_Determinant(mat2x3 *mat)
     return (mat->_11 * mat->_22) - (mat->_12 * mat->_21);
 }
 
-static inline bool IsInvertible()
+static inline bool mat2x3_IsInvertible(mat2x3 *mat)
 {
-    return Determinant() != 0.f;
+    return mat2x3_Determinant(mat) != 0.f;
 }
 
 static inline bool Invert(mat2x3 *mat) noexcept
@@ -101,18 +110,19 @@ static inline bool Invert(mat2x3 *mat) noexcept
     float invdet = 1.f / det;
 
     mat2x3 minv; // inverse of matrix m
-    minv.m[0][0] = ((*mat)[1][1] * 1.f - 0.f * (*m)[1][2]) * invdet;
-    minv.m[0][1] = ((*m)[0][2] * 0.f - (*m)[0][1] * 1.f) * invdet;
-    minv.m[0][2] = ((*m)[0][1] * (*m)[1][2] - (*m)[0][2] * (*m)[1][1]) * invdet;
-    minv.m[1][0] = ((*m)[1][2] * 0.f - (*m)[1][0] * 1.f) * invdet;
-    minv.m[1][1] = ((*m)[0][0] * 1.f - (*m)[0][2] * 0.f) * invdet;
-    minv.m[1][2] = ((*m)[1][0] * (*m)[0][2] - (*m)[0][0] * (*m)[1][2]) * invdet;
+    minv.m[0][0] = (mat->m[1][1] * 1.f - 0.f * mat->m[1][2]) * invdet;
+    minv.m[0][1] = (mat->m[0][2] * 0.f - mat->m[0][1] * 1.f) * invdet;
+    minv.m[0][2] = (mat->m[0][1] * mat->m[1][2] - mat->m[0][2] * mat->m[1][1]) * invdet;
+    minv.m[1][0] = (mat->m[1][2] * 0.f - mat->m[1][0] * 1.f) * invdet;
+    minv.m[1][1] = (mat->m[0][0] * 1.f - mat->m[0][2] * 0.f) * invdet;
+    minv.m[1][2] = (mat->m[1][0] * mat->m[0][2] - mat->m[0][0] * mat->m[1][2]) * invdet;
     *a = minv;
+    mat2x3_Copy(mat, &minv);
 
     return true;
 }
 
-static inline bool IsIdentity(mat2x3 *mat)
+static inline bool mat2x3_IsIdentity(mat2x3 *mat)
 {
     return mat->_11 == 1.f && mat->_12 == 0.f && mat->_21 == 0.f && mat->_22 == 1.f && mat->_13 == 0.f && mat->_23 == 0.f;
 }
