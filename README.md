@@ -1,12 +1,23 @@
 # Rasterizer
+the project objective
 
-Installation:
+    convert jpg, png files to svg files!
 
-conan.io
+build tool 
 
-xmake.io
+    xmake
 
-add each package used to your xmake.lua file
+package manager
+
+    conan.io
+
+libraries used
+
+    libjpg, libpng, nanosvg
+
+test runner
+
+    µnit
 
 # Building 
 
