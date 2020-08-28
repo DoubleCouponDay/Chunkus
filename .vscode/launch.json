@@ -8,9 +8,9 @@
             "name": "linux build then debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/linux/x86_64/debug/vectorizer.exe",
-            "args": ["./pepe.jpeg"],
-            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/linux/x86_64/debug/tests.exe",
+            "args": ["./basic.png"],
+            "cwd": "${workspaceFolder}/build/linux/x86_64/debug",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -19,7 +19,7 @@
                 }
             ],
             "launchCompleteCommand": "exec-run",
-            "preLaunchTask": "linux build",
+            "preLaunchTask": "linux build tests",
             "linux": {
                 "MIMode": "gdb",
                 "miDebuggerPath": "/usr/bin/gdb",                    
@@ -30,8 +30,8 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/linux/x86_64/debug/tests.exe",
-            "args": ["./pepe.jpeg"],
-            "cwd": "${workspaceFolder}",
+            "args": ["./basic.png"],
+            "cwd": "${workspaceFolder}/build/linux/x86_64/debug",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
