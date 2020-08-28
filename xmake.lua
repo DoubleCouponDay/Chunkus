@@ -19,7 +19,7 @@ target("tests.exe")
     set_kind("binary")
     -- add files
     add_files("./src/**.c|main.c")
-    add_files("./test/tests.c", "./test/munit.c")
+    add_files("./test/tests.c", "./test/munit.c", "./test/**.c")
     add_packages("libpng", "libjpeg", "nanosvg")
     add_syslinks("m")
 --
