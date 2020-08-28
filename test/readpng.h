@@ -9,20 +9,27 @@
 #include <dirent.h>
 #include "../src/tools.h"
 
+typedef struct {
+  FILE* file;
+  
+  char* file_address;
+} test2filesetup;
+
 
 typedef struct
-{
-  char* file_address;
-  FILE *fp;
-  png_structp png_ptr;
-  png_infop info_ptr;
-  png_bytep *row_pointers;
+{  
+  test2filesetup* setup;
+  png_structp png_pointer;
+  png_infop info_pointer;
+  png_bytep* row_pointers;
   int width, height;
   png_byte color_type, bit_depth;
-} test_resources;
+} test2resources;
 
-MunitResult itCanDecompressAPng2(const MunitParameterEnum params[], void *user_data);
+test2resources* readfile(const MunitParameterEnum params[], void* userdata);
 
-void* test2setup(const MunitParameter params[], void *user_data);
+MunitResult itCanDecompressAPng2(const MunitParameterEnum params[], void* userdata);
+
+void* test2setup(const MunitParameter params[], void* userdata);
 
 void test2teardown(void* fixture);

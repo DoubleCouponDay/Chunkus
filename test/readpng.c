@@ -16,13 +16,15 @@
 #define NANOSVG_IMPLEMENTATION
 #define ERROR -1
 
-MunitResult itCanDecompressAPng2(const MunitParameterEnum params[], void *user_data) {
-  test_resources* kit = user_data;
-  char* fileaddress = kit->file_address;
-  DEBUG_PRINT("%s\n", fileaddress);
-  FILE* fp = kit->fp;
-
-  munit_assert_not_null(fp);
+test2resources* readfile(const MunitParameterEnum params[], void* userdata) {
+  DEBUG_PRINT("reading file... \n");
+  test2resources* resources = calloc(1, sizeof(test2resources));
+  resources->setup = userdata;
+  munit_assert_not_null(resources);
+  char* fileaddress = resources->setup->file_address;
+  DEBUG_PRINT("fileaddress = %s\n", fileaddress);
+  FILE* file = resources->setup->file;
+  munit_assert_not_null(file);
 
   int width, height;
   png_byte color_type, bit_depth;
@@ -39,13 +41,16 @@ MunitResult itCanDecompressAPng2(const MunitParameterEnum params[], void *user_d
   if (!png_ptr) {
     return ERROR;
   }  
+  resources->png_pointer = png_ptr;
+
   DEBUG_PRINT("Pre Create Info Struct\n");
   png_infop info_ptr = png_create_info_struct(png_ptr);
+  resources->info_pointer = info_ptr;
 
   if (setjmp(png_jmpbuf(png_ptr))) return MUNIT_ERROR;
 
   DEBUG_PRINT("Pre Init IO\n");
-  png_init_io(png_ptr, fp);
+  png_init_io(png_ptr, file);
 
   DEBUG_PRINT("Pre Read Info\n");
   png_read_info(png_ptr, info_ptr);
@@ -53,41 +58,58 @@ MunitResult itCanDecompressAPng2(const MunitParameterEnum params[], void *user_d
   DEBUG_PRINT("Pre Get dimensions\n");
   width = png_get_image_width(png_ptr, info_ptr);
   height = png_get_image_height(png_ptr, info_ptr);
+  resources->width = width;
+  resources->height = height;
 
   DEBUG_PRINT("Width: %d, Height: %d\n", width, height);
   color_type = png_get_color_type(png_ptr, info_ptr);
-  bit_depth = png_get_bit_depth(png_ptr, info_ptr);  
+  bit_depth = png_get_bit_depth(png_ptr, info_ptr); 
+  resources->color_type = color_type;
+  resources->bit_depth = bit_depth;
 
   //image header is invalid
   if (!info_ptr)
   {
       png_destroy_read_struct(&png_ptr,
           (png_infopp)NULL, (png_infopp)NULL);
-      return ERROR;
+
+      *NULL; //throw segfault
   }
   DEBUG_PRINT("image is valid\n");
-  row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
+  resources->row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
+
   for(int y = 0; y < height; y++) {
-    row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(png_ptr, info_ptr));
+    resources->row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(png_ptr, info_ptr));
   }
-  DEBUG_PRINT("read all the bytes\n");
-  imagestruct.format = PNG_FORMAT_RGB;
-
-  png_read_image(png_ptr, row_pointers);
   DEBUG_PRINT("read the image\n");
+  imagestruct.format = PNG_FORMAT_RGB;
+  png_read_image(png_ptr, resources->row_pointers);
 
-  png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-  
 
+  DEBUG_PRINT("About to return populated resources\n");
+  return resources;
+}
+
+MunitResult itCanDecompressAPng2(const MunitParameterEnum params[], void* userdata) {
+  test2resources* resources = readfile(params, userdata);
+  freefile(resources);
   return MUNIT_OK;
 }
 
-void* test2setup(const MunitParameter params[], void *user_data)
+void freefile(test2resources* resources) {
+  png_destroy_read_struct(&resources->png_pointer, &resources->info_pointer, NULL);
+  for (int i = 0; i < resources->height; ++i)
+    free(resources->row_pointers[i]);
+  free(resources);
+}
+
+void* test2setup(const MunitParameter params[], void* userdata)
 {
   // return address of global variable, or allocate on the heap
-  static test_resources g_Resources;
-  DEBUG_PRINT("setting test_resources memory... \n");
-  memset(&g_Resources, 0, sizeof(test_resources));
+  test2filesetup* setup = calloc(1, sizeof(test2filesetup));
+  
+  DEBUG_PRINT("setting test2filesetup memory... \n");
+  //memset(&setup, 0, sizeof(test2filesetup));
 
   // Open file, create png_struct, create info_struct
   DEBUG_PRINT("finding the file param \n");
@@ -96,30 +118,24 @@ void* test2setup(const MunitParameter params[], void *user_data)
 
   DEBUG_PRINT("Now checking file address \n");
 
-  g_Resources.fp = fopen(file_address, "rb");
+  setup->file = fopen(file_address, "rb");
 
-  if (g_Resources.fp == NULL)
+  if (setup->file == NULL)
   {
     DEBUG_PRINT("File pointer was null");
     return NULL;
   }
   
   DEBUG_PRINT("Setup 2 complete....\n");
-  return &g_Resources;
+  return setup;
 }
 
 void test2teardown(void* fixture) {
   if (fixture == NULL)
     return;
 
-  test_resources* resources = (test_resources*)fixture;
+  test2filesetup* file_setup = (test2filesetup*)fixture;
 
-  // Free the buffer
-  for (int i = 0; i < resources->height; ++i)
-  {
-    free(resources->row_pointers[i]);
-  }
-
-  if (resources->fp)
-    fclose(resources->fp);
+  if (file_setup->file)
+    fclose(file_setup->file);
 }
