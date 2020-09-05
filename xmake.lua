@@ -12,7 +12,7 @@ target("vectorizer.exe")
     -- add files
     add_files("./src/**.c")
     add_packages("libpng", "libjpeg", "nanosvg")
-    add_syslinks("m")
+--    add_syslinks("m")
 
 target("tests.exe")
     -- set kind
@@ -21,13 +21,13 @@ target("tests.exe")
     add_files("./src/**.c|main.c")
     add_files("./test/tests.c", "./test/munit.c", "./test/**.c")
     add_packages("libpng", "libjpeg", "nanosvg")
-    add_syslinks("m")
+--    add_syslinks("m")
 
 target("vectorizer_library")
     set_kind("static")
-    add_files("./src/**.c")
+    add_files("./src/**.c|main.c")
     add_packages("libpng", "libjpeg", "nanosvg")
-    add_syslinks("m")
+--    add_syslinks("m")
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --

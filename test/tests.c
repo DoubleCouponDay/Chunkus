@@ -10,7 +10,9 @@
 #include <png.h>
 #include <nanosvg.h>
 #include <errno.h>
+#ifndef _WIN32
 #include <dirent.h>
+#endif
 #include "../src/tools.h"
 #include "./readpng.h"
 

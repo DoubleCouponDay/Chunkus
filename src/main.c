@@ -7,7 +7,7 @@
 #include <jpeglib.h>
 #include "entrypoint.h"
 
-//int main(int argc, char* argv[]) {	
-//	entrypoint(argc, argv);
-//	return 0;
-//}
+int main(int argc, char* argv[]) {	
+	entrypoint(argc, argv);
+	return 0;
+}

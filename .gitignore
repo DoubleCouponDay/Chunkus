@@ -68,3 +68,5 @@ conan.lock
 .vscode/.conan_tools/conanInfo.dot
 .xmake/linux/x86_64/xmake.conf
 
+# Discord token
+*.discord_token

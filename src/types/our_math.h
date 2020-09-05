@@ -86,7 +86,9 @@ static inline mat2x3 mat2x3_RotationR(float angle, floaty2 center)
     mat2x3 rot_temp = mat2x3_RotationR(angle);
     rotation = mat2x3_Multiply(&rotation, &rot_temp);
 
-    mat2x3 out = mat2x3_Multiply(rotation, mat2x3_Translation(center.x, center.y));
+    mat2x3 trans = mat2x3_Translation(center.x, center.y);
+
+    mat2x3 out = mat2x3_Multiply(&rotation, &trans);
 
     return out;
 }
@@ -116,7 +118,6 @@ static inline bool Invert(mat2x3 *mat) noexcept
     minv.m[1][0] = (mat->m[1][2] * 0.f - mat->m[1][0] * 1.f) * invdet;
     minv.m[1][1] = (mat->m[0][0] * 1.f - mat->m[0][2] * 0.f) * invdet;
     minv.m[1][2] = (mat->m[1][0] * mat->m[0][2] - mat->m[0][0] * mat->m[1][2]) * invdet;
-    *a = minv;
     mat2x3_Copy(mat, &minv);
 
     return true;

@@ -10,7 +10,9 @@
 #include <png.h>
 #include <nanosvg.h>
 #include <errno.h>
+#ifndef _WIN32
 #include <dirent.h>
+#endif
 #include "../src/tools.h"
 #include "./readpng.h"
 #define NANOSVG_IMPLEMENTATION
@@ -39,7 +41,7 @@ test2resources* readfile(const MunitParameterEnum params[], void* userdata) {
      NULL, NULL);
 
   if (!png_ptr) {
-    return ERROR;
+    return NULL;
   }  
   resources->png_pointer = png_ptr;
 
@@ -47,7 +49,7 @@ test2resources* readfile(const MunitParameterEnum params[], void* userdata) {
   png_infop info_ptr = png_create_info_struct(png_ptr);
   resources->info_pointer = info_ptr;
 
-  if (setjmp(png_jmpbuf(png_ptr))) return MUNIT_ERROR;
+  if (setjmp(png_jmpbuf(png_ptr))) return NULL;
 
   DEBUG_PRINT("Pre Init IO\n");
   png_init_io(png_ptr, file);
@@ -73,7 +75,7 @@ test2resources* readfile(const MunitParameterEnum params[], void* userdata) {
       png_destroy_read_struct(&png_ptr,
           (png_infopp)NULL, (png_infopp)NULL);
 
-      *NULL; //throw segfault
+      //*NULL; //throw segfault
   }
   DEBUG_PRINT("image is valid\n");
   resources->row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
@@ -90,17 +92,17 @@ test2resources* readfile(const MunitParameterEnum params[], void* userdata) {
   return resources;
 }
 
-MunitResult itCanDecompressAPng2(const MunitParameterEnum params[], void* userdata) {
-  test2resources* resources = readfile(params, userdata);
-  freefile(resources);
-  return MUNIT_OK;
-}
-
 void freefile(test2resources* resources) {
   png_destroy_read_struct(&resources->png_pointer, &resources->info_pointer, NULL);
   for (int i = 0; i < resources->height; ++i)
     free(resources->row_pointers[i]);
   free(resources);
+}
+
+MunitResult itCanDecompressAPng2(const MunitParameterEnum params[], void* userdata) {
+  test2resources* resources = readfile(params, userdata);
+  freefile(resources);
+  return MUNIT_OK;
 }
 
 void* test2setup(const MunitParameter params[], void* userdata)
