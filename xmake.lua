@@ -22,6 +22,12 @@ target("tests.exe")
     add_files("./test/tests.c", "./test/munit.c", "./test/**.c")
     add_packages("libpng", "libjpeg", "nanosvg")
     add_syslinks("m")
+
+target("vectorizer_library")
+    set_kind("static")
+    add_files("./src/**.c")
+    add_packages("libpng", "libjpeg", "nanosvg")
+    add_syslinks("m")
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --
