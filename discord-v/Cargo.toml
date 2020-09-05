@@ -8,4 +8,8 @@ edition = "2018"
 
 [dependencies]
 libc = "0.2.76"
-serenity = "0.8.7"
+http = "0.2.1"
+
+[dependencies.serenity]
+features = ["framework", "standard_framework"]
+version = "0.9.0-rc.0"

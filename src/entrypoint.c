@@ -18,22 +18,24 @@ int entrypoint(int argc, char* argv[]) {
 		return -1;
 	}
 
-	else if(firstargument == "-h" ||
-		firstargument == "--help") {
-		printf("welcome to the vectorizer.exe help page.");
-		printf("this program converts a bitmap image into a scalable vector graphic using line tracing techniques.");
-		printf("supports the png and jpeg formats as input.");
-		printf("arguments:");
-		printf("the first argument should be the absolute path to your bitmap.");
-		printf("the second argument can be -t or --test. it will run the test suite to check if all the characteristics of this program are working");
+	else if(!strcmp(firstargument, "-h") ||
+		!strcmp(firstargument, "--help")) {
+		printf("welcome to the vectorizer.exe help page.\n");
+		printf("this program converts a bitmap image into a scalable vector graphic using line tracing techniques.\n");
+		printf("supports the png and jpeg formats as input.\n");
+		printf("arguments:\n");
+		printf("the first argument should be the absolute path to your bitmap.\n");
+		printf("the second argument can be -t or --test. it will run the test suite to check if all the characteristics of this program are working\n");
+		printf("debug: %s \n", firstargument);
 		getchar();
 		return 0;
 	}
 
+	// unreachable code if first argument -h
 	if(secondargument != NULL && 
-		(secondargument == "-t" ||
-		 secondargument == "-test")) {
-		printf("running tests instead...");
+		(!strcmp(secondargument, "-t") ||
+		 !strcmp(secondargument, "--test"))) {
+		printf("running tests instead...\n");
 		getchar();
 		return 0;
 	}
