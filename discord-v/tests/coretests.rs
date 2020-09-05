@@ -1,3 +1,5 @@
+mod hiddentestdata;
+
 #[cfg(test)]
 mod tests {
     use std;
@@ -13,9 +15,7 @@ mod tests {
     use std::collections::HashSet;
     use serenity::{
         http,
-        framework::{
-            StandardFramework
-        },
+        framework::StandardFramework,
         client
     };
 
@@ -25,7 +25,7 @@ mod tests {
     }
 
     async fn it_connects_to_discord() {
-        let token = "MjgzMDk2OTE5NTAzNDA1MDU2.WKp0jQ.8wrBzzk7AEHNm-zG87-tw1eqF-k";
+        let token = hiddentestdata::getdiscordtoken();
 
         let http = http::Http::new_with_token(&token);
 

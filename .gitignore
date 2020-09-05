@@ -68,3 +68,4 @@ conan.lock
 .vscode/.conan_tools/conanInfo.dot
 .xmake/linux/x86_64/xmake.conf
 
+discord-v/tests/hiddentestdata.rs
