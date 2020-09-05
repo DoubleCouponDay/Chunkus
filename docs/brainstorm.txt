@@ -1,0 +1,60 @@
+got png library working
+
+got xmake build script working
+
+got test runner munit working
+
+goal
+    read a simple image with only black and white colours
+        //png lib
+        traverse row pointers to find pixels
+        learn how to interpret it's output
+
+    access pixels  
+
+        accessing pixel at (x, y)
+        png_byte r, g, b;
+        r = rows[y][x * 3 + 0];
+        g = rows[y][x * 3 + 1];
+        b = rows[y][x * 3 + 2];
+
+        // png_set_filler(png_ptr, 0, PNG_FILLER_BEFORE);
+
+    map a path element to it and write that to an SVG file (just XML)
+        its just a string char*
+
+        starts with a single letter and ends with a single letter
+
+        each coordinate separated by a single letter
+
+        string output
+
+        learning XML
+            elements 
+                on linux
+                    <path>\n
+                        <path><path>\n
+                    </path>\n
+                    <path />\n
+
+                on windows
+                    <path>\r\n
+                        <path><path>\r\n
+                    </path>\r\n
+                    <path />\r\n
+
+            attributes d=""
+                geometry attribute
+
+              <path d="M 100 100 L 300 100 L 200 300 z"
+                fill="red" stroke="blue" stroke-width="3" />
+
+
+
+
+
+
+
+
+
+
