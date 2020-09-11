@@ -11,7 +11,6 @@ mod tests {
         
         d::disco::get_token()?;
         Ok(())
-    }
 
 
 }
