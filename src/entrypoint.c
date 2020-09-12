@@ -14,7 +14,6 @@ int entrypoint(int argc, char* argv[]) {
 	if(firstargument == NULL) {
 		printf("ERROR: path to image not given. \n");
 		printf("supported formats: %s, %s \n", format1, format2);
-		getchar();
 		return -1;
 	}
 
@@ -27,7 +26,6 @@ int entrypoint(int argc, char* argv[]) {
 		printf("the first argument should be the absolute path to your bitmap.\n");
 		printf("the second argument can be -t or --test. it will run the test suite to check if all the characteristics of this program are working\n");
 		printf("debug: %s \n", firstargument);
-		getchar();
 		return 0;
 	}
 
@@ -36,11 +34,9 @@ int entrypoint(int argc, char* argv[]) {
 		(!strcmp(secondargument, "-t") ||
 		 !strcmp(secondargument, "--test"))) {
 		printf("running tests instead...\n");
-		getchar();
 		return 0;
 	}
 	printf("turning %s into a vector... \n", firstargument);
 	printf("program completed. \n");
-	getchar();
 	return 0;
 }

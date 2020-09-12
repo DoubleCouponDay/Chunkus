@@ -13,11 +13,6 @@ mod tests {
         assert_eq!(true, true);
     }
 
-    // don't think test functions can be async
-    // async fn it_connects_to_discord() {
-    //    
-    //}
-
     #[test]
     fn the_core_program_can_be_run() -> result::Result<(), io::Error> {
         println!("starting initial core test...");

@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
 fn main() {
     if std::fs::copy("../windows/x64/release/vectorizer_library.lib", "./vec-lib/vectorizer_library.lib").is_err()
     {

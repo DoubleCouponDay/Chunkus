@@ -1,3 +1,6 @@
+**/secrettoken.rs
+discord-v/target
+
 /.xmake/
 
 /build
