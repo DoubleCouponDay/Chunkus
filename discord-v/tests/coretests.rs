@@ -18,10 +18,10 @@ mod tests {
         println!("starting initial core test...");
         
         let mut epic_path = String::from("yo mama so fat");
-        let mut path_pointer = epic_path.as_mut_ptr();
+        let path_pointer = epic_path.as_mut_ptr();
         let mut epic_thingo = String::from("--test");
         let mut epic_path_array: [*mut u8; 3] = [ptr::null_mut(), path_pointer, epic_thingo.as_mut_ptr()];
-        let mut array_pointer = epic_path_array.as_mut_ptr();
+        let array_pointer = epic_path_array.as_mut_ptr();
 
         unsafe {
             //epic C code here
