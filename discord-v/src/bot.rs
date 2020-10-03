@@ -32,14 +32,14 @@ pub async fn create_bot(token: &'static str) -> Client {
     };
     println!("creating framework...");
 
-    let framework = StandardFramework::new()
-        .on_mention(_bot_id)
-        .with_whitespace(true);
+    let framework = StandardFramework::new().configure(|c| c
+        .on_mention(Some(_bot_id))
+        .with_whitespace(true));
         
     println!("creating client...");
 
     // Login with a bot token from the environment
-    let mut client = Client::builder(&token)
+    let mut client = Client::new(&token)
         .event_handler(defaultHandler)
         .framework(framework)
         .await
@@ -48,7 +48,7 @@ pub async fn create_bot(token: &'static str) -> Client {
     client
 }
 
-pub async fn create_bot_with_handle<Handlerer>(token: &'static str) -> Client where Handlerer: EventHandler + 'static {
+pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, Handler: H) -> Client {
     
     println!("creating http token...");
     let http = Http::new_with_token(&token);
@@ -66,15 +66,15 @@ pub async fn create_bot_with_handle<Handlerer>(token: &'static str) -> Client wh
     };
     println!("creating framework...");
 
-    let framework = StandardFramework::new()
-        .on_mention(_bot_id)
-        .with_whitespace(true);
+    let framework = StandardFramework::new().configure(|c| c
+        .on_mention(Some(_bot_id))
+        .with_whitespace(true));
         
     println!("creating client...");
 
     // Login with a bot token from the environment
-    let mut client = Client::builder(&token)
-        .event_handler(Handlerer)
+    let mut client = Client::new(&token)
+        .event_handler(Handler)
         .framework(framework)
         .await
         .expect("Error creating client");
@@ -82,7 +82,7 @@ pub async fn create_bot_with_handle<Handlerer>(token: &'static str) -> Client wh
     client
 }
 
-struct defaultHandler;
+pub struct defaultHandler;
 
 #[group]
 struct General;

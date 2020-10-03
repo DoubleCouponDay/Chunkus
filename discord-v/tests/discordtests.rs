@@ -8,16 +8,18 @@ mod tests {
     use std::result::Result;
     use std::io::Error;
     use tokio;
-    use tokio::timer::Delay;
     use serenity;
     use serenity::{
+        async_trait,
         http::Http,
         model::{
-            id::ChannelId
+            id::ChannelId,
+            prelude::Message
         }
     };
     use std::sync::Arc;
-    use std::time::{Duration, Instant};
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::{thread, time, time::{Duration, Instant}};
     use serenity::client::{Client, Context, EventHandler};
     
     #[test]
@@ -29,19 +31,19 @@ mod tests {
 
     #[tokio::test]
     async fn bot_creatable() -> Result<(), Error> {
-        let outcome = createbot();
+        let outcome = createbot(gettoken(), bot::defaultHandler);
         Ok(())
     }
 
-    async fn createbot<T>(token: &str) -> serenity::Client where T: EventHandler {
+    async fn createbot<T: EventHandler + 'static>(token: &str, Handler: T) -> serenity::Client {
         println!("creating bot...");
-        let client = bot::create_bot_with_handle::<T>(token).await;
+        let client = bot::create_bot_with_handle(token, Handler).await;
         client
     }
 
     #[tokio::test]
     async fn bot_runnable() -> Result<(), Error> {
-        let mut client = createbot().await;
+        let mut client = createbot(gettoken(), bot::defaultHandler).await;
         let shard_man = client.shard_manager.clone();
         // Now shut it down
 
@@ -61,24 +63,24 @@ mod tests {
     #[async_trait]
     impl EventHandler for receivemessagehandler
     {
-        fn message(&self, ctx: Context, msg: Message)
+        async fn message(&self, ctx: Context, msg: Message)
         {
             if msg.content == MESSAGE_CONTENT
             {
                 println!("Found test message");
-                MESSAGE_COUNT += 1;
+                MESSAGE_INDICATOR.store(true, Ordering::Relaxed);
             }
         }
     }
 
-    static MESSAGE_CONTENT: str = "testicular boi";
-    static mut MESSAGE_COUNT: i32 = 0;
+    static MESSAGE_CONTENT: &'static str = "testicular boi";
+    static MESSAGE_INDICATOR: AtomicBool = AtomicBool::new(false);
 
     #[tokio::test]
     async fn can_receive_a_message() -> Result<(), Error> {
         println!("starting two bots...");
         let token1 = gettoken();
-        let mut client = createbot::<receivemessagehandler>(token1).await;
+        let mut client = createbot(token1, receivemessagehandler).await;
         let shard_man = client.shard_manager.clone();
         client.start();
                 
@@ -92,23 +94,23 @@ mod tests {
         let http = Http::new_with_token(&token1);
 
         //send a random number as message
-        let message = channelid.send_message::<Http>(&http, |m| {
+        let message = channelid.send_message(&http, |m| {
             m.content(MESSAGE_CONTENT);
             m.tts(false);
             m
         });
 
-        tokio::timer::Delay::new(Duration::new(10, 0)).await;
+        let time_out = time::Duration::from_secs(69);
+        thread::sleep(time_out);
 
-        match MESSAGE_COUNT == 1
+        if MESSAGE_INDICATOR.load(Ordering::Relaxed) == false 
         {
-            false => panic!("test message not found!"),
-            true => Ok(())
-        }?;
-        MESSAGE_COUNT = 0;
+            panic!("test message not found!");
+        }
+        MESSAGE_INDICATOR.store(false, Ordering::Relaxed);
 
         shard_man.lock().await.shutdown_all().await;
-        secondshard.lock().await.shutdown_all().await;
+        //secondshard.lock().await.shutdown_all().await;
         Ok(())
     }
     
