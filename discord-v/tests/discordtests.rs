@@ -3,19 +3,21 @@ mod src;
 
 #[cfg(test)]
 mod tests {
-    use crate::src::secrettoken::gettoken;
+    use crate::src::secrettoken::{gettoken, gettestbotstoken};
     use crate::src::bot;
     use std::result::Result;
     use std::io::Error;
     use tokio;
+    use tokio::{time::Delay, runtime::Runtime};
     use serenity;
     use serenity::{
         async_trait,
         http::Http,
         model::{
-            id::ChannelId,
+            id::{ChannelId, UserId},
             prelude::Message
-        }
+        },
+        utils::MessageBuilder,
     };
     use std::sync::Arc;
     use std::sync::atomic::{AtomicBool, Ordering};
@@ -45,7 +47,6 @@ mod tests {
     async fn bot_runnable() -> Result<(), Error> {
         let mut client = createbot(gettoken(), bot::defaultHandler).await;
         let shard_man = client.shard_manager.clone();
-        // Now shut it down
 
         client.start();
         println!("bot shutting down...");
@@ -55,7 +56,11 @@ mod tests {
     }
 
     fn getchannelid() -> ChannelId {
-        ChannelId(418671857676451841)
+        ChannelId(418671857676451841) //the bot chat
+    }
+
+    fn get_vectorizer_bot_id -> UserId {
+        UserId(690684027019067393)
     }
 
     struct receivemessagehandler;
@@ -70,53 +75,77 @@ mod tests {
                 println!("Found test message");
                 MESSAGE_INDICATOR.store(true, Ordering::Relaxed);
             }
+            else
+            {
+                println!("Found non-test message");
+            }
         }
     }
 
-    static MESSAGE_CONTENT: &'static str = "testicular boi";
+    static MESSAGE_CONTENT: &'static str = "testy boi";
     static MESSAGE_INDICATOR: AtomicBool = AtomicBool::new(false);
 
     #[tokio::test]
-    async fn can_receive_a_message() -> Result<(), Error> {
+    async fn can_send_and_receive_a_message() -> Result<(), Error> {
         println!("starting two bots...");
         let token1 = gettoken();
         let mut client = createbot(token1, receivemessagehandler).await;
+
+        // Used to shutdown
         let shard_man = client.shard_manager.clone();
-        client.start();
-                
-        // let token2 = gettestbotstoken();
-        // let secondclient = createsecondbot::<Handler>(token2).await;
-        // let secondshard = secondclient.shard_manager.clone();
-        // secondclient.start();
         
         println!("check whether messages can be sent between them...");
         let channelid = getchannelid();
         let http = Http::new_with_token(&token1);
 
-        //send a random number as message
-        let message = channelid.send_message(&http, |m| {
-            m.content(MESSAGE_CONTENT);
-            m.tts(false);
-            m
+        // Start bot 1 (Vectorizer)
+        let _ = client.start();
+        
+        // Start bot 2 (Gay Fag Machine) in another thread
+        let tokio_thread = thread::spawn(move || {
+            let mut runtime = Runtime::new().expect("Unable to create the runtime");
+    
+            println!("Runtime created");
+                
+            // Continue running until notified to shutdown
+            runtime.block_on(async {
+                println!("inside async block");
+
+                let token2 = gettestbotstoken();
+
+                let mut client2 = createbot(token2, receivemessagehandler).await;
+                
+                client2.start().await;
+            });
+        
+            println!("Runtime finished");
         });
 
-        let time_out = time::Duration::from_secs(69);
-        thread::sleep(time_out);
+        // Wait for other bot to connect and then send message
+        let message = MessageBuilder::new()
+        .push(MESSAGE_CONTENT)
+        .build();
 
+        thread::sleep(Duration::from_secs(5));
+
+        if let Err(message_sent) = channelid.say(&http, &message).await {
+            panic!("test message not sent!");
+        }
+
+        // Give time to receive message
+        thread::sleep(Duration::from_secs(10));
+
+
+        // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
+        // And reset to false
         if MESSAGE_INDICATOR.load(Ordering::Relaxed) == false 
         {
-            panic!("test message not found!");
+            panic!("test message not received!");
         }
         MESSAGE_INDICATOR.store(false, Ordering::Relaxed);
 
+        // Shutdown bot 1
         shard_man.lock().await.shutdown_all().await;
-        //secondshard.lock().await.shutdown_all().await;
-        Ok(())
-    }
-    
-    // https://github.com/serenity-rs/serenity/blob/ffc2997f8c76285b03dc31e62d653b40a553acf0/src/builder/create_message.rs
-    #[tokio::test]
-    async fn can_send_a_message() -> Result<(), Error> {
         Ok(())
     }
 }

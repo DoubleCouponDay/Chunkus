@@ -45,6 +45,19 @@
                 "MIMode": "gdb",
                 "miDebuggerPath": "/usr/bin/gdb",                    
             }
+        },
+        {
+            "name": "rust cargo tests",
+            "type": "cppvsdbg",
+            "request": "attach",
+            "program": "${workspaceRoot}/discord-v/target/debug/deps/discordtests-dce294b4cee32c62.exe",
+            "args": [
+                "--test"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": true
         }
     ]
 }
