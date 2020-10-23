@@ -1,3 +1,6 @@
+#[path = "../src/main.rs"]
+mod src;
+
 #[cfg(test)]
 mod tests {
     use std;
@@ -5,7 +8,6 @@ mod tests {
     use std::result;
     use std::string::String;
     use std::ptr;
-    extern crate libc;
     use libc::c_int;
 
     #[test]
@@ -34,6 +36,10 @@ mod tests {
 
     #[link(name = "vectorizer_library", kind = "static")]
     extern {
-        fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
+        pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
     }
+
 }
+
+
+

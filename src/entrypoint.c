@@ -30,13 +30,16 @@ int entrypoint(int argc, char* argv[]) {
 	}
 
 	// unreachable code if first argument -h
-	if(secondargument != NULL && 
-		(!strcmp(secondargument, "-t") ||
-		 !strcmp(secondargument, "--test"))) {
+	else if(!strcmp(secondargument, "-t") ||
+		 !strcmp(secondargument, "--test")) {
 		printf("running tests instead...\n");
 		return 0;
 	}
-	printf("turning %s into a vector... \n", firstargument);
-	printf("program completed. \n");
+
+	else {
+		printf("turning %s into a vector... \n", firstargument);
+
+		printf("program completed. \n");
+	}	
 	return 0;
 }

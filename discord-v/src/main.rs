@@ -1,18 +1,11 @@
 pub mod secrettoken;
 pub mod bot;
-
-use serenity::http::Http;
+pub mod core;
 
 #[tokio::main]
 async fn main() {
     //start discord bot
     let token = secrettoken::gettoken();
-    //let bot::create_bot(&token);
-    //register event hooks
-
-    //take any message from discord server
-    //invoke the core
-    //send a message to the discord server
-    let http = Http::new_with_token(&token);
-
+    let mut client = bot::create_bot(&token).await;
+    let _ = client.start();
 }

@@ -3,6 +3,8 @@ the project objective
 
     convert jpg, png files to svg files!
 
+it has a Rust component and a C component.
+
 build tool 
 
     xmake
@@ -16,8 +18,9 @@ libraries used
     libjpg, libpng, nanosvg
 
 test runner
+    run the xmake tool to test the C component.
 
-    µnit
+    
 
 # Building 
 
