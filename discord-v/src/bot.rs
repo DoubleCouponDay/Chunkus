@@ -1,6 +1,3 @@
-#[path = "./core.rs"]
-mod core;
-
 use serenity::{
     async_trait,
     http::Http,
@@ -25,11 +22,6 @@ use std::{
     collections::HashSet,
 };
 use libc::c_int;
-
-#[link(name = "vectorizer_library", kind = "static")]
-extern {
-    pub fn core_entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
-}
 
 pub async fn create_bot(token: &'static str) -> Client {
     
@@ -120,7 +112,7 @@ async fn vectorize(_ctx: &Context, msg: &Message) -> CommandResult {
             let _array_pointer = epic_path_array.as_mut_ptr();
         
             unsafe {
-                core::entrypoint(3, ptr::null_mut());
+                super::core::call_vectorize(3, ptr::null_mut());
             }
         }
     }

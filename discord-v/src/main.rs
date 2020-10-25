@@ -1,6 +1,6 @@
-pub mod secrettoken;
-pub mod bot;
-pub mod core;
+mod secrettoken;
+mod bot;
+mod core;
 
 #[tokio::main]
 async fn main() {

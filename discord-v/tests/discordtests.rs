@@ -1,10 +1,7 @@
-#[path = "../src/main.rs"]
-mod src;
-
 #[cfg(test)]
 mod tests {
-    use crate::src::secrettoken::{gettoken, gettestbotstoken};
-    use crate::src::bot;
+    use discord_v::secrettoken::{gettoken, gettestbotstoken};
+    use discord_v::bot;
     use std::result::Result;
     use std::io::Error;
     use tokio;

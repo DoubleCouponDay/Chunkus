@@ -1,8 +1,6 @@
-#[path = "../src/main.rs"]
-mod src;
-
 #[cfg(test)]
 mod tests {
+    use discord_v::core;
     use std;
     use std::io;
     use std::result;
@@ -25,20 +23,11 @@ mod tests {
         let mut epic_path_array: [*mut u8; 3] = [ptr::null_mut(), path_pointer, epic_thingo.as_mut_ptr()];
         let array_pointer = epic_path_array.as_mut_ptr();
 
-        unsafe {
-            //epic C code here
-            let result = entrypoint(3, array_pointer);
-            println!("{}", result);
-        }
+        let result = core::call_vectorize(3, array_pointer);
+        println!("{}", result);
         
         Ok(())
     }
-
-    #[link(name = "vectorizer_library", kind = "static")]
-    extern {
-        pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
-    }
-
 }
 
 
