@@ -5,6 +5,11 @@ the project objective
 
 it has a Rust component and a C component.
 
+Building
+    it should work on windows and linux
+
+    install rust and xmake
+    
 build tool 
 
     xmake
