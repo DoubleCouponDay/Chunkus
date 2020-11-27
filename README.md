@@ -1,32 +1,31 @@
 # Rasterizer
 the project objective
 
-    convert jpg, png files to svg files!
+convert jpg, png files to svg files!
 
 it has a Rust component and a C component.
-
-Building
-    it should work on windows and linux
-
-    install rust and xmake
     
-build tool 
+# build tool 
 
-    xmake
+xmake
 
-package manager
+# package manager
 
-    conan.io
+conan.io
 
-libraries used
+# libraries used
 
-    libjpg, libpng, nanosvg
+libjpg, libpng, nanosvg
 
-test runner
-    run the xmake tool to test the C component.
+# test runner
+
+run the xmake tool to test the C component.
 
     
 
 # Building 
+it should work on windows and linux
 
-`xmake f -m debug`
+install rust and xmake
+
+    xmake f -m debug
