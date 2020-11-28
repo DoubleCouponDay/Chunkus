@@ -180,4 +180,27 @@ inline PointRect TransformRect(PointRect rect)
     return {tmpa.x, tmpa.y, tmpb.x, tmpb.y};
 }*/
 
+
+
+
+inline float shifted_data_variance(float *data, int data_len)
+{
+    if (data_len < 2)
+        return 0.f;
+    
+    float K = data[0];
+    int n = 0;
+    float Ex = 0.f, Ex2 = 0.f;
+
+    for (int i = 0; i < data_len; ++i)
+    {
+        ++n;
+        Ex += data[i] - K;
+        Ex2 += (data[i] - K) * (data[i] - K);
+    }
+    float variance = (Ex2 - (Ex * Ex) / (float)n) / (float)(n - 1);
+
+    return variance;
+}
+
 #endif

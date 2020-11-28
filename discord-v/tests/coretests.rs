@@ -13,20 +13,30 @@ mod tests {
         assert_eq!(true, true);
     }
 
-    #[test]
-    fn the_core_program_can_be_run() -> result::Result<(), io::Error> {
-        println!("starting initial core test...");
-        
-        let mut epic_path = String::from("yo mama so fat");
+    fn run_core() -> c_int {        
+        let mut epic_path = String::from("./image.png");
         let path_pointer = epic_path.as_mut_ptr();
         let mut epic_thingo = String::from("--test");
         let mut epic_path_array: [*mut u8; 3] = [ptr::null_mut(), path_pointer, epic_thingo.as_mut_ptr()];
         let array_pointer = epic_path_array.as_mut_ptr();
+        core::call_vectorize(3, array_pointer);
+    }
 
-        let result = core::call_vectorize(3, array_pointer);
+    #[test]
+    fn the_core_program_can_be_run() -> result::Result<(), io::Error> {
+        println!("starting initial core test...");
+        let result = run_core();
+        assert!(result == 0);
         println!("{}", result);
         
         Ok(())
+    }
+
+    #[test]
+    fn a_fresh_output_file_can_be_found() -> Result<(),Error> {
+        let result = run_core();
+        assert!();
+        OK(())
     }
 }
 
