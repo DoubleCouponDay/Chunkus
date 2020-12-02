@@ -19,15 +19,15 @@ void allocate_image(int width, int height, image *img)
     img->width = width;
     img->height = height;
 
-    img->pixels = malloc(sizeof(colorp) * height);
+    img->pixels = malloc(sizeof(color*) * height);
 
-    for (int i = 0; i < width; ++i)
+    for (int i = 0; i < height; ++i)
     {
         img->pixels[i] = malloc(sizeof(color) * width);
     }
 }
 
-void free_image(image *img)
+void free_image_contents(image *img)
 {
     if (!img || !img->pixels)
         return;

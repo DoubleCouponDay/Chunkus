@@ -23,6 +23,7 @@ node_map generate_node_map(image from, node_map_options options)
     output.width = ceilf(from.width / (float)options.chunk_size);
     output.height = ceilf(from.height / (float)options.chunk_size);
 
+    printf("Allocating Node map with %dx%d\n", output.width, output.height);
     output.nodes = malloc(sizeof(node) * output.width * output.height);
 
     printf("Iterating through the nodes\n");

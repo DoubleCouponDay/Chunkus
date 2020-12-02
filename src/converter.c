@@ -21,7 +21,8 @@ image convert_png_to_image(char *fileaddress)
 
     if (!fileaddress)
         return (image){NULL, 0, 0};
-    
+
+    /// Open File
     FILE *file = fopen(fileaddress, "rb");
 
     if (!file)
@@ -29,7 +30,19 @@ image convert_png_to_image(char *fileaddress)
         DEBUG_PRINT("Could not open file '%s' for reading", fileaddress);
         return (image){NULL, 0, 0};
     }
+
+    /// Verify File
+    printf("Checking if file is PNG type\n");
+
+    unsigned char header[8];
+    fread(header, 1, 8, file);
+    if (png_sig_cmp(header, 0, 8))
+    {
+        fprintf(stderr, "File '%s' was not recognised as a PNG file\n", fileaddress);
+        return (image){NULL, 0, 0};
+    }
     
+    /// Prepare and read structs
     printf("Creating png_image struct\n");
 
     png_byte color_type, bit_depth;
@@ -51,34 +64,56 @@ image convert_png_to_image(char *fileaddress)
         return (image){NULL, 0, 0};
     }
     
-    printf("creating pnglib info struct...\n");
+    printf("Creating pnglib info struct...\n");
 
     png_infop info = png_create_info_struct(read_struct);
-    if (setjmp(png_jmpbuf(read_struct)))
-    {
-        DEBUG_PRINT("Something... something...");
-        return (image) { NULL, 0, 0 };
-    }
-
     if (!info)
     {
-        DEBUG_PRINT("Failed to create png info pointer");
+        DEBUG_PRINT("Error: png_create_info_struct failed");
         return (image) { NULL, 0, 0 };
     }
 
-    printf("Getting pnglib information...\n");
+    if (setjmp(png_jmpbuf(read_struct)))
+    {
+        DEBUG_PRINT("Error during init_io");
+        png_destroy_read_struct(read_struct, info, NULL);
+        return (image) { NULL, 0, 0 };
+    }
+
+    printf("Beginning PNG Reading \n");
 
     // Start Reading
     png_init_io(read_struct, file);
+    png_set_sig_bytes(read_struct, 8);
 
     png_read_info(read_struct, info);
 
+    printf("Reading image width/height and allocating image space\n");
     image final_image = create_image(png_get_image_width(read_struct, info), png_get_image_height(read_struct, info));
 
     color_type = png_get_color_type(read_struct, info);
+    if (color_type != PNG_COLOR_TYPE_RGB)
+    {
+        DEBUG_PRINT("Only RGB PNGs are supported for import, format: %d", color_type);
+        return (image){NULL, 0, 0};
+    }
     bit_depth = png_get_bit_depth(read_struct, info);
+    if (bit_depth != 8)
+    {
+        DEBUG_PRINT("Only 24bpp PNGs are supported, depth: %d", bit_depth * 3);
+        return (image){NULL, 0, 0};
+    }
 
-    printf("creating row pointers...\n");
+    png_read_update_info(read_struct, info);
+
+    if (setjmp(png_jmpbuf(read_struct)))
+    {
+        DEBUG_PRINT("Error during early PNG reading");
+        png_destroy_read_struct(read_struct, info, NULL);
+        return (image){NULL, 0, 0};
+    }
+
+    printf("Allocating row pointers...\n");
 
     printf("dimensions: %d x %d \n", final_image.width, final_image.height);
 
@@ -106,75 +141,23 @@ image convert_png_to_image(char *fileaddress)
 
     for (int y = 0; y < final_image.height; ++y)
     {
+        png_byte *row = row_pointers[y];
         for (int x = 0; x < final_image.width; ++x)
         {
-            color pix_color;
-            pix_color.r = row_pointers[y][x * 3 + 0];
-            pix_color.g = row_pointers[y][x * 3 + 1];
-            pix_color.b = row_pointers[y][x * 3 + 2];
-            final_image.pixels[y][x] = pix_color;
+            png_byte *ptr = &(row[x * 3]);
+
+            final_image.pixels[y][x].r = ptr[0];
+            final_image.pixels[y][x].g = ptr[1];
+            final_image.pixels[y][x].b = ptr[2];
         }
     }
+
+    for (int i = 0; i < final_image.height; ++i)
+        free(row_pointers[i]);
+    free(row_pointers);
     
     printf("png file converted to image struct.\n");
     return final_image;
-}
-
-/// Writes image to simple bmp file (assumes '.bmp' is already in fileaddress)
-void write_image_to_file2(image img, char *fileaddress)
-{
-    int filesize = 54 + sizeof(color) * img.width * img.height;
-    int w = img.width;
-    int h = img.height;
-
-    unsigned char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
-    unsigned char bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0};
-    unsigned char bmppad[3] = {0,0,0};
-
-    bmpfileheader[ 2] = (unsigned char)(filesize    );
-    bmpfileheader[ 3] = (unsigned char)(filesize>> 8);
-    bmpfileheader[ 4] = (unsigned char)(filesize>>16);
-    bmpfileheader[ 5] = (unsigned char)(filesize>>24);
-
-    bmpinfoheader[ 4] = (unsigned char)(       w    );
-    bmpinfoheader[ 5] = (unsigned char)(       w>> 8);
-    bmpinfoheader[ 6] = (unsigned char)(       w>>16);
-    bmpinfoheader[ 7] = (unsigned char)(       w>>24);
-    bmpinfoheader[ 8] = (unsigned char)(       h    );
-    bmpinfoheader[ 9] = (unsigned char)(       h>> 8);
-    bmpinfoheader[10] = (unsigned char)(       h>>16);
-    bmpinfoheader[11] = (unsigned char)(       h>>24);
-
-    if (!img.pixels || !fileaddress)
-        return;
-
-    FILE *file = fopen(fileaddress, "wb");
-
-    // Convert the RGB data into BGR- data for bitmap
-    unsigned char *data = malloc(4 * img.width * img.height);
-    for (int x = 0; x < img.width; ++x)
-    {
-        for (int y = 0; y < img.height; ++y)
-        {
-            data[x * 4 + 0 + y * 4 * img.width] = img.pixels[y][x].b;
-            data[x * 4 + 1 + y * 4 * img.width] = img.pixels[y][x].g;
-            data[x * 4 + 2 + y * 4 * img.width] = img.pixels[y][x].r;
-            data[x * 4 + 0 + y * 4 * img.width] = 0;
-       }
-    }
-
-    // Write the headers
-    fwrite(bmpfileheader, 1, 14, file);
-    fwrite(bmpinfoheader, 1, 40, file);
-
-    // Write the rows
-   for (int i = 0; i < h; ++i)
-   {
-       fwrite(data+(4*w*i), sizeof(color), img.width, file);
-       //fwrite(bmppad, 1, (4 - (w * 3) % 4) % 4, file);
-   }
-
-   fclose(file);
 }
 
 // /// Writes given node map to file as if it was an image (discards variance) (assumes fileaddress ends with .bmp)
@@ -249,9 +232,6 @@ void write_image_to_file(image img, char *fileaddress)
 {
     if (!img.pixels || !fileaddress)
         return;
-
-    write_ppm(img, fileaddress);
-    return;
 
     unsigned char *as_bytes = malloc(BYTES_PER_PIXEL * img.height * img.width);
 
@@ -384,9 +364,9 @@ void write_ppm(image img, char *file_name)
   /* fill the data array */
   for (y = 0; y < img.height; ++y) {
     for (x = 0; x < img.width; ++x) {
-      data[y + x * img.height + 0] = img.pixels[y][x].r;
-      data[y + x * img.height + 1] = img.pixels[y][x].g;
-      data[y + x * img.height + 2] = img.pixels[y][x].b;
+      data[y * 3 + x * img.height * 3 + 0] = img.pixels[y][x].r;
+      data[y * 3 + x * img.height * 3 + 1] = img.pixels[y][x].g;
+      data[y * 3 + x * img.height * 3 + 2] = img.pixels[y][x].b;
     }
   }
  
