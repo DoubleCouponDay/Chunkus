@@ -15,13 +15,13 @@ node_map generate_node_map(image from, node_map_options options)
     if (from.width < 1 || from.height < 1 || !from.pixels)
         return (node_map){ NULL, 0, 0 };
 
-    printf("Generating Node Map\n");
-    if (options.chunk_size < 3)
-        options.chunk_size = 3;
+    printf("Begin Generation of Node Map\n");
+    if (options.chunk_size < 2)
+        options.chunk_size = 2;
     
     node_map output;
-    output.width = ceilf(from.width / (float)options.chunk_size);
-    output.height = ceilf(from.height / (float)options.chunk_size);
+    output.width = (int)ceilf((float)from.width / (float)options.chunk_size);
+    output.height = (int)ceilf((float)from.height / (float)options.chunk_size);
 
     printf("Allocating Node map with %dx%d\n", output.width, output.height);
     output.nodes = malloc(sizeof(node) * output.width * output.height);
@@ -35,19 +35,24 @@ node_map generate_node_map(image from, node_map_options options)
             //printf("Begin iteration\n");
             int y_offset = y * options.chunk_size;
 
-            int node_width = options.chunk_size;
-            int node_height = options.chunk_size;
-            if (fmodf(from.width, options.chunk_size) != 0.f)
-            {
-                // Potentially empty Node (Node area extends beyond the image)
-                node_width = from.width - x * options.chunk_size;
-                node_height = from.height - y * options.chunk_size;
-                if (node_width < 1 || node_height < 1)
-                    continue;
-            }
+            // Grab the node
+            node *ptr = &output.nodes[x + y * output.width];
+
+            // Assigned the edge case node dimensions
+            int node_width = from.width - x * options.chunk_size;
+            int node_height = from.height - y * options.chunk_size;
+            
+            // Check if not actually on the edge
+            if (node_width > options.chunk_size)
+                node_width = options.chunk_size;
+            if (node_height > options.chunk_size)
+                node_height = options.chunk_size;
+
+            int count = node_width * node_height;
+
             // Full Node (Node does not go beyond the image)
 
-            // // All the colors that are in this node
+            // // All the pixels that are in this node
             // color **node_data = malloc(sizeof(color) * node_width * node_height);
             // for (int i = 0; i < node_width; ++i)
             // {
@@ -59,8 +64,8 @@ node_map generate_node_map(image from, node_map_options options)
             //     }
             // }
 
-            color average;
-            average.r = average.g = average.b = 0.f;
+            colorf average = { 0.f, 0.f, 0.f };
+            int average_r = 0, average_g = 0, average_b = 0;
             // Calculate the average
             // for (int i = 0; i < node_width * node_height; ++i)
             // {
@@ -70,38 +75,63 @@ node_map generate_node_map(image from, node_map_options options)
             // }
 
             //printf("Summing pixels\n");
+            pixel min = { 255, 255, 255 }, max = { 0, 0, 0 };
             for (int x = 0; x < node_width; ++x)
             {
                 for (int y = 0; y < node_height; ++y)
                 {
-                    average.r += from.pixels[y_offset + y][x_offset + x].r;
-                    average.g += from.pixels[y_offset + y][x_offset + x].g;
-                    average.b += from.pixels[y_offset + y][x_offset + x].b;
+                    pixel *p = &from.pixels[y_offset + y][x_offset + x];
+                    //colorf as_color = convert_pixel_to_colorf(from.pixels[y_offset + y][x_offset + x]);
+                    //average.r += as_color.r;
+                    //average.g += as_color.g;
+                    //average.b += as_color.b;
+                    average_r += p->r;
+                    average_g += p->g;
+                    average_b += p->b;
+                    if (p->r < min.r)
+                        min.r = p->r;
+                    if (p->g < min.g)
+                        min.g = p->g;
+                    if (p->b < min.b)
+                        min.b = p->b;
+                    if (p->r > max.r)
+                        max.r = p->r;
+                    if (p->g > max.g)
+                        max.g = p->g;
+                    if (p->b > max.b)
+                        max.b = p->b;
                 }
             }
 
             //printf("Finishing Averages\n");
-            average.r /= (float)(node_width * node_height);
-            average.g /= (float)(node_width * node_height);
-            average.b /= (float)(node_width * node_height);
+            //average.r /= (float)count;
+            //average.g /= (float)count;
+            //average.b /= (float)count;
+            pixel average_p = { (byte)((float)average_r / (float)count), (byte)((float)average_g / (float)count), (byte)((float)average_b / (float)count) };
 
             //printf("Assigning average\n");
-            output.nodes[x + y * output.width].color = average;
+            //ptr->color = convert_colorf_to_pixel(average);
+            ptr->color = average_p;
 
-            //printf("Gathering Relevant colors to calculate Variance\n");
-            // Gather the relevant colors
-            color *node_colors = malloc(sizeof(color) * node_width * node_height);
+            //printf("Gathering Relevant pixels to calculate Variance\n");
+            // Gather the relevant pixels
+            pixel *node_pixels = malloc(sizeof(pixel) * node_width * node_height);
             for (int x = 0; x < node_width; ++x)
             {
                 for (int y = 0; y < node_height; ++y)
                 {
-                    node_colors[x + y * node_width] = from.pixels[y_offset + y][x_offset + x];
+                    node_pixels[x + y * node_width] = from.pixels[y_offset + y][x_offset + x];
                 }
             }
             // Calculate the variance
 
             //printf("End iteration: assigning variance\n");
-            output.nodes[x + y * output.width].variance = calculate_color_variance(node_colors, node_width * node_height);
+            ptr->variance = calculate_pixel_variance(node_pixels, node_width * node_height);
+
+            if ((x == y && x % 20 == 0) || (x == 0 && y == 0) || (x == (output.width - 1) && y == (output.height - 1)))
+            {
+                printf("Node (%d, %d) variance: (%g, %g, %g), average: (%d, %d, %d), node_width: %d, node_height %d, min: %d, %d, %d, max: %d, %d, %d\n", x, y, ptr->variance.r, ptr->variance.g, ptr->variance.b, ptr->color.r, ptr->color.g, ptr->color.b, node_width, node_height, min.r, min.g, min.b, max.r, max.g, max.b);
+            }
         }
     }
 
@@ -109,33 +139,40 @@ node_map generate_node_map(image from, node_map_options options)
 }
 
 
-node_variance calculate_color_variance(color *colors, int num_colors)
+node_variance calculate_pixel_variance(pixel *pixels, int num_pixels)
 {
-    if (num_colors < 2)
-        return (color){0.f, 0.f, 0.f};
+    if (num_pixels < 2)
+        return (node_variance){0.f, 0.f, 0.f};
 
-    float Kr = colors[0].r;
-    float Kg = colors[0].g;
-    float Kb = colors[0].b;
+    double Kr = pixels[0].r;
+    double Kg = pixels[0].g;
+    double Kb = pixels[0].b;
     int n = 0;
-    float Exr = 0.f, Ex2r = 0.f;
-    float Exg = 0.f, Ex2g = 0.f;
-    float Exb = 0.f, Ex2b = 0.f;
+    double Exr = 0.f, Ex2r = 0.f;
+    double Exg = 0.f, Ex2g = 0.f;
+    double Exb = 0.f, Ex2b = 0.f;
 
-    for (int i = 0; i < num_colors; ++i)
+    for (int i = 0; i < num_pixels; ++i)
     {
         ++n;
-        Exr += colors[i].r - Kr;
-        Exg += colors[i].g - Kg;
-        Exb += colors[i].b - Kb;
-        Ex2r += (colors[i].r - Kr) * (colors[i].r - Kr);
-        Ex2g += (colors[i].g - Kg) * (colors[i].g - Kg);
-        Ex2b += (colors[i].b - Kb) * (colors[i].b - Kb);
+        colorf col = convert_pixel_to_colorf(pixels[i]);
+        Exr += (double)col.r - Kr;
+        Exg += (double)col.g - Kg;
+        Exb += (double)col.b - Kb;
+        Ex2r += ((double)col.r - Kr) * ((double)col.r - Kr);
+        Ex2g += ((double)col.g - Kg) * ((double)col.g - Kg);
+        Ex2b += ((double)col.b - Kb) * ((double)col.b - Kb);
     }
     node_variance variance;
-    variance.r = (Ex2r - (Exr * Exr) / (float)n) / (float)(n - 1);
-    variance.g = (Ex2g - (Exg * Exg) / (float)n) / (float)(n - 1);
-    variance.b = (Ex2b - (Exb * Exb) / (float)n) / (float)(n - 1);
+    variance.r = (float)((Ex2r - (Exr * Exr) / (double)n) / (double)(n - 1));
+    variance.g = (float)((Ex2g - (Exg * Exg) / (double)n) / (double)(n - 1));
+    variance.b = (float)((Ex2b - (Exb * Exb) / (double)n) / (double)(n - 1));
+    if (fabsf(variance.r) < 0.000000001)
+        variance.r = 0.f;
+    if (fabsf(variance.g) < 0.000000001)
+        variance.g = 0.f;
+    if (fabsf(variance.b) < 0.000000001)
+        variance.b = 0.f;
     return variance;
 }
 

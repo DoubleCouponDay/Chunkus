@@ -3,11 +3,11 @@
 #include "types/colour.h"
 #include "types/image.h"
 
-typedef color node_variance;
+typedef colorf node_variance;
 
 typedef struct 
 {
-    color color;
+    pixel color;
     node_variance variance;
 } node;
 
@@ -24,7 +24,7 @@ typedef struct
 } node_map_options;
 
 node_map generate_node_map(image from, node_map_options options);
-color calculate_color_variance(color *colors, int num_colors);
+colorf calculate_pixel_variance(pixel *colors, int num_colors);
 
 
 float shifted_data_variance(float *data, int data_len);

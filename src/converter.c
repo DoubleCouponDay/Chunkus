@@ -227,6 +227,7 @@ const int FILE_HEADER_SIZE = 14;
 const int INFO_HEADER_SIZE = 40;
 
 void write_ppm(image img, char *file);
+void write_ppm_map(node_map map, char *filename);
 
 void write_image_to_file(image img, char *fileaddress)
 {
@@ -267,6 +268,27 @@ void write_node_map_to_file(node_map map, char *fileaddress)
     }
 
     generateBitmapImage(as_bytes, map.height, map.width, fileaddress);
+}
+
+void write_node_map_variance_to_file(node_map map, char *filename)
+{
+    if (!map.nodes || !filename)
+        return;
+
+    unsigned char *as_bytes = malloc(BYTES_PER_PIXEL * map.height * map.width);
+
+    for (int x = 0; x < map.width; ++x)
+    {
+        for (int y = 0; y < map.height; ++y)
+        {
+            pixel p = convert_colorf_to_pixel(map.nodes[x + y * map.width].variance);
+            as_bytes[x * 3 + 0 + y * BYTES_PER_PIXEL * map.width] = p.b;
+            as_bytes[x * 3 + 1 + y * BYTES_PER_PIXEL * map.width] = p.g;
+            as_bytes[x * 3 + 2 + y * BYTES_PER_PIXEL * map.width] = p.r;
+        }
+    }
+
+    generateBitmapImage(as_bytes, map.height, map.width, filename);
 }
 
 
@@ -377,5 +399,35 @@ void write_ppm(image img, char *file_name)
   fprintf(fp, "P6\n%d %d\n 255\n", img.width, img.height);
   /* write image data bytes to the file */
   fwrite(data, 3, img.width * img.height, fp);
+  fclose(fp);
+}
+
+void write_ppm_map(node_map map, char *filename)
+{
+    int x, y;
+  /* 2D array for colors (shades of gray) */
+  unsigned char *data = malloc(map.height * map.width * 3);
+  /* color component is coded from 0 to 255 ;  it is 8 bit color file */
+  const int MaxColorComponentValue = 255;
+  FILE * fp;
+  /* comment should start with # */
+  const char *comment = "# this is my new binary pgm file";
+ 
+  /* fill the data array */
+  for (y = 0; y < map.height; ++y) {
+    for (x = 0; x < map.width; ++x) {
+      data[y * 3 + x * map.height * 3 + 0] = map.nodes[x + y * map.width].color.r;
+      data[y * 3 + x * map.height * 3 + 1] = map.nodes[x + y * map.width].color.g;
+      data[y * 3 + x * map.height * 3 + 2] = map.nodes[x + y * map.width].color.b;
+    }
+  }
+ 
+  /* write the whole data array to ppm file in one step */
+  /* create new file, give it a name and open it in binary mode */
+  fp = fopen(filename, "wb");
+  /* write header to the file */
+  fprintf(fp, "P6\n%d %d\n 255\n", map.width, map.height);
+  /* write image data bytes to the file */
+  fwrite(data, 3, map.width * map.height, fp);
   fclose(fp);
 }

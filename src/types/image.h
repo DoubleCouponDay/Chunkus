@@ -4,7 +4,7 @@
 
 typedef struct
 {
-    color **pixels;
+    pixel **pixels;
     int width;
     int height;
 } image;
