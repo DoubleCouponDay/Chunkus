@@ -21,7 +21,8 @@ libjpg, libpng, nanosvg
 
 run the xmake tool to test the C component.
 
-    
+    xmake -b tests
+    xmake r tests
 
 # Building 
 it should work on windows and linux

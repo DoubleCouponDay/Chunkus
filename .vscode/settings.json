@@ -29,4 +29,9 @@
         "~/.conan/data/**"
     ],
     "C_Cpp.default.compilerPath": "/usr/bin/gcc",
+    "files.associations": {
+        "*.tcc": "c",
+        "cstdlib": "c",
+        "memory": "c"
+    },
 }

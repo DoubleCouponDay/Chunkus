@@ -1,4 +1,13 @@
 #pragma once
-#include "map.h"
 
-typedef coordinate3D RGBcolour;
+
+typedef char byte;
+
+typedef struct
+{
+    byte r;
+    byte g;
+    byte b;
+} color;
+
+typedef color* colorp;

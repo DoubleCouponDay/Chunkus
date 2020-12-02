@@ -1,12 +1,13 @@
 
 -- add modes: debug and release
 add_rules("mode.debug")
+add_defines("DEBUG")
 add_requires("CONAN::libpng/1.6.37", {alias = "libpng"})
 add_requires("CONAN::libjpeg/9d", {alias = "libjpeg"})
 add_requires("CONAN::nanosvg/20190405", {alias = "nanosvg"})
 
 -- add target
-target("vectorizer.exe")
+target("vectorizer")
     if is_plat("linux") then
         add_syslinks("m")
     end
@@ -15,9 +16,8 @@ target("vectorizer.exe")
     -- add files
     add_files("./src/**.c")
     add_packages("libpng", "libjpeg", "nanosvg")
---      add_syslinks("m")
 
-target("tests.exe")
+target("tests")
     if is_plat("linux") then
         add_syslinks("m")
     end
@@ -27,7 +27,6 @@ target("tests.exe")
     add_files("./src/**.c|main.c")
     add_files("./test/tests.c", "./test/munit.c", "./test/**.c")
     add_packages("libpng", "libjpeg", "nanosvg")
---  add_syslinks("m")
 
 target("vectorizer_library")
     if is_plat("linux") then
@@ -36,7 +35,6 @@ target("vectorizer_library")
     set_kind("static")
     add_files("./src/**.c|main.c")
     add_packages("libpng", "libjpeg", "nanosvg")
---  add_syslinks("m")
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --
