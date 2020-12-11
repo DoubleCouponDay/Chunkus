@@ -10,7 +10,7 @@
         async_trait,
         http::Http,
         model::{
-            id::{ChannelId, UserId},
+            id::{ChannelId},
             prelude::Message
         },
         utils::MessageBuilder,
