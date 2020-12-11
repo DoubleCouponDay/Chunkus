@@ -5,7 +5,7 @@ mod fk_you
 {
     use libc::c_int;
 
-    #[link(name = "vectorizer_library", kind = "static")]
+    #[link(name = "vec", kind = "static")]
     extern {
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
     }
@@ -14,7 +14,9 @@ mod fk_you
 pub fn call_vectorize(argc: c_int, argv: *mut *mut u8) -> c_int
 {
     let mut result = 0;
-    unsafe { result = fk_you::entrypoint(argc, argv); }
+    unsafe { 
+        result = fk_you::entrypoint(argc, argv); 
+    };
     result
 }
 
