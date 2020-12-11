@@ -5,24 +5,18 @@ use serenity::{
         prelude::Message
     },
     framework::standard::{
-        Args,
-        Configuration,
         CommandResult,
-        CommandGroup,
         StandardFramework,
         macros::{
-            group, command, help, check, hook,
+            group, command,
         },
     },
     client::{
         Client, Context, EventHandler
     }
 };
-use crate::core::{call_vectorize, do_vectorize};
-use std::ptr;
+use crate::core::{do_vectorize};
 use std::{
-    fs::File,
-    path::Path,
     collections::HashSet,
 };
 use crate::constants;

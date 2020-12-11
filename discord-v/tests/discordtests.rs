@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use discord_v::secrettoken::{gettoken, gettestbotstoken};
+    use discord_v::secrettoken::{
+        gettoken, gettestbotstoken, getchannelid, getuserid
+    };
     use discord_v::bot;
     use std::result::Result;
     use std::io::Error;
@@ -53,11 +55,13 @@ mod tests {
     }
 
     fn getchannelid() -> ChannelId {
-        ChannelId(418671857676451841) //the bot chat
+        let id = getchannelid();
+        ChannelId(id)
     }
 
     fn get_vectorizer_bot_id() -> UserId {
-        UserId(690684027019067393)
+        let id = getuserid();
+        UserId(id)
     }
 
     struct ReceiveMessageHandler;
