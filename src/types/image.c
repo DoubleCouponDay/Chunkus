@@ -19,11 +19,11 @@ void allocate_image(int width, int height, image *img)
     img->width = width;
     img->height = height;
 
-    img->pixels = malloc(sizeof(color*) * height);
+    img->pixels = malloc(sizeof(colorf) * height);
 
     for (int i = 0; i < height; ++i)
     {
-        img->pixels[i] = malloc(sizeof(color) * width);
+        img->pixels[i] = malloc(sizeof(colorf) * width);
     }
 }
 
