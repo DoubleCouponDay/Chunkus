@@ -4,10 +4,16 @@ the project objective
 convert jpg, png files to svg files!
 
 it has a Rust component and a C component.
+
+You can use this program as a discord bot by clicking the link below. Fill in the last request parameter with your discord guild id.
+
+    https://discord.com/api/oauth2/authorize?client_id=690684027019067393&scope=bot&permissions=50176&guild_id=
     
 # build tool 
 
-xmake
+Use Xmake as the C compiler. run the following command to get started:
+
+    xmake -y
 
 # package manager
 
