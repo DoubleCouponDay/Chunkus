@@ -28,7 +28,7 @@ target("tests")
     add_files("./test/tests.c", "./test/munit.c", "./test/**.c")
     add_packages("libpng", "libjpeg", "nanosvg")
 
-target("vectorizer_library")
+target("staticvectorizer")
     if is_plat("linux") then
         add_syslinks("m")
     end
