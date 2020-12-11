@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use discord_v::secrettoken::{
-        gettoken, gettestbotstoken, getchannelid, getuserid
+        gettoken, gettestbotstoken, getchannelid
     };
     use discord_v::bot;
     use std::result::Result;
@@ -13,7 +13,7 @@ mod tests {
         async_trait,
         http::Http,
         model::{
-            id::{ChannelId, UserId},
+            id::{ChannelId},
             prelude::Message
         },
         utils::MessageBuilder,
@@ -54,16 +54,6 @@ mod tests {
         Ok(())
     }
 
-    fn getchannelid() -> ChannelId {
-        let id = getchannelid();
-        ChannelId(id)
-    }
-
-    fn get_vectorizer_bot_id() -> UserId {
-        let id = getuserid();
-        UserId(id)
-    }
-
     struct ReceiveMessageHandler;
 
     #[async_trait]
@@ -96,7 +86,7 @@ mod tests {
         let shard_man = client.shard_manager.clone();
         
         println!("check whether messages can be sent between them...");
-        let channelid = getchannelid();
+        let channelid = ChannelId(getchannelid());
         let http = Http::new_with_token(&token1);
 
         // Start bot 1 (Vectorizer)
@@ -182,13 +172,13 @@ mod tests {
         let shard_man = client.shard_manager.clone();
     
         println!("check whether messages can be sent between them...");
-        let channelid = getchannelid();
+        let channelid = ChannelId(getchannelid());
         let http = Http::new_with_token(&token1);
 
         // Start bot 1 (Vectorizer)
         let _ = client.start();
     
-        // Start bot 2 (Gay Fag Machine) in another thread to *listen* for the message
+        // Start bot 2 in another thread to *listen* for the message
         let tokio_thread = thread::spawn(move || {
             let mut runtime = Runtime::new().expect("Unable to create the runtime");
 
@@ -202,7 +192,7 @@ mod tests {
 
                 let mut client2 = createbot(token2, ReceiveEmbedMessageHandler).await;
             
-                client2.start().await.expect("deez nutters");
+                client2.start().await.expect("client 2 couldnt start");
             });
     
             println!("Runtime finished");
@@ -283,13 +273,13 @@ mod tests {
         let shard_man = client.shard_manager.clone();
     
         println!("check whether messages can be sent between them...");
-        let channelid = getchannelid();
+        let channelid = ChannelId(getchannelid());
         let http = Http::new_with_token(&token1);
 
         // Start bot 1 (Vectorizer)
         let _ = client.start();
     
-        // Start bot 2 (Gay Fag Machine) in another thread to *listen* for the message
+        // Start bot 2 in another thread to *listen* for the message
         let tokio_thread = thread::spawn(move || {
             let mut runtime = Runtime::new().expect("Unable to create the runtime");
 
@@ -303,7 +293,7 @@ mod tests {
 
                 let mut client2 = createbot(token2, ReceiveImageEmbedMessageHandler).await;
             
-                client2.start().await.expect("deez nuts");
+                client2.start().await.expect("client 2 couldnt start");
             });
     
             println!("Runtime finished");
