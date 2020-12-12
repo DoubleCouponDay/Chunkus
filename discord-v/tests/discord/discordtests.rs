@@ -18,10 +18,13 @@ mod tests {
         },
         utils::MessageBuilder,
     };
-    use std::sync::atomic::{AtomicBool, Ordering};
     use std::{thread, time::{Duration}};
     use serenity::client::{Context, EventHandler};
-    use libc::c_int;
+    use testhandlers::{
+        MESSAGE_CONTENT, EMBED_MESSAGE_INDICATOR, MESSAGE_INDICATOR, IMAGE_MESSAGE_INDICATOR,
+        ReceiveEmbedMessageHandler, ReceiveMessageHandler, ReceiveImageEmbedMessageHandler,
+        
+    }
     
     #[test]
     fn token_obtainable() -> Result<(), Error> {
@@ -54,28 +57,6 @@ mod tests {
         Ok(())
     }
 
-    struct ReceiveMessageHandler;
-
-    #[async_trait]
-    impl EventHandler for ReceiveMessageHandler
-    {
-        async fn message(&self, ctx: Context, msg: Message)
-        {
-            if msg.content == MESSAGE_CONTENT
-            {
-                println!("Found test message");
-                MESSAGE_INDICATOR.store(true, Ordering::Relaxed);
-            }
-            else
-            {
-                println!("Found non-test message");
-            }
-        }
-    }
-
-    static MESSAGE_CONTENT: &'static str = "testy boi";
-    static MESSAGE_INDICATOR: AtomicBool = AtomicBool::new(false);
-
     #[tokio::test]
     async fn can_send_and_receive_a_message() -> Result<(), Error> {
         println!("starting two bots...");
@@ -92,7 +73,7 @@ mod tests {
         // Start bot 1 (Vectorizer)
         let _ = client.start();
         
-        // Start bot 2 (Gay Fag Machine) in another thread
+        // Start bot 2  in another thread
         let tokio_thread = thread::spawn(move || {
             let mut runtime = Runtime::new().expect("Unable to create the runtime");
     
@@ -129,36 +110,15 @@ mod tests {
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
         // And reset to false
-        if MESSAGE_INDICATOR.load(Ordering::Relaxed) == false 
+        if MESSAGE_INDICATOR == false 
         {
             panic!("test message not received!");
         }
-        MESSAGE_INDICATOR.store(false, Ordering::Relaxed);
+        MESSAGE_INDICATOR = false;
 
         // Shutdown bot 1
         shard_man.lock().await.shutdown_all().await;
         Ok(())
-    }
-
-    static EMBED_MESSAGE_INDICATOR: AtomicBool = AtomicBool::new(false);
-
-    struct ReceiveEmbedMessageHandler;
-
-    #[async_trait]
-    impl EventHandler for ReceiveEmbedMessageHandler
-    {
-        async fn message(&self, ctx: Context, msg: Message)
-        {
-            if msg.content == MESSAGE_CONTENT && msg.embeds.len() > 0
-            {
-                println!("Found test message");
-                EMBED_MESSAGE_INDICATOR.store(true, Ordering::Relaxed);
-            }
-            else
-            {
-                println!("Found non-test message");
-            }
-        }
     }
 
     #[tokio::test]
@@ -202,7 +162,8 @@ mod tests {
 
         thread::sleep(Duration::from_secs(5));
         
-        EMBED_MESSAGE_INDICATOR.store(false, Ordering::Relaxed);
+        EMBED_MESSAGE_INDICATOR = false;
+
         if let Err(message_sent) = channelid.send_message(&http, |m| 
         {
             m.content(MESSAGE_CONTENT);
@@ -224,42 +185,15 @@ mod tests {
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
         // And reset to false
-        if EMBED_MESSAGE_INDICATOR.load(Ordering::Relaxed) == false 
+        if EMBED_MESSAGE_INDICATOR == false 
         {
             panic!("test message not received!");
         }
-        EMBED_MESSAGE_INDICATOR.store(false, Ordering::Relaxed);
+        EMBED_MESSAGE_INDICATOR = false;
 
         // Shutdown bot 1
         shard_man.lock().await.shutdown_all().await;
         Ok(())
-    }
-    
-    static IMAGE_MESSAGE_INDICATOR: AtomicBool = AtomicBool::new(false);
-
-    struct ReceiveImageEmbedMessageHandler;
-
-    #[async_trait]
-    impl EventHandler for ReceiveImageEmbedMessageHandler
-    {
-        async fn message(&self, ctx: Context, msg: Message)
-        {
-            if msg.content == MESSAGE_CONTENT && msg.embeds.len() > 0
-            {
-                match &msg.embeds[0].image
-                {
-                    Some(img) => {
-                    println!("Found special test message");
-                    IMAGE_MESSAGE_INDICATOR.store(true, Ordering::Relaxed);
-                    }
-                    None => {}
-                }
-            }
-            else
-            {
-                println!("Found non-test message");
-            }
-        }
     }
 
     #[tokio::test]
@@ -304,7 +238,8 @@ mod tests {
         thread::sleep(Duration::from_secs(5));
         
         println!("Emptying Indicator");
-        IMAGE_MESSAGE_INDICATOR.store(false, Ordering::Relaxed);
+        IMAGE_MESSAGE_INDICATOR = false;
+        
         if let Err(message_sent) = channelid.send_message(&http, |m| 
         {
             m.content(MESSAGE_CONTENT);
@@ -327,11 +262,11 @@ mod tests {
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
         // And reset to false
-        if IMAGE_MESSAGE_INDICATOR.load(Ordering::Relaxed) == false 
+        if IMAGE_MESSAGE_INDICATOR == false 
         {
             panic!("test message not received!");
         }
-        IMAGE_MESSAGE_INDICATOR.store(false, Ordering::Relaxed);
+        IMAGE_MESSAGE_INDICATOR = false;
 
         // Shutdown bot 1
         shard_man.lock().await.shutdown_all().await;
