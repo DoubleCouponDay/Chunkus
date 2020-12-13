@@ -1,9 +1,14 @@
+
 #[cfg(test)]
 mod tests {
     use discord_v::secrettoken::{
-        gettoken, gettestbotstoken, getchannelid
+        gettoken, getchannelid
     };
-    use discord_v::bot;
+    use discord_v::bot::{
+        create_bot_with_handle,
+        DefaultHandler,
+
+    };
     use std::result::Result;
     use std::io::Error;
     use tokio;
@@ -20,11 +25,13 @@ mod tests {
     };
     use std::{thread, time::{Duration}};
     use serenity::client::{Context, EventHandler};
-    use testhandlers::{
+    use crate::handlers::{
         MESSAGE_CONTENT, EMBED_MESSAGE_INDICATOR, MESSAGE_INDICATOR, IMAGE_MESSAGE_INDICATOR,
-        ReceiveEmbedMessageHandler, ReceiveMessageHandler, ReceiveImageEmbedMessageHandler,
-        
-    }
+        ReceiveEmbedMessageHandler, ReceiveMessageHandler, ReceiveImageEmbedMessageHandler,        
+    };
+    use std::sync::{
+        Mutex, Arc
+    };
     
     #[test]
     fn token_obtainable() -> Result<(), Error> {
@@ -35,19 +42,19 @@ mod tests {
 
     #[tokio::test]
     async fn bot_creatable() -> Result<(), Error> {
-        let outcome = createbot(gettoken(), bot::DefaultHandler);
+        let outcome = createbot(gettoken(), DefaultHandler);
         Ok(())
     }
 
     async fn createbot<T: EventHandler + 'static>(token: &str, handler: T) -> serenity::Client {
         println!("creating bot...");
-        let client = bot::create_bot_with_handle(token, handler).await;
+        let client = create_bot_with_handle(token, handler).await;
         client
     }
 
     #[tokio::test]
     async fn bot_runnable() -> Result<(), Error> {
-        let mut client = createbot(gettoken(), bot::DefaultHandler).await;
+        let mut client = createbot(gettoken(), DefaultHandler).await;
         let shard_man = client.shard_manager.clone();
 
         let _ = client.start();
@@ -61,7 +68,7 @@ mod tests {
     async fn can_send_and_receive_a_message() -> Result<(), Error> {
         println!("starting two bots...");
         let token1 = gettoken();
-        let mut client = createbot(token1, bot::DefaultHandler).await;
+        let mut client = createbot(token1, DefaultHandler).await;
 
         // Used to shutdown
         let shard_man = client.shard_manager.clone();
@@ -83,7 +90,7 @@ mod tests {
             runtime.block_on(async {
                 println!("inside async block");
 
-                let token2 = gettestbotstoken();
+                let token2 = gettoken();
 
                 let mut client2 = createbot(token2, ReceiveMessageHandler).await;
                 
@@ -126,7 +133,7 @@ mod tests {
     { 
         println!("starting two bots...");
         let token1 = gettoken();
-        let mut client = createbot(token1, bot::DefaultHandler).await;
+        let mut client = createbot(token1, DefaultHandler).await;
 
         // Used to shutdown
         let shard_man = client.shard_manager.clone();
@@ -137,7 +144,9 @@ mod tests {
 
         // Start bot 1 (Vectorizer)
         let _ = client.start();
-    
+        
+        let shared_indicator_mutex: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+
         // Start bot 2 in another thread to *listen* for the message
         let tokio_thread = thread::spawn(move || {
             let mut runtime = Runtime::new().expect("Unable to create the runtime");
@@ -148,9 +157,11 @@ mod tests {
             runtime.block_on(async {
                 println!("inside async block");
 
-                let token2 = gettestbotstoken();
-
-                let mut client2 = createbot(token2, ReceiveEmbedMessageHandler).await;
+                let token2 = gettoken();
+                
+                let handler = ReceiveEmbedMessageHandler::new();
+                handler.message_received_handler = shared_indicator_mutex;
+                let mut client2 = createbot(token2, handler).await;
             
                 client2.start().await.expect("client 2 couldnt start");
             });
@@ -162,8 +173,6 @@ mod tests {
 
         thread::sleep(Duration::from_secs(5));
         
-        EMBED_MESSAGE_INDICATOR = false;
-
         if let Err(message_sent) = channelid.send_message(&http, |m| 
         {
             m.content(MESSAGE_CONTENT);
@@ -185,11 +194,10 @@ mod tests {
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
         // And reset to false
-        if EMBED_MESSAGE_INDICATOR == false 
+        if *shared_indicator_mutex.lock().unwrap() == false
         {
             panic!("test message not received!");
         }
-        EMBED_MESSAGE_INDICATOR = false;
 
         // Shutdown bot 1
         shard_man.lock().await.shutdown_all().await;
@@ -201,7 +209,7 @@ mod tests {
     {
         println!("starting two bots...");
         let token1 = gettoken();
-        let mut client = createbot(token1, bot::DefaultHandler).await;
+        let mut client = createbot(token1, DefaultHandler).await;
 
         // Used to shutdown
         let shard_man = client.shard_manager.clone();
@@ -223,7 +231,7 @@ mod tests {
             runtime.block_on(async {
                 println!("inside async block");
 
-                let token2 = gettestbotstoken();
+                let token2 = gettoken();
 
                 let mut client2 = createbot(token2, ReceiveImageEmbedMessageHandler).await;
             

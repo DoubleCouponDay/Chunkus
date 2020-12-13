@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod tests {
+mod tests {    
     use discord_v::core;
     use std;
     use std::io;
@@ -34,6 +34,7 @@ mod tests {
     #[test]
     fn a_fresh_output_file_can_be_found() -> Result<(),io::Error> {
         let result = run_core();
+        println!("op code result: {}", result);
         Ok(())
     }
 }

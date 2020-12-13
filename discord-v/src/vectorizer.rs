@@ -1,5 +1,5 @@
 
-    use discord_v::secrettoken::{gettoken, gettestbotstoken};
+    use crate::secrettoken::{gettoken};
     use discord_v::bot;
     use std::result::Result;
     use std::io::Error;
