@@ -1,3 +1,4 @@
+mod handlers;
 
 #[cfg(test)]
 mod tests {
@@ -25,12 +26,13 @@ mod tests {
     };
     use std::{thread, time::{Duration}};
     use serenity::client::{Context, EventHandler};
-    use crate::handlers::{
-        MESSAGE_CONTENT, EMBED_MESSAGE_INDICATOR, MESSAGE_INDICATOR, IMAGE_MESSAGE_INDICATOR,
-        ReceiveEmbedMessageHandler, ReceiveMessageHandler, ReceiveImageEmbedMessageHandler,        
-    };
+    
     use std::sync::{
         Mutex, Arc
+    };
+    use super::handlers::{
+        MESSAGE_CONTENT, EMBED_MESSAGE_INDICATOR, MESSAGE_INDICATOR, IMAGE_MESSAGE_INDICATOR,
+        ReceiveEmbedMessageHandler, ReceiveMessageHandler, ReceiveImageEmbedMessageHandler,        
     };
     
     #[test]
