@@ -3,10 +3,7 @@ fn main() {
     let path = std::env::current_dir().unwrap();
 
     if let Some(currentdir) = path.as_path().to_str() {
-        println!("found an environment's current directory.");
-        let mut buildstr = String::from("cd: ");
-        buildstr.push_str(currentdir);
-        println!("{}", buildstr.as_str());
+        println!("current directory: {}", currentdir);
 
         let windowsfound = std::fs::copy("../build/windows/x64/release/staticvectorizer.lib", "./vec.lib");
         let linuxfound = std::fs::copy("../build/linux/x86_64/release/libstaticvectorizer.a", "./libvec.a");
