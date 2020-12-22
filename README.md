@@ -21,11 +21,13 @@ Install Rust lang so that you can use the `cargo` tool to work with the discord-
 
 Install Xmake.io so that you can build the C code in the root directory.
 
-Run the following command to get started:
+Install Conan.io
+
+Run the following commands to get started:
 
     xmake f -m -y debug
-    
-    xmake -b staticvectorizer
+
+    xmake -y
 
 accept all prompts whewn downloading packages.
 
