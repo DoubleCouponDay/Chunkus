@@ -5,13 +5,13 @@ fn main() {
     if let Some(currentdir) = path.as_path().to_str() {
         println!("current directory: {}", currentdir);
 
-        let windowsfound = std::fs::copy("../build/windows/x64/release/staticvectorizer.lib", "./vec.lib");
-        let linuxfound = std::fs::copy("../build/linux/x86_64/release/libstaticvectorizer.a", "./libvec.a");
+        let windowsfound = std::fs::copy("../build/windows/x64/release/staticvectorizer.dll", "./vec.dll");
+        let linuxfound = std::fs::copy("../build/linux/x86_64/release/libstaticvectorizer.so", "./libvec.so");
 
         if windowsfound.is_err() && linuxfound.is_err()
         {
-            let windowsfound = std::fs::copy("../build/windows/x64/debug/staticvectorizer.lib", "./vec.lib");
-            let linuxfound = std::fs::copy("../build/linux/x86_64/debug/libstaticvectorizer.a", "./libvec.a");
+            let windowsfound = std::fs::copy("../build/windows/x64/debug/staticvectorizer.dll", "./vec.dll");
+            let linuxfound = std::fs::copy("../build/linux/x86_64/debug/libstaticvectorizer.so", "./libvec.so");
             if windowsfound.is_err() && linuxfound.is_err()
             {
                 println!("Neither Vectorizer Library Found.");

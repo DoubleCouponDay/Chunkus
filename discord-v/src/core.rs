@@ -1,13 +1,13 @@
 use libc::c_int;
 use std::ptr;
 
-mod fk_you
+mod yogotem
 {
     use libc::c_int;
 
-    #[link(name = "vec", kind = "static")]
+    #[link(name = "vec")]
     extern {
-        pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
+        //pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
     }
 }
 
@@ -15,7 +15,7 @@ pub fn call_vectorize(argc: c_int, argv: *mut *mut u8) -> c_int
 {
     let mut result = 0;
     unsafe { 
-        result = fk_you::entrypoint(argc, argv); 
+        //result = yogotem::entrypoint(argc, argv); 
     };
     result
 }
