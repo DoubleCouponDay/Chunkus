@@ -3,6 +3,7 @@
         {
             "name": "linux",
             "includePath": [
+                "${workspaceFolder}/**",
                 "${default}"
             ],
             "defines": [
