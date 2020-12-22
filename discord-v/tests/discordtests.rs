@@ -30,9 +30,11 @@ mod tests {
     use std::sync::{
         Mutex, Arc
     };
-    use super::handlers::{
-        MESSAGE_CONTENT, EMBED_MESSAGE_INDICATOR, MESSAGE_INDICATOR, IMAGE_MESSAGE_INDICATOR,
-        ReceiveEmbedMessageHandler, ReceiveMessageHandler, ReceiveImageEmbedMessageHandler,        
+    use std::sync::atomic::Ordering;
+
+    use crate::handlers::{
+         MESSAGE_CONTENT, EMBED_MESSAGE_INDICATOR, MESSAGE_INDICATOR, IMAGE_MESSAGE_INDICATOR,
+         ReceiveEmbedMessageHandler, ReceiveMessageHandler, ReceiveImageEmbedMessageHandler,        
     };
     
     #[test]
@@ -119,11 +121,11 @@ mod tests {
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
         // And reset to false
-        if MESSAGE_INDICATOR == false 
+        if MESSAGE_INDICATOR.load(Ordering::SeqCst) == false
         {
             panic!("test message not received!");
         }
-        MESSAGE_INDICATOR = false;
+        MESSAGE_INDICATOR.store(false, Ordering::SeqCst);
 
         // Shutdown bot 1
         shard_man.lock().await.shutdown_all().await;
@@ -161,8 +163,7 @@ mod tests {
 
                 let token2 = gettoken();
                 
-                let handler = ReceiveEmbedMessageHandler::new();
-                handler.message_received_handler = shared_indicator_mutex;
+                let handler = ReceiveEmbedMessageHandler {};
                 let mut client2 = createbot(token2, handler).await;
             
                 client2.start().await.expect("client 2 couldnt start");
@@ -248,7 +249,7 @@ mod tests {
         thread::sleep(Duration::from_secs(5));
         
         println!("Emptying Indicator");
-        IMAGE_MESSAGE_INDICATOR = false;
+        IMAGE_MESSAGE_INDICATOR.store(false, Ordering::SeqCst);
         
         if let Err(message_sent) = channelid.send_message(&http, |m| 
         {
@@ -272,11 +273,11 @@ mod tests {
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
         // And reset to false
-        if IMAGE_MESSAGE_INDICATOR == false 
+        if IMAGE_MESSAGE_INDICATOR.load(Ordering::SeqCst) == false 
         {
             panic!("test message not received!");
         }
-        IMAGE_MESSAGE_INDICATOR = false;
+        IMAGE_MESSAGE_INDICATOR.store(false, Ordering::SeqCst);
 
         // Shutdown bot 1
         shard_man.lock().await.shutdown_all().await;

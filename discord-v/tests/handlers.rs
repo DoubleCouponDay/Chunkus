@@ -10,12 +10,19 @@ use serenity::{
 use std::sync::{
     Mutex, Arc
 };
+use std::sync::atomic::{
+    AtomicBool, 
+    Ordering
+};
 
 pub static MESSAGE_CONTENT: &'static str = "testy boi";
 
+pub static MESSAGE_INDICATOR: AtomicBool = AtomicBool::new(false);
+pub static EMBED_MESSAGE_INDICATOR: AtomicBool = AtomicBool::new(false);
+pub static IMAGE_MESSAGE_INDICATOR: AtomicBool = AtomicBool::new(false);
+
 pub struct ReceiveEmbedMessageHandler
 {
-    pub message_received_mutex: Arc<Mutex<bool>>,
 }
 pub struct ReceiveMessageHandler;
 pub struct ReceiveImageEmbedMessageHandler;
@@ -29,8 +36,9 @@ impl EventHandler for ReceiveEmbedMessageHandler
         {
             println!("Found test message");
 
-            *self.message_received_mutex.lock().unwrap() = true;
+            EMBED_MESSAGE_INDICATOR.store(true, Ordering::SeqCst);
         }
+
         else
         {
             println!("Found non-test message");
@@ -49,7 +57,7 @@ impl EventHandler for ReceiveImageEmbedMessageHandler
             {
                 Some(img) => {
                     println!("Found special test message");
-                
+                    IMAGE_MESSAGE_INDICATOR.store(true, Ordering::SeqCst);
                 }
                 None => {}
             }
@@ -70,7 +78,7 @@ impl EventHandler for ReceiveMessageHandler
         if msg.content == MESSAGE_CONTENT
         {
             println!("Found test message");
-        
+            MESSAGE_INDICATOR.store(true, Ordering::SeqCst);
         }
 
         else
