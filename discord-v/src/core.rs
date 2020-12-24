@@ -5,9 +5,9 @@ mod yogotem
 {
     use libc::c_int;
 
-    #[link(name = "vec")]
-    extern {
-        //pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
+    #[link(name = "yo_mama_so_fat", kind="dylib")]
+    extern "C" {
+        pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
     }
 }
 
@@ -15,7 +15,7 @@ pub fn call_vectorize(argc: c_int, argv: *mut *mut u8) -> c_int
 {
     let mut result = 0;
     unsafe { 
-        //result = yogotem::entrypoint(argc, argv); 
+        result = yogotem::entrypoint(argc, argv); 
     };
     result
 }

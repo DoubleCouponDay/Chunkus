@@ -30,11 +30,9 @@ mod tests {
     use std::sync::{
         Mutex, Arc
     };
-    use std::sync::atomic::Ordering;
-
-    use crate::handlers::{
-         MESSAGE_CONTENT, EMBED_MESSAGE_INDICATOR, MESSAGE_INDICATOR, IMAGE_MESSAGE_INDICATOR,
-         ReceiveEmbedMessageHandler, ReceiveMessageHandler, ReceiveImageEmbedMessageHandler,        
+    use super::handlers::{
+        MESSAGE_CONTENT,
+        ReceiveEmbedMessageHandler, ReceiveMessageHandler, ReceiveImageEmbedMessageHandler,        
     };
     
     #[test]
@@ -84,6 +82,8 @@ mod tests {
         // Start bot 1 (Vectorizer)
         let _ = client.start();
         
+        let shared_indicator_mutex: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+        
         // Start bot 2  in another thread
         let tokio_thread = thread::spawn(move || {
             let mut runtime = Runtime::new().expect("Unable to create the runtime");
@@ -96,7 +96,7 @@ mod tests {
 
                 let token2 = gettoken();
 
-                let mut client2 = createbot(token2, ReceiveMessageHandler).await;
+                let mut client2 = createbot(token2, ReceiveMessageHandler{ message_received_mutex: shared_indicator_mutex }).await;
                 
                 client2.start().await.expect(" big pp");
             });
@@ -121,11 +121,10 @@ mod tests {
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
         // And reset to false
-        if MESSAGE_INDICATOR.load(Ordering::SeqCst) == false
+        if *shared_indicator_mutex.lock().unwrap() == false
         {
             panic!("test message not received!");
         }
-        MESSAGE_INDICATOR.store(false, Ordering::SeqCst);
 
         // Shutdown bot 1
         shard_man.lock().await.shutdown_all().await;
@@ -163,7 +162,7 @@ mod tests {
 
                 let token2 = gettoken();
                 
-                let handler = ReceiveEmbedMessageHandler {};
+                let handler = ReceiveEmbedMessageHandler{ message_received_mutex: shared_indicator_mutex };
                 let mut client2 = createbot(token2, handler).await;
             
                 client2.start().await.expect("client 2 couldnt start");
@@ -223,6 +222,8 @@ mod tests {
 
         // Start bot 1 (Vectorizer)
         let _ = client.start();
+        
+        let shared_indicator_mutex: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
     
         // Start bot 2 in another thread to *listen* for the message
         let tokio_thread = thread::spawn(move || {
@@ -236,7 +237,7 @@ mod tests {
 
                 let token2 = gettoken();
 
-                let mut client2 = createbot(token2, ReceiveImageEmbedMessageHandler).await;
+                let mut client2 = createbot(token2, ReceiveImageEmbedMessageHandler{ message_received_mutex: shared_indicator_mutex.clone() }).await;
             
                 client2.start().await.expect("client 2 couldnt start");
             });
@@ -249,7 +250,6 @@ mod tests {
         thread::sleep(Duration::from_secs(5));
         
         println!("Emptying Indicator");
-        IMAGE_MESSAGE_INDICATOR.store(false, Ordering::SeqCst);
         
         if let Err(message_sent) = channelid.send_message(&http, |m| 
         {
@@ -270,14 +270,12 @@ mod tests {
         // Give time to receive message
         thread::sleep(Duration::from_secs(10));
 
-
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
         // And reset to false
-        if IMAGE_MESSAGE_INDICATOR.load(Ordering::SeqCst) == false 
+        if *shared_indicator_mutex.lock().unwrap() == false
         {
             panic!("test message not received!");
         }
-        IMAGE_MESSAGE_INDICATOR.store(false, Ordering::SeqCst);
 
         // Shutdown bot 1
         shard_man.lock().await.shutdown_all().await;
