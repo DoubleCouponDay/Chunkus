@@ -13,8 +13,6 @@
 
 int main(int argc, char* argv[]) {	
 	//entrypoint(argc, argv);
-	printf("Hello there\n");
-	// TEMPORARY
 	if (argc < 2)
 	{
 		printf("Please supply a file path\n");

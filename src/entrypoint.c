@@ -51,9 +51,5 @@ int entrypoint(int argc, char* argv[]) {
 
 	// Execute program
 
-	
-
-	return 69;
-
 	return 1;
 }

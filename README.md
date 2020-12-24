@@ -25,7 +25,7 @@ Install Conan.io
 
 Run the following commands to get started:
 
-    xmake f -m -y debug
+    xmake f -m debug
 
     xmake -y
 
