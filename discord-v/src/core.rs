@@ -5,8 +5,10 @@ mod ffimodule
 {
     use libc::c_int;
 
-    #[link(name = "yo_mama_so_fat", kind="dylib")]
-    extern "C" {
+    #[link(name = "zlib", kind = "static")]
+    #[link(name = "libpng", kind = "static")]
+    #[link(name = "vec", kind = "static")]
+    extern {
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
     }
 }
@@ -16,7 +18,7 @@ pub fn call_vectorize(argc: c_int, argv: *mut *mut u8) -> c_int
     let mut result = 0;
 
     unsafe { 
-        //result = yogotem::entrypoint(argc, argv); 
+        result = ffimodule::entrypoint(argc, argv); 
     };
     result
 }
