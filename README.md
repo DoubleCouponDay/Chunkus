@@ -44,8 +44,8 @@ Simply call:
     xmake
 
 
-Xmake will build a 2 executables, and a static library.
-They can most likely be found in xmake's default build folder
+Xmake will build 2 executables, and a static library.
+They can most likely be found in xmake's default debug build folder
 - Xmake's default build folder on Windows: `Vectorizer/build/x64/windows/debug/`
 - Xmake's default build folder on Linux: `Vectorizer/build/x86_64/linux/debug/`  
 
@@ -59,8 +59,8 @@ Now to build the Rust Component
 
 The rust component links to the C code, which in turn depends on libpng (which depends on zlib)  
 This means you will need to copy and rename:  
- - a libpng static library into `discord-v` as `libpng.lib` on windows and I'm not sure what on linux :/  
- - a zlib static library into `discord-v` as `zlib.lib` on windows and most likely `libzlib.a` on linux :\  
+ - a libpng static library into `discord-v` as `libpng.lib` on windows and probably like `liblibpng.a` on linux  
+ - a zlib static library into `discord-v` as `zlib.lib` on windows and most likely `libzlib.a` on linux  
 See note for help on obtaining **libpng** and **zlib** static libraries
 
 Now in the `discord-v` folder, run:
@@ -73,7 +73,7 @@ If it doesn't, you or I have done something wrong
 Note on obtaining **libpng** and **zlib** library files:  
     If you have built the C component, this means Conan has already downloaded **libpng** and **zlib** itself  
     Therefore you should find a file similar to **libpng16.lib** or **libpng.a** wherever conan has installed those files  
-    I found my **libpng16.lib** and **zlib.lib** in  
+    I found my (windows machine) **libpng16.lib** and **zlib.lib** in  
     - `C:\Users\<username>\.conan\data\libpng\1.6.37\_\_\package\c6eb1796d6a9d59338fa618b78b90859da126b06\lib\`  
     - `C:\Users\<username>\.conan\data\zlib\1.2.11\_\_\package\3fb49604f9c2f729b85ba3115852006824e72cab\lib\`  
 
