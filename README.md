@@ -24,7 +24,7 @@ Install Rust lang so that you can use the `cargo` tool to work with the discord-
 
 Install Xmake.io so that you can build the C code in the root directory.  
 
-Install Conan.io
+Install Conan.io. it can only be run from cmd, not powershell.
   
 ---
 
@@ -87,7 +87,7 @@ Libraries the C code depends on:
 - libpng
     - zlib
 
-Ex-dependancies:
+Ex-dependencies:
 - libjpg  
 - nanosvg  
 
