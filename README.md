@@ -24,7 +24,18 @@ Install Rust lang so that you can use the `cargo` tool to work with the discord-
 
 Install Xmake.io so that you can build the C code in the root directory.  
 
-Install Conan.io. it can only be run from cmd, not powershell.
+Install Conan.io. it can only be run from cmd, not powershell. Windows defender antivirus may nuke your conan.exe so you will have to add the folder in the exclusions.
+    create conanfile.txt
+    
+    add [requires] section
+        library names followed by /version
+    
+    add [generators] section
+        cmake
+        
+    cd into build directory
+    
+    conan install ..
   
 ---
 
