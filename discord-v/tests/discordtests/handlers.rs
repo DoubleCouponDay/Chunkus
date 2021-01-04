@@ -17,14 +17,8 @@ pub struct ReceiveEmbedMessageHandler
 {
     pub message_received_mutex: Arc<Mutex<bool>>,
 }
-pub struct ReceiveMessageHandler
-{
-    pub message_received_mutex: Arc<Mutex<bool>>,
-}
-pub struct ReceiveImageEmbedMessageHandler
-{
-    pub message_received_mutex: Arc<Mutex<bool>>,
-}
+pub struct ReceiveMessageHandler;
+pub struct ReceiveImageEmbedMessageHandler;
 
 #[async_trait]
 impl EventHandler for ReceiveEmbedMessageHandler

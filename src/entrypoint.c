@@ -1,8 +1,8 @@
-#pragma once
 
-#include <stdio.h>
-#include <png.h>
-#include "entrypoint.h"
+
+ #include <stdio.h>
+// #include <png.h>
+ #include "entrypoint.h"
 
 const char *format1 = "png";
 const char *format2 = "jpeg";
@@ -51,9 +51,5 @@ int entrypoint(int argc, char* argv[]) {
 
 	// Execute program
 
-	
-
-	return 69;
-
-	return 1;
+	return 999;
 }

@@ -32,7 +32,7 @@ target("staticvectorizer")
     if is_plat("linux") then
         add_syslinks("m")
     end
-    set_kind("shared")
+    set_kind("static")
     add_files("./src/**.c|main.c")
     add_packages("libpng", "libjpeg", "nanosvg")
 --

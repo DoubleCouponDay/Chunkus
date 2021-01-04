@@ -15,7 +15,7 @@ mod tests {
                 Ok(thing) => thing
             };
         
-        let mut file = File::create(Path::new("gotem lmao xddd.bmp"))?;
+        let mut file = File::create(Path::new("rickroll.bmp"))?;
 
         let cwd = env::current_dir()?;
         println!("Cwd: {}", cwd.display());
