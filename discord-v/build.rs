@@ -54,43 +54,54 @@ fn main() {
     }
 }
 
-fn check_directory(dir: &std::path::Path)
+fn check_directory(directory: &std::path::Path)
 {
-    match dir.read_dir()
+    match directory.read_dir()
     {
-        Ok(real_dir) => 
-        {
-            for item in real_dir
-            {
-                match item
-                {
-                    Ok(real_item) => {
-                        if let Ok(real_file_type) = real_item.file_type()
-                        {
-                            if real_file_type.is_dir()
-                            {
-                                check_directory(&real_item.path());
-                            }
-                            else if real_file_type.is_file()
-                            {
-                                if let Some(real_file_name) = real_item.file_name().to_str()
-                                {
-                                    if real_file_name.ends_with(".lib")
-                                    {
-                                        if let Some(dir_name) = dir.to_str()
-                                        {
-                                            println!("cargo:rustc-link-search={}", dir_name);
-                                            println!("cargo:rustc-link-lib=static={}", real_file_name.strip_suffix(".lib").expect("Build script failed to remove '.lib' from a filename"));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    Err(_) => eprintln!("Invalid Directory Entry Found"),
-                }
-            }
+        Ok(mut real_dir) => {   
+            check_dir_items(&mut real_dir, &directory)
         },
         Err(_) => eprintln!("Couldn't read directory"),
     }
+}
+
+fn check_dir_items(read_directory: &mut std::fs::ReadDir, directory: &std::path::Path) {
+    for dir_item in read_directory
+    {
+        match dir_item
+        {
+            Ok(real_item) => {
+                check_file_type(&real_item, &directory);
+            },
+            Err(_) => eprintln!("Invalid Directory Entry Found"),
+        }
+    }
+}
+
+fn check_file_type(real_item: &std::fs::DirEntry, directory: &std::path::Path) {
+    if let Ok(real_file_type) = real_item.file_type()
+    {
+        if real_file_type.is_dir()
+        {
+            check_directory(&real_item.path());
+        }
+        else if real_file_type.is_file()
+        {
+            if let Some(real_file_name) = real_item.file_name().to_str()
+            {
+                if real_file_name.ends_with(".lib")
+                {
+                    if let Some(dir_name) = directory.to_str()
+                    {
+                        add_directory_to_linker(dir_name, real_file_name);
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn add_directory_to_linker(dir_name: &str, real_file_name: &str) {
+    println!("cargo:rustc-link-search={}", dir_name);
+    println!("cargo:rustc-link-lib=static={}", real_file_name.strip_suffix(".lib").expect("Build script failed to remove '.lib' from a filename"));
 }
