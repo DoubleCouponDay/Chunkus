@@ -5,8 +5,8 @@ mod ffimodule
 {
     use libc::c_int;
 
-    #[link(name = "zlib", kind = "static")]
-    #[link(name = "libpng", kind = "static")]
+    //#[link(name = "zlib", kind = "static")]
+    //#[link(name = "libpng", kind = "static")]
     #[link(name = "vec", kind = "static")]
     extern {
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
