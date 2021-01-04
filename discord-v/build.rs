@@ -31,12 +31,10 @@ fn main() {
 
         //detect the conan libraries
         
-        if let Some(conanpathstr) = std::env::var("conanpath") {
-            let conanpath = std::path::Path::new(conanpathstr);
+        if let Ok(conanpathstr) = std::env::var("conanpath") {
+            let conanpath = std::path::Path::new(&conanpathstr);
 
-            for diritem in conanpath.read_dir().expect("read dir call failed in build script.") {
-                
-            }
+            check_directory(conanpath);
             
         }
 
@@ -53,5 +51,46 @@ fn main() {
     
     else {
         eprintln!("could not get the current directory.");
+    }
+}
+
+fn check_directory(dir: &std::path::Path)
+{
+    match dir.read_dir()
+    {
+        Ok(real_dir) => 
+        {
+            for item in real_dir
+            {
+                match item
+                {
+                    Ok(real_item) => {
+                        if let Ok(real_file_type) = real_item.file_type()
+                        {
+                            if real_file_type.is_dir()
+                            {
+                                check_directory(&real_item.path());
+                            }
+                            else if real_file_type.is_file()
+                            {
+                                if let Some(real_file_name) = real_item.file_name().to_str()
+                                {
+                                    if real_file_name.ends_with(".lib")
+                                    {
+                                        if let Some(dir_name) = dir.to_str()
+                                        {
+                                            println!("cargo:rustc-link-search={}", dir_name);
+                                            println!("cargo:rustc-link-lib=static={}", real_file_name.strip_suffix(".lib").expect("Build script failed to remove '.lib' from a filename"));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    Err(_) => eprintln!("Invalid Directory Entry Found"),
+                }
+            }
+        },
+        Err(_) => eprintln!("Couldn't read directory"),
     }
 }
