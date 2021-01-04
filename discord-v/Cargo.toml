@@ -4,11 +4,6 @@ version = "0.1.0"
 authors = ["dcdgo <mail@samueljenks.me>"]
 edition = "2018"
 
-[package.metadata.vcpkg]
-git = "https://github.com/microsoft/vcpkg"
-rev = "4c1db68"
-install = ["libpng"]
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -16,10 +11,6 @@ libc = "0.2.76"
 http = "0.2.1"
 tokio = { version = "0.2.22", features = ["full"] }
 reqwest = { version = "0.10.8" }
-
-[build-dependencies]
-vcpkg = { version = "0.2.10" }
-cargo-vcpkg = { version = "0.1.5" }
 
 [target.'cfg(unix)'.dependencies]
 openssl = "0.10"
@@ -29,5 +20,5 @@ features = ["framework", "standard_framework"]
 version = "0.9.0-rc.0"
 
 [[bin]]
-name = "discord_vectorize"
+name = "bot"
 path = "src/main.rs"

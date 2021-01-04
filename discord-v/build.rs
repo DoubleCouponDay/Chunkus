@@ -29,13 +29,13 @@ fn main() {
         }
         println!("cargo:rustc-link-search=./");
 
+        
+
         // Rerun if any library file was deleted
         println!("cargo:rerun-if-changed=vec.lib");
         println!("cargo:rerun-if-changed=vec.dll");
         println!("cargo:rerun-if-changed=libvec.a");
         println!("cargo:rerun-if-changed=libvec.so");
-
-        vcpkg::find_package("zlib").unwrap();
     } 
     
     else {
