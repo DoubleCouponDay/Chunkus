@@ -5,8 +5,8 @@ fn main() {
     if let Some(currentdir) = path.as_path().to_str() {
         println!("current directory: {}", currentdir);
 
-        // Unsuccessful copy, there are no RELEASE files:
-        // Try to copy the DEBUG files in case we're using those instead
+        //detect the C part
+
         let windowsfound_shared = std::fs::copy(
             "../build/windows/x64/debug/staticvectorizer.dll",
             "./vec.dll",
@@ -29,7 +29,20 @@ fn main() {
         }
         println!("cargo:rustc-link-search=./");
 
+        //detect the conan libraries
         
+        if let Some(conanpathstr) = std::env::var("conanpath") {
+            let conanpath = std::path::Path::new(conanpathstr);
+
+            for diritem in conanpath.read_dir().expect("read dir call failed in build script.") {
+                
+            }
+            
+        }
+
+        else {
+            println!("could not find the 'conanpath' environment variable.");
+        }
 
         // Rerun if any library file was deleted
         println!("cargo:rerun-if-changed=vec.lib");
