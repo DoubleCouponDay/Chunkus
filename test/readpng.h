@@ -12,26 +12,23 @@
 #include "../src/tools.h"
 
 typedef struct {
-  FILE* file;
-  
+  FILE* file;  
   char* file_address;
-} test2filesetup;
+} filesetup;
 
 
 typedef struct
 {  
-  test2filesetup* setup;
+  filesetup* setup;
   png_structp png_pointer;
   png_infop info_pointer;
   png_bytep* row_pointers;
   int width, height;
   png_byte color_type, bit_depth;
-} test2resources;
+} fileresources;
 
-test2resources* readfile(const MunitParameterEnum params[], void* userdata);
+fileresources* readfile(const MunitParameter params[], filesetup* setup);
 
-MunitResult itCanDecompressAPng2(const MunitParameterEnum params[], void* userdata);
+void* createfilesetup(const MunitParameter params[], void* userdata);
 
-void* test2setup(const MunitParameter params[], void* userdata);
-
-void test2teardown(void* fixture);
+void freefile(fileresources* resources);

@@ -17,7 +17,7 @@
 /// Convert the obtained memory into a contiguous format (convert the row pointers from a 2 dimensional array into a single array)
 image convert_png_to_image(char *fileaddress)
 {
-    printf("opening image file...\n");
+    DEBUG_PRINT("opening image file...\n");
 
     if (!fileaddress)
         return (image){NULL, 0, 0};
@@ -32,18 +32,18 @@ image convert_png_to_image(char *fileaddress)
     }
 
     /// Verify File
-    printf("Checking if file is PNG type\n");
+    DEBUG_PRINT("Checking if file is PNG type\n");
 
     unsigned char header[8];
     fread(header, 1, 8, file);
     if (png_sig_cmp(header, 0, 8))
     {
-        fprintf(stderr, "File '%s' was not recognised as a PNG file\n", fileaddress);
+        DEBUG_PRINT("File \'%s\' was not recognised as a PNG file\n", fileaddress);
         return (image){NULL, 0, 0};
     }
     
     /// Prepare and read structs
-    printf("Creating png_image struct\n");
+    DEBUG_PRINT("Creating png_image struct\n");
 
     png_byte color_type, bit_depth;
 
@@ -52,7 +52,7 @@ image convert_png_to_image(char *fileaddress)
     image_struct.opaque = NULL; 
     image_struct.version = PNG_IMAGE_VERSION;
 
-    printf("creating pnglib read struct...\n");
+    DEBUG_PRINT("creating pnglib read struct...\n");
 
     png_structp read_struct = png_create_read_struct(
         PNG_LIBPNG_VER_STRING, NULL, NULL, NULL
@@ -64,7 +64,7 @@ image convert_png_to_image(char *fileaddress)
         return (image){NULL, 0, 0};
     }
     
-    printf("Creating pnglib info struct...\n");
+    DEBUG_PRINT("Creating pnglib info struct...\n");
 
     png_infop info = png_create_info_struct(read_struct);
     if (!info)
@@ -80,7 +80,7 @@ image convert_png_to_image(char *fileaddress)
         return (image) { NULL, 0, 0 };
     }
 
-    printf("Beginning PNG Reading \n");
+    DEBUG_PRINT("Beginning PNG Reading \n");
 
     // Start Reading
     png_init_io(read_struct, file);
@@ -88,7 +88,7 @@ image convert_png_to_image(char *fileaddress)
 
     png_read_info(read_struct, info);
 
-    printf("Reading image width/height and allocating image space\n");
+    DEBUG_PRINT("Reading image width/height and allocating image space\n");
     image final_image = create_image(png_get_image_width(read_struct, info), png_get_image_height(read_struct, info));
 
     color_type = png_get_color_type(read_struct, info);
@@ -113,9 +113,9 @@ image convert_png_to_image(char *fileaddress)
         return (image){NULL, 0, 0};
     }
 
-    printf("Allocating row pointers...\n");
+    DEBUG_PRINT("Allocating row pointers...\n");
 
-    printf("dimensions: %d x %d \n", final_image.width, final_image.height);
+    DEBUG_PRINT("dimensions: %d x %d \n", final_image.width, final_image.height);
 
     // Allocate row pointers to be filled
     png_bytep *row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * final_image.height);
@@ -125,19 +125,19 @@ image convert_png_to_image(char *fileaddress)
         row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(read_struct, info));
     }
 
-    printf("reading the image...\n");
+    DEBUG_PRINT("reading the image...\n");
     
     // Switch to RGB format, and fill the row pointers with values
     image_struct.format = PNG_FORMAT_RGB;
     png_read_image(read_struct, row_pointers);
 
-    printf("closing image file...\n");
+    DEBUG_PRINT("closing image file...\n");
 
     // Clean up the file
     fclose(file);
     png_destroy_read_struct(&read_struct, &info, NULL);
     
-    printf("putting dereferenced row pointers in custom struct...\n");
+    DEBUG_PRINT("putting dereferenced row pointers in custom struct...\n");
 
     for (int y = 0; y < final_image.height; ++y)
     {
@@ -156,7 +156,7 @@ image convert_png_to_image(char *fileaddress)
         free(row_pointers[i]);
     free(row_pointers);
     
-    printf("png file converted to image struct.\n");
+    DEBUG_PRINT("png file converted to image struct.\n");
     return final_image;
 }
 
@@ -394,7 +394,7 @@ void write_ppm(image img, char *file_name)
  
   /* write the whole data array to ppm file in one step */
   /* create new file, give it a name and open it in binary mode */
-  fp = fopen(file_name, "wb");
+  fp = fopen(file_name, "wb\n");
   /* write header to the file */
   fprintf(fp, "P6\n%d %d\n 255\n", img.width, img.height);
   /* write image data bytes to the file */
@@ -424,7 +424,7 @@ void write_ppm_map(node_map map, char *filename)
  
   /* write the whole data array to ppm file in one step */
   /* create new file, give it a name and open it in binary mode */
-  fp = fopen(filename, "wb");
+  fp = fopen(filename, "wb \n");
   /* write header to the file */
   fprintf(fp, "P6\n%d %d\n 255\n", map.width, map.height);
   /* write image data bytes to the file */
