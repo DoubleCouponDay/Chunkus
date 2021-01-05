@@ -119,4 +119,4 @@ Run the Xmake tool with target **tests** to easily run the executable
 
 Note:  
     The test executable may require undocumented arguments, such as relative paths to images, and as such may be harder to run from Xmake directly  
-    The test executable can be found in the Xmake build folder (eg. **./build/x64/windows/debug** on windows) and can be run manually from there  
+    The test executable can be found in the Xmake build folder (eg. **./build/windows/x64/debug** on windows) and can be run manually from there  
