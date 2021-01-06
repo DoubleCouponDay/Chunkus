@@ -7,6 +7,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+void generateBitmapImage(unsigned char* image, int height, int width, char* imageFileName);
+unsigned char* createBitmapFileHeader(int height, int stride);
+unsigned char* createBitmapInfoHeader(int height, int width);
+
+const int BYTES_PER_PIXEL = 3; /// red, green, & blue
+const int FILE_HEADER_SIZE = 14;
+const int INFO_HEADER_SIZE = 40;
+
+void write_ppm(image img, char *file);
+void write_ppm_map(group_map map, char *filename);
+
 /// Takes a filename (assumed to be a png file), and creates an image struct full of the png's pixels
 /// 
 /// Steps involve:
@@ -160,74 +171,7 @@ image convert_png_to_image(char *fileaddress)
     return final_image;
 }
 
-// /// Writes given pixelgroup map to file as if it was an image (discards variance) (assumes fileaddress ends with .bmp)
-// void write_node_map_to_file(group_map map, char *fileaddress)
-// {
-//     if (!map.nodes || !fileaddress)
-//         return;
 
-
-//     int filesize = 54 + sizeof(color) * map.width * map.height;
-//     int w = map.width;
-//     int h = map.height;
-
-//     unsigned char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
-//     unsigned char bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0};
-//     unsigned char bmppad[3] = {0,0,0};
-
-//     bmpfileheader[ 2] = (unsigned char)(filesize    );
-//     bmpfileheader[ 3] = (unsigned char)(filesize>> 8);
-//     bmpfileheader[ 4] = (unsigned char)(filesize>>16);
-//     bmpfileheader[ 5] = (unsigned char)(filesize>>24);
-
-//     bmpinfoheader[ 4] = (unsigned char)(       w    );
-//     bmpinfoheader[ 5] = (unsigned char)(       w>> 8);
-//     bmpinfoheader[ 6] = (unsigned char)(       w>>16);
-//     bmpinfoheader[ 7] = (unsigned char)(       w>>24);
-//     bmpinfoheader[ 8] = (unsigned char)(       h    );
-//     bmpinfoheader[ 9] = (unsigned char)(       h>> 8);
-//     bmpinfoheader[10] = (unsigned char)(       h>>16);
-//     bmpinfoheader[11] = (unsigned char)(       h>>24);
-
-//     // Convert the RGB data into BGR- data for bitmap
-//     unsigned char *data = malloc(4 * map.width * map.height);
-//     for (int x = 0; x < map.width; ++x)
-//     {
-//         for (int y = 0; y < map.height; ++y)
-//         {
-//             data[x * 4 + 0 + y * 4 * map.width] = map.nodes[x + y * map.width].color.b;
-//             data[x * 4 + 1 + y * 4 * map.width] = map.nodes[x + y * map.width].color.g;
-//             data[x * 4 + 2 + y * 4 * map.width] = map.nodes[x + y * map.width].color.r;
-//             data[x * 4 + 0 + y * 4 * map.width] = 0;
-//         }
-//     }
-
-//     FILE *file = fopen(fileaddress, "wb");
-
-//     // Write the headers
-//     fwrite(bmpfileheader, 1, 14, file);
-//     fwrite(bmpinfoheader, 1, 40, file);
-
-//     // Write the rows
-//     for (int i = 0; i < h; ++i)
-//     {
-//         fwrite(data+(4*w*i), sizeof(color), map.width, file);
-//         //fwrite(bmppad, 1, (4 - (w * 3) % 4) % 4, file);
-//     }
-
-//     fclose(file);
-// }
-
-void generateBitmapImage(unsigned char* image, int height, int width, char* imageFileName);
-unsigned char* createBitmapFileHeader(int height, int stride);
-unsigned char* createBitmapInfoHeader(int height, int width);
-
-const int BYTES_PER_PIXEL = 3; /// red, green, & blue
-const int FILE_HEADER_SIZE = 14;
-const int INFO_HEADER_SIZE = 40;
-
-void write_ppm(image img, char *file);
-void write_ppm_map(group_map map, char *filename);
 
 void write_image_to_file(image img, char *fileaddress)
 {
