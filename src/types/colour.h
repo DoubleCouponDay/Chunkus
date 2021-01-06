@@ -23,9 +23,9 @@ typedef struct
     float r;
     float g;
     float b;
-} colorf;
+} colourf;
 
-static inline pixel convert_colorf_to_pixel(colorf color)
+static inline pixel convert_colorf_to_pixel(colourf color)
 {
     pixel out;
     out.r = rintf(color.r * 255.f);
@@ -34,9 +34,9 @@ static inline pixel convert_colorf_to_pixel(colorf color)
     return out;
 }
 
-static inline colorf convert_pixel_to_colorf(pixel pixel)
+static inline colourf convert_pixel_to_colorf(pixel pixel)
 {
-    colorf out;
+    colourf out;
     out.r = (float)pixel.r / 255.f;
     out.g = (float)pixel.g / 255.f;
     out.b = (float)pixel.b / 255.f;

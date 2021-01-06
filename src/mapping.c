@@ -1,5 +1,4 @@
-#include "vectorize.h"
-
+#include "mapping.h"
 #include <math.h>
 #include <stdlib.h>
 #include "types/colour.h"
@@ -31,10 +30,10 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
     int count = node_width * node_height;
     
     // Gather all the pixels into this array
-    colorf **node_data = malloc(sizeof(colorf*) * node_width);
+    colourf **node_data = malloc(sizeof(colourf*) * node_width);
     
     for (int i = 0; i < node_height; ++i)
-        node_data[i] = malloc(sizeof(colorf) * node_height);
+        node_data[i] = malloc(sizeof(colourf) * node_height);
     DEBUG_PRINT("Iterating the Image Pixels... \n");
 
     for (int width_index = 0; width_index < node_width; ++width_index)
@@ -56,9 +55,8 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
         }
     }
 
-
     // Calculate the average of all these pixels
-    colorf average = { 0.f, 0.f, 0.f };
+    colourf average = { 0.f, 0.f, 0.f };
     int average_r = 0, average_g = 0, average_b = 0;
     
     // Also calculate the Minimum and Maximum 'colors' (values of each color)
@@ -157,61 +155,4 @@ group_map generate_group_map(image inputimage, node_map_options options)
     }
 
     return output;
-}
-
-node_variance calculate_pixel_variance(pixel *pixels, int num_pixels)
-{
-    if (num_pixels < 2)
-        return (node_variance){0.f, 0.f, 0.f};
-
-    double Kr = pixels[0].r;
-    double Kg = pixels[0].g;
-    double Kb = pixels[0].b;
-    int n = 0;
-    double Exr = 0.f, Ex2r = 0.f;
-    double Exg = 0.f, Ex2g = 0.f;
-    double Exb = 0.f, Ex2b = 0.f;
-
-    for (int i = 0; i < num_pixels; ++i)
-    {
-        ++n;
-        colorf col = convert_pixel_to_colorf(pixels[i]);
-        Exr += (double)col.r - Kr;
-        Exg += (double)col.g - Kg;
-        Exb += (double)col.b - Kb;
-        Ex2r += ((double)col.r - Kr) * ((double)col.r - Kr);
-        Ex2g += ((double)col.g - Kg) * ((double)col.g - Kg);
-        Ex2b += ((double)col.b - Kb) * ((double)col.b - Kb);
-    }
-    node_variance variance;
-    variance.r = (float)((Ex2r - (Exr * Exr) / (double)n) / (double)(n - 1));
-    variance.g = (float)((Ex2g - (Exg * Exg) / (double)n) / (double)(n - 1));
-    variance.b = (float)((Ex2b - (Exb * Exb) / (double)n) / (double)(n - 1));
-    if (fabsf(variance.r) < 0.000000001)
-        variance.r = 0.f;
-    if (fabsf(variance.g) < 0.000000001)
-        variance.g = 0.f;
-    if (fabsf(variance.b) < 0.000000001)
-        variance.b = 0.f;
-    return variance;
-}
-
-float shifted_data_variance(float *data, int data_len)
-{
-    if (data_len < 2)
-        return 0.f;
-    
-    float K = data[0];
-    int n = 0;
-    float Ex = 0.f, Ex2 = 0.f;
-
-    for (int i = 0; i < data_len; ++i)
-    {
-        ++n;
-        Ex += data[i] - K;
-        Ex2 += (data[i] - K) * (data[i] - K);
-    }
-    float variance = (Ex2 - (Ex * Ex) / (float)n) / (float)(n - 1);
-
-    return variance;
 }

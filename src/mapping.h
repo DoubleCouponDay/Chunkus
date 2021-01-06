@@ -2,8 +2,7 @@
 
 #include "types/colour.h"
 #include "types/image.h"
-
-typedef colorf node_variance;
+#include "variance.h"
 
 typedef struct 
 {
@@ -24,7 +23,3 @@ typedef struct
 } node_map_options;
 
 group_map generate_group_map(image from, node_map_options options);
-colorf calculate_pixel_variance(pixel *colors, int num_colors);
-
-
-float shifted_data_variance(float *data, int data_len);

@@ -1,22 +1,24 @@
 #pragma once
 
+#ifndef _WIN32
+#include <dirent.h>
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <assert.h>
 #include "munit.h"
-#include "../src/entrypoint.h"
-#include "../src/types/colour.h"
 #include <png.h>
 #include <nanosvg.h>
 #include <errno.h>
-#ifndef _WIN32
-#include <dirent.h>
-#endif
+
 #include "../src/tools.h"
 #include "./readpng.h"
-#include "../src/vectorize.h"
+#include "../src/mapping.h"
 #include "../src/converter.h"
+#include "../src/entrypoint.h"
+#include "../src/types/colour.h"
 
 #define NANOSVG_IMPLEMENTATION
 #define ERROR -1
