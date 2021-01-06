@@ -34,6 +34,7 @@
         "cstdlib": "c",
         "memory": "c",
         "type_traits": "c",
-        "xtr1common": "c"
+        "xtr1common": "c",
+        "xmemory": "cpp"
     }
 }
