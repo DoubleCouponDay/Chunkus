@@ -11,7 +11,8 @@
 
 
 //uses kahan summation algorithm
-void mean_of_pixels(pixel *pixels, int num_pixels, double *red, double *green, double *blue)
+//void mean_of_pixels(pixel *pixels, int num_pixels, double *red, double *green, double *blue)
+void mean_of_pixels(pixel *pixels, int num_pixels, pixelD* output)
 {
     double sum_red, error_red, sum_green, error_green, sum_blue, error_blue;
     sum_red = error_red = sum_green = error_green = sum_blue = error_blue = 0.0;
@@ -35,14 +36,11 @@ void mean_of_pixels(pixel *pixels, int num_pixels, double *red, double *green, d
         sum_blue    = t_blue;
     }
 
-    if (red)
-        *red = sum_red;
-
-    if (green)
-        *green = sum_green;
-        
-    if (blue)
-        *blue = sum_blue;
+    if (output) {
+        output->R = sum_red;
+        output->G = sum_green;
+        output->B = sum_blue;
+    }
 }
 
 
@@ -63,7 +61,7 @@ node_variance calculate_pixel_variance(pixel *pixels, int num_pixels) {
 
     for (int i = 0; i < num_pixels; ++i)
     {
-        colourf current_colour = convert_pixel_to_colorf(pixels[i]);
+        pixelF current_colour = convert_pixel_to_colorf(pixels[i]);
         double red_diff     = (double)current_colour.r - mean_Red;
         double green_diff   = (double)current_colour.g - mean_Green;
         double blue_diff    = (double)current_colour.b - mean_Blue;

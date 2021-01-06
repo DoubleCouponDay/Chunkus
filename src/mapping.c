@@ -14,7 +14,6 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
     int y_offset = y * options.chunk_size;
 
     // Grab the pixelgroup
-    DEBUG_PRINT("Accessing Nodes... \n");
     pixelgroup *outputnodes = &output.nodes[x + y * output.width];
 
     // Assigned the edge case pixelgroup dimensions
@@ -30,11 +29,10 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
     int count = node_width * node_height;
     
     // Gather all the pixels into this array
-    colourf **node_data = malloc(sizeof(colourf*) * node_width);
+    pixelF **node_data = malloc(sizeof(pixelF*) * node_width);
     
     for (int i = 0; i < node_height; ++i)
-        node_data[i] = malloc(sizeof(colourf) * node_height);
-    DEBUG_PRINT("Iterating the Image Pixels... \n");
+        node_data[i] = malloc(sizeof(pixelF) * node_height);
 
     for (int width_index = 0; width_index < node_width; ++width_index)
     {
@@ -43,12 +41,10 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
             int pixel_x = x * options.chunk_size + width_index;
             int pixel_y = y * options.chunk_size + height_index;
 
-            DEBUG_PRINT("accessing image pixels... \n");
             float r = inputimage.pixels[pixel_x][pixel_y].r;
             float g = inputimage.pixels[pixel_x][pixel_y].g;
             float b = inputimage.pixels[pixel_x][pixel_y].b;
 
-            DEBUG_PRINT("indexing node_data... \n");
             node_data[width_index][height_index].r = r;
             node_data[width_index][height_index].g = g;
             node_data[width_index][height_index].b = b;
@@ -56,11 +52,10 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
     }
 
     // Calculate the average of all these pixels
-    colourf average = { 0.f, 0.f, 0.f };
+    pixelF average = { 0.f, 0.f, 0.f };
     int average_r = 0, average_g = 0, average_b = 0;
     
     // Also calculate the Minimum and Maximum 'colors' (values of each color)
-    DEBUG_PRINT("Generating Average \n");
     pixel min = { 255, 255, 255 }, max = { 0, 0, 0 };
 
     for (int x = 0; x < node_width; ++x)
@@ -93,7 +88,6 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
     };
     outputnodes->color = average_p;
 
-    DEBUG_PRINT("Accumulating Colors for Variance Calculation \n");
     pixel *node_pixels = malloc(sizeof(pixel) * node_width * node_height);
     for (int x = 0; x < node_width; ++x)
     {
@@ -102,7 +96,6 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
             node_pixels[x + y * node_width] = inputimage.pixels[y_offset + y][x_offset + x];
         }
     }
-    DEBUG_PRINT("Calculating Color Variance \n");
     outputnodes->variance = calculate_pixel_variance(node_pixels, node_width * node_height);
 
     //only print 
@@ -120,7 +113,6 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
         node_height, 
         min.r, min.g, min.b, max.r, max.g, max.b);
     }
-    DEBUG_PRINT("pixelgroup complete \n");
 }
 
 group_map generate_group_map(image inputimage, node_map_options options)
@@ -134,7 +126,6 @@ group_map generate_group_map(image inputimage, node_map_options options)
     if (inputimage.width < 1 || inputimage.height < 1 || !inputimage.pixels)
         return (group_map){ NULL, 0, 0 };
 
-    DEBUG_PRINT("Begin Generation of pixelgroup Map\n");
     if (options.chunk_size < 2)
         options.chunk_size = 2;
     
@@ -142,10 +133,8 @@ group_map generate_group_map(image inputimage, node_map_options options)
     output.width = (int)ceilf((float)inputimage.width / (float)options.chunk_size);
     output.height = (int)ceilf((float)inputimage.height / (float)options.chunk_size);
 
-    DEBUG_PRINT("Allocating pixelgroup map with %dx%d\n", output.width, output.height);
     output.nodes = malloc(sizeof(pixelgroup) * output.width * output.height);
 
-    DEBUG_PRINT("Iterating through the nodes\n");
     for (int x = 0; x < output.width; ++x)
     {
         for (int y = 0; y < output.height; ++y)
