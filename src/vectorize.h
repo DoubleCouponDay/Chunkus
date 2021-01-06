@@ -9,21 +9,21 @@ typedef struct
 {
     pixel color;
     node_variance variance;
-} node;
+} pixelgroup;
 
 typedef struct 
 {
-    node *nodes;
+    pixelgroup *nodes;
     int width;
     int height;
-} node_map;
+} group_map;
 
 typedef struct
 {
     int chunk_size;
 } node_map_options;
 
-node_map generate_node_map(image from, node_map_options options);
+group_map generate_group_map(image from, node_map_options options);
 colorf calculate_pixel_variance(pixel *colors, int num_colors);
 
 

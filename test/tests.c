@@ -82,7 +82,7 @@ MunitResult opensPngAndOutputsBmp(const MunitParameter params[], void *userdata)
 MunitResult can_convert_file_to_node_map(const MunitParameter params[], void* userdata) {
   image img = convert_png_to_image(params[0].value);
   node_map_options options = { 4 };
-  node_map map = generate_node_map(img, options);
+  group_map map = generate_group_map(img, options);
 }
 
 void test2teardown(void* fixture) {

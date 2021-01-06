@@ -4,20 +4,21 @@
 #include <stdlib.h>
 #include "types/colour.h"
 #include "tools.h"
+#include <errno.h>
 
 #ifndef NULL
 #define NULL 0
 #endif
 
-void iterateImagePixels(int x, int y, image inputimage, node_map_options options, node_map output) {
+void iterateImagePixels(int x, int y, image inputimage, node_map_options options, group_map output) {
     int x_offset = x * options.chunk_size;
     int y_offset = y * options.chunk_size;
 
-    // Grab the node
-    DEBUG_PRINT("Just Before Accessing Nodes \n");
-    node *ptr = &output.nodes[x + y * output.width];
+    // Grab the pixelgroup
+    DEBUG_PRINT("Accessing Nodes... \n");
+    pixelgroup *outputnodes = &output.nodes[x + y * output.width];
 
-    // Assigned the edge case node dimensions
+    // Assigned the edge case pixelgroup dimensions
     int node_width = inputimage.width - x * options.chunk_size;
     int node_height = inputimage.height - y * options.chunk_size;
     
@@ -28,28 +29,30 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
         node_height = options.chunk_size;
 
     int count = node_width * node_height;
-
-    // Full Node (Node does not go beyond the image)
     
-    // Gather all the pixels in this node, into this array
-    colorf **node_data = malloc(sizeof(colorf) * node_width * node_height);
-    DEBUG_PRINT("Just before Iterating the Image Pixels \n");
-    for (int i = 0; i < node_width; ++i)
+    // Gather all the pixels into this array
+    colorf **node_data = malloc(sizeof(colorf*) * node_width);
+    
+    for (int i = 0; i < node_height; ++i)
+        node_data[i] = malloc(sizeof(colorf) * node_height);
+    DEBUG_PRINT("Iterating the Image Pixels... \n");
+
+    for (int width_index = 0; width_index < node_width; ++width_index)
     {
-        for (int j = 0; j < node_height; ++j)
+        for (int height_index = 0; height_index < node_height; ++height_index)
         {
-            int node_index = i + node_width * j;
-            int pixel_index = x * options.chunk_size + i + (y + j) * options.chunk_size * inputimage.width;
-            int pixel_x = x * options.chunk_size * x + i;
-            int pixel_y = y * options.chunk_size * y + j;
-            DEBUG_PRINT("Before accessing image \n");
+            int pixel_x = x * options.chunk_size + width_index;
+            int pixel_y = y * options.chunk_size + height_index;
+
+            DEBUG_PRINT("accessing image pixels... \n");
             float r = inputimage.pixels[pixel_x][pixel_y].r;
             float g = inputimage.pixels[pixel_x][pixel_y].g;
             float b = inputimage.pixels[pixel_x][pixel_y].b;
-            DEBUG_PRINT("Before accessing node_data \n");
-            node_data[node_index]->r = r;
-            node_data[node_index]->g = g;
-            node_data[node_index]->b = b;
+
+            DEBUG_PRINT("indexing node_data... \n");
+            node_data[width_index][height_index].r = r;
+            node_data[width_index][height_index].g = g;
+            node_data[width_index][height_index].b = b;
         }
     }
 
@@ -61,6 +64,7 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
     // Also calculate the Minimum and Maximum 'colors' (values of each color)
     DEBUG_PRINT("Generating Average \n");
     pixel min = { 255, 255, 255 }, max = { 0, 0, 0 };
+
     for (int x = 0; x < node_width; ++x)
     {
         for (int y = 0; y < node_height; ++y)
@@ -84,8 +88,12 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
         }
     }
 
-    pixel average_p = { (byte)((float)average_r / (float)count), (byte)((float)average_g / (float)count), (byte)((float)average_b / (float)count) };
-    ptr->color = average_p;
+    pixel average_p = { 
+        (byte)((float)average_r / (float)count), 
+        (byte)((float)average_g / (float)count), 
+        (byte)((float)average_b / (float)count) 
+    };
+    outputnodes->color = average_p;
 
     DEBUG_PRINT("Accumulating Colors for Variance Calculation \n");
     pixel *node_pixels = malloc(sizeof(pixel) * node_width * node_height);
@@ -97,36 +105,47 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
         }
     }
     DEBUG_PRINT("Calculating Color Variance \n");
-    ptr->variance = calculate_pixel_variance(node_pixels, node_width * node_height);
+    outputnodes->variance = calculate_pixel_variance(node_pixels, node_width * node_height);
 
+    //only print 
     if ((x == y && x % 20 == 0) || (x == 0 && y == 0) || (x == (output.width - 1) && y == (output.height - 1)))
     {
-        DEBUG_PRINT("Node (%d, %d) variance: (%g, %g, %g), average: (%d, %d, %d), node_width: %d, node_height %d, min: %d, %d, %d, max: %d, %d, %d\n", x, y, ptr->variance.r, ptr->variance.g, ptr->variance.b, ptr->color.r, ptr->color.g, ptr->color.b, node_width, node_height, min.r, min.g, min.b, max.r, max.g, max.b);
+        DEBUG_PRINT("pixelgroup (%d, %d) variance: (%g, %g, %g), average: (%d, %d, %d), node_width: %d, node_height %d, min: %d, %d, %d, max: %d, %d, %d\n", 
+        x, y, 
+        outputnodes->variance.r,
+        outputnodes->variance.g,
+        outputnodes->variance.b, 
+        outputnodes->color.r, 
+        outputnodes->color.g, 
+        outputnodes->color.b, 
+        node_width, 
+        node_height, 
+        min.r, min.g, min.b, max.r, max.g, max.b);
     }
-    DEBUG_PRINT("Node complete \n");
+    DEBUG_PRINT("pixelgroup complete \n");
 }
 
-node_map generate_node_map(image inputimage, node_map_options options)
+group_map generate_group_map(image inputimage, node_map_options options)
 {
     if (!inputimage.pixels)
     {
         DEBUG_PRINT("Invalid image input \n");
-        return (node_map){ NULL, 0, 0 };
+        return (group_map){ NULL, 0, 0 };
     }
 
     if (inputimage.width < 1 || inputimage.height < 1 || !inputimage.pixels)
-        return (node_map){ NULL, 0, 0 };
+        return (group_map){ NULL, 0, 0 };
 
-    DEBUG_PRINT("Begin Generation of Node Map\n");
+    DEBUG_PRINT("Begin Generation of pixelgroup Map\n");
     if (options.chunk_size < 2)
         options.chunk_size = 2;
     
-    node_map output;
+    group_map output;
     output.width = (int)ceilf((float)inputimage.width / (float)options.chunk_size);
     output.height = (int)ceilf((float)inputimage.height / (float)options.chunk_size);
 
-    DEBUG_PRINT("Allocating Node map with %dx%d\n", output.width, output.height);
-    output.nodes = malloc(sizeof(node) * output.width * output.height);
+    DEBUG_PRINT("Allocating pixelgroup map with %dx%d\n", output.width, output.height);
+    output.nodes = malloc(sizeof(pixelgroup) * output.width * output.height);
 
     DEBUG_PRINT("Iterating through the nodes\n");
     for (int x = 0; x < output.width; ++x)

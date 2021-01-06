@@ -160,8 +160,8 @@ image convert_png_to_image(char *fileaddress)
     return final_image;
 }
 
-// /// Writes given node map to file as if it was an image (discards variance) (assumes fileaddress ends with .bmp)
-// void write_node_map_to_file(node_map map, char *fileaddress)
+// /// Writes given pixelgroup map to file as if it was an image (discards variance) (assumes fileaddress ends with .bmp)
+// void write_node_map_to_file(group_map map, char *fileaddress)
 // {
 //     if (!map.nodes || !fileaddress)
 //         return;
@@ -227,7 +227,7 @@ const int FILE_HEADER_SIZE = 14;
 const int INFO_HEADER_SIZE = 40;
 
 void write_ppm(image img, char *file);
-void write_ppm_map(node_map map, char *filename);
+void write_ppm_map(group_map map, char *filename);
 
 void write_image_to_file(image img, char *fileaddress)
 {
@@ -249,8 +249,8 @@ void write_image_to_file(image img, char *fileaddress)
     generateBitmapImage(as_bytes, img.height, img.width, fileaddress);
 }
 
-/// Writes given node map to file as if it was an image (discards variance) (assumes fileaddress ends with .bmp)
-void write_node_map_to_file(node_map map, char *fileaddress)
+/// Writes given pixelgroup map to file as if it was an image (discards variance) (assumes fileaddress ends with .bmp)
+void write_node_map_to_file(group_map map, char *fileaddress)
 {
     if (!map.nodes || !fileaddress)
         return;
@@ -270,7 +270,7 @@ void write_node_map_to_file(node_map map, char *fileaddress)
     generateBitmapImage(as_bytes, map.height, map.width, fileaddress);
 }
 
-void write_node_map_variance_to_file(node_map map, char *filename)
+void write_node_map_variance_to_file(group_map map, char *filename)
 {
     if (!map.nodes || !filename)
         return;
@@ -402,7 +402,7 @@ void write_ppm(image img, char *file_name)
   fclose(fp);
 }
 
-void write_ppm_map(node_map map, char *filename)
+void write_ppm_map(group_map map, char *filename)
 {
     int x, y;
   /* 2D array for colors (shades of gray) */
