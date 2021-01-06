@@ -1,6 +1,6 @@
 #pragma once
 
-#include "types/colour.h";
+#include "types/colour.h"
 
 typedef pixelF node_variance;
 
