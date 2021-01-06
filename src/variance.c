@@ -37,9 +37,9 @@ void mean_of_pixels(pixel *pixels, int num_pixels, pixelD* output)
     }
 
     if (output) {
-        output->R = sum_red;
-        output->G = sum_green;
-        output->B = sum_blue;
+        output->r = sum_red;
+        output->g = sum_green;
+        output->b = sum_blue;
     }
 }
 
@@ -49,11 +49,14 @@ node_variance calculate_pixel_variance(pixel *pixels, int num_pixels) {
     if (num_pixels < 2)
         return (node_variance){0.f, 0.f, 0.f};
 
-    double mean_Red;
-    double mean_Green;
-    double mean_Blue;
+    pixelD mean = {
+        0.0,
+        0.0,
+        0.0
+    };
     
-    mean_of_pixels(pixels, num_pixels, &mean_Red, &mean_Green, &mean_Blue);
+    
+    mean_of_pixels(pixels, num_pixels, &mean);
 
     double sum_red_difference = 0.f, sum_red_squared = 0.f;
     double sum_green_difference = 0.f, sum_green_squared = 0.f;
@@ -62,9 +65,9 @@ node_variance calculate_pixel_variance(pixel *pixels, int num_pixels) {
     for (int i = 0; i < num_pixels; ++i)
     {
         pixelF current_colour = convert_pixel_to_colorf(pixels[i]);
-        double red_diff     = (double)current_colour.r - mean_Red;
-        double green_diff   = (double)current_colour.g - mean_Green;
-        double blue_diff    = (double)current_colour.b - mean_Blue;
+        double red_diff     = (double)current_colour.r - mean.r;
+        double green_diff   = (double)current_colour.g - mean.g;
+        double blue_diff    = (double)current_colour.b - mean.b;
         sum_red_difference  += red_diff;
         sum_green_difference += green_diff;
         sum_blue_difference += blue_diff;
