@@ -5,8 +5,8 @@ fn main() {
     if let Some(currentdir) = path.as_path().to_str() {
         println!("current directory: {}", currentdir);
 
-        // Unsuccessful copy, there are no RELEASE files:
-        // Try to copy the DEBUG files in case we're using those instead
+        //detect the C part
+
         let windowsfound_shared = std::fs::copy(
             "../build/windows/x64/debug/staticvectorizer.dll",
             "./vec.dll",
@@ -29,16 +29,79 @@ fn main() {
         }
         println!("cargo:rustc-link-search=./");
 
+        //detect the conan libraries
+        
+        if let Ok(conanpathstr) = std::env::var("conanpath") {
+            let conanpath = std::path::Path::new(&conanpathstr);
+
+            check_directory(conanpath);
+            
+        }
+
+        else {
+            println!("could not find the 'conanpath' environment variable.");
+        }
+
         // Rerun if any library file was deleted
         println!("cargo:rerun-if-changed=vec.lib");
         println!("cargo:rerun-if-changed=vec.dll");
         println!("cargo:rerun-if-changed=libvec.a");
         println!("cargo:rerun-if-changed=libvec.so");
-
-        vcpkg::find_package("zlib").unwrap();
     } 
     
     else {
         eprintln!("could not get the current directory.");
     }
+}
+
+fn check_directory(directory: &std::path::Path)
+{
+    match directory.read_dir()
+    {
+        Ok(mut real_dir) => {   
+            check_dir_items(&mut real_dir, &directory)
+        },
+        Err(_) => eprintln!("Couldn't read directory"),
+    }
+}
+
+fn check_dir_items(read_directory: &mut std::fs::ReadDir, directory: &std::path::Path) {
+    for dir_item in read_directory
+    {
+        match dir_item
+        {
+            Ok(real_item) => {
+                check_file_type(&real_item, &directory);
+            },
+            Err(_) => eprintln!("Invalid Directory Entry Found"),
+        }
+    }
+}
+
+fn check_file_type(real_item: &std::fs::DirEntry, directory: &std::path::Path) {
+    if let Ok(real_file_type) = real_item.file_type()
+    {
+        if real_file_type.is_dir()
+        {
+            check_directory(&real_item.path());
+        }
+        else if real_file_type.is_file()
+        {
+            if let Some(real_file_name) = real_item.file_name().to_str()
+            {
+                if real_file_name.ends_with(".lib")
+                {
+                    if let Some(dir_name) = directory.to_str()
+                    {
+                        add_directory_to_linker(dir_name, real_file_name);
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn add_directory_to_linker(dir_name: &str, real_file_name: &str) {
+    println!("cargo:rustc-link-search={}", dir_name);
+    println!("cargo:rustc-link-lib=static={}", real_file_name.strip_suffix(".lib").expect("Build script failed to remove '.lib' from a filename"));
 }

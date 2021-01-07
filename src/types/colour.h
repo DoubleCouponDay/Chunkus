@@ -1,7 +1,7 @@
 #pragma once
 
 #include <math.h>
-
+#include <stdbool.h>
 
 typedef unsigned char byte;
 
@@ -14,6 +14,13 @@ typedef struct
     byte b;
 } pixel;
 
+typedef struct
+{
+    double r;
+    double g;
+    double b;
+} pixelD;
+
 typedef pixel* pixelp;
 
 // RGB floating point color struct
@@ -23,22 +30,10 @@ typedef struct
     float r;
     float g;
     float b;
-} colorf;
+} pixelF;
 
-static inline pixel convert_colorf_to_pixel(colorf color)
-{
-    pixel out;
-    out.r = rintf(color.r * 255.f);
-    out.g = rintf(color.g * 255.f);
-    out.b = rintf(color.b * 255.f);
-    return out;
-}
+pixel convert_colorf_to_pixel(pixelF color);
 
-static inline colorf convert_pixel_to_colorf(pixel pixel)
-{
-    colorf out;
-    out.r = (float)pixel.r / 255.f;
-    out.g = (float)pixel.g / 255.f;
-    out.b = (float)pixel.b / 255.f;
-    return out;
-}
+pixelF convert_pixel_to_colorf(pixel pixel);
+
+bool pixelf_equal(pixelF a, pixelF b);

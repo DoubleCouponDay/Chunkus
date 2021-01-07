@@ -60,7 +60,9 @@ They can most likely be found in xmake's default debug build folder
 - Xmake's default build folder on Windows: `Vectorizer/build/x64/windows/debug/`
 - Xmake's default build folder on Linux: `Vectorizer/build/x86_64/linux/debug/`  
 
-The static library (either **staticvectorizer.lib** or **libstaticvectorizer.a**) is required for the rust component, however if the static library does in fact lie in the default build directory, the rust build script should copy it automatically
+The static library (either **staticvectorizer.lib** or **libstaticvectorizer.a**) is required for the rust component, however if the static library does in fact lie in the default build directory, the rust build script should copy it automatically.
+
+The C code builds to `/build/windows/x64/`.
   
 ---
   
@@ -87,6 +89,8 @@ Note on obtaining **libpng** and **zlib** library files:
     I found my (windows machine) **libpng16.lib** and **zlib.lib** in  
     - `C:\Users\<username>\.conan\data\libpng\1.6.37\_\_\package\c6eb1796d6a9d59338fa618b78b90859da126b06\lib\`  
     - `C:\Users\<username>\.conan\data\zlib\1.2.11\_\_\package\3fb49604f9c2f729b85ba3115852006824e72cab\lib\`  
+
+The rust part builds to `/discord-v/target/debug/`.
 
 # Package manager
 
@@ -115,4 +119,4 @@ Run the Xmake tool with target **tests** to easily run the executable
 
 Note:  
     The test executable may require undocumented arguments, such as relative paths to images, and as such may be harder to run from Xmake directly  
-    The test executable can be found in the Xmake build folder (eg. **./build/x64/windows/debug** on windows) and can be run manually from there  
+    The test executable can be found in the Xmake build folder (eg. **./build/windows/x64/debug** on windows) and can be run manually from there  

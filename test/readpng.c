@@ -18,13 +18,48 @@
 #define NANOSVG_IMPLEMENTATION
 #define ERROR -1
 
-test2resources* readfile(const MunitParameterEnum params[], void* userdata) {
+void* createfilesetup(const MunitParameter params[], void* userdata)
+{
+  DEBUG_PRINT("setting filesetup memory... \n");
+  // return address of global variable, or allocate on the heap
+  filesetup* setup = calloc(1, sizeof(filesetup));
+
+  // Open file, create png_struct, create info_struct
+  DEBUG_PRINT("finding the file param \n");
+  // Find file address parameter  
+  
+  char* file_address = NULL;
+  for (int i = 0; params[i].name != NULL && params[i].value != NULL; ++i)
+  {
+    if (strcmp(params[i].name, "filename") == 0)
+    {
+      file_address = params[i].value;
+    }
+  }
+
+  munit_assert_ptr_not_null(file_address);
+
+  DEBUG_PRINT("Now checking file address: %s \n", file_address);
+
+  setup->file = fopen(file_address, "rb");
+
+  if (setup->file == NULL)
+  {
+    DEBUG_PRINT("File pointer was null");
+    return NULL;
+  }
+  
+  DEBUG_PRINT("Setup 2 complete....\n");
+  return setup;
+}
+
+fileresources* readfile(const MunitParameter params[], filesetup* setup) {
   DEBUG_PRINT("reading file... \n");
-  test2resources* resources = calloc(1, sizeof(test2resources));
-  resources->setup = userdata;
+  fileresources* resources = calloc(1, sizeof(fileresources));
+  resources->setup = setup;
   munit_assert_not_null(resources);
   char* fileaddress = resources->setup->file_address;
-  DEBUG_PRINT("fileaddress = %s\n", fileaddress);
+  DEBUG_PRINT("fileaddress = %s \n", fileaddress);
   FILE* file = resources->setup->file;
   munit_assert_not_null(file);
 
@@ -92,52 +127,10 @@ test2resources* readfile(const MunitParameterEnum params[], void* userdata) {
   return resources;
 }
 
-void freefile(test2resources* resources) {
+void freefile(fileresources* resources) {
   png_destroy_read_struct(&resources->png_pointer, &resources->info_pointer, NULL);
   for (int i = 0; i < resources->height; ++i)
     free(resources->row_pointers[i]);
   free(resources);
 }
 
-MunitResult itCanDecompressAPng2(const MunitParameterEnum params[], void* userdata) {
-  test2resources* resources = readfile(params, userdata);
-  freefile(resources);
-  return MUNIT_OK;
-}
-
-void* test2setup(const MunitParameter params[], void* userdata)
-{
-  // return address of global variable, or allocate on the heap
-  test2filesetup* setup = calloc(1, sizeof(test2filesetup));
-  
-  DEBUG_PRINT("setting test2filesetup memory... \n");
-  //memset(&setup, 0, sizeof(test2filesetup));
-
-  // Open file, create png_struct, create info_struct
-  DEBUG_PRINT("finding the file param \n");
-  // Find file address parameter
-  char* file_address = params[0].value;
-
-  DEBUG_PRINT("Now checking file address \n");
-
-  setup->file = fopen(file_address, "rb");
-
-  if (setup->file == NULL)
-  {
-    DEBUG_PRINT("File pointer was null");
-    return NULL;
-  }
-  
-  DEBUG_PRINT("Setup 2 complete....\n");
-  return setup;
-}
-
-void test2teardown(void* fixture) {
-  if (fixture == NULL)
-    return;
-
-  test2filesetup* file_setup = (test2filesetup*)fixture;
-
-  if (file_setup->file)
-    fclose(file_setup->file);
-}
