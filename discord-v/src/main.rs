@@ -2,7 +2,6 @@ mod secrettoken;
 mod constants;
 mod bot;
 mod core;
-mod vectorizer;
 
 #[tokio::main]
 async fn main() {
