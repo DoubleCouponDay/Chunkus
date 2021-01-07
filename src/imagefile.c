@@ -7,16 +7,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-void generateBitmapImage(unsigned char* image, int height, int width, char* imageFileName);
+void generateBitmapImage(unsigned char* image_p, int height, int width, char* imageFileName_p);
 unsigned char* createBitmapFileHeader(int height, int stride);
 unsigned char* createBitmapInfoHeader(int height, int width);
 
 const int BYTES_PER_PIXEL = 3; /// red, green, & blue
 const int FILE_HEADER_SIZE = 14;
 const int INFO_HEADER_SIZE = 40;
-
-void write_ppm(image img, char *file);
-void write_ppm_map(groupmap map, char *filename);
 
 /// Takes a filename (assumed to be a png file), and creates an image struct full of the png's pixels
 /// 
@@ -34,9 +31,9 @@ image convert_png_to_image(char *fileaddress)
         return (image){NULL, 0, 0};
 
     /// Open File
-    FILE *file = fopen(fileaddress, "rb");
+    FILE* file_p = fopen(fileaddress, "rb");
 
-    if (!file)
+    if (!file_p)
     {
         DEBUG_PRINT("Could not open file '%s' for reading", fileaddress);
         return (image){NULL, 0, 0};
@@ -46,7 +43,7 @@ image convert_png_to_image(char *fileaddress)
     DEBUG_PRINT("Checking if file is PNG type\n");
 
     unsigned char header[8];
-    fread(header, 1, 8, file);
+    fread(header, 1, 8, file_p);
     if (png_sig_cmp(header, 0, 8))
     {
         DEBUG_PRINT("File \'%s\' was not recognised as a PNG file\n", fileaddress);
@@ -94,13 +91,13 @@ image convert_png_to_image(char *fileaddress)
     DEBUG_PRINT("Beginning PNG Reading \n");
 
     // Start Reading
-    png_init_io(read_struct, file);
+    png_init_io(read_struct, file_p);
     png_set_sig_bytes(read_struct, 8);
 
     png_read_info(read_struct, info);
 
     DEBUG_PRINT("Reading image width/height and allocating image space\n");
-    image final_image = create_image(png_get_image_width(read_struct, info), png_get_image_height(read_struct, info));
+    image output = create_image(png_get_image_width(read_struct, info), png_get_image_height(read_struct, info));
 
     color_type = png_get_color_type(read_struct, info);
     if (color_type != PNG_COLOR_TYPE_RGB)
@@ -126,56 +123,60 @@ image convert_png_to_image(char *fileaddress)
 
     DEBUG_PRINT("Allocating row pointers...\n");
 
-    DEBUG_PRINT("dimensions: %d x %d \n", final_image.width, final_image.height);
+    DEBUG_PRINT("dimensions: %d x %d \n", output.width, output.height);
 
     // Allocate row pointers to be filled
-    png_bytep *row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * final_image.height);
+    png_bytep* row_pointers_p = (png_bytep*)malloc(sizeof(png_bytep) * output.height);
 
-    for (int y = 0; y < final_image.height; ++y)
+    for (int y = 0; y < output.height; ++y)
     {
-        row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(read_struct, info));
+        row_pointers_p[y] = (png_byte*)malloc(png_get_rowbytes(read_struct, info));
     }
 
     DEBUG_PRINT("reading the image...\n");
     
     // Switch to RGB format, and fill the row pointers with values
     image_struct.format = PNG_FORMAT_RGB;
-    png_read_image(read_struct, row_pointers);
+    png_read_image(read_struct, row_pointers_p);
 
     DEBUG_PRINT("closing image file...\n");
 
     // Clean up the file
-    fclose(file);
+    fclose(file_p);
     png_destroy_read_struct(&read_struct, &info, NULL);
     
     DEBUG_PRINT("putting dereferenced row pointers in custom struct...\n");
 
-    for (int y = 0; y < final_image.height; ++y)
+    for (int y = 0; y < output.height; ++y)
     {
-        png_byte *row = row_pointers[y];
-        for (int x = 0; x < final_image.width; ++x)
-        {
-            png_byte *ptr = &(row[x * 3]);
+        png_byte* row_p = row_pointers_p[y];
 
-            final_image.pixels[y][x].r = ptr[0];
-            final_image.pixels[y][x].g = ptr[1];
-            final_image.pixels[y][x].b = ptr[2];
+        for (int x = 0; x < output.width; ++x)
+        {
+            png_byte* pixel_p = &(row_p[x * 3]);
+
+            output.pixels_array_2d[x][y].r = pixel_p[0];
+            output.pixels_array_2d[x][y].g = pixel_p[1];
+            output.pixels_array_2d[x][y].b = pixel_p[2];
+
+            output.pixels_array_2d[x][y].location = (coordinate) {
+                x, y
+            };
         }
     }
 
-    for (int i = 0; i < final_image.height; ++i)
-        free(row_pointers[i]);
-    free(row_pointers);
+    for (int i = 0; i < output.height; ++i)
+        free(row_pointers_p[i]);
+    free(row_pointers_p);
     
     DEBUG_PRINT("png file converted to image struct.\n");
-    return final_image;
+    return output;
 }
 
 
 
-void write_image_to_file(image img, char *fileaddress)
-{
-    if (!img.pixels || !fileaddress)
+void write_image_to_file(image img, char* fileaddress_p) {
+    if (!img.pixels_array_2d || !fileaddress_p)
         return;
 
     unsigned char *as_bytes = malloc(BYTES_PER_PIXEL * img.height * img.width);
@@ -184,30 +185,32 @@ void write_image_to_file(image img, char *fileaddress)
     {
         for (int y = 0; y < img.height; ++y)
         {
-            as_bytes[x * 3 + 0 + y * BYTES_PER_PIXEL * img.width] = img.pixels[y][x].b;
-            as_bytes[x * 3 + 1 + y * BYTES_PER_PIXEL * img.width] = img.pixels[y][x].g;
-            as_bytes[x * 3 + 2 + y * BYTES_PER_PIXEL * img.width] = img.pixels[y][x].r;
+            int index = x * 3 + 0 + y * BYTES_PER_PIXEL * img.width;
+            as_bytes[index]     = img.pixels_array_2d[x][y].b;
+            as_bytes[index + 1] = img.pixels_array_2d[x][y].g;
+            as_bytes[index + 2] = img.pixels_array_2d[x][y].r;
         }
     }
 
-    generateBitmapImage(as_bytes, img.height, img.width, fileaddress);
+    generateBitmapImage(as_bytes, img.height, img.width, fileaddress_p);
 }
 
 /// Writes given pixelgroup map to file as if it was an image (discards variance) (assumes fileaddress ends with .bmp)
 void write_node_map_to_file(groupmap map, char *fileaddress)
 {
-    if (!map.nodes || !fileaddress)
+    if (!map.groups_array_2d || !fileaddress)
         return;
 
-    unsigned char *as_bytes = malloc(BYTES_PER_PIXEL * map.map_height * map.map_width);
+    unsigned char* as_bytes = malloc(BYTES_PER_PIXEL * map.map_height * map.map_width);
 
     for (int x = 0; x < map.map_width; ++x)
     {
         for (int y = 0; y < map.map_height; ++y)
         {
-            as_bytes[x * 3 + 0 + y * BYTES_PER_PIXEL * map.map_width] = map.nodes[x + y * map.map_width].average_colour.b;
-            as_bytes[x * 3 + 1 + y * BYTES_PER_PIXEL * map.map_width] = map.nodes[x + y * map.map_width].average_colour.g;
-            as_bytes[x * 3 + 2 + y * BYTES_PER_PIXEL * map.map_width] = map.nodes[x + y * map.map_width].average_colour.r;
+            int index = x * 3 + y * BYTES_PER_PIXEL * map.map_width;
+            as_bytes[index]     = map.groups_array_2d[x][y].average_colour.b;
+            as_bytes[index + 1] = map.groups_array_2d[x][y].average_colour.g;
+            as_bytes[index + 2] = map.groups_array_2d[x][y].average_colour.r;
         }
     }
 
@@ -216,7 +219,7 @@ void write_node_map_to_file(groupmap map, char *fileaddress)
 
 void write_node_map_variance_to_file(groupmap map, char *filename)
 {
-    if (!map.nodes || !filename)
+    if (!map.groups_array_2d || !filename)
         return;
 
     unsigned char *as_bytes = malloc(BYTES_PER_PIXEL * map.map_height * map.map_width);
@@ -225,13 +228,13 @@ void write_node_map_variance_to_file(groupmap map, char *filename)
     {
         for (int y = 0; y < map.map_height; ++y)
         {
-            pixel p = convert_colorf_to_pixel(map.nodes[x + y * map.map_width].variance);
-            as_bytes[x * 3 + 0 + y * BYTES_PER_PIXEL * map.map_width] = p.b;
-            as_bytes[x * 3 + 1 + y * BYTES_PER_PIXEL * map.map_width] = p.g;
-            as_bytes[x * 3 + 2 + y * BYTES_PER_PIXEL * map.map_width] = p.r;
+            pixel p = convert_colorf_to_pixel(map.groups_array_2d[x][y].variance);
+            int index = x * 3 + y * BYTES_PER_PIXEL * map.map_width;
+            as_bytes[index]     = p.b;
+            as_bytes[index + 1] = p.g;
+            as_bytes[index + 2] = p.r;
         }
     }
-
     generateBitmapImage(as_bytes, map.map_height, map.map_width, filename);
 }
 
@@ -318,7 +321,7 @@ void write_ppm(image img, char *file_name)
 {
     int x, y;
   /* 2D array for colors (shades of gray) */
-  unsigned char *data = malloc(img.height * img.width * 3);
+  unsigned char* data = malloc(img.height * img.width * 3);
   /* color component is coded from 0 to 255 ;  it is 8 bit color file */
   const int MaxColorComponentValue = 255;
   FILE * fp;
@@ -328,9 +331,10 @@ void write_ppm(image img, char *file_name)
   /* fill the data array */
   for (y = 0; y < img.height; ++y) {
     for (x = 0; x < img.width; ++x) {
-      data[y * 3 + x * img.height * 3 + 0] = img.pixels[y][x].r;
-      data[y * 3 + x * img.height * 3 + 1] = img.pixels[y][x].g;
-      data[y * 3 + x * img.height * 3 + 2] = img.pixels[y][x].b;
+        int index = y * 3 + x * img.height * 3;
+        data[index]     = img.pixels_array_2d[x][y].r;
+        data[index + 1] = img.pixels_array_2d[x][y].g;
+        data[index + 2] = img.pixels_array_2d[x][y].b;
     }
   }
  
@@ -344,11 +348,11 @@ void write_ppm(image img, char *file_name)
   fclose(fp);
 }
 
-void write_ppm_map(groupmap map, char *filename)
+void write_ppm_map(groupmap map, char* filename)
 {
     int x, y;
   /* 2D array for colors (shades of gray) */
-  unsigned char *data = malloc(map.map_height * map.map_width * 3);
+  unsigned char* data = malloc(map.map_height * map.map_width * 3);
   /* color component is coded from 0 to 255 ;  it is 8 bit color file */
   const int MaxColorComponentValue = 255;
   FILE * fp;
@@ -358,9 +362,10 @@ void write_ppm_map(groupmap map, char *filename)
   /* fill the data array */
   for (y = 0; y < map.map_height; ++y) {
     for (x = 0; x < map.map_width; ++x) {
-      data[y * 3 + x * map.map_height * 3 + 0] = map.nodes[x + y * map.map_width].average_colour.r;
-      data[y * 3 + x * map.map_height * 3 + 1] = map.nodes[x + y * map.map_width].average_colour.g;
-      data[y * 3 + x * map.map_height * 3 + 2] = map.nodes[x + y * map.map_width].average_colour.b;
+      int index = y * 3 + x * map.map_height * 3;
+      data[index]       = map.groups_array_2d[x][y].average_colour.r;
+      data[index + 1]   = map.groups_array_2d[x][y].average_colour.g;
+      data[index + 2]   = map.groups_array_2d[x][y].average_colour.b;
     }
   }
  

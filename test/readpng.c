@@ -18,7 +18,7 @@
 #define NANOSVG_IMPLEMENTATION
 #define ERROR -1
 
-void* createfilesetup(const MunitParameter params[], void* userdata)
+filesetup* createfilesetup(const MunitParameter params[], void* userdata)
 {
   DEBUG_PRINT("setting filesetup memory... \n");
   // return address of global variable, or allocate on the heap

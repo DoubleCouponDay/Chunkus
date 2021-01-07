@@ -202,7 +202,6 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult {
                 println!("Error sending result {}", err);
             }
         }
-
         else
         {
             println!("Found empty embed o.o");

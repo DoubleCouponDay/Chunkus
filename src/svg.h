@@ -13,8 +13,8 @@ typedef struct {
 } colour_diff;
 
 typedef struct {
-    char* moveto;
-    char** lineto;
+    char* moveto_p;
+    char** lineto_array2d;
 } pathshape;
 
 typedef struct {

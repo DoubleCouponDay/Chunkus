@@ -35,6 +35,9 @@
         "memory": "c",
         "type_traits": "c",
         "xtr1common": "c",
-        "xmemory": "cpp"
+        "xmemory": "cpp",
+        "algorithm": "cpp",
+        "xutility": "cpp",
+        "*.rh": "cpp"
     }
 }
