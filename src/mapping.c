@@ -9,12 +9,12 @@
 #define NULL 0
 #endif
 
-void iterateImagePixels(int x, int y, image inputimage, node_map_options options, group_map output) {
+void iterateImagePixels(int x, int y, image inputimage, vectorize_options options, groupmap output) {
     int x_offset = x * options.chunk_size;
     int y_offset = y * options.chunk_size;
 
     // Grab the pixelgroup
-    pixelgroup *outputnodes = &output.nodes[x + y * output.width];
+    pixelgroup* outputnodes = &output.nodes[x + y * output.map_width];
 
     // Assigned the edge case pixelgroup dimensions
     int node_width = inputimage.width - x * options.chunk_size;
@@ -29,7 +29,7 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
     int count = node_width * node_height;
     
     // Gather all the pixels into this array
-    pixelF **node_data = malloc(sizeof(pixelF*) * node_width);
+    pixelF** node_data = malloc(sizeof(pixelF*) * node_width);
     
     for (int i = 0; i < node_height; ++i)
         node_data[i] = malloc(sizeof(pixelF) * node_height);
@@ -62,7 +62,7 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
     {
         for (int y = 0; y < node_height; ++y)
         {
-            pixel *p = &inputimage.pixels[y_offset + y][x_offset + x];
+            pixel* p = &inputimage.pixels[y_offset + y][x_offset + x];
             average_r += p->r;
             average_g += p->g;
             average_b += p->b;
@@ -86,7 +86,7 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
         (byte)((float)average_g / (float)count), 
         (byte)((float)average_b / (float)count) 
     };
-    outputnodes->color = average_p;
+    outputnodes->average_colour = average_p;
 
     pixel *node_pixels = malloc(sizeof(pixel) * node_width * node_height);
     for (int x = 0; x < node_width; ++x)
@@ -99,49 +99,47 @@ void iterateImagePixels(int x, int y, image inputimage, node_map_options options
     outputnodes->variance = calculate_pixel_variance(node_pixels, node_width * node_height);
 
     //only print 
-    if ((x == y && x % 20 == 0) || (x == 0 && y == 0) || (x == (output.width - 1) && y == (output.height - 1)))
+    if ((x == y && x % 20 == 0) || (x == 0 && y == 0) || (x == (output.map_width - 1) && y == (output.map_height - 1)))
     {
         DEBUG_PRINT("pixelgroup (%d, %d) variance: (%g, %g, %g), average: (%d, %d, %d), node_width: %d, node_height %d, min: %d, %d, %d, max: %d, %d, %d\n", 
         x, y, 
         outputnodes->variance.r,
         outputnodes->variance.g,
         outputnodes->variance.b, 
-        outputnodes->color.r, 
-        outputnodes->color.g, 
-        outputnodes->color.b, 
+        outputnodes->average_colour.r, 
+        outputnodes->average_colour.g, 
+        outputnodes->average_colour.b, 
         node_width, 
         node_height, 
         min.r, min.g, min.b, max.r, max.g, max.b);
     }
 }
 
-group_map generate_group_map(image inputimage, node_map_options options)
+groupmap generate_pixel_group(image inputimage, vectorize_options options)
 {
     if (!inputimage.pixels)
     {
         DEBUG_PRINT("Invalid image input \n");
-        return (group_map){ NULL, 0, 0 };
+        return (groupmap){ NULL, 0, 0 };
     }
 
     if (inputimage.width < 1 || inputimage.height < 1 || !inputimage.pixels)
-        return (group_map){ NULL, 0, 0 };
+        return (groupmap){ NULL, 0, 0 };
 
     if (options.chunk_size < 2)
         options.chunk_size = 2;
     
-    group_map output;
-    output.width = (int)ceilf((float)inputimage.width / (float)options.chunk_size);
-    output.height = (int)ceilf((float)inputimage.height / (float)options.chunk_size);
+    groupmap output;
+    output.map_width = (int)ceilf((float)inputimage.width / (float)options.chunk_size);
+    output.map_height = (int)ceilf((float)inputimage.height / (float)options.chunk_size);
+    output.nodes = malloc(sizeof(pixelgroup) * output.map_width * output.map_height);
 
-    output.nodes = malloc(sizeof(pixelgroup) * output.width * output.height);
-
-    for (int x = 0; x < output.width; ++x)
+    for (int x = 0; x < output.map_width; ++x)
     {
-        for (int y = 0; y < output.height; ++y)
+        for (int y = 0; y < output.map_height; ++y)
         {
             iterateImagePixels(x, y, inputimage, options, output);
         }
     }
-
     return output;
 }

@@ -16,7 +16,7 @@
 #include "../src/tools.h"
 #include "./readpng.h"
 #include "../src/mapping.h"
-#include "../src/converter.h"
+#include "../src/imagefile.h"
 #include "../src/entrypoint.h"
 #include "../src/types/colour.h"
 
@@ -83,8 +83,8 @@ MunitResult opensPngAndOutputsBmp(const MunitParameter params[], void *userdata)
 
 MunitResult can_convert_file_to_node_map(const MunitParameter params[], void* userdata) {
   image img = convert_png_to_image(params[0].value);
-  node_map_options options = { 4 };
-  group_map map = generate_group_map(img, options);
+  vectorize_options options = { 4 };
+  groupmap map = generate_pixel_group(img, options);
 }
 
 void test2teardown(void* fixture) {

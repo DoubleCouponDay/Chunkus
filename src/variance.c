@@ -88,20 +88,3 @@ node_variance calculate_pixel_variance(pixel *pixels, int num_pixels) {
         variance.b = 0.f;
     return variance;
 }
-
-float shifted_data_variance(float *data, int data_length) {
-    if (data_length < 2)
-        return 0.f;
-    
-    float K = data[0];
-    float Ex = 0.f, Ex2 = 0.f;
-
-    for (int i = 0; i < data_length; ++i)
-    {
-        Ex += data[i] - K;
-        Ex2 += (data[i] - K) * (data[i] - K);
-    }
-    float variance = (Ex2 - (Ex * Ex) / (float)data_length) / (float)(data_length - 1);
-
-    return variance;
-}
