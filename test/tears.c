@@ -33,9 +33,9 @@ void* test4setup(const MunitParameter params[], void* userdata) {
 };
 
 void test4teardown(void* fixture) {
-  DEBUG_PRINT("freeing test 4\n");
+  DEBUG("freeing test 4\n");
   test4stuff* stuff = fixture;
-  free_image_contents(stuff->img);
+  //free_image_contents(stuff->img);
   free_group_map(stuff->map);
 }
 
@@ -47,7 +47,7 @@ void* test5setup(const MunitParameter params[], void* userdata) {
 };
 
 void test5teardown(void* fixture) {
-  DEBUG_PRINT("freeing test 5\n");
+  DEBUG("freeing test 5\n");
   test5stuff* stuff = fixture;  
   fclose(stuff->fp);
   free_image_contents(stuff->img);

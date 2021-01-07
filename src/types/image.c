@@ -35,15 +35,32 @@ void allocate_image(int width, int height, image* output_p)
 
 void free_image_contents(image* img_p)
 {
-    if (!img_p || !img_p->pixels_array_2d)
-        return;
-
-    DEBUG_PRINT("freeing individual pixels\n");
+    if (!img_p || !img_p->pixels_array_2d) {
+        DEBUG("image has null pointers \n");
+        return;    
+    }
+    
     for (int i = 0; i < img_p->width; ++i)
     {
-        free(img_p->pixels_array_2d[i]);
+        DEBUG("indexing pixels array\n");
+        pixel* current = img_p->pixels_array_2d[i];
+
+        if(current) {     
+            DEBUG("freeing pixel\n");       
+            free(current);            
+        }
+
+        else
+            DEBUG("pixel is null \n");
     }
 
-    DEBUG_PRINT("freeing pixel collection\n");
-    free(img_p->pixels_array_2d);
+    if(img_p->pixels_array_2d) {
+        DEBUG("freeing pixel collection\n");
+        free(img_p->pixels_array_2d);    
+    }    
+
+    else {
+        DEBUG("pixel collection is null \n");
+    }
+    DEBUG("freed image contents\n");
 }

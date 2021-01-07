@@ -25,7 +25,7 @@ const int INFO_HEADER_SIZE = 40;
 /// Convert the obtained memory into a contiguous format (convert the row pointers from a 2 dimensional array into a single array)
 image convert_png_to_image(char *fileaddress)
 {
-    DEBUG_PRINT("opening image file...\n");
+    DEBUG("opening image file...\n");
 
     if (!fileaddress)
         return (image){NULL, 0, 0};
@@ -35,23 +35,23 @@ image convert_png_to_image(char *fileaddress)
 
     if (!file_p)
     {
-        DEBUG_PRINT("Could not open file '%s' for reading", fileaddress);
+        DEBUG("Could not open file '%s' for reading", fileaddress);
         return (image){NULL, 0, 0};
     }
 
     /// Verify File
-    DEBUG_PRINT("Checking if file is PNG type\n");
+    DEBUG("Checking if file is PNG type\n");
 
     unsigned char header[8];
     fread(header, 1, 8, file_p);
     if (png_sig_cmp(header, 0, 8))
     {
-        DEBUG_PRINT("File \'%s\' was not recognised as a PNG file\n", fileaddress);
+        DEBUG("File \'%s\' was not recognised as a PNG file\n", fileaddress);
         return (image){NULL, 0, 0};
     }
     
     /// Prepare and read structs
-    DEBUG_PRINT("Creating png_image struct\n");
+    DEBUG("Creating png_image struct\n");
 
     png_byte color_type, bit_depth;
 
@@ -60,7 +60,7 @@ image convert_png_to_image(char *fileaddress)
     image_struct.opaque = NULL; 
     image_struct.version = PNG_IMAGE_VERSION;
 
-    DEBUG_PRINT("creating pnglib read struct...\n");
+    DEBUG("creating pnglib read struct...\n");
 
     png_structp read_struct = png_create_read_struct(
         PNG_LIBPNG_VER_STRING, NULL, NULL, NULL
@@ -68,27 +68,27 @@ image convert_png_to_image(char *fileaddress)
 
     if (!read_struct)
     {
-        DEBUG_PRINT("Failed to create png read struct");
+        DEBUG("Failed to create png read struct");
         return (image){NULL, 0, 0};
     }
     
-    DEBUG_PRINT("Creating pnglib info struct...\n");
+    DEBUG("Creating pnglib info struct...\n");
 
     png_infop info = png_create_info_struct(read_struct);
     if (!info)
     {
-        DEBUG_PRINT("Error: png_create_info_struct failed");
+        DEBUG("Error: png_create_info_struct failed");
         return (image) { NULL, 0, 0 };
     }
 
     if (setjmp(png_jmpbuf(read_struct)))
     {
-        DEBUG_PRINT("Error during init_io");
+        DEBUG("Error during init_io");
         png_destroy_read_struct(read_struct, info, NULL);
         return (image) { NULL, 0, 0 };
     }
 
-    DEBUG_PRINT("Beginning PNG Reading \n");
+    DEBUG("Beginning PNG Reading \n");
 
     // Start Reading
     png_init_io(read_struct, file_p);
@@ -96,19 +96,19 @@ image convert_png_to_image(char *fileaddress)
 
     png_read_info(read_struct, info);
 
-    DEBUG_PRINT("Reading image width/height and allocating image space\n");
+    DEBUG("Reading image width/height and allocating image space\n");
     image output = create_image(png_get_image_width(read_struct, info), png_get_image_height(read_struct, info));
 
     color_type = png_get_color_type(read_struct, info);
     if (color_type != PNG_COLOR_TYPE_RGB)
     {
-        DEBUG_PRINT("Only RGB PNGs are supported for import, format: %d", color_type);
+        DEBUG("Only RGB PNGs are supported for import, format: %d", color_type);
         return (image){NULL, 0, 0};
     }
     bit_depth = png_get_bit_depth(read_struct, info);
     if (bit_depth != 8)
     {
-        DEBUG_PRINT("Only 24bpp PNGs are supported, depth: %d", bit_depth * 3);
+        DEBUG("Only 24bpp PNGs are supported, depth: %d", bit_depth * 3);
         return (image){NULL, 0, 0};
     }
 
@@ -116,14 +116,14 @@ image convert_png_to_image(char *fileaddress)
 
     if (setjmp(png_jmpbuf(read_struct)))
     {
-        DEBUG_PRINT("Error during early PNG reading");
+        DEBUG("Error during early PNG reading");
         png_destroy_read_struct(read_struct, info, NULL);
         return (image){NULL, 0, 0};
     }
 
-    DEBUG_PRINT("Allocating row pointers...\n");
+    DEBUG("Allocating row pointers...\n");
 
-    DEBUG_PRINT("dimensions: %d x %d \n", output.width, output.height);
+    DEBUG("dimensions: %d x %d \n", output.width, output.height);
 
     // Allocate row pointers to be filled
     png_bytep* row_pointers_p = (png_bytep*)malloc(sizeof(png_bytep) * output.height);
@@ -133,19 +133,19 @@ image convert_png_to_image(char *fileaddress)
         row_pointers_p[y] = (png_byte*)malloc(png_get_rowbytes(read_struct, info));
     }
 
-    DEBUG_PRINT("reading the image...\n");
+    DEBUG("reading the image...\n");
     
     // Switch to RGB format, and fill the row pointers with values
     image_struct.format = PNG_FORMAT_RGB;
     png_read_image(read_struct, row_pointers_p);
 
-    DEBUG_PRINT("closing image file...\n");
+    DEBUG("closing image file...\n");
 
     // Clean up the file
     fclose(file_p);
     png_destroy_read_struct(&read_struct, &info, NULL);
     
-    DEBUG_PRINT("putting dereferenced row pointers in custom struct...\n");
+    DEBUG("putting dereferenced row pointers in custom struct...\n");
 
     for (int y = 0; y < output.height; ++y)
     {
@@ -167,13 +167,12 @@ image convert_png_to_image(char *fileaddress)
 
     for (int i = 0; i < output.height; ++i)
         free(row_pointers_p[i]);
+        
     free(row_pointers_p);
     
-    DEBUG_PRINT("png file converted to image struct.\n");
+    DEBUG("png file converted to image struct.\n");
     return output;
 }
-
-
 
 void write_image_to_file(image img, char* fileaddress_p) {
     if (!img.pixels_array_2d || !fileaddress_p)

@@ -118,7 +118,7 @@ void iterateImagePixels(int x, int y, image* inputimage_p, vectorize_options opt
     //only print if at the end
     if ((x == y && x % 20 == 0) || (x == 0 && y == 0) || (x == (output.map_width - 1) && y == (output.map_height - 1)))
     {
-        DEBUG_PRINT("pixelgroup (%d, %d) variance: (%g, %g, %g), average: (%d, %d, %d), node_width: %d, node_height %d, min: %d, %d, %d, max: %d, %d, %d\n", 
+        DEBUG("pixelgroup (%d, %d) variance: (%g, %g, %g), average: (%d, %d, %d), node_width: %d, node_height %d, min: %d, %d, %d, max: %d, %d, %d\n", 
         x, y, 
         outputnodes->variance.r,
         outputnodes->variance.g,
@@ -136,7 +136,7 @@ groupmap generate_pixel_group(image* inputimage_p, vectorize_options options)
 {
     if (!inputimage_p->pixels_array_2d)
     {
-        DEBUG_PRINT("Invalid image input \n");
+        DEBUG("Invalid image input \n");
         return (groupmap){ NULL, 0, 0 };
     }
 
@@ -170,13 +170,20 @@ groupmap generate_pixel_group(image* inputimage_p, vectorize_options options)
 
 void free_group_map(groupmap* map_p)
 {
-    if (!map_p)
+    if (!map_p) {
+        DEBUG("groupmap is null\n");
         return;
+    }
+
+    DEBUG("freeing groups\n");
 
     for (int x = 0; x < map_p->map_width; ++x)
     {
-        free(map_p->groups_array_2d[x]);
+        DEBUG("indexing groupmap\n");
+        pixelgroup* current = map_p->groups_array_2d[x];
+        DEBUG("freeing one group\n");
+        free(current);
     }
-    
+    DEBUG("freeing groups collection\n");
     free(map_p->groups_array_2d);
 }

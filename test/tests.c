@@ -29,17 +29,17 @@ MunitResult aTestCanPass(const MunitParameter params[], void* data) {
 }
 
 MunitResult test3_weKnownHowToGetPixelDataFromPng(const MunitParameter params[], void* userdata) {
-  DEBUG_PRINT("creating resources...\n");
+  DEBUG("creating resources...\n");
   fileresources* resources = userdata;
   int x = 3, y = 9;
   png_color color, color2;
-  DEBUG_PRINT("Row Pointers: %s\n", resources->row_pointers);
+  DEBUG("Row Pointers: %s\n", resources->row_pointers);
   color = *(png_color*)(resources->row_pointers[y] + x * 3);
   x += 1;
   color2 = *(png_color*)(resources->row_pointers[y] + x * 3);
 
-  DEBUG_PRINT("Extracted Color: (%d, %d, %d)\n", color.red, color.green, color.blue);
-  DEBUG_PRINT("Extracted 2nd Color: (%d, %d, %d)\n", color2.red, color2.green, color2.blue);
+  DEBUG("Extracted Color: (%d, %d, %d)\n", color.red, color.green, color.blue);
+  DEBUG("Extracted 2nd Color: (%d, %d, %d)\n", color2.red, color2.green, color2.blue);
 
   // returns if didn't seg fault, that counts as success
   return MUNIT_OK;
@@ -85,7 +85,7 @@ MunitResult test2_itCanDecompressAPng(const MunitParameter params[], void* userd
 }
 
 int main(int argc, char** argv) {
-  DEBUG_PRINT("test runner initializing... \n");
+  DEBUG("test runner initializing... \n");
 
   char* filename = "../../../../test/test.png";
   char* filepp_params[] = { filename, NULL };
