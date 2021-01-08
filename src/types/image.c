@@ -10,6 +10,8 @@ image create_image(int width, int height)
         width, height
     };
 
+    DEBUG("Creating Image with %dx%d Dimensions \n", width, height);
+
     output.pixels_array_2d = malloc(sizeof(pixel*) * width);
 
     for (int i = 0; i < width; ++i)
@@ -34,11 +36,9 @@ void free_image_contents(image img)
     
     for (int i = 0; i < img.width; ++i)
     {
-        DEBUG("indexing pixels array\n");
         pixel* current = img.pixels_array_2d[i];
 
         if(current) {     
-            DEBUG("freeing pixel\n");       
             free(current);            
         }
 
@@ -47,11 +47,10 @@ void free_image_contents(image img)
     }
 
     if(img.pixels_array_2d) {
-        DEBUG("freeing pixel collection\n");
         free(img.pixels_array_2d);
     }
+
     else {
         DEBUG("pixel collection is null \n");
     }
-    DEBUG("freed image contents\n");
 }

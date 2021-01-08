@@ -151,16 +151,12 @@ void free_group_map(groupmap* map_p)
         DEBUG("groupmap is null\n");
         return;
     }
-
     DEBUG("freeing groups\n");
 
     for (int x = 0; x < map_p->map_width; ++x)
     {
-        DEBUG("indexing groupmap\n");
         pixelgroup* current = map_p->groups_array_2d[x];
-        DEBUG("freeing one group\n");
         free(current);
     }
-    DEBUG("freeing groups collection\n");
     free(map_p->groups_array_2d);
 }
