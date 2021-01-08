@@ -27,9 +27,6 @@ void iterate_neighbours(int map_x, int map_y, groupmap input, pixelgroup* group_
 
 void vectorize_Image_Group(image input, groupmap output, float variance_threshold)
 {
-    // Make 'background' path
-    // TODO: make background path
-
     for (int map_x = 0; map_x < output.map_width; ++map_x)
     {
         for (int map_y = 0; map_y < output.map_height; ++map_y)
@@ -37,7 +34,7 @@ void vectorize_Image_Group(image input, groupmap output, float variance_threshol
             // Find high variance groups
             pixelgroup* group_p = &output.groups_array_2d[map_x][map_y];
 
-
+            
         }
     }
 }

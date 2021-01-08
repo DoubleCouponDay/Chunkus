@@ -51,14 +51,16 @@ MunitResult test3_weKnownHowToGetPixelDataFromPng(const MunitParameter params[],
   return MUNIT_OK;
 }
 
-MunitResult test4_can_convert_file_to_node_map(const MunitParameter params[], test4stuff userdata) {
-  userdata.img = convert_png_to_image(params[0].value);
+MunitResult test4_can_convert_file_to_node_map(const MunitParameter params[], void* userdata) {
+  test4stuff* stuff = userdata;
+  stuff->img = convert_png_to_image(params[0].value);
   vectorize_options options = { 4 };
-  userdata.map = generate_pixel_group(userdata.img, options);
+  stuff->map = generate_pixel_group(stuff->img, options);
   return MUNIT_OK;
 }
 
-MunitResult test5_opensPngAndOutputsBmp(const MunitParameter params[], test5stuff userdata) {
+MunitResult test5_opensPngAndOutputsBmp(const MunitParameter params[], void* userdata) {
+  test5stuff* stuff = userdata;
   // Use constant input/output path
   char* in_file = params[0].value;
   char* out_file = "test_out.bmp";
@@ -66,16 +68,20 @@ MunitResult test5_opensPngAndOutputsBmp(const MunitParameter params[], test5stuf
   // Delete output file
   remove(out_file);
 
-  userdata.img = convert_png_to_image(in_file);
+  stuff->img = convert_png_to_image(in_file);
 
-  munit_assert_ptr_not_null(userdata.img.pixels_array_2d); // FAILED TO CONVERT IMAGE
+  munit_assert_ptr_not_null(stuff->img.pixels_array_2d); // FAILED TO CONVERT IMAGE
 
-  write_image_to_file(userdata.img, out_file);
+  write_image_to_file(stuff->img, out_file);
 
   FILE* fp = fopen(out_file, "r");
-  userdata.fp = fp;
+  stuff->fp = fp;
   munit_assert_ptr_not_null(fp); // OUTPUT FILE NOT FOUND
 
+  return MUNIT_OK;
+}
+
+MunitResult test6_can_convert_groupmap_to_svgmap(const MunitParameter params[], void* userdata) {
   return MUNIT_OK;
 }
 
