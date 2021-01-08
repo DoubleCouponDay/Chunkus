@@ -8,24 +8,21 @@ fn main() {
         //detect the C part
 
         let windowsfound_shared = std::fs::copy(
-            "../build/windows/x64/debug/staticvectorizer.dll",
-            "./vec.dll",
+            "../build/windows/x64/debug/vec.dll",
+            "./vec.dll"
         );
         let linuxfound_shared = std::fs::copy(
-            "../build/linux/x86_64/debug/libstaticvectorizer.so",
-            "./libvec.so",
+            "../build/linux/x86_64/debug/vec.so",
+            "./vec.so",
         );
 
         let windows_found_static = std::fs::copy(
-            "../build/windows/x64/debug/staticvectorizer.lib",
-            "./vec.lib",
+            "../build/windows/x64/debug/vec.lib",
+            "./vec.lib"
         );
-        if windowsfound_shared.is_err() && linuxfound_shared.is_err() {
-            println!("Neither Vectorizer Library Found.");
-        } else if windowsfound_shared.is_err() {
-            println!("Debug Linux Vectorizer lib found.");
-        } else {
-            println!("Debug Windows Vectorizer lib found.");
+
+        if windowsfound_shared.is_err() && linuxfound_shared.is_err() && windows_found_static.is_err() {
+            println!("C part not found on either OS.");
         }
         println!("cargo:rustc-link-search=./");
 
@@ -33,9 +30,7 @@ fn main() {
         
         if let Ok(conanpathstr) = std::env::var("conanpath") {
             let conanpath = std::path::Path::new(&conanpathstr);
-
-            check_directory(conanpath);
-            
+            link_C_libs(conanpath);
         }
 
         else {
@@ -45,8 +40,8 @@ fn main() {
         // Rerun if any library file was deleted
         println!("cargo:rerun-if-changed=vec.lib");
         println!("cargo:rerun-if-changed=vec.dll");
-        println!("cargo:rerun-if-changed=libvec.a");
-        println!("cargo:rerun-if-changed=libvec.so");
+        println!("cargo:rerun-if-changed=vec.a");
+        println!("cargo:rerun-if-changed=vec.so");
     } 
     
     else {
@@ -54,8 +49,7 @@ fn main() {
     }
 }
 
-fn check_directory(directory: &std::path::Path)
-{
+fn link_C_libs(directory: &std::path::Path) {
     match directory.read_dir()
     {
         Ok(mut real_dir) => {   
@@ -83,7 +77,7 @@ fn check_file_type(real_item: &std::fs::DirEntry, directory: &std::path::Path) {
     {
         if real_file_type.is_dir()
         {
-            check_directory(&real_item.path());
+            link_C_libs(&real_item.path());
         }
         else if real_file_type.is_file()
         {
@@ -102,6 +96,8 @@ fn check_file_type(real_item: &std::fs::DirEntry, directory: &std::path::Path) {
 }
 
 fn add_directory_to_linker(dir_name: &str, real_file_name: &str) {
+println!("yo we found something: {} \n", real_file_name);
+
     println!("cargo:rustc-link-search={}", dir_name);
     println!("cargo:rustc-link-lib=static={}", real_file_name.strip_suffix(".lib").expect("Build script failed to remove '.lib' from a filename"));
 }

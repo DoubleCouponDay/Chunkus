@@ -6,36 +6,52 @@
 
 image create_image(int width, int height)
 {
-    image out;
-    allocate_image(width, height, &out);
-    return out;
-}
+    image output = {
+        width, height
+    };
 
-void allocate_image(int width, int height, image *img)
-{
-    if (!img)
-        return;
+    output.pixels_array_2d = malloc(sizeof(pixel*) * width);
 
-    img->width = width;
-    img->height = height;
-
-    img->pixels = malloc(sizeof(pixel*) * height);
-
-    for (int i = 0; i < height; ++i)
+    for (int i = 0; i < width; ++i)
     {
-        img->pixels[i] = malloc(sizeof(pixel) * width);
-    }
-}
-
-void free_image_contents(image *img)
-{
-    if (!img || !img->pixels)
-        return;
-
-    for (int i = 0; i < img->width; ++i)
-    {
-        free(img->pixels[i]);
+        output.pixels_array_2d[i] = malloc(sizeof(pixel) * height);
     }
 
-    free(img->pixels);
+    // Begin Changes
+    output.topleftcorner_p     = &output.pixels_array_2d[0][0];
+    output.toprightcorner_p    = &output.pixels_array_2d[output.width-1][0];
+    output.bottomleftcorner_p  = &output.pixels_array_2d[0][output.height-1];
+    output.bottomrightcorner_p = &output.pixels_array_2d[output.width-1][output.height-1];
+    return output;
+}
+
+void free_image_contents(image img)
+{
+    if (!img.pixels_array_2d) {
+        DEBUG("image has null pointers \n");
+        return;    
+    }
+    
+    for (int i = 0; i < img.width; ++i)
+    {
+        DEBUG("indexing pixels array\n");
+        pixel* current = img.pixels_array_2d[i];
+
+        if(current) {     
+            DEBUG("freeing pixel\n");       
+            free(current);            
+        }
+
+        else
+            DEBUG("pixel is null \n");
+    }
+
+    if(img.pixels_array_2d) {
+        DEBUG("freeing pixel collection\n");
+        free(img.pixels_array_2d);
+    }
+    else {
+        DEBUG("pixel collection is null \n");
+    }
+    DEBUG("freed image contents\n");
 }

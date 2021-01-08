@@ -7,7 +7,7 @@ add_requires("CONAN::libjpeg/9d", {alias = "libjpeg"})
 add_requires("CONAN::nanosvg/20190405", {alias = "nanosvg"})
 
 -- 
-target("vectorizer_standalone")
+target("vectorizer")
     if is_plat("linux") then
         add_syslinks("m")
     end
@@ -28,7 +28,7 @@ target("tests")
     add_files("./test/tests.c", "./test/munit.c", "./test/**.c")
     add_packages("libpng", "libjpeg", "nanosvg")
 
-target("staticvectorizer")
+target("vec")
     if is_plat("linux") then
         add_syslinks("m")
     end

@@ -4,17 +4,22 @@
 #include <math.h>
 #include "types/colour.h"
 #include <nanosvg.h>
+#include "types/image.h"
+#include "mapping.h"
 
-typedef struct pathshape {
-    char* moveto;
-    char** lineto;
-};
+typedef struct {
+    float distance_between;
+    float angle_between;
+} colour_diff;
 
-typedef struct
-{
+typedef struct {
+    char* moveto_p;
+    char** lineto_array2d;
+} pathshape;
+
+typedef struct {
     pixelF Stroke;
     pixelF Fill;
 } svg_PropertiesF;
 
-
-void vectorize_Image_Group(image input, group_map group_input, float variance_threshold);
+void vectorize_Image_Group(image input, groupmap output, float variance_threshold);

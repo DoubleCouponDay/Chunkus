@@ -2,21 +2,23 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-pixel convert_colorf_to_pixel(pixelF color)
+pixel convert_colorf_to_pixel(pixelF input)
 {
     pixel out;
-    out.r = rintf(color.r * 255.f);
-    out.g = rintf(color.g * 255.f);
-    out.b = rintf(color.b * 255.f);
+    out.r = rintf(input.r * 255.f);
+    out.g = rintf(input.g * 255.f);
+    out.b = rintf(input.b * 255.f);
+    out.location = input.location;
     return out;
 }
 
-pixelF convert_pixel_to_colorf(pixel pixel)
+pixelF convert_pixel_to_colorf(pixel input)
 {
     pixelF out;
-    out.r = (float)pixel.r / 255.f;
-    out.g = (float)pixel.g / 255.f;
-    out.b = (float)pixel.b / 255.f;
+    out.r = (float)input.r / 255.f;
+    out.g = (float)input.g / 255.f;
+    out.b = (float)input.b / 255.f;
+    out.location = input.location;
     return out;
 }
 

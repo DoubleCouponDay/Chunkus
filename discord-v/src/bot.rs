@@ -18,6 +18,9 @@ use serenity::{
 use crate::core::{do_vectorize};
 use std::{
     collections::HashSet,
+    fs::File,
+    path::Path,
+    io::prelude::*,
 };
 use crate::constants;
 
@@ -138,39 +141,67 @@ impl EventHandler for DefaultHandler {
 struct General;
  
 #[command]
-async fn vectorize(_ctx: &Context, msg: &Message) -> CommandResult {
+async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult {
     println!("vectorizing...");
     println!("embed count {0}", msg.embeds.len());
     for embed in msg.embeds.iter() {
         if let Some(embed_url) = &embed.url
         {
-            // println!("embed url: {0}", embed_url);
-            // let mut filename = String::from("./");
-            // filename.push_str(constants::inputfilename);
-            // let mut epic_path = Path::new(&filename);
-            // let _random_file = File::create(&epic_path)?;
-            // let path_string = epic_path.to_str();
-            
-            // let mut real_path = match path_string
-            // {
-            //     Some(pp) => String::from(pp),
-            //     None => continue
-            // };
+            // Download file using Reqwest
 
-            // let mut arguments = String::from("--test");
-            // let mut epic_path_array: [*mut u8; 3] = [ptr::null_mut(), real_path.as_mut_ptr(), arguments.as_mut_ptr()];
-            // let _array_pointer = epic_path_array.as_mut_ptr();
+            let client = reqwest::Client::new();
+
+            let response = match client.get(embed_url).send().await
+                {
+                    Err(_) => return Ok(()),
+                    Ok(thing) => thing
+                };
             
-            // let out = call_vectorize(3, _array_pointer);
-            // println!("Vectorized with return code: {0}", out);
+            let mut file = match File::create(Path::new(constants::INPUTFILENAME))
+                {
+                    Err(_) => return Ok(()),
+                    Ok(thing) => thing
+                };
             
+            match response.bytes().await
+            {
+                Ok(bytes) => match file.write_all(&bytes) { Err(_) => return Ok(()), _ => () },
+                Err(_) => return Ok(()),
+            };
+
+            if let Err(err) = file.sync_all()
+            {
+                println!("Error {}", err);
+                return Ok(());
+            }
+
+
+
+            // Execute Algorithm
             let input = String::from(constants::INPUTFILENAME);
             let output = String::from(constants::OUTPUTFILENAME);
 
             let result = do_vectorize(&input, &output);
             println!("Vectorized with return code: {0}", result);
-        }
 
+            if result != 0
+            {
+                return Ok(());
+            }
+
+            // Send the output
+            let msg_files = vec![output.as_str()];
+
+            let msg = msg.channel_id.send_files(&ctx.http, msg_files, |m|
+            {
+                m.content("Here's your result")
+            }).await;
+
+            if let Err(err) = msg
+            {
+                println!("Error sending result {}", err);
+            }
+        }
         else
         {
             println!("Found empty embed o.o");

@@ -2,5 +2,5 @@
 
 int entrypoint(int argc, char* argv[]);
 
-extern const char* format1;
-extern const char* format2;
+extern const char* format1_p;
+extern const char* format2_p;

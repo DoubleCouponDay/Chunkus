@@ -1,21 +1,6 @@
 {
     "configurations": [
         {
-            "name": "linux",
-            "includePath": [
-                "${workspaceFolder}/**",
-                "${default}"
-            ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
-            ],
-            "cStandard": "c11",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "gcc-x64"
-        },
-        {
             "name": "windows",
             "includePath": [
                 "${workspaceFolder}/**",
@@ -29,6 +14,21 @@
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "msvc-x64"
+        },
+        {
+            "name": "linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${default}"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64"
         }
     ],
     "version": 4

@@ -29,6 +29,6 @@ typedef struct
 
 fileresources* readfile(const MunitParameter params[], filesetup* setup);
 
-void* createfilesetup(const MunitParameter params[], void* userdata);
+filesetup* createfilesetup(const MunitParameter params[], void* userdata);
 
 void freefile(fileresources* resources);

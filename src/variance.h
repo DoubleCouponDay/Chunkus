@@ -4,6 +4,4 @@
 
 typedef pixelF node_variance;
 
-pixelF calculate_pixel_variance(pixel *colors, int num_colors);
-
-float shifted_data_variance(float *data, int data_len);
+pixelF calculate_pixel_variance(pixel* pixel_array, int num_colors_x, int num_colors_y);

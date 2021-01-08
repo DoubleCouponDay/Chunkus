@@ -3,23 +3,29 @@
 #include "types/colour.h"
 #include "types/image.h"
 #include "variance.h"
+#include "types/map.h"
 
 typedef struct 
 {
-    pixel color;
+    pixel average_colour;
     node_variance variance;
+    pixel** pixels_array_2d;
+    coordinate location;
 } pixelgroup;
 
 typedef struct 
 {
-    pixelgroup *nodes;
-    int width;
-    int height;
-} group_map;
+    pixelgroup** groups_array_2d;
+    int map_width; 
+    int map_height;
+    image input_p;
+} groupmap;
 
 typedef struct
 {
     int chunk_size;
-} node_map_options;
+} vectorize_options;
 
-group_map generate_group_map(image from, node_map_options options);
+groupmap generate_pixel_group(image inputimage_p, vectorize_options options);
+
+void free_group_map(groupmap map_p);

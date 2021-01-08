@@ -36,6 +36,8 @@ Install Conan.io. it can only be run from cmd, not powershell. Windows defender 
     cd into build directory
     
     conan install ..
+
+You must add an environment variable called `conanpath` and make its value the absolute path to your `.conan` folder. Usually this is found in your user folder.
   
 ---
 
@@ -70,10 +72,7 @@ The C code builds to `/build/windows/x64/`.
 
 Now to build the Rust Component  
 
-The rust component links to the C code, which in turn depends on libpng (which depends on zlib)  
-This means you will need to copy and rename:  
- - a libpng static library into `discord-v` as `libpng.lib` on windows and probably like `liblibpng.a` on linux  
- - a zlib static library into `discord-v` as `zlib.lib` on windows and most likely `libzlib.a` on linux  
+The rust component links to the C code, which in turn depends on libpng (which depends on zlib)
 See note for help on obtaining **libpng** and **zlib** static libraries
 
 Now in the `discord-v` folder, run:

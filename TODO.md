@@ -5,9 +5,8 @@ Convert a raster image into a scalable vector graphic and back.
 # TASKS
 
 - boundary detection along sharp colour differences
-    ok so
 
-    each variance group above a threshold becomes an svg point
+    each pixelgroup's variance above a threshold becomes an svg point
 
     the point has a single colour
 
