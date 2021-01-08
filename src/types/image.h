@@ -37,9 +37,9 @@ typedef pixel* pixelp;
 
 typedef struct
 {
-    pixel** pixels_array_2d;
     int width;
     int height;
+    pixel** pixels_array_2d;
     pixel* topleftcorner_p; //todo
     pixel* toprightcorner_p; //todo
     pixel* bottomleftcorner_p; //todo
@@ -48,6 +48,4 @@ typedef struct
 
 image create_image(int width, int height);
 
-void allocate_image(int width, int height, image* output_p);
-
-void free_image_contents(image* img_p);
+void free_image_contents(image img);

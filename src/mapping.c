@@ -9,7 +9,7 @@
 #define NULL 0
 #endif
 
-void iterateImagePixels(int x, int y, image* inputimage_p, vectorize_options options, groupmap output) {
+void iterateImagePixels(int x, int y, image input, vectorize_options options, groupmap output) {
     int x_offset = x * options.chunk_size;
     int y_offset = y * options.chunk_size;
 
@@ -17,8 +17,8 @@ void iterateImagePixels(int x, int y, image* inputimage_p, vectorize_options opt
     pixelgroup* outputnodes = &output.groups_array_2d[x][y];
     
     // Assigned the edge case pixelgroup dimensions
-    int node_width = inputimage_p->width - x * options.chunk_size;
-    int node_height = inputimage_p->height - y * options.chunk_size;
+    int node_width = input.width - x * options.chunk_size;
+    int node_height = input.height - y * options.chunk_size;
     
     // Check if not actually on the edge
     if (node_width > options.chunk_size)
@@ -29,32 +29,9 @@ void iterateImagePixels(int x, int y, image* inputimage_p, vectorize_options opt
     outputnodes->pixels_array_2d = malloc(sizeof(pixel*) * node_width);
 
     for (int i = 0; i < node_width; ++i)
-        outputnodes->pixels_array_2d[i] = &inputimage_p->pixels_array_2d[x_offset + i][y_offset];
+        outputnodes->pixels_array_2d[i] = &input.pixels_array_2d[x_offset + i][y_offset];
 
     int count = node_width * node_height;
-    
-    // Gather all the pixels into this array
-    pixelF** node_data_array = malloc(sizeof(pixelF*) * node_width);
-    
-    for (int i = 0; i < node_height; ++i)
-        node_data_array[i] = malloc(sizeof(pixelF) * node_height);
-
-    for (int width_index = 0; width_index < node_width; ++width_index)
-    {
-        for (int height_index = 0; height_index < node_height; ++height_index)
-        {
-            int pixel_x = x * options.chunk_size + width_index;
-            int pixel_y = y * options.chunk_size + height_index;
-
-            float r = inputimage_p->pixels_array_2d[pixel_x][pixel_y].r;
-            float g = inputimage_p->pixels_array_2d[pixel_x][pixel_y].g;
-            float b = inputimage_p->pixels_array_2d[pixel_x][pixel_y].b;
-
-            node_data_array[width_index][height_index].r = r;
-            node_data_array[width_index][height_index].g = g;
-            node_data_array[width_index][height_index].b = b;
-        }
-    }
 
     // Calculate the average of all these pixels
     pixelF average = { 0.f, 0.f, 0.f };
@@ -67,7 +44,7 @@ void iterateImagePixels(int x, int y, image* inputimage_p, vectorize_options opt
     {
         for (int y = 0; y < node_height; ++y)
         {
-            pixel* currentpixel_p = &(inputimage_p->pixels_array_2d[y_offset + y][x_offset + x]);
+            pixel* currentpixel_p = &(input.pixels_array_2d[y_offset + y][x_offset + x]);
             average_r += currentpixel_p->r;
             average_g += currentpixel_p->g;
             average_b += currentpixel_p->b;
@@ -110,7 +87,7 @@ void iterateImagePixels(int x, int y, image* inputimage_p, vectorize_options opt
     {
         for (int y = 0; y < node_height; ++y)
         {
-            node_pixels_array2d[x][y] = inputimage_p->pixels_array_2d[y_offset + y][x_offset + x];
+            node_pixels_array2d[x][y] = input.pixels_array_2d[y_offset + y][x_offset + x];
         }
     }
     outputnodes->variance = calculate_pixel_variance(node_pixels_array2d, node_width, node_height);
@@ -132,23 +109,23 @@ void iterateImagePixels(int x, int y, image* inputimage_p, vectorize_options opt
     }
 }
 
-groupmap generate_pixel_group(image* inputimage_p, vectorize_options options)
+groupmap generate_pixel_group(image input, vectorize_options options)
 {
-    if (!inputimage_p->pixels_array_2d)
+    if (!input.pixels_array_2d)
     {
         DEBUG("Invalid image input \n");
         return (groupmap){ NULL, 0, 0 };
     }
 
-    if (inputimage_p->width < 1 || inputimage_p->height < 1 || !inputimage_p->pixels_array_2d)
+    if (input.width < 1 || input.height < 1 || !input.pixels_array_2d)
         return (groupmap){ NULL, 0, 0 };
 
     if (options.chunk_size < 2)
         options.chunk_size = 2;
     
     groupmap output;
-    output.map_width = (int)ceilf((float)inputimage_p->width / (float)options.chunk_size);
-    output.map_height = (int)ceilf((float)inputimage_p->height / (float)options.chunk_size);
+    output.map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
+    output.map_height = (int)ceilf((float)input.height / (float)options.chunk_size);
     output.groups_array_2d = malloc(sizeof(pixelgroup*) * output.map_width);
 
     for (int i = 0; i < output.map_width; ++i)
@@ -156,13 +133,13 @@ groupmap generate_pixel_group(image* inputimage_p, vectorize_options options)
         output.groups_array_2d[i] = malloc(sizeof(pixelgroup) * output.map_height);
     }
 
-    output.input_p = inputimage_p;
+    output.input_p = input;
 
     for (int x = 0; x < output.map_width; ++x)
     {
         for (int y = 0; y < output.map_height; ++y)
         {
-            iterateImagePixels(x, y, inputimage_p, options, output);
+            iterateImagePixels(x, y, input, options, output);
         }
     }
     return output;

@@ -6,44 +6,36 @@
 
 image create_image(int width, int height)
 {
-    image out;
-    allocate_image(width, height, &out);
-    return out;
-}
+    image output = {
+        width, height
+    };
 
-void allocate_image(int width, int height, image* output_p)
-{
-    if (!output_p)
-        return;
+    output.pixels_array_2d = malloc(sizeof(pixel*) * width);
 
-    output_p->width = width;
-    output_p->height = height;
-
-    output_p->pixels_array_2d = malloc(sizeof(pixel*) * width);
-
-    for (int i = 0; i < height; ++i)
+    for (int i = 0; i < width; ++i)
     {
-        output_p->pixels_array_2d[i] = malloc(sizeof(pixel) * height);
+        output.pixels_array_2d[i] = malloc(sizeof(pixel) * height);
     }
 
     // Begin Changes
-    output_p->topleftcorner_p     = &output_p->pixels_array_2d[0]                   [0];
-    output_p->toprightcorner_p    = &output_p->pixels_array_2d[output_p->width-1]   [0];
-    output_p->bottomleftcorner_p  = &output_p->pixels_array_2d[0]                   [output_p->height-1];
-    output_p->bottomrightcorner_p = &output_p->pixels_array_2d [output_p->width-1]  [output_p->height-1];
+    output.topleftcorner_p     = &output.pixels_array_2d[0][0];
+    output.toprightcorner_p    = &output.pixels_array_2d[output.width-1][0];
+    output.bottomleftcorner_p  = &output.pixels_array_2d[0][output.height-1];
+    output.bottomrightcorner_p = &output.pixels_array_2d[output.width-1][output.height-1];
+    return output;
 }
 
-void free_image_contents(image* img_p)
+void free_image_contents(image img)
 {
-    if (!img_p || !img_p->pixels_array_2d) {
+    if (!img.pixels_array_2d) {
         DEBUG("image has null pointers \n");
         return;    
     }
     
-    for (int i = 0; i < img_p->width; ++i)
+    for (int i = 0; i < img.width; ++i)
     {
         DEBUG("indexing pixels array\n");
-        pixel* current = img_p->pixels_array_2d[i];
+        pixel* current = img.pixels_array_2d[i];
 
         if(current) {     
             DEBUG("freeing pixel\n");       
@@ -54,11 +46,10 @@ void free_image_contents(image* img_p)
             DEBUG("pixel is null \n");
     }
 
-    if(img_p->pixels_array_2d) {
+    if(img.pixels_array_2d) {
         DEBUG("freeing pixel collection\n");
-        free(img_p->pixels_array_2d);    
-    }    
-
+        free(img.pixels_array_2d);
+    }
     else {
         DEBUG("pixel collection is null \n");
     }

@@ -13,14 +13,14 @@ void* test4setup(const MunitParameter params[], void* userdata);
 void test4teardown(void* fixture);
 
 typedef struct {
-    image* img;
-    groupmap* map;
+    image img;
+    groupmap map;
 } test4stuff;
 
 void* test5setup(const MunitParameter params[], void* userdata);
 void test5teardown(void* fixture);
 
 typedef struct {
-    image* img;
+    image img;
     FILE* fp;
 } test5stuff;

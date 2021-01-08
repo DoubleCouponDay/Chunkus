@@ -28,6 +28,12 @@ MunitResult aTestCanPass(const MunitParameter params[], void* data) {
   return MUNIT_OK;
 }
 
+MunitResult test2_itCanDecompressAPng(const MunitParameter params[], void* userdata) {
+  fileresources* resources = readfile(params, userdata);
+  freefile(resources);
+  return MUNIT_OK;
+}
+
 MunitResult test3_weKnownHowToGetPixelDataFromPng(const MunitParameter params[], void* userdata) {
   DEBUG("creating resources...\n");
   fileresources* resources = userdata;
@@ -45,18 +51,14 @@ MunitResult test3_weKnownHowToGetPixelDataFromPng(const MunitParameter params[],
   return MUNIT_OK;
 }
 
-MunitResult test4_can_convert_file_to_node_map(const MunitParameter params[], void* userdata) {
-  test4stuff* stuff = userdata;
-  image newimg = convert_png_to_image(params[0].value);
-  stuff->img = &newimg;
+MunitResult test4_can_convert_file_to_node_map(const MunitParameter params[], test4stuff userdata) {
+  userdata.img = convert_png_to_image(params[0].value);
   vectorize_options options = { 4 };
-  groupmap newmap = generate_pixel_group(stuff->img, options);
-  stuff->map = &newmap;
+  userdata.map = generate_pixel_group(userdata.img, options);
   return MUNIT_OK;
 }
 
-MunitResult test5_opensPngAndOutputsBmp(const MunitParameter params[], void *userdata) {
-  test5stuff* stuff = userdata;
+MunitResult test5_opensPngAndOutputsBmp(const MunitParameter params[], test5stuff userdata) {
   // Use constant input/output path
   char* in_file = params[0].value;
   char* out_file = "test_out.bmp";
@@ -64,23 +66,16 @@ MunitResult test5_opensPngAndOutputsBmp(const MunitParameter params[], void *use
   // Delete output file
   remove(out_file);
 
-  image newimg = convert_png_to_image(in_file);
-  stuff->img = &newimg;
+  userdata.img = convert_png_to_image(in_file);
 
-  munit_assert_ptr_not_null(newimg.pixels_array_2d); // FAILED TO CONVERT IMAGE
+  munit_assert_ptr_not_null(userdata.img.pixels_array_2d); // FAILED TO CONVERT IMAGE
 
-  write_image_to_file(&newimg, out_file);
+  write_image_to_file(userdata.img, out_file);
 
   FILE* fp = fopen(out_file, "r");
-  stuff->fp = fp;
+  userdata.fp = fp;
   munit_assert_ptr_not_null(fp); // OUTPUT FILE NOT FOUND
 
-  return MUNIT_OK;
-}
-
-MunitResult test2_itCanDecompressAPng(const MunitParameter params[], void* userdata) {
-  fileresources* resources = readfile(params, userdata);
-  freefile(resources);
   return MUNIT_OK;
 }
 
