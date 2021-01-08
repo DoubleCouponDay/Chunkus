@@ -22,4 +22,4 @@ typedef struct {
     pixelF Fill;
 } svg_PropertiesF;
 
-void vectorize_Image_Group(image input, groupmap output, float variance_threshold);
+void vectorize_image(image input, groupmap output, float variance_threshold);

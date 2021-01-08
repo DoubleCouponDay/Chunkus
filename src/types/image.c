@@ -10,7 +10,7 @@ image create_image(int width, int height)
         width, height
     };
 
-    DEBUG("Creating Image with %dx%d Dimensions \n", width, height);
+    DEBUG("Creating Image with %d x %d Dimensions \n", width, height);
 
     output.pixels_array_2d = malloc(sizeof(pixel*) * width);
 

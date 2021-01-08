@@ -40,10 +40,10 @@ typedef struct
     int width;
     int height;
     pixel** pixels_array_2d;
-    pixel* topleftcorner_p; //todo
-    pixel* toprightcorner_p; //todo
-    pixel* bottomleftcorner_p; //todo
-    pixel* bottomrightcorner_p; //todo
+    pixel* topleftcorner_p;
+    pixel* toprightcorner_p; 
+    pixel* bottomleftcorner_p; 
+    pixel* bottomrightcorner_p; 
 } image;
 
 image create_image(int width, int height);
