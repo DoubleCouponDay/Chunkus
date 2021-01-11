@@ -1,7 +1,9 @@
 #pragma once
 
-#include "map.h"
-
+typedef struct {
+    int x;
+    int y;
+} coordinate;
 
 typedef unsigned char byte;
 
@@ -45,6 +47,8 @@ typedef struct
     pixel* bottomleftcorner_p; 
     pixel* bottomrightcorner_p; 
 } image;
+
+char* rgb_to_string(pixel* input);
 
 image create_image(int width, int height);
 

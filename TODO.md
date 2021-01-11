@@ -16,6 +16,8 @@ Convert a raster image into a scalable vector graphic and back.
 
     set the colour of the closed path as a single colour fill
 
+    copy the svg template into the build folder
+
 - convert svg to bmp and submit it to discord
 
 - deploy to azure web apps for containers

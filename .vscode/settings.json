@@ -38,6 +38,8 @@
         "xmemory": "cpp",
         "algorithm": "cpp",
         "xutility": "cpp",
-        "*.rh": "cpp"
+        "*.rh": "cpp",
+        "compare": "c",
+        "utility": "c"
     }
 }

@@ -48,3 +48,20 @@ void test5teardown(void* fixture) {
   free_image_contents(stuff->img);
   free(fixture);
 }
+
+void* test7setup(const MunitParameter params[], void* userdata)
+{
+  return malloc(sizeof(test7stuff));
+}
+
+void test7teardown(void* fixture)
+{
+  test7stuff *stuff = fixture;
+
+  free_image_contents(stuff->img);
+  free_group_map(stuff->map);
+  free_image(stuff->svg);  
+
+
+  free(stuff);
+}

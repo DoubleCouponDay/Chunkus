@@ -35,7 +35,7 @@ image convert_png_to_image(char *fileaddress)
 
     if (!file_p)
     {
-        DEBUG("Could not open file '%s' for reading", fileaddress);
+        DEBUG("Could not open file '%s' for reading\n", fileaddress);
         return (image){NULL, 0, 0};
     }
 
@@ -77,13 +77,13 @@ image convert_png_to_image(char *fileaddress)
     png_infop info = png_create_info_struct(read_struct);
     if (!info)
     {
-        DEBUG("Error: png_create_info_struct failed");
+        DEBUG("Error: png_create_info_struct failed\n");
         return (image) { NULL, 0, 0 };
     }
 
     if (setjmp(png_jmpbuf(read_struct)))
     {
-        DEBUG("Error during init_io");
+        DEBUG("Error during init_io\n");
         png_destroy_read_struct(read_struct, info, NULL);
         return (image) { NULL, 0, 0 };
     }
@@ -108,7 +108,7 @@ image convert_png_to_image(char *fileaddress)
     bit_depth = png_get_bit_depth(read_struct, info);
     if (bit_depth != 8)
     {
-        DEBUG("Only 24bpp PNGs are supported, depth: %d", bit_depth * 3);
+        DEBUG("Only 24bpp PNGs are supported, depth: %d \n", bit_depth * 3);
         return (image){NULL, 0, 0};
     }
 
@@ -116,7 +116,7 @@ image convert_png_to_image(char *fileaddress)
 
     if (setjmp(png_jmpbuf(read_struct)))
     {
-        DEBUG("Error during early PNG reading");
+        DEBUG("Error during early PNG reading \n");
         png_destroy_read_struct(read_struct, info, NULL);
         return (image){NULL, 0, 0};
     }

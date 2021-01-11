@@ -45,7 +45,7 @@ filesetup* createfilesetup(const MunitParameter params[], void* userdata)
 
   if (setup->file == NULL)
   {
-    DEBUG("File pointer was null");
+    DEBUG("File pointer was null \n");
     return NULL;
   }
   

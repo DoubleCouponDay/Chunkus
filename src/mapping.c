@@ -95,7 +95,7 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, gr
     //only print if at the end
     if ((x == y && x % 20 == 0) || (x == 0 && y == 0) || (x == (output.map_width - 1) && y == (output.map_height - 1)))
     {
-        DEBUG("pixelgroup (%d, %d) variance: (%g, %g, %g), average: (%d, %d, %d), node_width: %d, node_height %d, min: %d, %d, %d, max: %d, %d, %d\n", 
+        DEBUG("pixelgroup (%d, %d) variance: (%g, %g, %g), average: (%d, %d, %d), node_width: %d, node_height %d, min: %d, %d, %d, max: %d, %d, %d \n", 
         x, y, 
         outputnodes->variance.r,
         outputnodes->variance.g,

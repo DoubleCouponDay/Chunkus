@@ -4,6 +4,15 @@
 
 #include <stdlib.h>
 
+char* rgb_to_string(pixel* input) {
+    char* output = input->r;
+    output += ',';
+    output += input->g;
+    output += ',';
+    output += input->b;
+    return output;
+}
+
 image create_image(int width, int height)
 {
     image output = {
