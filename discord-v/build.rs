@@ -12,7 +12,7 @@ fn main() {
             "./vec.dll"
         );
         let linuxfound_shared = std::fs::copy(
-            "../build/linux/x86_64/debug/vec.so",
+            "../build/linux/x86_64/debug/libvec.a",
             "./vec.so",
         );
 
