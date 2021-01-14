@@ -29,4 +29,4 @@ typedef struct
 
 groupmap generate_pixel_group(image inputimage_p, vectorize_options options);
 
-void free_group_map(groupmap map_p);
+void free_group_map(groupmap* map_p);

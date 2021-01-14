@@ -33,7 +33,7 @@ void test4teardown(void* fixture) {
   DEBUG("freeing test 4\n");
   test4stuff* stuff = fixture;
   free_image_contents(stuff->img);
-  free_group_map(stuff->map);
+  free_group_map(&stuff->map);
   free(fixture);
 }
 
@@ -59,7 +59,7 @@ void test7teardown(void* fixture)
   test7stuff *stuff = fixture;
 
   free_image_contents(stuff->img);
-  free_group_map(stuff->map);
+  free_group_map(&stuff->map);
   free_image(stuff->svg);  
 
 
