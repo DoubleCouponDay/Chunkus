@@ -4,6 +4,7 @@
 #include <dirent.h>
 #endif
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -13,13 +14,13 @@
 #include <errno.h>
 #include "munit.h"
 
-#include "../src/tools.h"
+#include "tools.h"
 #include "readpng.h"
 #include "../src/mapping.h"
 #include "../src/imagefile.h"
 #include "../src/entrypoint.h"
 #include "../src/types/colour.h"
-#include "../src/svg.h"
+#include "../src/svg/svg.h"
 #include "tears.h"
 
 #define NANOSVG_IMPLEMENTATION
@@ -95,7 +96,9 @@ MunitResult test7_can_vectorize_image(const MunitParameter params[], void* userd
   vectorize_options options = { 4 };
   groupmap map = generate_pixel_group(img, options);
 
-  NSVGimage* svg = vectorize_image(img, map, 5.f);
+  float param2tofloat = atof(params[1].value);
+  float param3tofloat = atof(params[2].value);
+  NSVGimage* svg = vectorize_image(img, map, param2tofloat, param3tofloat);
 
   return MUNIT_OK;
 }
@@ -109,7 +112,13 @@ int main(int argc, char** argv) {
   MunitParameterEnum test_params[] = { 
     { 
       "filename", filepp_params
-    }, 
+    },
+    {
+      "variance_threshhold", "5.0"
+    },
+    {
+      "shape_colour_threshhold", "5.0"
+    },
     { NULL, NULL} 
   };
   

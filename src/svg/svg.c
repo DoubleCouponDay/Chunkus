@@ -4,14 +4,16 @@
 #include <math.h>
 #include <string.h>
 #include <stdarg.h>
-#include "types/colour.h"
+#include "../types/colour.h"
 #include <nanosvg.h>
-#include "types/image.h"
-#include "mapping.h"
-#include "tools.h"
+#include "../types/image.h"
+#include "../mapping.h"
+#include "../../test/tools.h"
+#include "nanocopy.h"
 
 const int POINTS_LENGTH = 8;
 const int BEZIER_POINTS = 2;
+const int BOUNDS_LENGTH = 4;
 const char* TEMPLATE_PATH = "../template.svg";
 
 void fill_char_array(char* input, char* output) {
@@ -57,7 +59,7 @@ NSVGpath* create_path(image input, coordinate start, coordinate end) {
     output->npts = 2;
     fill_pts_array(output->pts, POINTS_LENGTH, start.x, start.y, end.x, end.y, 0, 0, 1, 1); //draw the top side of a box
     float boundingbox[4] = { 0, 0, input.width, input.height };
-    fill_float_array(boundingbox, 4, output->bounds, 4);
+    fill_float_array(boundingbox, BOUNDS_LENGTH, output->bounds, BOUNDS_LENGTH);
     return output;
 }
 
@@ -109,7 +111,6 @@ NSVGshape* draw_corners(image input) {
     coordinate bottomend = {0, input.height};
     NSVGpath* bottompath = create_path(input, bottomstart, bottomend);
     rightpath->next = bottompath;
-
     
     // Left Path
     coordinate leftstart = {0, 0};
@@ -117,67 +118,22 @@ NSVGshape* draw_corners(image input) {
     NSVGpath* leftpath = create_path(input, topstart, topend);
     bottompath->next = leftpath;
 
+    leftpath->next = toppath;
     output->paths = toppath;
 
-    // {
-    //     char fillRule,				// Fill rule, see NSVGfillRule.
-    //     unsigned char flags,		// Logical or of NSVG_FLAGS_* flags
-    //     float bounds[4],			// Tight bounding box of the shape [minx,miny,maxx,maxy].
-    //     NSVGpath* paths,			// Linked list of paths in the image.
-    //     struct NSVGshape* next		// Pointer to next shape, or NULL if last element.
-    // };
-
+    float* bounds[4] = { 0, 0, input.width, input.height };
+    fill_float_array(bounds, BOUNDS_LENGTH, output->bounds, BOUNDS_LENGTH);
 
     return output;
 }
 
-int NSVG_RGB(int r, int g, int b) {
-    return ((unsigned int)r) | ((unsigned int)g << 8) | ((unsigned int)b << 16);
-}
-
-///literally a straight copy paste from a non public nanosvg method
-NSVGimage* parsetemplate() {
-    FILE* fp = NULL;
-	size_t size;
-	char* data = NULL;
-	NSVGimage* image = NULL;
-	fp = fopen(TEMPLATE_PATH, "rb");
-
-	if (!fp) {
-        DEBUG("could not find svg template file.\n");
-        int crash[1];
-        crash[1];
-    };
-	fseek(fp, 0, SEEK_END);
-	size = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-	data = (char*)malloc(size+1);
-
-	if (data == NULL) {
-        DEBUG("something went wrong allocating svg space. \n");
-        int crash[1];
-        crash[1];
-    }
-	if (fread(data, 1, size, fp) != size) {
-        DEBUG("something went wrong reading the file data. \n");
-        int crash[1];
-        crash[1];
-    };
-	data[size] = '\0';	// Must be null terminated.
-	fclose(fp);
-	image = calloc(1, sizeof(NSVGimage));
-	free(data);
-
-	return image;
-}
-
-NSVGimage vectorize_image(image input, groupmap map, float variance_threshold) {
-    NSVGimage* output = parsetemplate();
+NSVGimage vectorize_image(image input, groupmap map, float variance_threshold, float shape_colour_threshhold) {
+    NSVGimage* output = parsetemplate(TEMPLATE_PATH);
     output->width = input.width;
     output->height = input.height;
     NSVGshape* border = draw_corners(input);
 
-    if(!border) {
+    if(border) { //border has a consistent colour so place it as first object
         output->shapes = border;
     }
 
@@ -185,7 +141,7 @@ NSVGimage vectorize_image(image input, groupmap map, float variance_threshold) {
     {
         for (int map_y = 0; map_y < map.map_height; ++map_y)
         {
-            pixelgroup* group_p = &map.groups_array_2d[map_x][map_y];
+            pixelgroup* currentgroup_p = &map.groups_array_2d[map_x][map_y];
 
         }
     }

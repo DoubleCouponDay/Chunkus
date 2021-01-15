@@ -13,7 +13,7 @@
 #ifndef _WIN32
 #include <dirent.h>
 #endif
-#include "../src/tools.h"
+#include "../test/tools.h"
 #include "./readpng.h"
 #define NANOSVG_IMPLEMENTATION
 #define ERROR -1

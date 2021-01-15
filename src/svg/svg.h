@@ -2,10 +2,10 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "types/colour.h"
+#include "../types/colour.h"
 #include <nanosvg.h>
-#include "types/image.h"
-#include "mapping.h"
+#include "../types/image.h"
+#include "../mapping.h"
 
 typedef struct {
     float distance_between;
@@ -22,6 +22,6 @@ typedef struct {
     pixelF Fill;
 } svg_PropertiesF;
 
-NSVGimage* vectorize_image(image input, groupmap output, float variance_threshold);
+NSVGimage* vectorize_image(image input, groupmap output, float variance_threshold, float shape_colour_threshhold);
 
 void free_image(NSVGimage* input);

@@ -1,6 +1,6 @@
 #include "image.h"
 
-#include "../tools.h"
+#include "../../test/tools.h"
 
 #include <stdlib.h>
 

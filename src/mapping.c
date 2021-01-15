@@ -2,7 +2,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "types/colour.h"
-#include "tools.h"
+#include "../test/tools.h"
 #include <errno.h>
 
 #ifndef NULL
