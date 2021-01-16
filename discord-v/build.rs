@@ -30,7 +30,7 @@ fn main() {
         
         if let Ok(conanpathstr) = std::env::var("conanpath") {
             let conanpath = std::path::Path::new(&conanpathstr);
-            link_C_libs(conanpath);
+            link_c_libs(conanpath);
         }
 
         else {
@@ -49,7 +49,7 @@ fn main() {
     }
 }
 
-fn link_C_libs(directory: &std::path::Path) {
+fn link_c_libs(directory: &std::path::Path) {
     match directory.read_dir()
     {
         Ok(mut real_dir) => {   
@@ -77,7 +77,7 @@ fn check_file_type(real_item: &std::fs::DirEntry, directory: &std::path::Path) {
     {
         if real_file_type.is_dir()
         {
-            link_C_libs(&real_item.path());
+            link_c_libs(&real_item.path());
         }
         else if real_file_type.is_file()
         {

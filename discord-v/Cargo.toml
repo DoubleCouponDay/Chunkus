@@ -18,7 +18,7 @@ openssl = "0.10"
 
 [dependencies.serenity]
 features = ["framework", "standard_framework"]
-version = "0.9.0-rc.0"
+version = "0.10.2"
 
 [[bin]]
 name = "bot"

@@ -12,8 +12,8 @@ use serenity::{
         },
     },
     client::{
-        Client, Context, EventHandler
-    }
+        Client, ClientBuilder, Context, EventHandler
+    },
 };
 use crate::core::{do_vectorize};
 use std::{
@@ -49,12 +49,12 @@ pub async fn create_bot(token: &'static str) -> Client {
         
     println!("creating client...");
 
-    // Login with a bot token from the environment
-    let client = Client::new(&token)
+    // Use ClientBuilder to generate the Client instance
+    let client = ClientBuilder::new(&token)
         .event_handler(DefaultHandler)
         .framework(framework)
         .await
-        .expect("Error creating client");
+        .expect("Error Building Client");
 
     client
 }
@@ -83,7 +83,7 @@ pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, hand
     println!("creating client...");
 
     // Login with a bot token from the environment
-    let client = Client::new(&token)
+    let client = ClientBuilder::new(&token)
         .event_handler(handler)
         .framework(framework)
         .await
@@ -118,7 +118,7 @@ pub async fn create_vec_bot(token: &str) -> Client
     println!("creating client...");
 
     // Login with a bot token from the environment
-    let client = Client::new(&token)
+    let client = ClientBuilder::new(&token)
         .event_handler(DefaultHandler)
         .framework(framework)
         .await
@@ -129,16 +129,16 @@ pub async fn create_vec_bot(token: &str) -> Client
 
 pub struct DefaultHandler;
 
+#[group]
+#[commands(vectorize)]
+struct General;
+
 #[async_trait]
 impl EventHandler for DefaultHandler {
     async fn message(&self, _ctx: Context, _msg: Message) {
         println!("message received");
     }
 }
-
-#[group]
-#[commands(vectorize)]
-struct General;
  
 #[command]
 async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult {
@@ -171,7 +171,7 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult {
 
             if let Err(err) = file.sync_all()
             {
-                println!("Error {}", err);
+                eprintln!("Error {}", err);
                 return Ok(());
             }
 

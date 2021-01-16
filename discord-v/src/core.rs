@@ -15,7 +15,7 @@ mod ffimodule
 
 pub fn call_vectorize(argc: c_int, argv: *mut *mut u8) -> c_int
 {
-    let mut result = 0;
+    let result;
 
     unsafe { 
         result = ffimodule::entrypoint(argc, argv); 
