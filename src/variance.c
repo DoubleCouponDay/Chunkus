@@ -9,6 +9,8 @@
 #define NULL 0
 #endif
 
+const float TOO_SMALL = 0.000000001;
+
 
 //uses kahan summation algorithm
 //void mean_of_pixels(pixel *pixels_array, int num_pixels, double *red, double *green, double *blue)
@@ -89,11 +91,14 @@ node_variance calculate_pixel_variance(pixel** pixels_array_2d, int num_pixels_x
     variance.g = (float)((sum_green_squared - (sum_green_difference * sum_green_difference) / (double)num_pixels) / (double)(num_pixels - 1));
     variance.b = (float)((sum_blue_squared - (sum_blue_difference * sum_blue_difference) / (double)num_pixels) / (double)(num_pixels - 1));
     
-    if (fabsf(variance.r) < 0.000000001)
+    if (fabsf(variance.r) < TOO_SMALL)
         variance.r = 0.f;
-    if (fabsf(variance.g) < 0.000000001)
+
+    if (fabsf(variance.g) < TOO_SMALL)
         variance.g = 0.f;
-    if (fabsf(variance.b) < 0.000000001)
+
+    if (fabsf(variance.b) < TOO_SMALL)
         variance.b = 0.f;
+
     return variance;
 }
