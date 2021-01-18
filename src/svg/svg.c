@@ -98,7 +98,7 @@ void scan_neighbours(chunkmap map, pixelchunk* current, int map_x, int map_y, fl
 
             if (colours_are_similar(current->average_colour, adjacent->average_colour, shape_colour_threshold))
             {
-                add_boundary_path();
+
             }
         }
     }

@@ -3,10 +3,10 @@
 #include "types/colour.h"
 #include "types/image.h"
 
-typedef struct {
+typedef struct points {
     coordinate current;
-    points* next;
-    points* previous;
+    struct points* next;
+    struct points* previous;
 } points;
 
 typedef struct 
