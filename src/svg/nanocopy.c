@@ -23,13 +23,14 @@ NSVGimage* parsetemplate(char* pathtofile) {
 	fseek(fp, 0, SEEK_END);
 	size = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
-	data = (char*)malloc(size+1);
+	data = (char*)calloc(1, size+1);
 
 	if (data == NULL) {
         DEBUG("something went wrong allocating svg space. \n");
         int crash[1];
         crash[1];
     }
+	
 	if (fread(data, 1, size, fp) != size) {
         DEBUG("something went wrong reading the file data. \n");
         int crash[1];

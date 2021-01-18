@@ -111,10 +111,10 @@ fileresources* readfile(const MunitParameter params[], filesetup* setup) {
       //*NULL; //throw segfault
   }
   DEBUG("image is valid\n");
-  resources->row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
+  resources->row_pointers = (png_bytep*)calloc(1, sizeof(png_bytep) * height);
 
   for(int y = 0; y < height; y++) {
-    resources->row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(png_ptr, info_ptr));
+    resources->row_pointers[y] = (png_byte*)calloc(1, png_get_rowbytes(png_ptr, info_ptr));
   }
   DEBUG("read the image\n");
   imagestruct.format = PNG_FORMAT_RGB;

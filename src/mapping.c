@@ -27,7 +27,7 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
     if (node_height > options.chunk_size)
         node_height = options.chunk_size;
     
-    outputnodes->pixels_array_2d = malloc(sizeof(pixel*) * node_width);
+    outputnodes->pixels_array_2d = calloc(1, sizeof(pixel*) * node_width);
     
     for(int i = 0; i < node_width; ++i) {        
          outputnodes->pixels_array_2d[i] = calloc(1, sizeof(pixel) * node_height);
@@ -96,11 +96,11 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
     chunkmap output;
     output.map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
     output.map_height = (int)ceilf((float)input.height / (float)options.chunk_size);
-    output.groups_array_2d = malloc(sizeof(pixelchunk*) * output.map_width);
+    output.groups_array_2d = calloc(1, sizeof(pixelchunk*) * output.map_width);
 
     for (int i = 0; i < output.map_width; ++i)
     {
-        output.groups_array_2d[i] = malloc(sizeof(pixelchunk) * output.map_height);
+        output.groups_array_2d[i] = calloc(1, sizeof(pixelchunk) * output.map_height);
     }
 
     output.input_p = input;

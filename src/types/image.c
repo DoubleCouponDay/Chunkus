@@ -21,11 +21,11 @@ image create_image(int width, int height)
 
     DEBUG("Creating Image with %d x %d Dimensions \n", width, height);
 
-    output.pixels_array_2d = malloc(sizeof(pixel*) * width);
+    output.pixels_array_2d = calloc(1, sizeof(pixel*) * width);
 
     for (int i = 0; i < width; ++i)
     {
-        output.pixels_array_2d[i] = malloc(sizeof(pixel) * height);
+        output.pixels_array_2d[i] = calloc(1, sizeof(pixel) * height);
     }
 
     // Begin Changes

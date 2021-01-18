@@ -126,11 +126,11 @@ image convert_png_to_image(char *fileaddress)
     DEBUG("dimensions: %d x %d \n", output.width, output.height);
 
     // Allocate row pointers to be filled
-    png_bytep* row_pointers_p = (png_bytep*)malloc(sizeof(png_bytep) * output.height);
+    png_bytep* row_pointers_p = (png_bytep*)calloc(1, sizeof(png_bytep) * output.height);
 
     for (int y = 0; y < output.height; ++y)
     {
-        row_pointers_p[y] = (png_byte*)malloc(png_get_rowbytes(read_struct, info));
+        row_pointers_p[y] = (png_byte*)calloc(1, png_get_rowbytes(read_struct, info));
     }
 
     DEBUG("reading the image...\n");
@@ -178,7 +178,7 @@ void write_image_to_file(image img, char* fileaddress_p) {
     if (!img.pixels_array_2d || !fileaddress_p)
         return;
 
-    unsigned char *as_bytes = malloc(BYTES_PER_PIXEL * img.height * img.width);
+    unsigned char *as_bytes = calloc(1, BYTES_PER_PIXEL * img.height * img.width);
 
     for (int x = 0; x < img.width; ++x)
     {
@@ -199,7 +199,7 @@ void write_node_map_to_file(chunkmap map, char *fileaddress)
     if (!map.groups_array_2d || !fileaddress)
         return;
 
-    unsigned char* as_bytes = malloc(BYTES_PER_PIXEL * map.map_height * map.map_width);
+    unsigned char* as_bytes = calloc(1, BYTES_PER_PIXEL * map.map_height * map.map_width);
 
     for (int x = 0; x < map.map_width; ++x)
     {
@@ -298,7 +298,7 @@ void write_ppm(image img, char *file_name)
 {
     int x, y;
   /* 2D array for colors (shades of gray) */
-  unsigned char* data = malloc(img.height * img.width * 3);
+  unsigned char* data = calloc(1, img.height * img.width * 3);
   /* color component is coded from 0 to 255 ;  it is 8 bit color file */
   const int MaxColorComponentValue = 255;
   FILE * fp;
@@ -329,7 +329,7 @@ void write_ppm_map(chunkmap map, char* filename)
 {
     int x, y;
   /* 2D array for colors (shades of gray) */
-  unsigned char* data = malloc(map.map_height * map.map_width * 3);
+  unsigned char* data = calloc(1, map.map_height * map.map_width * 3);
   /* color component is coded from 0 to 255 ;  it is 8 bit color file */
   const int MaxColorComponentValue = 255;
   FILE * fp;
