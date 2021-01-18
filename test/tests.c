@@ -55,8 +55,12 @@ MunitResult test3_weKnownHowToGetPixelDataFromPng(const MunitParameter params[],
 
 MunitResult test4_can_convert_file_to_node_map(const MunitParameter params[], void* userdata) {
   test4stuff* stuff = userdata;
-  stuff->img = convert_png_to_image(params[0].value);
-  vectorize_options options = { 4 };
+  
+  vectorize_options options = {
+    params[0].value,
+    params[1].value
+  };
+  stuff->img = convert_png_to_image(options.file_path);
   stuff->map = generate_pixel_group(stuff->img, options);
   return MUNIT_OK;
 }
@@ -83,22 +87,25 @@ MunitResult test5_opensPngAndOutputsBmp(const MunitParameter params[], void* use
   return MUNIT_OK;
 }
 
-MunitResult test6_can_convert_groupmap_to_svgmap(const MunitParameter params[], void* userdata) {
+MunitResult test6_can_convert_chunkmap_to_svgmap(const MunitParameter params[], void* userdata) {
   return MUNIT_OK;
 }
 
 MunitResult test7_can_vectorize_image(const MunitParameter params[], void* userdata)
 {
-  char* in_file = params[0].value;
+  test7stuff* stuff = userdata;
 
-  image img = convert_png_to_image(in_file);
-
-  vectorize_options options = { 4 };
-  groupmap map = generate_pixel_group(img, options);
-
-  float param2tofloat = atof(params[1].value);
-  float param3tofloat = atof(params[2].value);
-  NSVGimage* svg = vectorize_image(img, map, param2tofloat, param3tofloat);
+  vectorize_options options = {
+    params[0].value,
+    (int)params[1].value,
+    atof(params[1].value),
+    atof(params[2].value)
+  };
+  
+  stuff->img = convert_png_to_image(options.file_path);
+  stuff->map = generate_pixel_group(stuff->img, options);
+  
+  stuff->svg = vectorize_image(stuff->img, stuff->map, options.boundary_variance_threshold, options.shape_colour_threshhold);
 
   return MUNIT_OK;
 }
@@ -112,6 +119,9 @@ int main(int argc, char** argv) {
   MunitParameterEnum test_params[] = { 
     { 
       "filename", filepp_params
+    },
+    {
+      "chunk_size", "4"
     },
     {
       "variance_threshhold", "5.0"

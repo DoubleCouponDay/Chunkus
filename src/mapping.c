@@ -9,14 +9,14 @@
 #define NULL 0
 #endif
 
-void iterateImagePixels(int x, int y, image input, vectorize_options options, groupmap output) {
+void iterateImagePixels(int x, int y, image input, vectorize_options options, chunkmap output) {
     int x_offset = x * options.chunk_size;
     int y_offset = y * options.chunk_size;
 
-    // Grab the pixelgroup
-    pixelgroup* outputnodes = &output.groups_array_2d[x][y];
+    // Grab the pixelchunk
+    pixelchunk* outputnodes = &output.groups_array_2d[x][y];
     
-    // Assigned the edge case pixelgroup dimensions
+    // Assigned the edge case pixelchunk dimensions
     int node_width = input.width - x * options.chunk_size;
     int node_height = input.height - y * options.chunk_size;
     
@@ -95,7 +95,7 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, gr
     //only print if at the end
     if ((x == y && x % 20 == 0) || (x == 0 && y == 0) || (x == (output.map_width - 1) && y == (output.map_height - 1)))
     {
-        DEBUG("pixelgroup (%d, %d) variance: (%g, %g, %g), average: (%d, %d, %d), node_width: %d, node_height %d, min: %d, %d, %d, max: %d, %d, %d \n", 
+        DEBUG("pixelchunk (%d, %d) variance: (%g, %g, %g), average: (%d, %d, %d), node_width: %d, node_height %d, min: %d, %d, %d, max: %d, %d, %d \n", 
         x, y, 
         outputnodes->variance.r,
         outputnodes->variance.g,
@@ -109,28 +109,28 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, gr
     }
 }
 
-groupmap generate_pixel_group(image input, vectorize_options options)
+chunkmap generate_pixel_group(image input, vectorize_options options)
 {
     if (!input.pixels_array_2d)
     {
         DEBUG("Invalid image input \n");
-        return (groupmap){ NULL, 0, 0 };
+        return (chunkmap){ NULL, 0, 0 };
     }
 
     if (input.width < 1 || input.height < 1 || !input.pixels_array_2d)
-        return (groupmap){ NULL, 0, 0 };
+        return (chunkmap){ NULL, 0, 0 };
 
     if (options.chunk_size < 2)
         options.chunk_size = 2;
     
-    groupmap output;
+    chunkmap output;
     output.map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
     output.map_height = (int)ceilf((float)input.height / (float)options.chunk_size);
-    output.groups_array_2d = malloc(sizeof(pixelgroup*) * output.map_width);
+    output.groups_array_2d = malloc(sizeof(pixelchunk*) * output.map_width);
 
     for (int i = 0; i < output.map_width; ++i)
     {
-        output.groups_array_2d[i] = malloc(sizeof(pixelgroup) * output.map_height);
+        output.groups_array_2d[i] = malloc(sizeof(pixelchunk) * output.map_height);
     }
 
     output.input_p = input;
@@ -145,17 +145,17 @@ groupmap generate_pixel_group(image input, vectorize_options options)
     return output;
 }
 
-void free_group_map(groupmap* map_p)
+void free_group_map(chunkmap* map_p)
 {
     if (!map_p) {
-        DEBUG("groupmap is null\n");
+        DEBUG("chunkmap is null\n");
         return;
     }
     DEBUG("freeing groups\n");
 
     for (int x = 0; x < map_p->map_width; ++x)
     {
-        pixelgroup* current = map_p->groups_array_2d[x];
+        pixelchunk* current = map_p->groups_array_2d[x];
         free(current);
     }
     free(map_p->groups_array_2d);

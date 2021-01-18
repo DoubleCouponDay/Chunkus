@@ -13,7 +13,7 @@ const float TOO_SMALL = 0.000000001;
 
 
 //uses kahan summation algorithm
-//void mean_of_pixels(pixel *pixels_array, int num_pixels, double *red, double *green, double *blue)
+
 void mean_of_pixels(pixel** pixels_array_2d, int num_pixels_x, int num_pixels_y, pixelD* output_p)
 {
     double num_pixels = num_pixels_x * num_pixels_y;
@@ -49,12 +49,12 @@ void mean_of_pixels(pixel** pixels_array_2d, int num_pixels_x, int num_pixels_y,
     }
 }
 
-
 //uses shifted-data variance algorithm
-node_variance calculate_pixel_variance(pixel** pixels_array_2d, int num_pixels_x, int num_pixels_y) {
+group_variance calculate_pixel_variance(pixel** pixels_array_2d, int num_pixels_x, int num_pixels_y) {
     int num_pixels = num_pixels_x * num_pixels_y;
+    
     if (num_pixels < 2)
-        return (node_variance){0.f, 0.f, 0.f};
+        return (group_variance){0.f, 0.f, 0.f};
 
     pixelD mean = {
         0.0,
@@ -62,8 +62,6 @@ node_variance calculate_pixel_variance(pixel** pixels_array_2d, int num_pixels_x
         0.0        
     };
     mean.location = pixels_array_2d[0][0].location;
-    
-    
     mean_of_pixels(pixels_array_2d, num_pixels_x, num_pixels_y, &mean);
 
     double sum_red_difference = 0.f, sum_red_squared = 0.f;
@@ -86,7 +84,7 @@ node_variance calculate_pixel_variance(pixel** pixels_array_2d, int num_pixels_x
             sum_blue_squared    += pow(blue_diff, 2);
         }
     }
-    node_variance variance;
+    group_variance variance;
     variance.r = (float)((sum_red_squared - (sum_red_difference * sum_red_difference) / (double)num_pixels) / (double)(num_pixels - 1));
     variance.g = (float)((sum_green_squared - (sum_green_difference * sum_green_difference) / (double)num_pixels) / (double)(num_pixels - 1));
     variance.b = (float)((sum_blue_squared - (sum_blue_difference * sum_blue_difference) / (double)num_pixels) / (double)(num_pixels - 1));

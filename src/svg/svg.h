@@ -22,6 +22,6 @@ typedef struct {
     pixelF Fill;
 } svg_PropertiesF;
 
-NSVGimage* vectorize_image(image input, groupmap output, float variance_threshold, float shape_colour_threshhold);
+NSVGimage* vectorize_image(image input, chunkmap output, float variance_threshold, float shape_colour_threshhold);
 
 void free_image(NSVGimage* input);

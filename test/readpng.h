@@ -16,7 +16,6 @@ typedef struct {
   char* file_address;
 } filesetup;
 
-
 typedef struct
 {  
   filesetup* setup;

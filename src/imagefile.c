@@ -194,8 +194,8 @@ void write_image_to_file(image img, char* fileaddress_p) {
     generateBitmapImage(as_bytes, img.height, img.width, fileaddress_p);
 }
 
-/// Writes given pixelgroup map to file as if it was an image (discards variance) (assumes fileaddress ends with .bmp)
-void write_node_map_to_file(groupmap map, char *fileaddress)
+/// Writes given pixelchunk map to file as if it was an image (discards variance) (assumes fileaddress ends with .bmp)
+void write_node_map_to_file(chunkmap map, char *fileaddress)
 {
     if (!map.groups_array_2d || !fileaddress)
         return;
@@ -216,7 +216,7 @@ void write_node_map_to_file(groupmap map, char *fileaddress)
     generateBitmapImage(as_bytes, map.map_height, map.map_width, fileaddress);
 }
 
-void write_node_map_variance_to_file(groupmap map, char *filename)
+void write_node_map_variance_to_file(chunkmap map, char *filename)
 {
     if (!map.groups_array_2d || !filename)
         return;
@@ -347,7 +347,7 @@ void write_ppm(image img, char *file_name)
   fclose(fp);
 }
 
-void write_ppm_map(groupmap map, char* filename)
+void write_ppm_map(chunkmap map, char* filename)
 {
     int x, y;
   /* 2D array for colors (shades of gray) */
