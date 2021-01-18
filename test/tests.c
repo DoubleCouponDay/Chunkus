@@ -105,7 +105,7 @@ MunitResult test7_can_vectorize_image(const MunitParameter params[], void* userd
   stuff->img = convert_png_to_image(options.file_path);
   stuff->map = generate_pixel_group(stuff->img, options);
   
-  stuff->svg = vectorize_image(stuff->img, stuff->map, options.boundary_variance_threshold, options.shape_colour_threshhold);
+  stuff->svg = vectorize_image(stuff->img, stuff->map, options.shape_colour_threshhold);
 
   return MUNIT_OK;
 }
@@ -122,9 +122,6 @@ int main(int argc, char** argv) {
     },
     {
       "chunk_size", "4"
-    },
-    {
-      "variance_threshhold", "5.0"
     },
     {
       "shape_colour_threshhold", "5.0"

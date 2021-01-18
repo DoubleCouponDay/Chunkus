@@ -2,7 +2,6 @@
 
 #include "types/colour.h"
 #include "types/image.h"
-#include "variance.h"
 
 typedef struct {
     coordinate current;
@@ -13,7 +12,6 @@ typedef struct {
 typedef struct 
 {
     pixel average_colour;
-    group_variance variance;
     pixel** pixels_array_2d;
     coordinate location;
 } pixelchunk;

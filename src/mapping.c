@@ -90,23 +90,6 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
             node_pixels_array2d[x][y] = input.pixels_array_2d[y_offset + y][x_offset + x];
         }
     }
-    outputnodes->variance = calculate_pixel_variance(node_pixels_array2d, node_width, node_height);
-
-    //only print if at the end
-    if ((x == y && x % 20 == 0) || (x == 0 && y == 0) || (x == (output.map_width - 1) && y == (output.map_height - 1)))
-    {
-        DEBUG("pixelchunk (%d, %d) variance: (%g, %g, %g), average: (%d, %d, %d), node_width: %d, node_height %d, min: %d, %d, %d, max: %d, %d, %d \n", 
-        x, y, 
-        outputnodes->variance.r,
-        outputnodes->variance.g,
-        outputnodes->variance.b, 
-        outputnodes->average_colour.r, 
-        outputnodes->average_colour.g, 
-        outputnodes->average_colour.b, 
-        node_width, 
-        node_height, 
-        min.r, min.g, min.b, max.r, max.g, max.b);
-    }
 }
 
 chunkmap generate_pixel_group(image input, vectorize_options options)

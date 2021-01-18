@@ -177,7 +177,7 @@ points* add_boundary_point(points* points_list, pixelchunk* currentgroup_p) {
     return points_list->next;
 }
 
-NSVGimage* vectorize_image(image input, chunkmap map, float variance_threshhold, float shape_colour_threshhold) {
+NSVGimage* vectorize_image(image input, chunkmap map, float shape_colour_threshhold) {
     NSVGimage* output = parsetemplate(TEMPLATE_PATH);
     output->width = input.width;
     output->height = input.height;
@@ -195,15 +195,6 @@ NSVGimage* vectorize_image(image input, chunkmap map, float variance_threshhold,
         {
             pixelchunk* currentgroup_p = &map.groups_array_2d[map_x][map_y];
 
-            //add a boundary point
-            if(currentgroup_p->variance.r > variance_threshhold ||
-                currentgroup_p->variance.g > variance_threshhold ||
-                currentgroup_p->variance.b > variance_threshhold) {
-                points_list = add_boundary_point(points_list, currentgroup_p);
-            }
-
-            // Scan neighbours that look similar and add to the list
-            scan_neighbours();
         }
     }
     

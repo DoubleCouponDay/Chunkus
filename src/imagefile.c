@@ -190,11 +190,10 @@ void write_image_to_file(image img, char* fileaddress_p) {
             as_bytes[index + 2] = img.pixels_array_2d[x][y].r;
         }
     }
-
     generateBitmapImage(as_bytes, img.height, img.width, fileaddress_p);
 }
 
-/// Writes given pixelchunk map to file as if it was an image (discards variance) (assumes fileaddress ends with .bmp)
+/// Writes given pixelchunk map to file as if it was an image
 void write_node_map_to_file(chunkmap map, char *fileaddress)
 {
     if (!map.groups_array_2d || !fileaddress)
@@ -216,28 +215,7 @@ void write_node_map_to_file(chunkmap map, char *fileaddress)
     generateBitmapImage(as_bytes, map.map_height, map.map_width, fileaddress);
 }
 
-void write_node_map_variance_to_file(chunkmap map, char *filename)
-{
-    if (!map.groups_array_2d || !filename)
-        return;
-
-    unsigned char *as_bytes = malloc(BYTES_PER_PIXEL * map.map_height * map.map_width);
-
-    for (int x = 0; x < map.map_width; ++x)
-    {
-        for (int y = 0; y < map.map_height; ++y)
-        {
-            pixel p = convert_colorf_to_pixel(map.groups_array_2d[x][y].variance);
-            int index = x * 3 + y * BYTES_PER_PIXEL * map.map_width;
-            as_bytes[index]     = p.b;
-            as_bytes[index + 1] = p.g;
-            as_bytes[index + 2] = p.r;
-        }
-    }
-    generateBitmapImage(as_bytes, map.map_height, map.map_width, filename);
-}
-
-void generateBitmapImage (unsigned char* image, int height, int width, char* imageFileName)
+void generateBitmapImage(unsigned char* image, int height, int width, char* imageFileName)
 {
     int widthInBytes = width * BYTES_PER_PIXEL;
 

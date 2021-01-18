@@ -6,30 +6,41 @@ Convert a raster image into a scalable vector graphic and back.
 
 - boundary detection along sharp colour differences
 
-    bin variance
+    - bin variance
 
-    install hashmap library
+    - install hashmap library
 
-    iterate through chunkmap
+    - iterate through chunkmap
 
-    store the first chunk in a new shape
+        store the first chunk in a new shape
 
-    use rgb as a 3d point and then compare it with adjacent chunks
+        iterate through the adjacent chunks:
+        
+            use rgb as a 3d point and then compare it with adjacent chunks
 
-    if the 3d point is outside a sphere with magnitude of shape_colour_threshhold
-        current pixelchunk is a boundary
+            if the 3d point is outside a sphere with magnitude of shape_colour_threshold
+                current pixelchunk is a boundary
 
-    else
-        current pixelchunk is not a boundary
+            else
+                current pixelchunk is not a boundary
 
-        store the pixelchunk in the pixelshape with matching colour
-            use hashmaps to store pixelchunks inside pixelshapes
+            store the pixelchunk in the adjacent pixelshape's shape with matching colour
+                use hashmaps to store pixelchunks inside pixelshapes
 
-            lookup inside each shapes map for the adjacent chunk
+                lookup inside each shapes hashmap for the adjacent chunk
 
-            if found, add the current chunkto that shape and stop looping
+                if found, add the current chunk to that shape and finish lookup
 
-    set the colour of the closed path as a single colour fill
+            store whether chunk was boundary or not, in a linked list
+
+    - iterate through the shapes:
+        set the colour of the closed path as a single colour fill
+
+        add new path to the SVG image      <-\
+                                             |
+        convert boundary linked list to this | SVG path
+
+    - store SVG paths to a file
 
 - convert svg to bmp and submit it to discord
 
