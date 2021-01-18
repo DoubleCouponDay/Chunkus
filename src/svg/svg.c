@@ -12,6 +12,7 @@
 #include "../mapping.h"
 #include "../../test/tools.h"
 #include "nanocopy.h"
+#include "../tidwall.h"
 
 const int POINTS_LENGTH = 8;
 const int BEZIER_POINTS = 2;
