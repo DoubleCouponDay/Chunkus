@@ -25,6 +25,7 @@ typedef struct chunkshape {
 typedef struct 
 {
     pixelchunk** groups_array_2d;
+    chunkshape* shape_list;
     int map_width; 
     int map_height;
     image input_p;
@@ -38,6 +39,6 @@ typedef struct
     float shape_colour_threshhold;
 } vectorize_options;
 
-chunkmap generate_pixel_group(image inputimage_p, vectorize_options options);
+chunkmap generate_chunkmap(image inputimage_p, vectorize_options options);
 
 void free_group_map(chunkmap* map_p);

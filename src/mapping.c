@@ -92,7 +92,7 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
     }
 }
 
-chunkmap generate_pixel_group(image input, vectorize_options options)
+chunkmap generate_chunkmap(image input, vectorize_options options)
 {
     if (!input.pixels_array_2d)
     {

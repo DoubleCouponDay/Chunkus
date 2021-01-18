@@ -122,7 +122,7 @@ NSVGimage* vectorize_image(image input, chunkmap map, float shape_colour_threshh
     {
         for (int map_y = 0; map_y < map.map_height; ++map_y)
         {
-            pixelchunk* currentgroup_p = &map.groups_array_2d[map_x][map_y];
+            pixelchunk* currentchunk_p = &map.groups_array_2d[map_x][map_y];
 
         }
     }

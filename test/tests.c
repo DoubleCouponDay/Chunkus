@@ -61,7 +61,7 @@ MunitResult test4_can_convert_file_to_node_map(const MunitParameter params[], vo
     params[1].value
   };
   stuff->img = convert_png_to_image(options.file_path);
-  stuff->map = generate_pixel_group(stuff->img, options);
+  stuff->map = generate_chunkmap(stuff->img, options);
   return MUNIT_OK;
 }
 
@@ -103,7 +103,7 @@ MunitResult test7_can_vectorize_image(const MunitParameter params[], void* userd
   };
   
   stuff->img = convert_png_to_image(options.file_path);
-  stuff->map = generate_pixel_group(stuff->img, options);
+  stuff->map = generate_chunkmap(stuff->img, options);
   
   stuff->svg = vectorize_image(stuff->img, stuff->map, options.shape_colour_threshhold);
 
