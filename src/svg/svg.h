@@ -12,16 +12,6 @@ typedef struct {
     float angle_between;
 } colour_diff;
 
-typedef struct {
-    char* moveto_p;
-    char** lineto_array2d;
-} pathshape;
-
-typedef struct {
-    pixelF Stroke;
-    pixelF Fill;
-} svg_PropertiesF;
-
 NSVGimage* vectorize_image(image input, chunkmap output, float shape_colour_threshhold);
 
 void free_image(NSVGimage* input);
