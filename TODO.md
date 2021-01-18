@@ -6,7 +6,7 @@ Convert a raster image into a scalable vector graphic and back.
 
 - boundary detection along sharp colour differences
 
-    - bin variance
+    - define shape struct
 
     - install hashmap library
 
