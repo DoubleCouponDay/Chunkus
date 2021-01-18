@@ -6,20 +6,30 @@ Convert a raster image into a scalable vector graphic and back.
 
 - boundary detection along sharp colour differences
 
-    //each pixelgroup's variance above a threshold becomes an svg point
+    bin variance
 
-    //the point has a single colour
+    install hashmap library
 
-    //form the first closed path around the border of the image and fill if the points have the same colour. if they dont, fill white
+    iterate through chunkmap
 
-    iterate through map points
-        if a point has a variance above the threshhold, make it a point
+    store the first chunk in a new shape
 
-        if a point has the same colour as any adjacent points, below a colour threshhold, form a path to it
+    use rgb as a 3d point and then compare it with adjacent chunks
+
+    if the 3d point is outside a sphere with magnitude of shape_colour_threshhold
+        current pixelchunk is a boundary
+
+    else
+        current pixelchunk is not a boundary
+
+        store the pixelchunk in the pixelshape with matching colour
+            use hashmaps to store pixelchunks inside pixelshapes
+
+            lookup inside each shapes map for the adjacent chunk
+
+            if found, add the current chunkto that shape and stop looping
 
     set the colour of the closed path as a single colour fill
-
-    //copy the svg template into the build folder
 
 - convert svg to bmp and submit it to discord
 
