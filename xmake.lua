@@ -5,7 +5,6 @@ add_defines("DEBUG")
 add_requires("CONAN::libpng/1.6.37", {alias = "libpng"})
 add_requires("CONAN::libjpeg/9d", {alias = "libjpeg"})
 add_requires("CONAN::nanosvg/20190405", {alias = "nanosvg"})
-add_requires("CONAN::parallel-hashmap/1.32", {alias = "hashmap"})
 
 rule("copytemplate")
     after_build(function (target)
