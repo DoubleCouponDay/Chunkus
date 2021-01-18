@@ -23,14 +23,16 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
     // Check if not actually on the edge
     if (node_width > options.chunk_size)
         node_width = options.chunk_size;
+
     if (node_height > options.chunk_size)
         node_height = options.chunk_size;
     
     outputnodes->pixels_array_2d = malloc(sizeof(pixel*) * node_width);
-
-    for (int i = 0; i < node_width; ++i)
-        outputnodes->pixels_array_2d[i] = &input.pixels_array_2d[x_offset + i][y_offset];
-
+    
+    for(int i = 0; i < node_width; ++i) {        
+         outputnodes->pixels_array_2d[i] = calloc(1, sizeof(pixel) * node_height);
+         outputnodes->pixels_array_2d[i] = &input.pixels_array_2d[x_offset + i][y_offset];
+    }
     int count = node_width * node_height;
 
     // Calculate the average of all these pixels
@@ -75,21 +77,6 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
         (byte)((float)average_b / (float)count) 
     };
     outputnodes->average_colour = average_p;
-
-    //malloc space for columns
-    pixel** node_pixels_array2d = malloc(sizeof(pixel*) * node_width);
-
-    //malloc space for rows
-    for (int i = 0; i < node_height; ++i)
-        node_pixels_array2d[i] = malloc(sizeof(pixel) * node_height);
-
-    for (int x = 0; x < node_width; ++x)
-    {
-        for (int y = 0; y < node_height; ++y)
-        {
-            node_pixels_array2d[x][y] = input.pixels_array_2d[y_offset + y][x_offset + x];
-        }
-    }
 }
 
 chunkmap generate_chunkmap(image input, vectorize_options options)
