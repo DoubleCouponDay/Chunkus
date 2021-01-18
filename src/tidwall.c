@@ -182,7 +182,7 @@ void *hashmap_set(struct hashmap *map, void *item) {
         }
     }
 
-    char* edata = calloc(1, sizeof(map->bucketsz)); // VLA
+    char* edata = calloc(1, map->bucketsz); // VLA
     struct bucket *entry = (void*)edata;
     entry->hash = get_hash(map, item);
     entry->dib = 1;

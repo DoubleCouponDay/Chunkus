@@ -5,11 +5,6 @@ Convert a raster image into a scalable vector graphic and back.
 # TASKS
 
 - boundary detection along sharp colour differences
-
-    - define shape struct
-
-    - install hashmap library
-
     - iterate through chunkmap
 
         store the first chunk in a new shape
