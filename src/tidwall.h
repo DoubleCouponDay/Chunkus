@@ -9,7 +9,30 @@
 #include <stddef.h>
 #include <stdint.h>
 
-struct hashmap;
+typedef struct bucket {
+    uint64_t hash:48;
+    uint64_t dib:16;
+} bucket;
+
+// hashmap is an open addressed hash map using robinhood hashing.
+typedef struct hashmap {
+    bool oom;
+    size_t elsize;
+    size_t cap;
+    uint64_t seed0;
+    uint64_t seed1;
+    uint64_t (*hash)(const void *item, uint64_t seed0, uint64_t seed1);
+    int (*compare)(const void *a, const void *b, void *udata);
+    void *udata;
+    size_t bucketsz;
+    size_t nbuckets;
+    size_t count;
+    size_t mask;
+    size_t growat;
+    size_t shrinkat;
+    void *buckets;
+    void *spare;
+} hashmap;
 
 struct hashmap *hashmap_new(size_t elsize, size_t cap, 
                             uint64_t seed0, uint64_t seed1,

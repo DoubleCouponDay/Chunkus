@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "hashmap.h"
+#include "tidwall.h"
 
 static void *(*_malloc)(size_t) = NULL;
 static void (*_free)(void *) = NULL;
@@ -28,31 +28,6 @@ void hashmap_set_allocator(void *(*malloc)(size_t), void (*free)(void*))
     fprintf(stderr, "panic: %s (%s:%d)\n", (_msg_), __FILE__, __LINE__); \
     exit(1); \
 }
-
-struct bucket {
-    uint64_t hash:48;
-    uint64_t dib:16;
-};
-
-// hashmap is an open addressed hash map using robinhood hashing.
-struct hashmap {
-    bool oom;
-    size_t elsize;
-    size_t cap;
-    uint64_t seed0;
-    uint64_t seed1;
-    uint64_t (*hash)(const void *item, uint64_t seed0, uint64_t seed1);
-    int (*compare)(const void *a, const void *b, void *udata);
-    void *udata;
-    size_t bucketsz;
-    size_t nbuckets;
-    size_t count;
-    size_t mask;
-    size_t growat;
-    size_t shrinkat;
-    void *buckets;
-    void *spare;
-};
 
 static struct bucket *bucket_at(struct hashmap *map, size_t index) {
     return (struct bucket*)(((char*)map->buckets)+(map->bucketsz*index));
@@ -207,7 +182,7 @@ void *hashmap_set(struct hashmap *map, void *item) {
         }
     }
 
-    char edata[map->bucketsz]; // VLA
+    char* edata = calloc(1, sizeof(map->bucketsz)); // VLA
     struct bucket *entry = (void*)edata;
     entry->hash = get_hash(map, item);
     entry->dib = 1;

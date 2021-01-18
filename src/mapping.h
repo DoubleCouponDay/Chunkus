@@ -2,6 +2,7 @@
 
 #include "types/colour.h"
 #include "types/image.h"
+#include "tidwall.h"
 
 typedef struct points {
     coordinate current;
@@ -16,8 +17,9 @@ typedef struct
     coordinate location;
 } pixelchunk;
 
-typedef struct {
-    void* stuff;
+typedef struct chunkshape {
+    hashmap* chunks;
+    
 } chunkshape;
 
 typedef struct 
