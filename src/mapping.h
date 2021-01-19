@@ -35,7 +35,6 @@ typedef struct
 {
     char* file_path;
     int chunk_size;
-    float boundary_variance_threshold;
     float shape_colour_threshhold;
 } vectorize_options;
 

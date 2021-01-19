@@ -58,7 +58,8 @@ MunitResult test4_can_convert_file_to_node_map(const MunitParameter params[], vo
   
   vectorize_options options = {
     params[0].value,
-    params[1].value
+    (int)params[1].value,
+    atof(params[2].value)
   };
   stuff->img = convert_png_to_image(options.file_path);
   stuff->map = generate_chunkmap(stuff->img, options);
@@ -98,7 +99,6 @@ MunitResult test7_can_vectorize_image(const MunitParameter params[], void* userd
   vectorize_options options = {
     params[0].value,
     (int)params[1].value,
-    atof(params[1].value),
     atof(params[2].value)
   };
   
