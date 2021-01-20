@@ -5,12 +5,6 @@
 #include "tidwall.h"
 #include <stdbool.h>
 
-typedef struct points {
-    coordinate current;
-    struct points* next;
-    struct points* previous;
-} points;
-
 typedef struct 
 {
     pixel average_colour;

@@ -26,10 +26,14 @@ Convert a raster image into a scalable vector graphic and back.
 
                 //if found, add the current chunk to that shape and finish lookup
 
-                else
-                    create new shape and add current and adjacent to it
+                //else
+                    //keep track of number not similar
+                    
 
             //store whether chunk was boundary or not, in a linked list
+
+        //if adjacent chunk was not similar to any
+            //create new shape and add current and adjacent to it
 
     - iterate through the shapes:
         set the colour of the closed path as a single colour fill

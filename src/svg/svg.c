@@ -13,10 +13,12 @@
 #include "../../test/tools.h"
 #include "nanocopy.h"
 #include "../tidwall.h"
+#include "../error.h"
 
-const int POINTS_LENGTH = 8;
+const int BEZIERCURVE_LENGTH = 8;
 const int BEZIER_POINTS = 2;
 const int BOUNDS_LENGTH = 4;
+const int NONE_SIMILAR = 8;
 const char* TEMPLATE_PATH = "../template.svg";
 
 void fill_char_array(char* input, char* output) {
@@ -34,17 +36,16 @@ void fill_float_array(float* input, int input_length, float* output, int output_
     }
 }
 
-void fill_pts_array(float* array,
+void fill_beziercurve_array(float* array,
                     int array_length,
                     float x1, float y1, 
                     float x2, float y2, 
                     float control_x1, float control_y1, 
                     float control_x2, float control_y2)
 {
-    if(array_length != POINTS_LENGTH) {
-        DEBUG("points array must be 8 long.");
-        int crash[1];
-        crash[1];
+    if(array_length != BEZIERCURVE_LENGTH) {
+        DEBUG("beziercurve array must be 8 long.");
+        exit(ARRAY_DIFF_SIZE_ERROR);
     }
     array[0] = x1;
     array[1] = y1;
@@ -59,7 +60,7 @@ void fill_pts_array(float* array,
 NSVGpath* create_path(image input, coordinate start, coordinate end) {
     NSVGpath* output = calloc(1, sizeof(NSVGpath));
     output->npts = 2;
-    fill_pts_array(output->pts, POINTS_LENGTH, start.x, start.y, end.x, end.y, 0, 0, 1, 1); //draw the top side of a box
+    fill_beziercurve_array(output->pts, BEZIERCURVE_LENGTH, start.x, start.y, end.x, end.y, 0, 0, 1, 1); //draw the top side of a box
     float boundingbox[4] = { 0, 0, input.width, input.height };
     fill_float_array(boundingbox, BOUNDS_LENGTH, output->bounds, BOUNDS_LENGTH);
     return output;
@@ -106,6 +107,8 @@ chunkshape* big_chungus_already_in_shape(chunkmap map, pixelchunk* chungus) {
 
 void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float shape_colour_threshold)
 {
+    int num_not_similar = 0;
+
     for (int adjacent_x = -1; adjacent_x < 2; ++adjacent_x)
     {
         for (int adjacent_y = -1; adjacent_y < 2; ++adjacent_y)
@@ -116,6 +119,7 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
             int adjacent_index_x = map_x + adjacent_x;
             int adjacent_index_y = map_y + adjacent_y;
 
+            //prevent out of bounds index
             if (adjacent_index_x < 0 || 
                 adjacent_index_y < 0 ||
                 adjacent_index_x >= map.map_width ||  
@@ -136,25 +140,22 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
                 }
 
                 else {
-                    map.shape_list->next = add_new_shape(map.shape_list);
-                    map.shape_list = map.shape_list->next;
+                    map.shape_list = add_new_shape(map.shape_list);
                     hashmap_set(map.shape_list->chunks, current);
                     hashmap_set(map.shape_list->chunks, adjacent);
                 }
             }
 
             else {
-
+                ++num_not_similar;
             }
         }
     }
-}
 
-points* add_boundary_point(points* points_list, pixelchunk* currentgroup_p) {
-    points_list->next = calloc(1, sizeof(points));
-    points_list->next->current = currentgroup_p->location;
-    points_list->next->previous = points_list;
-    return points_list->next;
+    if(num_not_similar == NONE_SIMILAR) {
+        map.shape_list = add_new_shape(map.shape_list);
+        hashmap_set(map.shape_list->chunks, current);
+    }
 }
 
 NSVGimage* vectorize_image(image input, vectorize_options options) {
@@ -163,8 +164,6 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     output->height = input.height;
 
     chunkmap map = generate_chunkmap(input, options);
-
-    points* points_list = calloc(1, sizeof(points));
 
     //create set of shapes
     for (int map_x = 0; map_x < map.map_width; ++map_x)
