@@ -3,6 +3,7 @@
 #include "../../test/tools.h"
 
 #include <stdlib.h>
+#include "../error.h"
 
 char* rgb_to_string(pixel* input) {
     char* output = input->r;
@@ -40,7 +41,7 @@ void free_image_contents(image img)
 {
     if (!img.pixels_array_2d) {
         DEBUG("image has null pointers \n");
-        return;    
+        exit(NULL_ARGUMENT_ERROR);
     }
     
     for (int i = 0; i < img.width; ++i)

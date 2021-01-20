@@ -1,6 +1,7 @@
 #include <nanosvg.h>
 #include <stdio.h>
 #include "../../test/tools.h"
+#include "../error.h";
 
 ///nanosvg copypaste
 int NSVG_RGB(int r, int g, int b) {
@@ -17,8 +18,7 @@ NSVGimage* parsetemplate(char* pathtofile) {
 
 	if (!fp) {
         DEBUG("could not find svg template file.\n");
-        int crash[1];
-        crash[1];
+        exit(TEMPLATE_FILE_NOT_FOUND);
     };
 	fseek(fp, 0, SEEK_END);
 	size = ftell(fp);
@@ -27,14 +27,12 @@ NSVGimage* parsetemplate(char* pathtofile) {
 
 	if (data == NULL) {
         DEBUG("something went wrong allocating svg space. \n");
-        int crash[1];
-        crash[1];
+        exit(SVG_SPACE_ERROR);
     }
 	
 	if (fread(data, 1, size, fp) != size) {
         DEBUG("something went wrong reading the file data. \n");
-        int crash[1];
-        crash[1];
+        exit(READ_FILE_ERROR);
     };
 	data[size] = '\0';	// Must be null terminated.
 	fclose(fp);

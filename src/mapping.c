@@ -8,6 +8,7 @@
 #include "../test/tools.h"
 #include "tidwall.h"
 #include "svg/tidwallcopy.h"
+#include "error.h"
 
 #ifndef NULL
 #define NULL 0
@@ -125,9 +126,8 @@ void free_group_map(chunkmap* map_p)
 {
     if (!map_p) {
         DEBUG("chunkmap is null\n");
-        return;
+        exit(NULL_ARGUMENT_ERROR);
     }
-    DEBUG("freeing groups\n");
 
     for (int x = 0; x < map_p->map_width; ++x)
     {

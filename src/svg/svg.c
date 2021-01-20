@@ -26,8 +26,7 @@ void fill_char_array(char* input, char* output) {
 void fill_float_array(float* input, int input_length, float* output, int output_length) {
     if(input_length > output_length) {
         DEBUG("output array is too small for your input.");
-        int crash[1];
-        crash[1];
+        exit(ARRAY_DIFF_SIZE_ERROR);
     }
 
     for(int i = 0; i < input_length; ++i) {
@@ -177,19 +176,22 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
         }
     }
 
-    //
-    
-    //wind back the linked list to the start
-    while(points_list->previous != NULL) {
-        points_list = points_list->previous;
+    //create the svg
+
+    if(map.shape_list == NULL) {
+        DEBUG("NO SHAPES FOUND\n");
+        exit(SHAPES_NOT_FOUND);
     }
 
-    //free all points
-    while(points_list != NULL) {
-        points* next = points_list->next;
-        free(points_list);
-        points_list = next;
+    while(map.shape_list->previous != NULL) {
+        map.shape_list = map.shape_list->previous;
     }
+
+    while(map.shape_list->next != NULL) {
+        
+        map.shape_list = map.shape_list->next;
+    }
+
     free_group_map(&map);
     return output;
 }
@@ -197,10 +199,8 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
 void free_image(NSVGimage* input) {
     if(!input) {
         DEBUG("input is null");
-        int crash[1];
-        crash[1];
+        exit(NULL_ARGUMENT_ERROR);
     }
-
     NSVGshape* currentlink = input->shapes->next;
 
     while(currentlink) {
