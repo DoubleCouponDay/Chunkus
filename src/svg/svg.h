@@ -7,10 +7,12 @@
 #include "../types/image.h"
 #include "../mapping.h"
 
-typedef struct {
-    float distance_between;
-    float angle_between;
-} colour_diff;
+typedef struct
+{
+    chunkmap map;
+    NSVGimage* output;
+    NSVGpath* first_path;
+} iter_struct;
 
 NSVGimage* vectorize_image(image input, vectorize_options options);
 

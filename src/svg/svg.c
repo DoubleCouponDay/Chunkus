@@ -1,3 +1,4 @@
+#include "svg.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,10 +21,7 @@ const int BEZIER_POINTS = 2;
 const int BOUNDS_LENGTH = 4;
 const int NONE_SIMILAR = 8;
 const char* TEMPLATE_PATH = "../template.svg";
-
-void fill_char_array(char* input, char* output) {
-    strcpy(output, input);
-}
+const char* OOM_MESSAGE = "hashmap out of mana\n";
 
 void fill_float_array(float* input, int input_length, float* output, int output_length) {
     if(input_length > output_length) {
@@ -85,6 +83,10 @@ chunkshape* add_new_shape(chunkshape* shape_list) {
 }
 
 void add_chunk_to_shape(chunkshape* shape_list, pixelchunk* item) {
+    if(hashmap_oom(shape_list->chunks)){
+        DEBUG("hashmap out of mana\n");
+        exit(OOM_MESSAGE);
+    }
     hashmap_set(shape_list->chunks, item);
 }
 
@@ -134,15 +136,19 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
 
                 chunkshape* shape = big_chungus_already_in_shape(map, adjacent);
                 
-                if (shape)
-                {
+                if (shape) {
                     add_chunk_to_shape(shape, current);
                 }
 
-                else {
-                    map.shape_list = add_new_shape(map.shape_list);
+                else if(hashmap_oom(map.shape_list->chunks)){
+                    map.shape_list = add_new_shape(map.shape_list);                    
                     hashmap_set(map.shape_list->chunks, current);
                     hashmap_set(map.shape_list->chunks, adjacent);
+                }
+
+                else {
+                    DEBUG("hashmap out of mana\n");
+                    exit(HASHMAP_OOM);
                 }
             }
 
@@ -153,9 +159,48 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
     }
 
     if(num_not_similar == NONE_SIMILAR) {
+        if(hashmap_oom(map.shape_list->chunks)) {
+            DEBUG("hashmap out of mana\n");
+            exit(HASHMAP_OOM);
+        }
         map.shape_list = add_new_shape(map.shape_list);
         hashmap_set(map.shape_list->chunks, current);
     }
+}
+
+bool iterate_new_path(void* item, void* udata) {
+    pixelchunk* chunk = item;
+    iter_struct* shape_data = udata;
+
+    if(chunk->is_boundary == false) {
+        return true;
+    }
+    NSVGshape* current = shape_data->output->shapes;
+    NSVGpath* currentpath = current->paths;
+    NSVGpath* nextsegment;
+
+    //add chunk to path if its a boundary
+    if(currentpath == NULL) {
+        coordinate zero = {0, 0};
+
+        NSVGpath* nextsegment = create_path(
+            shape_data->map.input, 
+            zero,
+            chunk->location
+        );
+        
+    }
+
+    else {
+        nextsegment = create_path(
+            shape_data->map.input, 
+            currentpath->,
+            chunk->location
+        );
+    }
+    currentpath->next = nextsegment;
+
+    return true;
 }
 
 NSVGimage* vectorize_image(image input, vectorize_options options) {
@@ -176,21 +221,48 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     }
 
     //create the svg
-
     if(map.shape_list == NULL) {
         DEBUG("NO SHAPES FOUND\n");
         exit(SHAPES_NOT_FOUND);
     }
 
-    while(map.shape_list->previous != NULL) {
+    while(map.shape_list->previous != NULL) { //wind back the linked list
         map.shape_list = map.shape_list->previous;
     }
 
-    while(map.shape_list->next != NULL) {
-        
+    NSVGshape* firstshape = calloc(1, sizeof(NSVGshape));
+    output->shapes = firstshape;
+
+    //iterate shapes
+    while(map.shape_list != NULL) {
+        coordinate zero = {0, 0};
+        NSVGpath* firstpart = create_path(input, zero, zero);
+
+        iter_struct shape_data = {
+            map, output, firstpart
+        };
+
+        if(hashmap_count(map.shape_list->chunks) == 0) {
+            continue;    
+        }
+        bool outcome = hashmap_scan(map.shape_list->chunks, iterate_new_path, &shape_data);
         map.shape_list = map.shape_list->next;
+
+        coordinate realstart = {
+            output->shapes->paths->pts[2],
+            output->shapes->paths->pts[3]
+        };
+
+        coordinate realend = {
+            firstpart,
+
+        };
+        outputs->shapes->paths = create_path(input, map.shape_list->paths);
+        outputs->shapes->paths = firstpart;
     }
 
+    if()
+    output->shapes = firstshape;
     free_group_map(&map);
     return output;
 }

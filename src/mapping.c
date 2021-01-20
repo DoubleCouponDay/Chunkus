@@ -110,7 +110,7 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
         output.groups_array_2d[i] = calloc(1, sizeof(pixelchunk) * output.map_height);
     }
 
-    output.input_p = input;
+    output.input = input;
 
     for (int x = 0; x < output.map_width; ++x)
     {

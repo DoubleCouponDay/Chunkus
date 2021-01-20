@@ -25,7 +25,7 @@ typedef struct
     chunkshape* shape_list;
     int map_width; 
     int map_height;
-    image input_p;
+    image input;
 } chunkmap;
 
 typedef struct

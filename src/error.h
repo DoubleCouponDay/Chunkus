@@ -7,5 +7,6 @@ enum vectorizing_opcodes {
     SVG_SPACE_ERROR,
     READ_FILE_ERROR,
     ARRAY_DIFF_SIZE_ERROR,
-    NULL_ARGUMENT_ERROR
+    NULL_ARGUMENT_ERROR,
+    HASHMAP_OOM
 };

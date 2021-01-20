@@ -41,6 +41,10 @@
         "*.rh": "cpp",
         "compare": "c",
         "utility": "c",
-        "cmath": "c"
+        "cmath": "c",
+        "iterator": "cpp",
+        "list": "cpp",
+        "vector": "cpp",
+        "xstring": "cpp"
     }
 }
