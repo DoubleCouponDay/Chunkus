@@ -1,18 +1,20 @@
-#include "svg.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 #include <stdarg.h>
-#include <nanosvg.h>
 #include <stdbool.h>
 
+// #define NANOSVG_ALL_COLOR_KEYWORDS	// Include full list of color keywords.
+// #define NANOSVG_IMPLEMENTATION		// Expands implementation
+#include <nanosvg.h>
+
+
+#include "svg.h"
 #include "../types/colour.h"
 #include "../types/image.h"
 #include "../mapping.h"
 #include "../../test/tools.h"
-#include "nanocopy.h"
 #include "../tidwall.h"
 #include "../error.h"
 
@@ -204,16 +206,16 @@ bool iterate_new_path(void* item, void* udata) {
 }
 
 NSVGimage* vectorize_image(image input, vectorize_options options) {
-    NSVGimage* output = parsetemplate(TEMPLATE_PATH);
+    NSVGimage* output = nsvgParseFromFile(TEMPLATE_PATH, "px", 0);
     output->width = input.width;
     output->height = input.height;
 
     chunkmap map = generate_chunkmap(input, options);
 
     //create set of shapes
-    for (int map_x = 0; map_x < map.map_width; ++map_x)
+    for(int map_x = 0; map_x < map.map_width; ++map_x)
     {
-        for (int map_y = 0; map_y < map.map_height; ++map_y)
+        for(int map_y = 0; map_y < map.map_height; ++map_y)
         {
             pixelchunk* currentchunk_p = &map.groups_array_2d[map_x][map_y];
             find_shapes(map, currentchunk_p, map_x, map_y, options.shape_colour_threshhold);
