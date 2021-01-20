@@ -40,6 +40,7 @@
         "xutility": "cpp",
         "*.rh": "cpp",
         "compare": "c",
-        "utility": "c"
+        "utility": "c",
+        "cmath": "c"
     }
 }

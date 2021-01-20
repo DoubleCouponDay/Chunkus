@@ -1,9 +1,13 @@
-#include "mapping.h"
 #include <math.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <string.h>
+
+#include "mapping.h"
 #include "types/colour.h"
 #include "../test/tools.h"
-#include <errno.h>
+#include "tidwall.h"
+#include "svg/tidwallcopy.h"
 
 #ifndef NULL
 #define NULL 0
@@ -97,6 +101,8 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
     output.map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
     output.map_height = (int)ceilf((float)input.height / (float)options.chunk_size);
     output.groups_array_2d = calloc(1, sizeof(pixelchunk*) * output.map_width);
+    output.shape_list = calloc(1, sizeof(chunkshape));
+    output.shape_list->chunks = hashmap_new(sizeof(chunkshape), 16, 0, 0, chunk_hash, chunk_compare, NULL);
 
     for (int i = 0; i < output.map_width; ++i)
     {
@@ -129,4 +135,18 @@ void free_group_map(chunkmap* map_p)
         free(current);
     }
     free(map_p->groups_array_2d);
+
+    //wind back the linked list to the start
+    while(map_p->shape_list->previous != NULL) {
+        map_p->shape_list = map_p->shape_list->previous;
+    }
+
+    //free all shapes
+    while (map_p->shape_list)
+    {
+        chunkshape* next = map_p->shape_list->next;
+        hashmap_free(map_p->shape_list->chunks);
+        free(map_p->shape_list);
+        map_p->shape_list = next;
+    }
 }

@@ -66,7 +66,6 @@ NSVGpath* create_path(image input, coordinate start, coordinate end) {
     return output;
 }
 
-
 bool colours_are_similar(pixel color_a, pixel color_b, float max_distance)
 {
     pixel diff;
@@ -74,31 +73,78 @@ bool colours_are_similar(pixel color_a, pixel color_b, float max_distance)
     diff.g = color_a.g - color_b.g;
     diff.b = color_a.b - color_b.b;
 
-    float mag = sqrt(diff.r * diff.r + diff.g * diff.g + diff.b * diff.b);
+    float mag = sqrt(pow(diff.r, 2) + pow(diff.g, 2) + pow(diff.b, 2)); //pythagorean theorem
 
     return mag <= max_distance;
 }
 
-void scan_neighbours(chunkmap map, pixelchunk* current, int map_x, int map_y, float shape_colour_threshold)
+chunkshape* add_new_shape(chunkshape* shape_list) {
+    shape_list->next = calloc(1, sizeof(chunkshape));
+    shape_list->next->previous = shape_list;
+    return shape_list->next;
+}
+
+void add_chunk_to_shape(chunkshape* shape_list, pixelchunk* item) {
+    hashmap_set(shape_list->chunks, item);
+}
+
+//returns the shape its in. else, NULL
+chunkshape* big_chungus_already_in_shape(chunkmap map, pixelchunk* chungus) {
+    chunkshape* current = map.shape_list;
+
+    while(current->previous != NULL) {
+        current = current->previous;
+    }
+
+    while(current->next != NULL) {
+        if (!hashmap_get(current->chunks, chungus))
+            return current;
+
+        current = current->next;
+    }
+    return NULL;
+}
+
+void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float shape_colour_threshold)
 {
     for (int adjacent_x = -1; adjacent_x < 2; ++adjacent_x)
     {
         for (int adjacent_y = -1; adjacent_y < 2; ++adjacent_y)
         {
             if (adjacent_x == 0 && adjacent_y == 0)
-                continue;
+                continue; //skip center pixel
             
             int adjacent_index_x = map_x + adjacent_x;
             int adjacent_index_y = map_y + adjacent_y;
 
-            if (adjacent_index_x < 0 || adjacent_index_x >= map.map_width
-                || adjacent_index_y < 0 || adjacent_index_y >= map.map_height)
+            if (adjacent_index_x < 0 || 
+                adjacent_index_y < 0 ||
+                adjacent_index_x >= map.map_width ||  
+                adjacent_index_y >= map.map_height)
                 continue;
 
-            pixelchunk* adjacent = &map.groups_array_2d[map_x + adjacent_x][map_y + adjacent_y];
+            pixelchunk* adjacent = &map.groups_array_2d[adjacent_index_x][adjacent_index_y];
 
             if (colours_are_similar(current->average_colour, adjacent->average_colour, shape_colour_threshold))
             {
+                current->is_boundary = true;
+
+                chunkshape* shape = big_chungus_already_in_shape(map, adjacent);
+                
+                if (shape)
+                {
+                    add_chunk_to_shape(shape, current);
+                }
+
+                else {
+                    map.shape_list->next = add_new_shape(map.shape_list);
+                    map.shape_list = map.shape_list->next;
+                    hashmap_set(map.shape_list->chunks, current);
+                    hashmap_set(map.shape_list->chunks, adjacent);
+                }
+            }
+
+            else {
 
             }
         }
@@ -106,26 +152,32 @@ void scan_neighbours(chunkmap map, pixelchunk* current, int map_x, int map_y, fl
 }
 
 points* add_boundary_point(points* points_list, pixelchunk* currentgroup_p) {
-    points_list->current = currentgroup_p->location;
     points_list->next = calloc(1, sizeof(points));
+    points_list->next->current = currentgroup_p->location;
+    points_list->next->previous = points_list;
     return points_list->next;
 }
 
-NSVGimage* vectorize_image(image input, chunkmap map, float shape_colour_threshhold) {
+NSVGimage* vectorize_image(image input, vectorize_options options) {
     NSVGimage* output = parsetemplate(TEMPLATE_PATH);
     output->width = input.width;
     output->height = input.height;
 
+    chunkmap map = generate_chunkmap(input, options);
+
     points* points_list = calloc(1, sizeof(points));
 
+    //create set of shapes
     for (int map_x = 0; map_x < map.map_width; ++map_x)
     {
         for (int map_y = 0; map_y < map.map_height; ++map_y)
         {
             pixelchunk* currentchunk_p = &map.groups_array_2d[map_x][map_y];
-
+            find_shapes(map, currentchunk_p, map_x, map_y, options.shape_colour_threshhold);
         }
     }
+
+    //
     
     //wind back the linked list to the start
     while(points_list->previous != NULL) {
@@ -133,10 +185,12 @@ NSVGimage* vectorize_image(image input, chunkmap map, float shape_colour_threshh
     }
 
     //free all points
-    while(points_list->next != NULL) {
-        points_list = points_list->next;
-        free(points_list->previous);        
+    while(points_list != NULL) {
+        points* next = points_list->next;
+        free(points_list);
+        points_list = next;
     }
+    free_group_map(&map);
     return output;
 }
 

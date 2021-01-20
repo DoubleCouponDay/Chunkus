@@ -12,6 +12,6 @@ typedef struct {
     float angle_between;
 } colour_diff;
 
-NSVGimage* vectorize_image(image input, chunkmap output, float shape_colour_threshhold);
+NSVGimage* vectorize_image(image input, vectorize_options options);
 
 void free_image(NSVGimage* input);

@@ -3,6 +3,7 @@
 #include "types/colour.h"
 #include "types/image.h"
 #include "tidwall.h"
+#include <stdbool.h>
 
 typedef struct points {
     coordinate current;
@@ -15,11 +16,13 @@ typedef struct
     pixel average_colour;
     pixel** pixels_array_2d;
     coordinate location;
+    bool is_boundary;
 } pixelchunk;
 
 typedef struct chunkshape {
     hashmap* chunks;
-    
+    struct chunkshape* next;
+    struct chunkshape* previous;
 } chunkshape;
 
 typedef struct 

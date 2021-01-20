@@ -102,10 +102,8 @@ MunitResult test7_can_vectorize_image(const MunitParameter params[], void* userd
     atof(params[2].value)
   };
   
-  stuff->img = convert_png_to_image(options.file_path);
-  stuff->map = generate_chunkmap(stuff->img, options);
-  
-  stuff->svg = vectorize_image(stuff->img, stuff->map, options.shape_colour_threshhold);
+  stuff->img = convert_png_to_image(options.file_path);  
+  stuff->svg = vectorize_image(stuff->img, options);
 
   return MUNIT_OK;
 }

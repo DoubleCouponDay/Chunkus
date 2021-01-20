@@ -26,7 +26,6 @@ void test5teardown(void* fixture);
 typedef struct
 {
     image img;
-    chunkmap map;
     NSVGimage* svg;
 } test7stuff;
 
