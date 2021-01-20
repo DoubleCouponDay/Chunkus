@@ -22,6 +22,7 @@ const int BEZIERCURVE_LENGTH = 8;
 const int BEZIER_POINTS = 2;
 const int BOUNDS_LENGTH = 4;
 const int NONE_SIMILAR = 8;
+const int NONE_FILLED = -1;
 const char* TEMPLATE_PATH = "../template.svg";
 const char* OOM_MESSAGE = "hashmap out of mana\n";
 
@@ -170,6 +171,7 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
     }
 }
 
+//assumes first path and first shape are given
 bool iterate_new_path(void* item, void* udata) {
     pixelchunk* chunk = item;
     iter_struct* shape_data = udata;
@@ -182,29 +184,47 @@ bool iterate_new_path(void* item, void* udata) {
     NSVGpath* nextsegment;
 
     //add chunk to path if its a boundary
-    if(currentpath == NULL) {
-        coordinate zero = {0, 0};
 
-        NSVGpath* nextsegment = create_path(
-            shape_data->map.input, 
-            zero,
-            chunk->location
-        );
-        
+    if(currentpath->pts[0] == NONE_FILLED) { //first point not supplied
+        coordinate empty = {0, 0};
+        currentpath->pts[0] = chunk->location.x; //x1
+        currentpath->pts[1] = chunk->location.y; //y1
+        return true;
     }
 
-    else {
+    else if(currentpath->pts[2] == NONE_FILLED) { //first point supplied but not first path
+        currentpath->pts[2] = chunk->location.x; //x2
+        currentpath->pts[3] = chunk->location.y; //y2
+
+        coordinate previous_coord = {
+            currentpath->pts[0],
+            currentpath->pts[1]
+        };
+
         nextsegment = create_path(
             shape_data->map.input, 
-            currentpath->,
+            previous_coord,
+            chunk->location
+        );
+    }
+
+    else { //first path supplied
+        coordinate previous_coord = {
+            currentpath->pts[2],
+            currentpath->pts[3]
+        };
+
+        nextsegment = create_path(
+            shape_data->map.input, 
+            previous_coord,
             chunk->location
         );
     }
     currentpath->next = nextsegment;
-
     return true;
 }
 
+//entry point of the file
 NSVGimage* vectorize_image(image input, vectorize_options options) {
     NSVGimage* output = nsvgParseFromFile(TEMPLATE_PATH, "px", 0);
     output->width = input.width;
@@ -228,7 +248,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
         exit(SHAPES_NOT_FOUND);
     }
 
-    while(map.shape_list->previous != NULL) { //wind back the linked list
+    while(map.shape_list->previous != NULL) { //wind back the shapes
         map.shape_list = map.shape_list->previous;
     }
 
@@ -237,18 +257,17 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
 
     //iterate shapes
     while(map.shape_list != NULL) {
-        coordinate zero = {0, 0};
-        NSVGpath* firstpart = create_path(input, zero, zero);
+        coordinate empty = {NONE_FILLED, NONE_FILLED};
+        NSVGpath* firstpath = create_path(input, empty, empty);
 
         iter_struct shape_data = {
-            map, output, firstpart
+            map, output, firstpath
         };
 
         if(hashmap_count(map.shape_list->chunks) == 0) {
             continue;    
         }
-        bool outcome = hashmap_scan(map.shape_list->chunks, iterate_new_path, &shape_data);
-        map.shape_list = map.shape_list->next;
+        hashmap_scan(map.shape_list->chunks, iterate_new_path, &shape_data);
 
         coordinate realstart = {
             output->shapes->paths->pts[2],
@@ -256,14 +275,22 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
         };
 
         coordinate realend = {
-            firstpart,
-
+            firstpath->pts[0],
+            firstpath->pts[1]
         };
-        outputs->shapes->paths = create_path(input, map.shape_list->paths);
-        outputs->shapes->paths = firstpart;
+        
+        if(output->shapes->paths->pts[0] == NONE_FILLED) { //no need for firstpath
+            output->shapes->paths = NULL;
+        }
+        
+        else { //wind back the paths
+            output->shapes->paths->next = create_path(input, realstart, realend);
+            output->shapes->paths = firstpath; 
+        }        
+        map.shape_list = map.shape_list->next;//go to next shape
     }
 
-    if()
+    
     output->shapes = firstshape;
     free_group_map(&map);
     return output;
