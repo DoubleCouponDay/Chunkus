@@ -24,14 +24,7 @@ filesetup* createfilesetup(const MunitParameter params[], void* userdata)
   DEBUG("finding the file param \n");
   // Find file address parameter  
   
-  char* file_address = NULL;
-  for (int i = 0; params[i].name != NULL && params[i].value != NULL; ++i)
-  {
-    if (strcmp(params[i].name, "filename") == 0)
-    {
-      file_address = params[i].value;
-    }
-  }
+  char* file_address = params[0].value;
 
   munit_assert_ptr_not_null(file_address);
 

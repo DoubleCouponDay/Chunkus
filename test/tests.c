@@ -25,11 +25,14 @@
 #define ERROR -1
 
 MunitResult aTestCanPass(const MunitParameter params[], void* data) {
+  DEBUG("Test says hello\n");
   return MUNIT_OK;
 }
 
 MunitResult test2_itCanDecompressAPng(const MunitParameter params[], void* userdata) {
+  DEBUG("reading file.\n");
   fileresources* resources = readfile(params, userdata);
+  DEBUG("freeing file\n");
   freefile(resources);
   return MUNIT_OK;
 }
@@ -86,9 +89,9 @@ MunitResult test5_opensPngAndOutputsBmp(const MunitParameter params[], void* use
   return MUNIT_OK;
 }
 
-MunitResult test7_can_vectorize_image(const MunitParameter params[], void* userdata)
+MunitResult test6_can_vectorize_image(const MunitParameter params[], void* userdata)
 {
-  test7stuff* stuff = userdata;
+  test6stuff* stuff = userdata;
 
   vectorize_options options = {
     params[0].value,
@@ -105,31 +108,32 @@ MunitResult test7_can_vectorize_image(const MunitParameter params[], void* userd
 int main(int argc, char** argv) {
   DEBUG("test runner initializing... \n");
 
-  char* filename = "../../../../test/test.png";
-  char* filepp_params[] = { filename, NULL };
+  char* param1[] = { "../../../../test/test.png", NULL };
+  char* param2[] = { "4", NULL };
+  char* param3[] = { "5", NULL };
 
   MunitParameterEnum test_params[] = { 
     { 
-      "filename", filepp_params
+      "filename", param1,
     },
     {
-      "chunk_size", "4"
+      "chunk_size", param2
     },
     {
-      "shape_colour_threshhold", "5.0"
+      "shape_colour_threshhold", param3
     },
     { NULL, NULL} 
   };
   
   MunitTest test1 = { "aTestCanPass", aTestCanPass, NULL, NULL, MUNIT_TEST_OPTION_NONE };
   MunitTest test2 = { "itCanDecompressAPng", test2_itCanDecompressAPng, createfilesetup, test2teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest test3 = { "weKnowHowToGetPixelDataFromPng3", test3_weKnownHowToGetPixelDataFromPng, test3setup, test3teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest test3 = { "weKnowHowToGetPixelDataFromPng", test3_weKnownHowToGetPixelDataFromPng, test3setup, test3teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest test4 = { "can_convert_image_to_node_map", test4_can_convert_file_to_node_map, test4setup, test4teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest test5 = { "opensPngAndOutputsBmp", test5_opensPngAndOutputsBmp, test5setup, test5teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest test6 = { "canVectorizeImage", test6_can_vectorize_image, test6setup, test6teardown, MUNIT_TEST_OPTION_NONE, test_params };
 
   MunitTest testarray[] = { 
-    test1, 
+    test1,
     test2, 
     test3, 
     test4,
