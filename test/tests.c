@@ -86,10 +86,6 @@ MunitResult test5_opensPngAndOutputsBmp(const MunitParameter params[], void* use
   return MUNIT_OK;
 }
 
-MunitResult test6_can_convert_chunkmap_to_svgmap(const MunitParameter params[], void* userdata) {
-  return MUNIT_OK;
-}
-
 MunitResult test7_can_vectorize_image(const MunitParameter params[], void* userdata)
 {
   test7stuff* stuff = userdata;
@@ -130,7 +126,7 @@ int main(int argc, char** argv) {
   MunitTest test3 = { "weKnowHowToGetPixelDataFromPng3", test3_weKnownHowToGetPixelDataFromPng, test3setup, test3teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest test4 = { "can_convert_image_to_node_map", test4_can_convert_file_to_node_map, test4setup, test4teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest test5 = { "opensPngAndOutputsBmp", test5_opensPngAndOutputsBmp, test5setup, test5teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest test7 = { "canVectorizeImage", test7_can_vectorize_image, test7setup, test7teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest test6 = { "canVectorizeImage", test6_can_vectorize_image, test6setup, test6teardown, MUNIT_TEST_OPTION_NONE, test_params };
 
   MunitTest testarray[] = { 
     test1, 
@@ -138,7 +134,7 @@ int main(int argc, char** argv) {
     test3, 
     test4,
     test5,
-    test7,
+    test6,
     { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
   };
   MunitSuite suite = { "tests.", testarray };

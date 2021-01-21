@@ -29,7 +29,7 @@ typedef struct
 {
     image img;
     NSVGimage* svg;
-} test7stuff;
+} test6stuff;
 
-void* test7setup(const MunitParameter params[], void* userdata);
-void test7teardown(void* fixture);
+void* test6setup(const MunitParameter params[], void* userdata);
+void test6teardown(void* fixture);
