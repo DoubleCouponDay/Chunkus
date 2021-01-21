@@ -243,6 +243,11 @@ void close_path(chunkmap* map, NSVGimage* output, NSVGpath* firstpath) {
 
 void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
 {
+    //create the svg
+    if(map.shape_list == NULL) {
+        DEBUG("NO SHAPES FOUND\n");
+        exit(ASSUMPTION_WRONG);
+    }
     NSVGshape* firstshape;
 
     //iterate shapes
@@ -264,11 +269,17 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
         iter_struct shape_data = {
             map, output, firstpath, NULL
         };
+        output->shapes->paths = firstpath; //first shapes path
 
         if(hashmap_count(map.shape_list->chunks) == 0) {
             continue;    
         }
         hashmap_scan(map.shape_list->chunks, iterate_new_path, &shape_data);
+
+        if(firstpath->pts[2] == NONE_FILLED) {
+            DEBUG("NO PATHS FOUND\n");
+            exit(ASSUMPTION_WRONG);
+        }
 
         close_path(&map, output, firstpath);
         output->shapes->paths = firstpath; //wind back the paths
@@ -285,10 +296,7 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
         map.shape_list = map.shape_list->next; //go to next shape
                 
     }
-
-    if(firstshape != NULL) { //there was at least one shape available to create
-        output->shapes = firstshape;
-    }     
+    output->shapes = firstshape;
 }
 
 //entry point of the file
@@ -307,12 +315,6 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
             pixelchunk* currentchunk_p = &map.groups_array_2d[map_x][map_y];
             find_shapes(map, currentchunk_p, map_x, map_y, options.shape_colour_threshhold);
         }
-    }
-
-    //create the svg
-    if(map.shape_list == NULL) {
-        DEBUG("NO SHAPES FOUND\n");
-        exit(SHAPES_NOT_FOUND);
     }
 
     wind_back_chunkshapes(&map.shape_list);
