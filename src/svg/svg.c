@@ -19,7 +19,7 @@ const int BEZIER_POINTS = 2;
 const int BOUNDS_LENGTH = 4;
 const int NONE_SIMILAR = 8;
 const int NONE_FILLED = -1;
-const char* TEMPLATE_PATH = "../template.svg";
+const char* TEMPLATE_PATH = "template.svg";
 const char* OOM_MESSAGE = "hashmap out of mana\n";
 
 void fill_float_array(float* input, int input_length, float* output, int output_length) {
@@ -301,10 +301,19 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
 
 //entry point of the file
 NSVGimage* vectorize_image(image input, vectorize_options options) {
+    DEBUG("Beginning vectorize_image\n");
+    DEBUG("checking template file exists\n");
+    FILE* filefound = fopen(TEMPLATE_PATH, "rb");
+
+    if(filefound == NULL) {
+        DEBUG("could not find template file: %s", TEMPLATE_PATH);
+    }
+    fclose(filefound);
     NSVGimage* output = nsvgParseFromFile(TEMPLATE_PATH, "px", 0);
     output->width = input.width;
     output->height = input.height;
 
+    DEBUG("generating chunkmap\n");
     chunkmap map = generate_chunkmap(input, options);
 
     //create set of shapes
@@ -317,10 +326,13 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
         }
     }
 
+    DEBUG("Now winding back chunk_shapes\n");
     wind_back_chunkshapes(&map.shape_list);
-
+    
+    DEBUG("iterating chunk shapes\n");
     iterate_chunk_shapes(map, output);
     
+    DEBUG("freeing group map\n");
     free_group_map(&map);
     return output;
 }

@@ -57,7 +57,10 @@ void* test6setup(const MunitParameter params[], void* userdata)
 void test6teardown(void* fixture)
 {
   test6stuff* stuff = fixture;
+  DEBUG("freeing image contents\n");
   free_image_contents(stuff->img);
+  DEBUG("freeing image\n");
   free_image(stuff->svg);  
+  DEBUG("freeing test6stuff\n");
   free(stuff);
 }
