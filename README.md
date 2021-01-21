@@ -38,6 +38,8 @@ Install Conan.io. it can only be run from cmd, not powershell. Windows defender 
     conan install ..
 
 You must add an environment variable called `conanpath` and make its value the absolute path to your `.conan` folder. Usually this is found in your user folder.
+
+Open the '<nanosvg.h>` file and add `#pragma once` at the top.
   
 ---
 

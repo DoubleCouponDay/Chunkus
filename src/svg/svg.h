@@ -8,6 +8,10 @@
 #include "../mapping.h"
 #include <nanosvg.h>
 
+#ifndef NSVG_RGB
+#define NSVG_RGB(r, g, b) (((unsigned int)r) | ((unsigned int)g << 8) | ((unsigned int)b << 16))
+#endif
+
 typedef struct
 {
     chunkmap map;

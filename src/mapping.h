@@ -38,3 +38,5 @@ typedef struct
 chunkmap generate_chunkmap(image inputimage_p, vectorize_options options);
 
 void free_group_map(chunkmap* map_p);
+
+void wind_back_chunkshapes(chunkshape** list);

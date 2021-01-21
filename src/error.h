@@ -8,5 +8,6 @@ enum vectorizing_opcodes {
     READ_FILE_ERROR,
     ARRAY_DIFF_SIZE_ERROR,
     NULL_ARGUMENT_ERROR,
-    HASHMAP_OOM
+    HASHMAP_OOM,
+    
 };

@@ -45,6 +45,9 @@
         "iterator": "cpp",
         "list": "cpp",
         "vector": "cpp",
-        "xstring": "cpp"
-    }
+        "xstring": "cpp",
+        "svg.h": "c",
+        "tears.h": "c"
+    },
+    "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

@@ -136,10 +136,7 @@ void free_group_map(chunkmap* map_p)
     }
     free(map_p->groups_array_2d);
 
-    //wind back the linked list to the start
-    while(map_p->shape_list->previous != NULL) {
-        map_p->shape_list = map_p->shape_list->previous;
-    }
+    wind_back_chunkshapes(&(map_p->shape_list));
 
     //free all shapes
     while (map_p->shape_list)
@@ -149,4 +146,22 @@ void free_group_map(chunkmap* map_p)
         free(map_p->shape_list);
         map_p->shape_list = next;
     }
+}
+
+void wind_back_chunkshapes(chunkshape** list)
+{
+    if(list == NULL) {
+        DEBUG("the list you passed was non existent.\n");
+        exit(NULL_ARGUMENT_ERROR);
+    }
+
+    chunkshape* iter = *list;
+    if (iter == NULL)
+        return;
+
+    while (iter->previous != NULL)
+    {
+        iter = iter->previous;
+    }
+    *list = iter;
 }

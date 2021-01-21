@@ -1,14 +1,10 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
 #include <stdarg.h>
 #include <stdbool.h>
-
-// #define NANOSVG_ALL_COLOR_KEYWORDS	// Include full list of color keywords.
-// #define NANOSVG_IMPLEMENTATION		// Expands implementation
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
 #include <nanosvg.h>
-
 
 #include "svg.h"
 #include "../types/colour.h"
@@ -97,9 +93,7 @@ void add_chunk_to_shape(chunkshape* shape_list, pixelchunk* item) {
 chunkshape* big_chungus_already_in_shape(chunkmap map, pixelchunk* chungus) {
     chunkshape* current = map.shape_list;
 
-    while(current->previous != NULL) {
-        current = current->previous;
-    }
+    wind_back_chunkshapes(&current);
 
     while(current->next != NULL) {
         if (!hashmap_get(current->chunks, chungus))
@@ -135,21 +129,19 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
 
             if (colours_are_similar(current->average_colour, adjacent->average_colour, shape_colour_threshold))
             {
-                current->is_boundary = true;
-
-                chunkshape* shape = big_chungus_already_in_shape(map, adjacent);
+                chunkshape* isinshape = big_chungus_already_in_shape(map, adjacent);
                 
-                if (shape) {
-                    add_chunk_to_shape(shape, current);
+                if (isinshape) {
+                    add_chunk_to_shape(isinshape, current);
                 }
 
-                else if(hashmap_oom(map.shape_list->chunks)){
+                else if(hashmap_oom(map.shape_list->chunks) == false){
                     map.shape_list = add_new_shape(map.shape_list);                    
                     hashmap_set(map.shape_list->chunks, current);
                     hashmap_set(map.shape_list->chunks, adjacent);
                 }
 
-                else {
+                else { //probably never happen
                     DEBUG("hashmap out of mana\n");
                     exit(HASHMAP_OOM);
                 }
@@ -157,6 +149,7 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
 
             else {
                 ++num_not_similar;
+                current->is_boundary = true;
             }
         }
     }
@@ -189,6 +182,16 @@ bool iterate_new_path(void* item, void* udata) {
         coordinate empty = {0, 0};
         currentpath->pts[0] = chunk->location.x; //x1
         currentpath->pts[1] = chunk->location.y; //y1
+
+        shape_data->shapescolour = calloc(1, sizeof(NSVGpaint));    
+        NSVGpaint* fill = shape_data->shapescolour;
+        fill->type = NSVG_PAINT_COLOR;
+
+        fill->color = NSVG_RGB(
+            chunk->average_colour.r, 
+            chunk->average_colour.g, 
+            chunk->average_colour.b
+        );
         return true;
     }
 
@@ -224,6 +227,67 @@ bool iterate_new_path(void* item, void* udata) {
     return true;
 }
 
+void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
+{
+    NSVGshape* firstshape;
+
+    //iterate shapes
+    while(map.shape_list != NULL) {        
+        if(output->shapes == NULL) {
+            firstshape = calloc(1, sizeof(NSVGshape));
+            output->shapes = firstshape;
+        }
+
+        else {
+            NSVGshape* newshape = calloc(1, sizeof(NSVGshape));
+            output->shapes->next = newshape;
+            output->shapes = newshape;
+        }
+        
+        coordinate empty = {NONE_FILLED, NONE_FILLED};
+        NSVGpath* firstpath = create_path(map.input, empty, empty);
+
+        iter_struct shape_data = {
+            map, output, firstpath, NULL
+        };
+
+        if(hashmap_count(map.shape_list->chunks) == 0) {
+            continue;    
+        }
+        hashmap_scan(map.shape_list->chunks, iterate_new_path, &shape_data);
+
+        coordinate realstart = {
+            output->shapes->paths->pts[2],
+            output->shapes->paths->pts[3]
+        };
+
+        coordinate realend = {
+            firstpath->pts[0],
+            firstpath->pts[1]
+        };
+        
+        //wind back the paths
+        output->shapes->paths->next = create_path(map.input, realstart, realend);
+        output->shapes->paths = firstpath; 
+        
+        //set the colour of the shape
+        output->shapes->fill = *shape_data.shapescolour;
+        free(shape_data.shapescolour);
+
+        NSVGpaint stroke = {
+            NSVG_PAINT_NONE,
+            NSVG_RGB(0, 0, 0)
+        };
+        output->shapes->stroke = stroke;
+        map.shape_list = map.shape_list->next; //go to next shape
+                
+    }
+
+    if(firstshape != NULL) { //there was at least one shape available to create
+        output->shapes = firstshape;
+    }     
+}
+
 //entry point of the file
 NSVGimage* vectorize_image(image input, vectorize_options options) {
     NSVGimage* output = nsvgParseFromFile(TEMPLATE_PATH, "px", 0);
@@ -248,50 +312,10 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
         exit(SHAPES_NOT_FOUND);
     }
 
-    while(map.shape_list->previous != NULL) { //wind back the shapes
-        map.shape_list = map.shape_list->previous;
-    }
+    wind_back_chunkshapes(&map.shape_list);
 
-    NSVGshape* firstshape = calloc(1, sizeof(NSVGshape));
-    output->shapes = firstshape;
-
-    //iterate shapes
-    while(map.shape_list != NULL) {
-        coordinate empty = {NONE_FILLED, NONE_FILLED};
-        NSVGpath* firstpath = create_path(input, empty, empty);
-
-        iter_struct shape_data = {
-            map, output, firstpath
-        };
-
-        if(hashmap_count(map.shape_list->chunks) == 0) {
-            continue;    
-        }
-        hashmap_scan(map.shape_list->chunks, iterate_new_path, &shape_data);
-
-        coordinate realstart = {
-            output->shapes->paths->pts[2],
-            output->shapes->paths->pts[3]
-        };
-
-        coordinate realend = {
-            firstpath->pts[0],
-            firstpath->pts[1]
-        };
-        
-        if(output->shapes->paths->pts[0] == NONE_FILLED) { //no need for firstpath
-            output->shapes->paths = NULL;
-        }
-        
-        else { //wind back the paths
-            output->shapes->paths->next = create_path(input, realstart, realend);
-            output->shapes->paths = firstpath; 
-        }        
-        map.shape_list = map.shape_list->next;//go to next shape
-    }
-
+    iterate_chunk_shapes(map, output);
     
-    output->shapes = firstshape;
     free_group_map(&map);
     return output;
 }
@@ -301,18 +325,18 @@ void free_image(NSVGimage* input) {
         DEBUG("input is null");
         exit(NULL_ARGUMENT_ERROR);
     }
-    NSVGshape* currentlink = input->shapes->next;
 
-    while(currentlink) {
-        NSVGpath* currentpath = currentlink->paths;
+    while(input->shapes != NULL) {
+        NSVGpath* currentpath = input->shapes->paths;
 
-        while(currentpath) {
+        while(currentpath != NULL) {
+            NSVGpath* nextpath = currentpath->next;
             free(currentpath);
-            currentpath = currentlink->paths;
+            currentpath = nextpath;
         }        
-        
-        free(currentlink);
-        currentlink = input->shapes->next;
+        NSVGshape* nextshape = input->shapes->next;
+        free(input->shapes);
+        input->shapes = nextshape;
     }
     free(input);
 }
