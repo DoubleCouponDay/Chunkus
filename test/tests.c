@@ -1,8 +1,8 @@
-#pragma once
-
 #ifndef _WIN32
 #include <dirent.h>
 #endif
+
+
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -10,10 +10,9 @@
 #include <math.h>
 #include <assert.h>
 #include <png.h>
-#include <nanosvg.h>
 #include <errno.h>
-#include "munit.h"
 
+#include "munit.h"
 #include "tools.h"
 #include "readpng.h"
 #include "../src/mapping.h"
@@ -23,7 +22,6 @@
 #include "../src/svg/svg.h"
 #include "tears.h"
 
-#define NANOSVG_IMPLEMENTATION
 #define ERROR -1
 
 MunitResult aTestCanPass(const MunitParameter params[], void* data) {

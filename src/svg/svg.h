@@ -2,16 +2,18 @@
 
 #include <stdio.h>
 #include <math.h>
+
 #include "../types/colour.h"
-#include <nanosvg.h>
 #include "../types/image.h"
 #include "../mapping.h"
+#include <nanosvg.h>
 
 typedef struct
 {
     chunkmap map;
     NSVGimage* output;
     NSVGpath* first_path;
+    NSVGpaint* shapescolour;
 } iter_struct;
 
 NSVGimage* vectorize_image(image input, vectorize_options options);

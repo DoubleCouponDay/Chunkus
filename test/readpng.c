@@ -6,14 +6,12 @@
 #include "../src/entrypoint.h"
 #include "../src/types/colour.h"
 #include <png.h>
-#include <nanosvg.h>
 #include <errno.h>
 #ifndef _WIN32
 #include <dirent.h>
 #endif
 #include "../test/tools.h"
 #include "./readpng.h"
-#define NANOSVG_IMPLEMENTATION
 #define ERROR -1
 
 filesetup* createfilesetup(const MunitParameter params[], void* userdata)

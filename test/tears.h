@@ -1,7 +1,10 @@
+#pragma once
+
 #include <stdio.h>
 #include "readpng.h"
 #include "munit.h"
 #include "../src/mapping.h"
+#include <nanosvg.h>
 
 void test2teardown(void* fixture);
 
@@ -14,7 +17,6 @@ typedef struct {
 } test4stuff;
 void* test4setup(const MunitParameter params[], void* userdata);
 void test4teardown(void* fixture);
-
 
 typedef struct {
     image img;
