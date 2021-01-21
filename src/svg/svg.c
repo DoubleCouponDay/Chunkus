@@ -60,6 +60,7 @@ NSVGpath* create_path(image input, coordinate start, coordinate end) {
     fill_beziercurve_array(output->pts, BEZIERCURVE_LENGTH, start.x, start.y, end.x, end.y, 0, 0, 1, 1); //draw the top side of a box
     float boundingbox[4] = { 0, 0, input.width, input.height };
     fill_float_array(boundingbox, BOUNDS_LENGTH, output->bounds, BOUNDS_LENGTH);
+    output->closed = 1;
     return output;
 }
 
@@ -227,6 +228,19 @@ bool iterate_new_path(void* item, void* udata) {
     return true;
 }
 
+void close_path(chunkmap* map, NSVGimage* output, NSVGpath* firstpath) {
+    coordinate realstart = {
+        output->shapes->paths->pts[2],
+        output->shapes->paths->pts[3]
+    };
+
+    coordinate realend = {
+        firstpath->pts[0],
+        firstpath->pts[1]
+    };        
+    output->shapes->paths->next = create_path(map->input, realstart, realend);
+}
+
 void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
 {
     NSVGshape* firstshape;
@@ -256,19 +270,8 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
         }
         hashmap_scan(map.shape_list->chunks, iterate_new_path, &shape_data);
 
-        coordinate realstart = {
-            output->shapes->paths->pts[2],
-            output->shapes->paths->pts[3]
-        };
-
-        coordinate realend = {
-            firstpath->pts[0],
-            firstpath->pts[1]
-        };
-        
-        //wind back the paths
-        output->shapes->paths->next = create_path(map.input, realstart, realend);
-        output->shapes->paths = firstpath; 
+        close_path(&map, output, firstpath);
+        output->shapes->paths = firstpath; //wind back the paths
         
         //set the colour of the shape
         output->shapes->fill = *shape_data.shapescolour;

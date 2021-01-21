@@ -6,10 +6,6 @@ Convert a raster image into a scalable vector graphic and back.
 
 - boundary detection along sharp colour differences
 
-    - change the first path's coordinate to have real significance
-
-    - connect up the first path's starting coordinate once finished looping
-
     - collect first path. if there are none connecting, remove it
 
     -- handle edge case where there is only one point in a shape
