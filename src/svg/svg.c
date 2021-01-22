@@ -2,7 +2,6 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <nanosvg.h>
@@ -84,13 +83,10 @@ chunkshape* add_new_shape(chunkshape* shape_list) {
         // Uh oh! Your allocation failed! You should really account for this...
         return NULL;
     }
-    DEBUG("allocating new hashmap\n");
     hashmap* newhashy = hashmap_new(sizeof(chunkshape), 16, 0, 0, chunk_hash, chunk_compare, NULL);    
-    DEBUG("Prepare new chunkshape to be spliced in\n");
     new->chunks = newhashy;
     new->next = NULL;
     new->previous = shape_list;
-    DEBUG("Put the new node into the list");
     shape_list->next = new;
     return new;
 }
