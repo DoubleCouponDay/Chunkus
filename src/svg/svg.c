@@ -13,6 +13,7 @@
 #include "../../test/tools.h"
 #include "../tidwall.h"
 #include "../error.h"
+#include "tidwallcopy.h"
 
 const int BEZIERCURVE_LENGTH = 8;
 const int BEZIER_POINTS = 2;
@@ -77,9 +78,20 @@ bool colours_are_similar(pixel color_a, pixel color_b, float max_distance)
 }
 
 chunkshape* add_new_shape(chunkshape* shape_list) {
-    shape_list->next = calloc(1, sizeof(chunkshape));
-    shape_list->next->previous = shape_list;
-    return shape_list->next;
+    chunkshape* new = calloc(1, sizeof(chunkshape));
+    if (!new) {
+        // Uh oh! Your allocation failed! You should really account for this...
+        return NULL;
+    }
+    DEBUG("allocating new hashmap\n");
+    hashmap* newhashy = hashmap_new(sizeof(chunkshape), 16, 0, 0, chunk_hash, chunk_compare, NULL);
+    new->chunks = newhashy;
+    DEBUG("Prepare `new` to be spliced in\n");
+    new->next = NULL;
+    new->previous = shape_list;
+    DEBUG("Put the new node into the list");
+    shape_list->next = new;
+    return new;
 }
 
 void add_chunk_to_shape(chunkshape* shape_list, pixelchunk* item) {
