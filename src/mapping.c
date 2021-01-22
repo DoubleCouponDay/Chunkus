@@ -10,10 +10,6 @@
 #include "svg/tidwallcopy.h"
 #include "error.h"
 
-#ifndef NULL
-#define NULL 0
-#endif
-
 void iterateImagePixels(int x, int y, image input, vectorize_options options, chunkmap output) {
     int x_offset = x * options.chunk_size;
     int y_offset = y * options.chunk_size;

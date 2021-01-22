@@ -84,9 +84,9 @@ chunkshape* add_new_shape(chunkshape* shape_list) {
         return NULL;
     }
     DEBUG("allocating new hashmap\n");
-    hashmap* newhashy = hashmap_new(sizeof(chunkshape), 16, 0, 0, chunk_hash, chunk_compare, NULL);
+    hashmap* newhashy = hashmap_new(sizeof(chunkshape), 16, 0, 0, chunk_hash, chunk_compare, NULL);    
+    DEBUG("Prepare new chunkshape to be spliced in\n");
     new->chunks = newhashy;
-    DEBUG("Prepare `new` to be spliced in\n");
     new->next = NULL;
     new->previous = shape_list;
     DEBUG("Put the new node into the list");
@@ -255,11 +255,13 @@ void close_path(chunkmap* map, NSVGimage* output, NSVGpath* firstpath) {
 
 void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
 {
+    DEBUG("checking if shapelist is null\n");
     //create the svg
     if(map.shape_list == NULL) {
         DEBUG("NO SHAPES FOUND\n");
         exit(ASSUMPTION_WRONG);
     }
+    DEBUG("creating first shape\n");
     NSVGshape* firstshape;
 
     //iterate shapes
@@ -333,6 +335,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     {
         for(int map_y = 0; map_y < map.map_height; ++map_y)
         {
+            DEBUG("finding shape for chunk\n");
             pixelchunk* currentchunk_p = &map.groups_array_2d[map_x][map_y];
             find_shapes(map, currentchunk_p, map_x, map_y, options.shape_colour_threshhold);
         }
