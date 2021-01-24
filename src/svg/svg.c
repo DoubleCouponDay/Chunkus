@@ -15,9 +15,7 @@
 #include "../error.h"
 #include "tidwallcopy.h"
 
-const int BEZIERCURVE_LENGTH = 8;
-const int BEZIER_POINTS = 2;
-const int BOUNDS_LENGTH = 4;
+
 const int NONE_SIMILAR = 8;
 const int NONE_FILLED = -1;
 const char* TEMPLATE_PATH = "template.svg";
@@ -265,6 +263,23 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
     while(map.shape_list != NULL) {        
         if(output->shapes == NULL) {
             firstshape = calloc(1, sizeof(NSVGshape));
+            //fill_char_array(firstshape);
+            //         char id[64];				// Optional 'id' attr of the shape or its group
+            // NSVGpaint fill;				// Fill paint
+            // NSVGpaint stroke;			// Stroke paint
+            // float opacity;				// Opacity of the shape.
+            // float strokeWidth;			// Stroke width (scaled).
+            // float strokeDashOffset;		// Stroke dash offset (scaled).
+            // float strokeDashArray[8];			// Stroke dash array (scaled).
+            // char strokeDashCount;				// Number of dash values in dash array.
+            // char strokeLineJoin;		// Stroke join type.
+            // char strokeLineCap;			// Stroke cap type.
+            // float miterLimit;			// Miter limit
+            // char fillRule;				// Fill rule, see NSVGfillRule.
+            // unsigned char flags;		// Logical or of NSVG_FLAGS_* flags
+            // float bounds[4];			// Tight bounding box of the shape [minx,miny,maxx,maxy].
+            // NSVGpath* paths;			// Linked list of paths in the image.
+            // struct NSVGshape* next;
             output->shapes = firstshape;
         }
 
@@ -332,7 +347,6 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     {
         for(int map_y = 0; map_y < map.map_height; ++map_y)
         {
-            DEBUG("finding shape for chunk\n");
             pixelchunk* currentchunk_p = &map.groups_array_2d[map_x][map_y];
             find_shapes(map, currentchunk_p, map_x, map_y, options.shape_colour_threshhold);
         }

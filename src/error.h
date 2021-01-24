@@ -1,5 +1,9 @@
 #pragma once
 
+const int BEZIERCURVE_LENGTH = 8;
+const int BOUNDS_LENGTH = 4;
+const int ID_LENGTH = 64;
+
 enum vectorizing_opcodes {
     SUCCESS_CODE,
     ASSUMPTION_WRONG,
