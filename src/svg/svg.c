@@ -14,52 +14,23 @@
 #include "../tidwall.h"
 #include "../error.h"
 #include "tidwallcopy.h"
-
+#include "nsvgmapping.h"
 
 const int NONE_SIMILAR = 8;
 const int NONE_FILLED = -1;
 const char* TEMPLATE_PATH = "template.svg";
 const char* OOM_MESSAGE = "hashmap out of mana\n";
 
-void fill_float_array(float* input, int input_length, float* output, int output_length) {
-    if(input_length > output_length) {
-        DEBUG("output array is too small for your input.");
-        exit(ARRAY_DIFF_SIZE_ERROR);
-    }
-
-    for(int i = 0; i < input_length; ++i) {
-        output[i] = input[i];
-    }
-}
-
-void fill_beziercurve_array(float* array,
-                    int array_length,
-                    float x1, float y1, 
-                    float x2, float y2, 
-                    float control_x1, float control_y1, 
-                    float control_x2, float control_y2)
-{
-    if(array_length != BEZIERCURVE_LENGTH) {
-        DEBUG("beziercurve array must be 8 long.");
-        exit(ARRAY_DIFF_SIZE_ERROR);
-    }
-    array[0] = x1;
-    array[1] = y1;
-    array[2] = x2;
-    array[3] = y2;
-    array[4] = control_x1;
-    array[5] = control_y1;
-    array[6] = control_x2;
-    array[7] = control_y2;
-}
-
 NSVGpath* create_path(image input, coordinate start, coordinate end) {
-    NSVGpath* output = calloc(1, sizeof(NSVGpath));
-    output->npts = 2;
-    fill_beziercurve_array(output->pts, BEZIERCURVE_LENGTH, start.x, start.y, end.x, end.y, 0, 0, 1, 1); //draw the top side of a box
+    NSVGpath* output = calloc(1, sizeof(NSVGpath));    
     float boundingbox[4] = { 0, 0, input.width, input.height };
-    fill_float_array(boundingbox, BOUNDS_LENGTH, output->bounds, BOUNDS_LENGTH);
+
+    fill_beziercurve(output->pts, BEZIERCURVE_LENGTH, start.x, start.y, end.x, end.y, 0, 0, 1, 1); //draw the top side of a box    
+    fill_bounds(boundingbox, BOUNDS_LENGTH, output->bounds, BOUNDS_LENGTH);
+    output->npts = 2;
     output->closed = 1;
+    output->next = NULL;
+
     return output;
 }
 

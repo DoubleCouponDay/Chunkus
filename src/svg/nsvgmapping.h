@@ -1,6 +1,15 @@
 #pragma once
 
-void fill_id(char* id_array, float* fill, int array_length);
+#include <stdlib.h>
+
+
+enum mapping_consts {
+    BEZIERCURVE_LENGTH = 8,
+    BOUNDS_LENGTH = 4,
+    ID_LENGTH = 64
+};
+
+void fill_id(char* id, char* fill, int array_length);
 
 void fill_bounds(float* bounds, float* fill, int array_length);
 
