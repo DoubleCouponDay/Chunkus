@@ -5,13 +5,13 @@
 #include "../../test/tools.h"
 
 void fill_id(char* id, char* fill, int array_length) {
-    if(array_length != ID_LENGTH) {
-        DEBUG("arrays must equal length: %d\n", BOUNDS_LENGTH);
+    if(array_length > ID_LENGTH) {
+        DEBUG("new id too long. should be less than: %d\n", BOUNDS_LENGTH);
         exit(ARRAY_DIFF_SIZE_ERROR);
     }
     int fillindex = 0;
 
-    while(fill[fillindex] != NULL && fillindex < ID_LENGTH) {
+    while(fillindex < array_length) {
         id[fillindex] = fill[fillindex];
     }
 }

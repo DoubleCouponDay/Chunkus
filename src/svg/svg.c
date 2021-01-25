@@ -226,40 +226,42 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
     if(map.shape_list == NULL) {
         DEBUG("NO SHAPES FOUND\n");
         exit(ASSUMPTION_WRONG);
-    }
+    }    
     DEBUG("creating first shape\n");
-    NSVGshape* firstshape;
+    NSVGshape* firstshape = calloc(1, sizeof(NSVGshape));
+    fill_id(firstshape->id, "firstshape", ID_LENGTH);
+    firstshape->fill = ;
+    // NSVGpaint fill;				// Fill paint
+    // NSVGpaint stroke;			// Stroke paint
+    // float opacity;				// Opacity of the shape.
+    // float strokeWidth;			// Stroke width (scaled).
+    // float strokeDashOffset;		// Stroke dash offset (scaled).
+    // float strokeDashArray[8];			// Stroke dash array (scaled).
+    // char strokeDashCount;				// Number of dash values in dash array.
+    // char strokeLineJoin;		// Stroke join type.
+    // char strokeLineCap;			// Stroke cap type.
+    // float miterLimit;			// Miter limit
+    // char fillRule;				// Fill rule, see NSVGfillRule.
+    // unsigned char flags;		// Logical or of NSVG_FLAGS_* flags
+    // float bounds[4];			// Tight bounding box of the shape [minx,miny,maxx,maxy].
+    // NSVGpath* paths;			// Linked list of paths in the image.
+    // struct NSVGshape* next;
+    
 
     //iterate shapes
     while(map.shape_list != NULL) {        
         if(output->shapes == NULL) {
-            firstshape = calloc(1, sizeof(NSVGshape));
-            //fill_char_array(firstshape);
-            //         char id[64];				// Optional 'id' attr of the shape or its group
-            // NSVGpaint fill;				// Fill paint
-            // NSVGpaint stroke;			// Stroke paint
-            // float opacity;				// Opacity of the shape.
-            // float strokeWidth;			// Stroke width (scaled).
-            // float strokeDashOffset;		// Stroke dash offset (scaled).
-            // float strokeDashArray[8];			// Stroke dash array (scaled).
-            // char strokeDashCount;				// Number of dash values in dash array.
-            // char strokeLineJoin;		// Stroke join type.
-            // char strokeLineCap;			// Stroke cap type.
-            // float miterLimit;			// Miter limit
-            // char fillRule;				// Fill rule, see NSVGfillRule.
-            // unsigned char flags;		// Logical or of NSVG_FLAGS_* flags
-            // float bounds[4];			// Tight bounding box of the shape [minx,miny,maxx,maxy].
-            // NSVGpath* paths;			// Linked list of paths in the image.
-            // struct NSVGshape* next;
+            DEBUG("using first shape\n");
             output->shapes = firstshape;
         }
 
         else {
+            DEBUG("creating new shape in an iteration\n");
             NSVGshape* newshape = calloc(1, sizeof(NSVGshape));
             output->shapes->next = newshape;
             output->shapes = newshape;
         }
-        
+        DEBUG("iterating shapes\n");
         coordinate empty = {NONE_FILLED, NONE_FILLED};
         NSVGpath* firstpath = create_path(map.input, empty, empty);
 
