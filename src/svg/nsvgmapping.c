@@ -33,6 +33,7 @@ void fill_id(char* id, char* fill, int array_length) {
 
     while(fillindex < array_length) {
         id[fillindex] = fill[fillindex];
+        ++fillindex;
     }
 }
 
