@@ -49,6 +49,11 @@ void fill_beziercurve(float* beziercurve,
     float control_x1, float control_y1, 
     float control_x2, float control_y2) {
 
+    if(beziercurve == NULL) {
+        DEBUG("array is null\n");
+        exit(NULL_ARGUMENT_ERROR);
+    }
+
     if(array_length != BEZIERCURVE_LENGTH) {
         DEBUG("beziercurve array must be 8 long.");
         exit(ARRAY_DIFF_SIZE_ERROR);
@@ -64,11 +69,15 @@ void fill_beziercurve(float* beziercurve,
 }
 
 NSVGpath* create_path(image input, coordinate start, coordinate end) {
-    NSVGpath* output = calloc(1, sizeof(NSVGpath));    
+    NSVGpath* output = calloc(1, sizeof(NSVGpath));
+    float* points = calloc(1, BEZIERCURVE_LENGTH);
+    output->pts = points;
     float boundingbox[4] = { 0, 0, input.width, input.height };
 
-    fill_beziercurve(output->pts, BEZIERCURVE_LENGTH, start.x, start.y, end.x, end.y, 0, 0, 1, 1); //draw the top side of a box    
-    fill_bounds(boundingbox, BOUNDS_LENGTH, output->bounds, BOUNDS_LENGTH);
+    DEBUG("filling beziercurve\n");
+    fill_beziercurve(output->pts, BEZIERCURVE_LENGTH, start.x, start.y, end.x, end.y, 0, 0, 1, 1); //draw the top side of a box
+    DEBUG("filling bounds\n");
+    fill_bounds(output->bounds, BOUNDS_LENGTH, boundingbox, BOUNDS_LENGTH);
     output->npts = 2;
     output->closed = 1;
     output->next = NULL;

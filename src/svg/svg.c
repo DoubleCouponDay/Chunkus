@@ -222,6 +222,7 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
             output->shapes->next = newshape;
             output->shapes = newshape;
         }
+        DEBUG("creating path\n");
         coordinate empty = {NONE_FILLED, NONE_FILLED};
         NSVGpath* firstpath = create_path(map.input, empty, empty);
 
