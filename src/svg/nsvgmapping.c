@@ -70,13 +70,11 @@ void fill_beziercurve(float* beziercurve,
 
 NSVGpath* create_path(image input, coordinate start, coordinate end) {
     NSVGpath* output = calloc(1, sizeof(NSVGpath));
-    float* points = calloc(1, BEZIERCURVE_LENGTH);
+    float* points = calloc(1, sizeof(float) * BEZIERCURVE_LENGTH);
     output->pts = points;
     float boundingbox[4] = { 0, 0, input.width, input.height };
 
-    DEBUG("filling beziercurve\n");
     fill_beziercurve(output->pts, BEZIERCURVE_LENGTH, start.x, start.y, end.x, end.y, 0, 0, 1, 1); //draw the top side of a box
-    DEBUG("filling bounds\n");
     fill_bounds(output->bounds, boundingbox, BOUNDS_LENGTH);
     output->npts = 2;
     output->closed = 1;
@@ -84,9 +82,9 @@ NSVGpath* create_path(image input, coordinate start, coordinate end) {
     return output;
 }
 
-NSVGshape* create_shape(chunkmap* map, char* id) {    
+NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {    
     NSVGshape* output = calloc(1, sizeof(NSVGshape));
-    DEBUG("filling shape id\n");
+    DEBUG("creating shape, map_p: %d, id_p: %d, id_length: %d, filling shape id\n", map, id, id_length);
     fill_id(output->id, id, ID_LENGTH);
 
     NSVGpaint fill = {

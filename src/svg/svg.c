@@ -28,7 +28,12 @@ chunkshape* add_new_shape(chunkshape* shape_list) {
         DEBUG("Uh oh! Your allocation failed! You should really account for this...\n");
         exit(NULL_ARGUMENT_ERROR);
     }
-    hashmap* newhashy = hashmap_new(sizeof(chunkshape), 16, 0, 0, chunk_hash, chunk_compare, NULL);    
+    hashmap* newhashy = hashmap_new(sizeof(chunkshape), 16, 0, 0, chunk_hash, chunk_compare, NULL);
+
+    if(newhashy == NULL) {
+        DEBUG("big problem\n");
+        exit(ASSUMPTION_WRONG);
+    }  
     new->chunks = newhashy;
     new->next = NULL;
     new->previous = shape_list;
@@ -87,10 +92,12 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
                 chunkshape* isinshape = big_chungus_already_in_shape(map, adjacent);
                 
                 if (isinshape) {
+                    DEBUG("adjacent is in shape\n");
                     add_chunk_to_shape(isinshape, current);
                 }
 
                 else if(hashmap_oom(map.shape_list->chunks) == false){
+                    DEBUG("adjacent is not in shape\n");
                     map.shape_list = add_new_shape(map.shape_list);                    
                     hashmap_set(map.shape_list->chunks, current);
                     hashmap_set(map.shape_list->chunks, adjacent);
@@ -120,7 +127,8 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
 }
 
 //assumes first path and first shape are given
-bool iterate_new_path(void* item, void* udata) {
+bool iterate_new_path(const void* item, void* udata) {
+    DEBUG("iteration of new path\n");
     pixelchunk* chunk = item;
     iter_struct* shape_data = udata;
 
@@ -134,6 +142,7 @@ bool iterate_new_path(void* item, void* udata) {
     //add chunk to path if its a boundary
 
     if(currentpath->pts[0] == NONE_FILLED) { //first point not supplied
+        DEBUG("creating first point\n");
         coordinate empty = {0, 0};
         currentpath->pts[0] = chunk->location.x; //x1
         currentpath->pts[1] = chunk->location.y; //y1
@@ -147,18 +156,17 @@ bool iterate_new_path(void* item, void* udata) {
             chunk->average_colour.g, 
             chunk->average_colour.b
         );
-        return true;
+        return true; //dont use nextsegment before its defined
     }
 
     else if(currentpath->pts[2] == NONE_FILLED) { //first point supplied but not first path
+        DEBUG("connecting first path\n");
         currentpath->pts[2] = chunk->location.x; //x2
         currentpath->pts[3] = chunk->location.y; //y2
-
         coordinate previous_coord = {
             currentpath->pts[0],
             currentpath->pts[1]
         };
-
         nextsegment = create_path(
             shape_data->map.input, 
             previous_coord,
@@ -167,6 +175,8 @@ bool iterate_new_path(void* item, void* udata) {
     }
 
     else { //first path supplied
+        DEBUG("creating new path\n");
+        
         coordinate previous_coord = {
             currentpath->pts[2],
             currentpath->pts[3]
@@ -195,6 +205,13 @@ void close_path(chunkmap* map, NSVGimage* output, NSVGpath* firstpath) {
     output->shapes->paths->next = create_path(map->input, realstart, realend);
 }
 
+void throw_on_max(unsigned long* subject) {
+    if(subject == ULONG_MAX) {
+        DEBUG("long is way too big!\n");
+        exit(OVERFLOW_ERROR);
+    }
+}
+
 void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
 {
     DEBUG("checking if shapelist is null\n");
@@ -204,25 +221,32 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
         exit(ASSUMPTION_WRONG);
     }    
     DEBUG("creating first shape\n");
+    DEBUG("hi\n");
     
 
     DEBUG("iterating shapes list\n");
-    NSVGshape* firstshape = create_shape(&map, "firstshape");
+    char* firstid = "firstshape";
+    long firstidlength = 10;
+    NSVGshape* firstshape = create_shape(&map, firstid, firstidlength);
+    output->shapes = NULL; //get rid of fluff in the template
+    unsigned long i = 0;
+    bool firstrun = true;
 
     //iterate shapes
     while(map.shape_list != NULL) {        
+        DEBUG("iterate shapes numero: %d \n", i);
         if(output->shapes == NULL) {
             DEBUG("using first shape\n");
             output->shapes = firstshape;
         }
 
         else {
-            DEBUG("creating new shape in an iteration\n");
-            NSVGshape* newshape = calloc(1, sizeof(NSVGshape));
+            DEBUG("creating new shape\n");
+            char longaschar = i;
+            NSVGshape* newshape = create_shape(&map, &longaschar, 1);
             output->shapes->next = newshape;
             output->shapes = newshape;
         }
-        DEBUG("creating path\n");
         coordinate empty = {NONE_FILLED, NONE_FILLED};
         NSVGpath* firstpath = create_path(map.input, empty, empty);
         output->shapes->paths = firstpath; //first shapes path
@@ -232,16 +256,19 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
             map, output, firstpath, NULL
         };
 
-        if(hashmap_count(map.shape_list->chunks) == 0) {
+        if(firstrun == false && 
+            hashmap_count(map.shape_list->chunks) == 0) {
+            DEBUG("no chunks found in hashmap\n");
             continue;    
         }
+        DEBUG("iterating hashmap, count: %d \n", hashmap_count(map.shape_list->chunks));
         hashmap_scan(map.shape_list->chunks, iterate_new_path, &shape_data);
 
         if(firstpath->pts[2] == NONE_FILLED) {
             DEBUG("NO PATHS FOUND\n");
             exit(ASSUMPTION_WRONG);
         }
-
+        DEBUG("closing path\n");
         close_path(&map, output, firstpath);
         output->shapes->paths = firstpath; //wind back the paths
         
@@ -259,7 +286,10 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
         };
         output->shapes->stroke = stroke;
         map.shape_list = map.shape_list->next; //go to next shape
-                
+
+        throw_on_max(&i);
+        ++i;
+        firstrun = false;
     }
     output->shapes = firstshape;
 }

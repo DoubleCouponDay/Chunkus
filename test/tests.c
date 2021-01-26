@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
 
   char* param1[] = { "../../../../test/test.png", NULL };
   char* param2[] = { "4", NULL };
-  char* param3[] = { "5", NULL };
+  char* param3[] = { "1", NULL };
 
   MunitParameterEnum test_params[] = { 
     { 

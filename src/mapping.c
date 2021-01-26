@@ -99,7 +99,13 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
     output.map_height = (int)ceilf((float)input.height / (float)options.chunk_size);
     output.groups_array_2d = calloc(1, sizeof(pixelchunk*) * output.map_width);
     output.shape_list = calloc(1, sizeof(chunkshape));
-    output.shape_list->chunks = hashmap_new(sizeof(chunkshape), 16, 0, 0, chunk_hash, chunk_compare, NULL);
+    hashmap* newhashy = hashmap_new(sizeof(chunkshape), 16, 0, 0, chunk_hash, chunk_compare, NULL); 
+
+    if(newhashy == NULL) {
+        DEBUG("big problem\n");
+        exit(ASSUMPTION_WRONG);
+    }  
+    output.shape_list->chunks = newhashy;
 
     for (int i = 0; i < output.map_width; ++i)
     {
