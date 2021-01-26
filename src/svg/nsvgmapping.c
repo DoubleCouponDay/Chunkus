@@ -21,6 +21,7 @@ void fill_float_array(float* tobefilled, float* fill, int array_length, int max_
 }
 
 void fill_strokedash_array(float* strokedash, float* fill, int array_length) {
+    DEBUG("filling strokedash array\n");
     fill_float_array(strokedash, fill, array_length, STROKEDASH_LENGTH);
 }
 
@@ -96,7 +97,7 @@ NSVGshape* create_shape(chunkmap* map, char* id) {
     output->strokeDashOffset = 0.0;
 
     DEBUG("giving shape strokedash\n");
-    float* strokedash = {0};
+    float strokedash[1] = {0};
     char strokeDashCount = 1;
     fill_strokedash_array(output->strokeDashArray, strokedash, strokeDashCount); //idk if we need this
     output->strokeDashCount = strokeDashCount;
