@@ -74,9 +74,10 @@ NSVGpath* create_path(image input, coordinate start, coordinate end) {
     return output;
 }
 
-NSVGshape* create_shape(chunkmap* map) {
+NSVGshape* create_shape(chunkmap* map, char* id) {    
     NSVGshape* output = calloc(1, sizeof(NSVGshape));
-    fill_id(output->id, "firstshape", ID_LENGTH);
+    DEBUG("filling shape id\n");
+    fill_id(output->id, id, ID_LENGTH);
 
     NSVGpaint fill = {
         NSVG_PAINT_COLOR,

@@ -207,7 +207,7 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
     
 
     DEBUG("iterating shapes list\n");
-    NSVGshape* firstshape = create_shape(&map);
+    NSVGshape* firstshape = create_shape(&map, "firstshape");
 
     //iterate shapes
     while(map.shape_list != NULL) {        
