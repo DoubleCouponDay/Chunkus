@@ -1,7 +1,6 @@
 
 
  #include <stdio.h>
-// #include <png.h>
  #include "entrypoint.h"
 
 const char *format1_p = "png";

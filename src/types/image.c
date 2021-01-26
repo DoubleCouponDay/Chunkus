@@ -3,14 +3,26 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#define NANOSVG_ALL_COLOR_KEYWORDS	// Include full list of color keywords.
-#define NANOSVG_IMPLEMENTATION		// Expands implementation
+
 #include <nanosvg.h>
+#include <stdbool.h>
 
 #include "../../test/tools.h"
 
 #include <stdlib.h>
 #include "../error.h"
+
+bool colours_are_similar(pixel color_a, pixel color_b, float max_distance)
+{
+    pixel diff;
+    diff.r = color_a.r - color_b.r;
+    diff.g = color_a.g - color_b.g;
+    diff.b = color_a.b - color_b.b;
+
+    float mag = sqrt(pow(diff.r, 2) + pow(diff.g, 2) + pow(diff.b, 2)); //pythagorean theorem
+
+    return mag <= max_distance;
+}
 
 char* rgb_to_string(pixel* input) {
     char* output = input->r;

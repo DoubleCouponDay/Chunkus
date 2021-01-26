@@ -1,10 +1,4 @@
-#ifndef _WIN32
-#include <dirent.h>
-#endif
-
-#ifndef NULL
-#define NULL 0
-#endif
+#include <nanosvg.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -23,8 +17,6 @@
 #include "../src/types/colour.h"
 #include "../src/svg/svg.h"
 #include "tears.h"
-
-#define ERROR -1
 
 MunitResult aTestCanPass(const MunitParameter params[], void* data) {
   DEBUG("Test says hello\n");

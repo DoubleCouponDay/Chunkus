@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 typedef struct {
     int x;
     int y;
@@ -47,6 +49,8 @@ typedef struct
     pixel* bottomleftcorner_p; 
     pixel* bottomrightcorner_p; 
 } image;
+
+bool colours_are_similar(pixel color_a, pixel color_b, float max_distance);
 
 char* rgb_to_string(pixel* input);
 

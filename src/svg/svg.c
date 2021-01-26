@@ -21,36 +21,12 @@ const int NONE_FILLED = -1;
 const char* TEMPLATE_PATH = "template.svg";
 const char* OOM_MESSAGE = "hashmap out of mana\n";
 
-NSVGpath* create_path(image input, coordinate start, coordinate end) {
-    NSVGpath* output = calloc(1, sizeof(NSVGpath));    
-    float boundingbox[4] = { 0, 0, input.width, input.height };
-
-    fill_beziercurve(output->pts, BEZIERCURVE_LENGTH, start.x, start.y, end.x, end.y, 0, 0, 1, 1); //draw the top side of a box    
-    fill_bounds(boundingbox, BOUNDS_LENGTH, output->bounds, BOUNDS_LENGTH);
-    output->npts = 2;
-    output->closed = 1;
-    output->next = NULL;
-
-    return output;
-}
-
-bool colours_are_similar(pixel color_a, pixel color_b, float max_distance)
-{
-    pixel diff;
-    diff.r = color_a.r - color_b.r;
-    diff.g = color_a.g - color_b.g;
-    diff.b = color_a.b - color_b.b;
-
-    float mag = sqrt(pow(diff.r, 2) + pow(diff.g, 2) + pow(diff.b, 2)); //pythagorean theorem
-
-    return mag <= max_distance;
-}
-
 chunkshape* add_new_shape(chunkshape* shape_list) {
     chunkshape* new = calloc(1, sizeof(chunkshape));
+
     if (!new) {
-        // Uh oh! Your allocation failed! You should really account for this...
-        return NULL;
+        DEBUG("Uh oh! Your allocation failed! You should really account for this...\n");
+        exit(NULL_ARGUMENT_ERROR);
     }
     hashmap* newhashy = hashmap_new(sizeof(chunkshape), 16, 0, 0, chunk_hash, chunk_compare, NULL);    
     new->chunks = newhashy;
@@ -228,25 +204,10 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
         exit(ASSUMPTION_WRONG);
     }    
     DEBUG("creating first shape\n");
-    NSVGshape* firstshape = calloc(1, sizeof(NSVGshape));
-    fill_id(firstshape->id, "firstshape", ID_LENGTH);
-    firstshape->fill = ;
-    // NSVGpaint fill;				// Fill paint
-    // NSVGpaint stroke;			// Stroke paint
-    // float opacity;				// Opacity of the shape.
-    // float strokeWidth;			// Stroke width (scaled).
-    // float strokeDashOffset;		// Stroke dash offset (scaled).
-    // float strokeDashArray[8];			// Stroke dash array (scaled).
-    // char strokeDashCount;				// Number of dash values in dash array.
-    // char strokeLineJoin;		// Stroke join type.
-    // char strokeLineCap;			// Stroke cap type.
-    // float miterLimit;			// Miter limit
-    // char fillRule;				// Fill rule, see NSVGfillRule.
-    // unsigned char flags;		// Logical or of NSVG_FLAGS_* flags
-    // float bounds[4];			// Tight bounding box of the shape [minx,miny,maxx,maxy].
-    // NSVGpath* paths;			// Linked list of paths in the image.
-    // struct NSVGshape* next;
     
+
+    DEBUG("iterating shapes list\n");
+    NSVGshape* firstshape = create_shape(&map);
 
     //iterate shapes
     while(map.shape_list != NULL) {        
@@ -283,9 +244,13 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
         close_path(&map, output, firstpath);
         output->shapes->paths = firstpath; //wind back the paths
         
-        //set the colour of the shape
-        output->shapes->fill = *shape_data.shapescolour;
-        free(shape_data.shapescolour);
+        //set the colour of the shape while prevent undefined behaviour
+        NSVGpaint fillcopy = {
+            shape_data.shapescolour->type,
+            shape_data.shapescolour->color
+        };
+        output->shapes->fill = fillcopy;
+        free(shape_data.shapescolour); //we held on to the dynamically allocated paint now we free it
 
         NSVGpaint stroke = {
             NSVG_PAINT_NONE,
