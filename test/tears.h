@@ -4,6 +4,7 @@
 #include "readpng.h"
 #include "munit.h"
 #include "../src/mapping.h"
+
 #include <nanosvg.h>
 
 void test2teardown(void* fixture);

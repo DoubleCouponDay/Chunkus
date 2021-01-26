@@ -1,6 +1,7 @@
 // Copyright 2020 Joshua J Baker. All rights reserved.
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
+#pragma once
 
 #ifndef HASHMAP_H
 #define HASHMAP_H

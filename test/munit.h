@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#pragma once
+
 #if !defined(MUNIT_H)
 #define MUNIT_H
 
