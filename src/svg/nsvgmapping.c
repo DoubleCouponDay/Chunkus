@@ -10,8 +10,8 @@
 #include "../mapping.h"
 
 void fill_float_array(float* tobefilled, float* fill, int array_length, int max_length) {
-    if(array_length != max_length) {
-        DEBUG("arrays must equal length: %d\n", max_length);
+    if(array_length > max_length) {
+        DEBUG("arrays length must be less than: %d\n", max_length);
         exit(ARRAY_DIFF_SIZE_ERROR);
     }
 
@@ -26,7 +26,7 @@ void fill_strokedash_array(float* strokedash, float* fill, int array_length) {
 
 void fill_id(char* id, char* fill, int array_length) {
     if(array_length > ID_LENGTH) {
-        DEBUG("new id too long. should be less than: %d\n", BOUNDS_LENGTH);
+        DEBUG("new id length must be less than: %d\n", BOUNDS_LENGTH);
         exit(ARRAY_DIFF_SIZE_ERROR);
     }
     int fillindex = 0;
