@@ -77,11 +77,10 @@ NSVGpath* create_path(image input, coordinate start, coordinate end) {
     DEBUG("filling beziercurve\n");
     fill_beziercurve(output->pts, BEZIERCURVE_LENGTH, start.x, start.y, end.x, end.y, 0, 0, 1, 1); //draw the top side of a box
     DEBUG("filling bounds\n");
-    fill_bounds(output->bounds, BOUNDS_LENGTH, boundingbox, BOUNDS_LENGTH);
+    fill_bounds(output->bounds, boundingbox, BOUNDS_LENGTH);
     output->npts = 2;
     output->closed = 1;
     output->next = NULL;
-
     return output;
 }
 

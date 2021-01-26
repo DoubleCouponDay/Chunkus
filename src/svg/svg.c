@@ -225,11 +225,12 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
         DEBUG("creating path\n");
         coordinate empty = {NONE_FILLED, NONE_FILLED};
         NSVGpath* firstpath = create_path(map.input, empty, empty);
+        output->shapes->paths = firstpath; //first shapes path
+        DEBUG("creating iter struct\n");
 
         iter_struct shape_data = {
             map, output, firstpath, NULL
         };
-        output->shapes->paths = firstpath; //first shapes path
 
         if(hashmap_count(map.shape_list->chunks) == 0) {
             continue;    
