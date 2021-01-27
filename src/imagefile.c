@@ -357,14 +357,27 @@ void write_ppm_map(chunkmap map, char* filename)
   fclose(fp);
 }
 
+void throw_on_outofbounds(coordinate* location, int width, int height) {
+    if (location->x < 0 || location->y < 0 || location->x >= width || location->y >= height) {
+        DEBUG("chunk out of bounds at (%d, %d)\n", location->x, location->y);
+        exit(ASSUMPTION_WRONG);
+    }
+
+    else {
+        DEBUG("x: %d, y: %d\n", location->x, location->y);
+    }
+}
+
 bool iterate_through_chunk(const void* item, void* udata)
 {
-    pixelchunk* chunk = item;
+    pixelchunk* chunk = item;    
     struct write_node_map_chunks_struct* stuff = udata;
     struct nodemap* map = stuff->map;
-
-    DEBUG("write chunk at (%d, %d)", chunk->location.x, chunk->location.y);
-    map->colours[chunk->location.x + map->width * chunk->location.y];
+    throw_on_outofbounds(&chunk->location, map->width, map->height);
+    
+    DEBUG("write chunk at (%d, %d), with colour (%d, %d, %d)\n", chunk->location.x, chunk->location.y, stuff->colour.r, stuff->colour.g, stuff->colour.b);
+    map->colours[chunk->location.x + map->width * chunk->location.y] = stuff->colour;
+    return true;
 }
 
 void write_chunkmap_to_file(chunkmap map, char* fileaddress)
@@ -386,11 +399,15 @@ void write_chunkmap_to_file(chunkmap map, char* fileaddress)
 
     int cur_colour = 0;
 
-    DEBUG("now iterating chunkshapes in chunkmap\n");
+    DEBUG("now iterating chunkshapes in chunkmap with dims %d x %d\n", map.map_width, map.map_height);
     chunkshape* current = map.shape_list;
+    int shape_count = 0;
 
     while (current)
     {
+        DEBUG("shape %d has %d chunks\n", shape_count, hashmap_count(current->chunks));
+        shape_count++;
+
         write_node_map_chunks_struct stuff = {
             shape_colours[cur_colour],
             &intermediate
@@ -403,19 +420,19 @@ void write_chunkmap_to_file(chunkmap map, char* fileaddress)
         int colour_size = sizeof(colour);
         cur_colour = (cur_colour + 1 < (array_size / colour_size) ? cur_colour + 1 : 0);
     }
+    DEBUG("iterated %d shapes in chunkmap\n", shape_count);
     image output_img = create_image(intermediate.width * 3, intermediate.height * 3);
     
     for (int x = 0; x < intermediate.width; ++x)
     {
         for (int y = 0; y < intermediate.height; ++y)
         {
+            colour* bob = &intermediate.colours[x + intermediate.width * y];
             for (int xx = 0; xx < 3; ++xx)
             {
-                colour* bob = &intermediate.colours[x + intermediate.width * y];
-
                 for (int yy = 0; yy < 3; ++yy)
                 {
-                    pixel* img_pix = &output_img.pixels_array_2d[x * 3 + xx][y * 3 + yy];
+                    pixel* img_pix = &(output_img.pixels_array_2d[x * 3 + xx][y * 3 + yy]);
                     img_pix->r = bob->r;
                     img_pix->g = bob->g;
                     img_pix->b = bob->b;

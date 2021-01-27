@@ -16,7 +16,7 @@ typedef struct nodemap
 
 typedef struct write_node_map_chunks_struct
 {
-    struct colour current;
+    struct colour colour;
     struct nodemap* map;
 } write_node_map_chunks_struct;
 

@@ -98,7 +98,8 @@ void find_shapes(chunkmap* map, pixelchunk* current, int map_x, int map_y, float
                 }
 
                 else if(hashmap_oom(map->shape_list->chunks) == false){
-                    map->shape_list = add_new_shape(map->shape_list);                    
+                    map->shape_list = add_new_shape(map->shape_list);
+                    DEBUG("curent");                 
                     hashmap_set(map->shape_list->chunks, current);
                     hashmap_set(map->shape_list->chunks, adjacent);
                 }
@@ -302,28 +303,17 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
 
 //entry point of the file
 NSVGimage* vectorize_image(image input, vectorize_options options) {
-    DEBUG("Beginning vectorize_image\n");
-    DEBUG("checking template file exists\n");
-    FILE* filefound = fopen(TEMPLATE_PATH, "rb");
-
-    if(filefound == NULL) {
-        DEBUG("could not find template file: %s", TEMPLATE_PATH);
-    }
-    fclose(filefound);
-    NSVGimage* output = create_nsvgimage(input.width, input.height);
-
     DEBUG("generating chunkmap\n");
     chunkmap map = generate_chunkmap(input, options);
 
     DEBUG("filling chunkmap\n");
-    fill_chunkmap(&map, &options);
-    DEBUG("chunk shapes found: %d\n", );
+    fill_chunkmap(&map, &options);    
+
     DEBUG("Now winding back chunk_shapes\n");
     wind_back_chunkshapes(&map.shape_list);
 
-    write_chunkmap_to_file(map, "vectorize_output.bmp");
-    
     DEBUG("iterating chunk shapes\n");
+    NSVGimage* output = create_nsvgimage(input.width, input.height);
     iterate_chunk_shapes(map, output);
     
     DEBUG("freeing group map\n");

@@ -133,12 +133,31 @@ MunitResult test69_can_write_chunkmap_shapes_to_file(const MunitParameter params
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
 
   DEBUG("generating chunkmap\n");
-  chunkmap thing3 = generate_chunkmap(stuff->img, options);
-  stuff->map = thing3;
+  chunkmap map = generate_chunkmap(stuff->img, options);
+  stuff->map = map;
+
+  pixelchunk chunk_key = { (pixel){0,0,0}, NULL, (coordinate){0, 0}, false };
+  pixelchunk* found = hashmap_get(map.groups_array_2d[0]->chunks, &chunk_key);
+  int x = found->location.x;
+  int y = found->location.y;
+  DEBUG("x: %d, y: %d\n", x, y); 
+
   DEBUG("asserting groups_array_2d not null\n");
   munit_assert_ptr_not_null(stuff->map.groups_array_2d);
   DEBUG("filling chunkmap\n");
-  fill_chunkmap(&stuff->map, &options);  
+  fill_chunkmap(&stuff->map, &options);
+
+  x = map.groups_array_2d[0]->location.x;
+  y = map.groups_array_2d[0]->location.y;
+  DEBUG("x: %d, y: %d\n", x, y); 
+
+  DEBUG("Now winding back chunk_shapes\n");
+  wind_back_chunkshapes(&stuff->map.shape_list);
+
+  x = map.groups_array_2d[0]->location.x;
+  y = map.groups_array_2d[0]->location.y;
+  DEBUG("x: %d, y: %d\n", x, y); 
+
   DEBUG("writing chunkmap to file\n");
   write_chunkmap_to_file(stuff->map, out_fileaddress);
 
