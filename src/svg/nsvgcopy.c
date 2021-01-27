@@ -10,7 +10,7 @@ int NSVG_RGB(int r, int g, int b) {
 }
 
 ///nanosvg copypaste
-NSVGimage* parsetemplate(char* pathtofile) {
+char* gettemplate(char* pathtofile) {
     FILE* fp = NULL;
 	size_t size;
 	char* data = NULL;
@@ -37,8 +37,9 @@ NSVGimage* parsetemplate(char* pathtofile) {
     };
 	data[size] = '\0';	// Must be null terminated.
 	fclose(fp);
-	image = calloc(1, sizeof(NSVGimage));
-	free(data);
+	data;
+}
 
-	return image;
+void freetemplate(char* data) {
+	free(data);
 }

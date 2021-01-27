@@ -123,3 +123,11 @@ NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {
     output->next = NULL;
     return output;
 }
+
+NSVGimage* create_nsvgimage(float width, float height) {
+    NSVGimage* output = calloc(1, sizeof(NSVGimage));
+    output->width = width;
+    output->height = height;
+    output->shapes = NULL;
+    return output;
+}

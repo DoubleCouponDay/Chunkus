@@ -30,3 +30,5 @@ void fill_beziercurve(float* beziercurve,
 NSVGpath* create_path(image input, coordinate start, coordinate end);
 
 NSVGshape* create_shape(chunkmap* map, char* id, long id_length);
+
+NSVGimage* create_nsvgimage(float width, float height);

@@ -307,9 +307,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
         DEBUG("could not find template file: %s", TEMPLATE_PATH);
     }
     fclose(filefound);
-    NSVGimage* output = parsetemplate(TEMPLATE_PATH);
-    output->width = input.width;
-    output->height = input.height;
+    NSVGimage* output = create_nsvgimage(input.width, input.height);
 
     DEBUG("generating chunkmap\n");
     chunkmap map = generate_chunkmap(input, options);
