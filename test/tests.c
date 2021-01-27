@@ -137,7 +137,7 @@ MunitResult test69_can_write_chunkmap_shapes_to_file(const MunitParameter params
   stuff->map = map;
 
   pixelchunk chunk_key = { (pixel){0,0,0}, NULL, (coordinate){0, 0}, false };
-  pixelchunk* found = hashmap_get(map.groups_array_2d[0]->chunks, &chunk_key);
+  pixelchunk* found = hashmap_get(map.shape_list->chunks, &chunk_key);
   int x = found->location.x;
   int y = found->location.y;
   DEBUG("x: %d, y: %d\n", x, y); 
@@ -174,7 +174,7 @@ int main(int argc, char** argv) {
 
   char* param1[] = { "../../../../test/test.png", NULL };
   char* param2[] = { "4", NULL };
-  char* param3[] = { "1", NULL };
+  char* param3[] = { "0", NULL };
   char* param4[] = { "./chunkmap.bmp", NULL };
 
   MunitParameterEnum test_params[] = { 

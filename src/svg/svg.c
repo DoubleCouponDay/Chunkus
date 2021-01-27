@@ -99,7 +99,6 @@ void find_shapes(chunkmap* map, pixelchunk* current, int map_x, int map_y, float
 
                 else if(hashmap_oom(map->shape_list->chunks) == false){
                     map->shape_list = add_new_shape(map->shape_list);
-                    DEBUG("curent");                 
                     hashmap_set(map->shape_list->chunks, current);
                     hashmap_set(map->shape_list->chunks, adjacent);
                 }
@@ -174,6 +173,9 @@ bool iterate_new_path(const void* item, void* udata) {
     }
 
     else { //first path supplied
+        int x = chunk->location.x;
+        int y = chunk->location.y;
+    DEBUG("as int coords: %d, %d\n", chunk->location.x, chunk->location.y);
         coordinate previous_coord = {
             currentpath->pts[2],
             currentpath->pts[3]
@@ -186,6 +188,8 @@ bool iterate_new_path(const void* item, void* udata) {
         );
     }
     currentpath->next = nextsegment;
+    current->paths = nextsegment;
+DEBUG("as float coords: %d, %d\n", currentpath->pts[0], currentpath->pts[1]);
     return true;
 }
 
