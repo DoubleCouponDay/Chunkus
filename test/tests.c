@@ -8,6 +8,7 @@
 #include <png.h>
 #include <errno.h>
 
+#include "../src/defines.h"
 #include "munit.h"
 #include "tools.h"
 #include "readpng.h"

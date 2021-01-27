@@ -1,6 +1,4 @@
 #include <stdlib.h>
-
-#include "../defines.h" 
 #include <nanosvg.h>
 
 #include "nsvgmapping.h"
