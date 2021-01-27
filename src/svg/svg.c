@@ -13,8 +13,10 @@
 #include "../../test/tools.h"
 #include "../tidwall.h"
 #include "../error.h"
+#include "nsvgcopy.h"
 #include "tidwallcopy.h"
 #include "nsvgmapping.h"
+#include "../imagefile.h"
 
 const int NONE_SIMILAR = 8;
 const int NONE_FILLED = -1;
@@ -89,6 +91,7 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
 
             if (colours_are_similar(current->average_colour, adjacent->average_colour, shape_colour_threshold))
             {
+                DEBUG("border found\n");
                 chunkshape* isinshape = big_chungus_already_in_shape(map, adjacent);
                 
                 if (isinshape) {
@@ -128,11 +131,12 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
 
 //assumes first path and first shape are given
 bool iterate_new_path(const void* item, void* udata) {
-    DEBUG("iteration of new path\n");
+    DEBUG("creating new path\n");
     pixelchunk* chunk = item;
     iter_struct* shape_data = udata;
 
     if(chunk->is_boundary == false) {
+        DEBUG("chunk is not boundary\n");
         return true;
     }
     NSVGshape* current = shape_data->output->shapes;
@@ -303,7 +307,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
         DEBUG("could not find template file: %s", TEMPLATE_PATH);
     }
     fclose(filefound);
-    NSVGimage* output = nsvgParseFromFile(TEMPLATE_PATH, "px", 0);
+    NSVGimage* output = parsetemplate(TEMPLATE_PATH);
     output->width = input.width;
     output->height = input.height;
 

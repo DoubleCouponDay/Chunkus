@@ -90,9 +90,6 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
 
     if (input.width < 1 || input.height < 1 || !input.pixels_array_2d)
         exit(ASSUMPTION_WRONG);
-
-    if (options.chunk_size < 2)
-        options.chunk_size = 2;
     
     chunkmap output; 
     output.map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
@@ -115,6 +112,7 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
     output.shape_list->chunks = newhashy;
 
     DEBUG("allocating row pointers\n");
+
     for (int i = 0; i < output.map_width; ++i)
     {
         output.groups_array_2d[i] = calloc(1, sizeof(pixelchunk) * output.map_height);
@@ -124,6 +122,7 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
     output.input = input;
 
     DEBUG("iterating chunkmap pixels\n");
+    
     for (int x = 0; x < output.map_width; ++x)
     {
         for (int y = 0; y < output.map_height; ++y)

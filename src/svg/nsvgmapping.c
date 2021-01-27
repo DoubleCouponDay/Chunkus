@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "../defines.h" // I have no idea why nanosvg extensions only work when I define them here
+#include "../defines.h" 
 #include <nanosvg.h>
 
 #include "nsvgmapping.h"
