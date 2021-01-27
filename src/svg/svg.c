@@ -91,16 +91,13 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
 
             if (colours_are_similar(current->average_colour, adjacent->average_colour, shape_colour_threshold))
             {
-                DEBUG("border found\n");
                 chunkshape* isinshape = big_chungus_already_in_shape(map, adjacent);
                 
                 if (isinshape) {
-                    DEBUG("adjacent is in shape\n");
                     add_chunk_to_shape(isinshape, current);
                 }
 
                 else if(hashmap_oom(map.shape_list->chunks) == false){
-                    DEBUG("adjacent is not in shape\n");
                     map.shape_list = add_new_shape(map.shape_list);                    
                     hashmap_set(map.shape_list->chunks, current);
                     hashmap_set(map.shape_list->chunks, adjacent);
@@ -131,12 +128,10 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
 
 //assumes first path and first shape are given
 bool iterate_new_path(const void* item, void* udata) {
-    DEBUG("creating new path\n");
     pixelchunk* chunk = item;
     iter_struct* shape_data = udata;
 
     if(chunk->is_boundary == false) {
-        DEBUG("chunk is not boundary\n");
         return true;
     }
     NSVGshape* current = shape_data->output->shapes;
@@ -144,8 +139,6 @@ bool iterate_new_path(const void* item, void* udata) {
     NSVGpath* nextsegment;
 
     //add chunk to path if its a boundary
-    DEBUG("adding chunk to boundary\n");
-
     if(currentpath->pts[0] == NONE_FILLED) { //first point not supplied
         DEBUG("creating first point\n");
         coordinate empty = {0, 0};
@@ -180,8 +173,6 @@ bool iterate_new_path(const void* item, void* udata) {
     }
 
     else { //first path supplied
-        DEBUG("creating new path\n");
-        
         coordinate previous_coord = {
             currentpath->pts[2],
             currentpath->pts[3]
