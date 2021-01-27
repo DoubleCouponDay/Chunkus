@@ -9,5 +9,6 @@ enum vectorizing_opcodes {
     ARRAY_DIFF_SIZE_ERROR,
     NULL_ARGUMENT_ERROR,
     HASHMAP_OOM,
-    OVERFLOW_ERROR
+    OVERFLOW_ERROR,
+    BAD_ARGUMENT_ERROR,
 };
