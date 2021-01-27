@@ -387,7 +387,7 @@ bool iterate_through_chunk(const void* item, void* udata)
     NODEMAP_XYP(map, chunk->location.x, chunk->location.y) = stuff->current;
 }
 
-void write_node_map_chunks_to_file(chunkmap map, char* fileaddress)
+void write_chunkmap_to_file(chunkmap map, char* fileaddress)
 {
     const struct colour shape_colours[] = { {0xff, 0x00, 0x00}, {0x00, 0xff, 0x00}, {0x00, 0x00, 0xff}, {0xb0, 0xf3, 0x03 }, {0xba, 0x7f, 0x3d}, {0xbf, 0xff, 0xcd}, {0xff, 0x19, 0x69} };
 
@@ -407,6 +407,7 @@ void write_node_map_chunks_to_file(chunkmap map, char* fileaddress)
 
         hashmap_scan(current->chunks, iterate_through_chunk, &stuff);
 
+        current = current->next;
         next_colour = GET_NEXT_COLOUR();
     }
 

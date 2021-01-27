@@ -104,14 +104,22 @@ MunitResult test6_can_vectorize_image(const MunitParameter params[], void* userd
 
 MunitResult test69_can_write_chunkmap_shapes_to_file(const MunitParameter params[], void* userdata)
 {
+  typedef struct
+  {
+    int a;
+  } your_mom;
+
   test69stuff* stuff = userdata;
 
   char* fileaddress = params[0].value;
-  char* out_fileaddress = params[3].value;
+
   char* chunk_size_str = params[1].value;
   int chunk_size = atoi(chunk_size_str);
+
   char* threshold_str = params[2].value;
   float threshold = atof(threshold_str);
+  
+  char* out_fileaddress = params[3].value;
 
   vectorize_options options = {
     fileaddress,
@@ -119,12 +127,19 @@ MunitResult test69_can_write_chunkmap_shapes_to_file(const MunitParameter params
     threshold,
   };
 
-  stuff->img = convert_png_to_image(fileaddress);
-  munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
-  stuff->map = generate_chunkmap(stuff->img, options);
-  munit_assert_ptr_not_null(stuff->map.groups_array_2d);
+  //DEBUG("test69 with: file=%s out_file=%s chunk_size=%d threshold=%d, options struct: file=%s chunk_size=%d, threshold=%d \n", fileaddress, out_fileaddress, chunk_size, threshold, options.file_path, options.chunk_size, options.shape_colour_threshhold);
 
-  write_node_map_chunks_to_file(stuff->map, out_fileaddress);
+  stuff->img = convert_png_to_image(fileaddress);
+  DEBUG("asserting pixels_array_2d not null\n");
+  munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
+
+  DEBUG("generating chunkmap\n");
+  chunkmap thing3 = generate_chunkmap(stuff->img, options);
+  stuff->map = thing3;
+  DEBUG("asserting groups_array_2d not null\n");
+  munit_assert_ptr_not_null(stuff->map.groups_array_2d);
+  DEBUG("writing chunkmap to file\n");
+  write_chunkmap_to_file(stuff->map, out_fileaddress);
 
   FILE* fp = fopen(out_fileaddress, "r");
 
@@ -140,7 +155,7 @@ int main(int argc, char** argv) {
   char* param1[] = { "../../../../test/test.png", NULL };
   char* param2[] = { "4", NULL };
   char* param3[] = { "1", NULL };
-  char* param4[] = { "./output_chunkmap", NULL };
+  char* param4[] = { "./output_chunkmap.bmp", NULL };
 
   MunitParameterEnum test_params[] = { 
     { 

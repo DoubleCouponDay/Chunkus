@@ -140,6 +140,7 @@ bool iterate_new_path(const void* item, void* udata) {
     NSVGpath* nextsegment;
 
     //add chunk to path if its a boundary
+    DEBUG("adding chunk to boundary\n");
 
     if(currentpath->pts[0] == NONE_FILLED) { //first point not supplied
         DEBUG("creating first point\n");
@@ -221,8 +222,6 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
         exit(ASSUMPTION_WRONG);
     }    
     DEBUG("creating first shape\n");
-    DEBUG("hi\n");
-    
 
     DEBUG("iterating shapes list\n");
     char* firstid = "firstshape";
@@ -234,7 +233,7 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
 
     //iterate shapes
     while(map.shape_list != NULL) {        
-        DEBUG("iterate shapes numero: %d \n", i);
+        DEBUG("iteration: %d \n", i);
         if(output->shapes == NULL) {
             DEBUG("using first shape\n");
             output->shapes = firstshape;
@@ -320,7 +319,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
             find_shapes(map, currentchunk_p, map_x, map_y, options.shape_colour_threshhold);
         }
     }
-
+    DEBUG("chunk shapes found: %d\n", );
     DEBUG("Now winding back chunk_shapes\n");
     wind_back_chunkshapes(&map.shape_list);
     

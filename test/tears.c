@@ -67,7 +67,7 @@ void test6teardown(void* fixture)
 
 void* test69setup(const MunitParameter params[], void* userdata)
 {
-  return malloc(sizeof(sizeof(test69stuff)));
+  return malloc(sizeof(test69stuff));
 }
 
 void test69teardown(void* fixture)

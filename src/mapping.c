@@ -1,5 +1,5 @@
-#include <math.h>
 #include <stdlib.h>
+#include <math.h>
 #include <errno.h>
 #include <string.h>
 
@@ -85,35 +85,45 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
     if (!input.pixels_array_2d)
     {
         DEBUG("Invalid image input \n");
-        return (chunkmap){ NULL, 0, 0 };
+        exit(ASSUMPTION_WRONG);
     }
 
     if (input.width < 1 || input.height < 1 || !input.pixels_array_2d)
-        return (chunkmap){ NULL, 0, 0 };
+        exit(ASSUMPTION_WRONG);
 
     if (options.chunk_size < 2)
         options.chunk_size = 2;
     
-    chunkmap output;
+    chunkmap output; 
     output.map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
     output.map_height = (int)ceilf((float)input.height / (float)options.chunk_size);
-    output.groups_array_2d = calloc(1, sizeof(pixelchunk*) * output.map_width);
-    output.shape_list = calloc(1, sizeof(chunkshape));
+    
+    DEBUG("creating pixelchunk\n");
+    pixelchunk* thing1 = calloc(1, sizeof(pixelchunk*) * output.map_width);
+    output.groups_array_2d = thing1;
+    DEBUG("creating chunkshape\n");
+    chunkshape* thing2 = calloc(1, sizeof(chunkshape));
+    output.shape_list = thing2;
+    DEBUG("allocating new hashmap\n");
     hashmap* newhashy = hashmap_new(sizeof(chunkshape), 16, 0, 0, chunk_hash, chunk_compare, NULL); 
 
     if(newhashy == NULL) {
-        DEBUG("big problem\n");
+        DEBUG("new hashmap failed during creation\n");
         exit(ASSUMPTION_WRONG);
-    }  
+    }
+    DEBUG("assign shape_list hashmap\n");
     output.shape_list->chunks = newhashy;
 
+    DEBUG("allocating row pointers\n");
     for (int i = 0; i < output.map_width; ++i)
     {
         output.groups_array_2d[i] = calloc(1, sizeof(pixelchunk) * output.map_height);
     }
+    DEBUG("copying image to chunkmap\n");
 
     output.input = input;
 
+    DEBUG("iterating chunkmap pixels\n");
     for (int x = 0; x < output.map_width; ++x)
     {
         for (int y = 0; y < output.map_height; ++y)
@@ -121,6 +131,7 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
             iterateImagePixels(x, y, input, options, output);
         }
     }
+    DEBUG("created chunkmap\n");
     return output;
 }
 
