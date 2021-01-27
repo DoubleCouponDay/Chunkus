@@ -363,6 +363,7 @@ bool iterate_through_chunk(const void* item, void* udata)
     struct write_node_map_chunks_struct* stuff = udata;
     struct nodemap* map = stuff->map;
 
+    DEBUG("write chunk at (%d, %d)", chunk->location.x, chunk->location.y);
     map->colours[chunk->location.x + map->width * chunk->location.y];
 }
 
@@ -386,7 +387,7 @@ void write_chunkmap_to_file(chunkmap map, char* fileaddress)
     int cur_colour = 0;
 
     DEBUG("now iterating chunkshapes in chunkmap\n");
-    chunkshape * current = map.shape_list;
+    chunkshape* current = map.shape_list;
 
     while (current)
     {

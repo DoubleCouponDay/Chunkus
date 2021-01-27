@@ -16,6 +16,8 @@ typedef struct
     NSVGpaint* shapescolour;
 } iter_struct;
 
+void fill_chunkmap(chunkmap* map, vectorize_options* options);
+
 NSVGimage* vectorize_image(image input, vectorize_options options);
 
 void free_image(NSVGimage* input);

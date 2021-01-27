@@ -52,8 +52,8 @@ void add_chunk_to_shape(chunkshape* shape_list, pixelchunk* item) {
 }
 
 //returns the shape its in. else, NULL
-chunkshape* big_chungus_already_in_shape(chunkmap map, pixelchunk* chungus) {
-    chunkshape* current = map.shape_list;
+chunkshape* big_chungus_already_in_shape(chunkmap* map, pixelchunk* chungus) {
+    chunkshape* current = map->shape_list;
 
     wind_back_chunkshapes(&current);
 
@@ -66,7 +66,7 @@ chunkshape* big_chungus_already_in_shape(chunkmap map, pixelchunk* chungus) {
     return NULL;
 }
 
-void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float shape_colour_threshold)
+void find_shapes(chunkmap* map, pixelchunk* current, int map_x, int map_y, float shape_colour_threshold)
 {
     int num_not_similar = 0;
 
@@ -83,11 +83,11 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
             //prevent out of bounds index
             if (adjacent_index_x < 0 || 
                 adjacent_index_y < 0 ||
-                adjacent_index_x >= map.map_width ||  
-                adjacent_index_y >= map.map_height)
+                adjacent_index_x >= map->map_width ||  
+                adjacent_index_y >= map->map_height)
                 continue;
 
-            pixelchunk* adjacent = &map.groups_array_2d[adjacent_index_x][adjacent_index_y];
+            pixelchunk* adjacent = &map->groups_array_2d[adjacent_index_x][adjacent_index_y];
 
             if (colours_are_similar(current->average_colour, adjacent->average_colour, shape_colour_threshold))
             {
@@ -97,10 +97,10 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
                     add_chunk_to_shape(isinshape, current);
                 }
 
-                else if(hashmap_oom(map.shape_list->chunks) == false){
-                    map.shape_list = add_new_shape(map.shape_list);                    
-                    hashmap_set(map.shape_list->chunks, current);
-                    hashmap_set(map.shape_list->chunks, adjacent);
+                else if(hashmap_oom(map->shape_list->chunks) == false){
+                    map->shape_list = add_new_shape(map->shape_list);                    
+                    hashmap_set(map->shape_list->chunks, current);
+                    hashmap_set(map->shape_list->chunks, adjacent);
                 }
 
                 else { //probably never happen
@@ -117,12 +117,12 @@ void find_shapes(chunkmap map, pixelchunk* current, int map_x, int map_y, float 
     }
 
     if(num_not_similar == NONE_SIMILAR) {
-        if(hashmap_oom(map.shape_list->chunks)) {
+        if(hashmap_oom(map->shape_list->chunks)) {
             DEBUG("hashmap out of mana\n");
             exit(HASHMAP_OOM);
         }
-        map.shape_list = add_new_shape(map.shape_list);
-        hashmap_set(map.shape_list->chunks, current);
+        map->shape_list = add_new_shape(map->shape_list);
+        hashmap_set(map->shape_list->chunks, current);
     }
 }
 
@@ -288,6 +288,18 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
     output->shapes = firstshape;
 }
 
+void fill_chunkmap(chunkmap* map, vectorize_options* options) {
+    //create set of shapes
+    for(int map_x = 0; map_x < map->map_width; ++map_x)
+    {
+        for(int map_y = 0; map_y < map->map_height; ++map_y)
+        {
+            pixelchunk* currentchunk_p = &map->groups_array_2d[map_x][map_y];
+            find_shapes(map, currentchunk_p, map_x, map_y, options->shape_colour_threshhold);
+        }
+    }
+}
+
 //entry point of the file
 NSVGimage* vectorize_image(image input, vectorize_options options) {
     DEBUG("Beginning vectorize_image\n");
@@ -303,18 +315,13 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     DEBUG("generating chunkmap\n");
     chunkmap map = generate_chunkmap(input, options);
 
-    //create set of shapes
-    for(int map_x = 0; map_x < map.map_width; ++map_x)
-    {
-        for(int map_y = 0; map_y < map.map_height; ++map_y)
-        {
-            pixelchunk* currentchunk_p = &map.groups_array_2d[map_x][map_y];
-            find_shapes(map, currentchunk_p, map_x, map_y, options.shape_colour_threshhold);
-        }
-    }
+    DEBUG("filling chunkmap\n");
+    fill_chunkmap(&map, &options);
     DEBUG("chunk shapes found: %d\n", );
     DEBUG("Now winding back chunk_shapes\n");
     wind_back_chunkshapes(&map.shape_list);
+
+    write_chunkmap_to_file(map, "vectorize_output.bmp");
     
     DEBUG("iterating chunk shapes\n");
     iterate_chunk_shapes(map, output);

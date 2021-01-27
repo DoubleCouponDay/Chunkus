@@ -128,8 +128,6 @@ MunitResult test69_can_write_chunkmap_shapes_to_file(const MunitParameter params
     threshold,
   };
 
-  //DEBUG("test69 with: file=%s out_file=%s chunk_size=%d threshold=%d, options struct: file=%s chunk_size=%d, threshold=%d \n", fileaddress, out_fileaddress, chunk_size, threshold, options.file_path, options.chunk_size, options.shape_colour_threshhold);
-
   stuff->img = convert_png_to_image(fileaddress);
   DEBUG("asserting pixels_array_2d not null\n");
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
@@ -139,6 +137,8 @@ MunitResult test69_can_write_chunkmap_shapes_to_file(const MunitParameter params
   stuff->map = thing3;
   DEBUG("asserting groups_array_2d not null\n");
   munit_assert_ptr_not_null(stuff->map.groups_array_2d);
+  DEBUG("filling chunkmap\n");
+  fill_chunkmap(&stuff->map, &options);  
   DEBUG("writing chunkmap to file\n");
   write_chunkmap_to_file(stuff->map, out_fileaddress);
 
