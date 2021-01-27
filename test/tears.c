@@ -64,3 +64,16 @@ void test6teardown(void* fixture)
   DEBUG("freeing test6stuff\n");
   free(stuff);
 }
+
+void* test69setup(const MunitParameter params[], void* userdata)
+{
+  return malloc(sizeof(sizeof(test69stuff)));
+}
+
+void test69teardown(void* fixture)
+{
+  test69stuff* stuff = fixture;
+  free_image_contents(stuff->img);
+  free_group_map(&stuff->map);
+  free(fixture);
+}

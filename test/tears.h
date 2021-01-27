@@ -34,3 +34,13 @@ typedef struct
 
 void* test6setup(const MunitParameter params[], void* userdata);
 void test6teardown(void* fixture);
+
+
+typedef struct
+{
+    image img;
+    chunkmap map;
+} test69stuff;
+
+void* test69setup(const MunitParameter params[], void* userdata);
+void test69teardown(void* fixture);

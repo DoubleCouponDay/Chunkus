@@ -355,3 +355,79 @@ void write_ppm_map(chunkmap map, char* filename)
   fwrite(data, 3, map.map_width * map.map_height, fp);
   fclose(fp);
 }
+
+#define GET_NEXT_COLOUR() (next_colour + 1 < (sizeof(shape_colours) / sizeof(struct colour)) ? next_colour + 1 : 0)
+#define NODEMAP_XY(a, x, y) a.colours[x + a.width * y]
+#define NODEMAP_XYP(a, x, y) a->colours[x + a->width * y]
+
+struct colour
+{
+    short r, g, b;
+};
+
+struct nodemap
+{
+    struct colour* colours;
+    int width;
+    int height;
+};
+
+struct write_node_map_chunks_struct
+{
+    struct colour current;
+    struct nodemap* map;
+};
+
+bool iterate_through_chunk(const void* item, void* udata)
+{
+    pixelchunk* chunk = item;
+    struct write_node_map_chunks_struct* stuff = udata;
+    struct nodemap* map = stuff->map;
+
+    NODEMAP_XYP(map, chunk->location.x, chunk->location.y) = stuff->current;
+}
+
+void write_node_map_chunks_to_file(chunkmap map, char* fileaddress)
+{
+    const struct colour shape_colours[] = { {0xff, 0x00, 0x00}, {0x00, 0xff, 0x00}, {0x00, 0x00, 0xff}, {0xb0, 0xf3, 0x03 }, {0xba, 0x7f, 0x3d}, {0xbf, 0xff, 0xcd}, {0xff, 0x19, 0x69} };
+
+    struct nodemap intermediate;
+    intermediate.width = map.map_width;
+    intermediate.height = map.map_height;
+    intermediate.colours = calloc(intermediate.width * intermediate.height, sizeof(struct colour));
+
+    int next_colour = 0;
+
+    chunkshape * current = map.shape_list;
+    while (current)
+    {
+        struct write_node_map_chunks_struct stuff;
+        stuff.current = shape_colours[next_colour];
+        stuff.map = &intermediate;
+
+        hashmap_scan(current->chunks, iterate_through_chunk, &stuff);
+
+        next_colour = GET_NEXT_COLOUR();
+    }
+
+    image output_img = create_image(intermediate.width * 3, intermediate.height * 3);
+    for (int x = 0; x < intermediate.width; ++x)
+    {
+        for (int y = 0; y < intermediate.height; ++y)
+        {
+            for (int xx = 0; xx < 3; ++xx)
+            {
+                struct colour* bob = &NODEMAP_XY(intermediate, x, y);
+                for (int yy = 0; yy < 3; ++yy)
+                {
+                    pixel* img_pix = &output_img.pixels_array_2d[x * 3 + xx][y * 3 + yy];
+                    img_pix->r = bob->r;
+                    img_pix->g = bob->g;
+                    img_pix->b = bob->b;
+                }
+            }
+        }
+    }
+
+    write_image_to_file(output_img, fileaddress);
+}
