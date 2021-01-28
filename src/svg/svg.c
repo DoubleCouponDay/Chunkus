@@ -175,7 +175,7 @@ bool iterate_new_path(const void* item, void* udata) {
     else { //first path supplied
         int x = chunk->location.x;
         int y = chunk->location.y;
-    DEBUG("as int coords: %d, %d\n", chunk->location.x, chunk->location.y);
+DEBUG("coords 1: %d, %d\n", x, y);
         coordinate previous_coord = {
             currentpath->pts[2],
             currentpath->pts[3]
@@ -189,7 +189,7 @@ bool iterate_new_path(const void* item, void* udata) {
     }
     currentpath->next = nextsegment;
     current->paths = nextsegment;
-DEBUG("as float coords: %d, %d\n", currentpath->pts[0], currentpath->pts[1]);
+DEBUG("coords 4: %d, %d\n", currentpath->pts[0], currentpath->pts[1]);
     return true;
 }
 

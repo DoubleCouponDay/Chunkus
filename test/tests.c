@@ -97,7 +97,12 @@ MunitResult test6_can_vectorize_image(const MunitParameter params[], void* userd
     atof(params[2].value)
   };
   
-  stuff->img = convert_png_to_image(options.file_path);  
+  stuff->img = convert_png_to_image(options.file_path);
+
+  int ting1 = stuff->img.pixels_array_2d[1][1].location.x;
+  int ting2 = stuff->img.pixels_array_2d[1][1].location.y;
+  DEBUG("coord 5757: %d, %d\n", ting1, ting2);
+
   stuff->svg = vectorize_image(stuff->img, options);
 
   return MUNIT_OK;
