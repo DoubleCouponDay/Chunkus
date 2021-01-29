@@ -5,46 +5,26 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "linux build then debug",
-            "type": "cppdbg",
+            "name": "(Windows) Launch Tests",
+            "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/linux/x86_64/debug/tests.exe",
-            "args": ["./basic.png"],
-            "cwd": "${workspaceFolder}/build/linux/x86_64/debug",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": false
-                }
-            ],
-            "launchCompleteCommand": "exec-run",
-            "preLaunchTask": "linux build tests",
-            "linux": {
-                "MIMode": "gdb",
-                "miDebuggerPath": "/usr/bin/gdb"                   
-            }
+            "program": "${workspaceFolder}\\build\\windows\\x64\\debug\\tests.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}\\build\\windows\\x64\\debug",
+            "environment": [],
+            "externalConsole": false
         },
         {
-            "name": "linux build then test",
-            "type": "cppdbg",
+            "name": "(Windows) Launch Test 7",
+            "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/linux/x86_64/debug/tests.exe",
-            "args": ["./basic.png"],
-            "cwd": "${workspaceFolder}/build/linux/x86_64/debug",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": false
-                }
-            ],
-            "launchCompleteCommand": "exec-run",
-            "preLaunchTask": "linux build tests",
-            "linux": {
-                "MIMode": "gdb",
-                "miDebuggerPath": "/usr/bin/gdb"                    
-            }
-        }
+            "program": "${workspaceFolder}\\build\\windows\\x64\\debug\\tests.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}\\build\\windows\\x64\\debug",
+            "environment": [],
+            "externalConsole": false
+        },
     ]
 }
