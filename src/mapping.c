@@ -107,7 +107,7 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
     chunkshape* thing2 = calloc(1, sizeof(chunkshape));
     output.shape_list = thing2;
     DEBUG("allocating new hashmap\n");
-    hashmap* newhashy = hashmap_new(sizeof(chunkshape), 16, 0, 0, chunk_hash, chunk_compare, NULL); 
+    hashmap* newhashy = hashmap_new(sizeof(pixelchunk), 16, 0, 0, chunk_hash, chunk_compare, NULL); 
 
     if(newhashy == NULL) {
         DEBUG("new hashmap failed during creation\n");

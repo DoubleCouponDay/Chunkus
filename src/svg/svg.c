@@ -30,7 +30,7 @@ chunkshape* add_new_shape(chunkshape* shape_list) {
         DEBUG("Uh oh! Your allocation failed! You should really account for this...\n");
         exit(NULL_ARGUMENT_ERROR);
     }
-    hashmap* newhashy = hashmap_new(sizeof(chunkshape), 16, 0, 0, chunk_hash, chunk_compare, NULL);
+    hashmap* newhashy = hashmap_new(sizeof(pixelchunk), 16, 0, 0, chunk_hash, chunk_compare, NULL);
 
     if(newhashy == NULL) {
         DEBUG("big problem\n");
