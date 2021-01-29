@@ -357,14 +357,14 @@ void write_ppm_map(chunkmap map, char* filename)
   fclose(fp);
 }
 
-void throw_on_outofbounds(coordinate* location, int width, int height) {
-    if (location->x < 0 || location->y < 0 || location->x >= width || location->y >= height) {
-        DEBUG("chunk out of bounds at (%d, %d)\n", location->x, location->y);
+void throw_on_outofbounds(coordinate location, int width, int height) {
+    if (location.x < 0 || location.y < 0 || location.x >= width || location.y >= height) {
+        DEBUG("chunk out of bounds at (%d, %d)\n", location.x, location.y);
         exit(ASSUMPTION_WRONG);
     }
 
     else {
-        DEBUG("x: %d, y: %d\n", location->x, location->y);
+        DEBUG("x: %d, y: %d\n", location.x, location.y);
     }
 }
 
@@ -373,7 +373,7 @@ bool iterate_through_chunk(const void* item, void* udata)
     pixelchunk* chunk = item;    
     struct write_node_map_chunks_struct* stuff = udata;
     struct nodemap* map = stuff->map;
-    throw_on_outofbounds(&chunk->location, map->width, map->height);
+    throw_on_outofbounds(chunk->location, map->width, map->height);
     
     DEBUG("write chunk at (%d, %d), with colour (%d, %d, %d)\n", chunk->location.x, chunk->location.y, stuff->colour.r, stuff->colour.g, stuff->colour.b);
     map->colours[chunk->location.x + map->width * chunk->location.y] = stuff->colour;

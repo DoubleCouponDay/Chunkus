@@ -16,7 +16,11 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
 
     // Grab the pixelchunk
     pixelchunk* outputnodes = &output.groups_array_2d[x][y];
-    outputnodes->location = (coordinate){ x, y };
+    
+    coordinate location = {
+        x, y
+    };
+    outputnodes->location = location;
     
     // Assigned the edge case pixelchunk dimensions
     int node_width = input.width - x * options.chunk_size;
