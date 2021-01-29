@@ -20,7 +20,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}\\build\\windows\\x64\\debug\\tests.exe",
-            "args": [],
+            "args": ["test7"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}\\build\\windows\\x64\\debug",
             "environment": [],

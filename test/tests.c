@@ -141,12 +141,6 @@ MunitResult test69_can_write_chunkmap_shapes_to_file(const MunitParameter params
   chunkmap map = generate_chunkmap(stuff->img, options);
   stuff->map = map;
 
-  pixelchunk chunk_key = { (pixel){0,0,0}, NULL, (coordinate){0, 0}, false };
-  pixelchunk* found = hashmap_get(map.shape_list->chunks, &chunk_key);
-  int x = found->location.x;
-  int y = found->location.y;
-  DEBUG("x: %d, y: %d\n", x, y); 
-
   DEBUG("asserting groups_array_2d not null\n");
   munit_assert_ptr_not_null(stuff->map.groups_array_2d);
   DEBUG("filling chunkmap\n");
