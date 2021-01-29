@@ -175,7 +175,7 @@ bool iterate_new_path(const void* item, void* udata) {
     else { //first path supplied
         int x = chunk->location.x;
         int y = chunk->location.y;
-DEBUG("coords 1: %d, %d\n", x, y);
+        DEBUG("coords 1: %d, %d\n", x, y);
         coordinate previous_coord = {
             currentpath->pts[2],
             currentpath->pts[3]
@@ -207,7 +207,7 @@ void close_path(chunkmap* map, NSVGimage* output, NSVGpath* firstpath) {
 }
 
 void throw_on_max(unsigned long* subject) {
-    if(subject == ULONG_MAX) {
+    if(subject == 0xffffffff) {
         DEBUG("long is way too big!\n");
         exit(OVERFLOW_ERROR);
     }

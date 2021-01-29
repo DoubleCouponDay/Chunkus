@@ -194,6 +194,159 @@ void write_image_to_file(image img, char* fileaddress_p) {
     generateBitmapImage(as_bytes, img.height, img.width, fileaddress_p);
 }
 
+void write_image_to_png_file(image img, char* fileaddress)
+{
+    if (!img.pixels_array_2d || !fileaddress)
+        return;
+
+FILE* fp = fopen(fileaddress, "wb");
+    if (!fp)
+    {
+        DEBUG("File: %s not found\n", fileaddress);
+        return;
+    }
+
+    png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (!png_ptr)
+    {
+        DEBUG("Couldn't create png_struct for writing\n");
+        return;
+    }
+
+    png_infop info_ptr = png_create_info_struct(png_ptr);
+    if (!info_ptr)
+    {
+        DEBUG("Couldn't create png_info struct for writing\n");
+        return;
+    }
+
+    if (setjmp(png_jmpbuf(png_ptr)))
+    {
+        DEBUG("Unknown Failure during png writing\n");
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+        return;
+    }
+
+    png_init_io(png_ptr, fp);
+
+    // Output 8bit RGBA
+    png_set_IHDR(
+        png_ptr,
+        info_ptr,
+        img.width, 
+        img.height,
+        8,
+        PNG_COLOR_TYPE_RGB,
+        PNG_INTERLACE_NONE,
+        PNG_COMPRESSION_TYPE_DEFAULT,
+        PNG_FILTER_TYPE_DEFAULT
+    );
+
+    png_write_info(png_ptr, info_ptr);
+
+    // Popular some row_pointers
+    png_bytep *row_pointers = calloc(img.height, sizeof(png_bytep));
+    for (int y = 0; y < img.height; ++y)
+    {
+        row_pointers[y] = calloc(img.width, sizeof(png_byte) * 3);
+        for (int x = 0; x < img.width; ++x)
+        {
+            row_pointers[y][x * 3 + 0] = img.pixels_array_2d[x][y].r;
+            row_pointers[y][x * 3 + 1] = img.pixels_array_2d[x][y].g;
+            row_pointers[y][x * 3 + 2] = img.pixels_array_2d[x][y].b;
+        }
+    }
+
+    png_write_image(png_ptr, row_pointers);
+    png_write_end(png_ptr, NULL);
+
+    // Clean up
+    for (int y = 0; y < img.height; ++y)
+    {
+        free(row_pointers[y]);
+    }
+    free(row_pointers);
+
+    fclose(fp);
+
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+}
+
+void write_bytes_to_png(unsigned char* data, int width, int height, char* fileaddress)
+{
+    FILE* fp = fopen(fileaddress, "wb");
+    if (!fp)
+    {
+        DEBUG("File: %s not found\n", fileaddress);
+        return;
+    }
+
+    png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (!png_ptr)
+    {
+        DEBUG("Couldn't create png_struct for writing\n");
+        return;
+    }
+
+    png_infop info_ptr = png_create_info_struct(png_ptr);
+    if (!info_ptr)
+    {
+        DEBUG("Couldn't create png_info struct for writing\n");
+        return;
+    }
+
+    if (setjmp(png_jmpbuf(png_ptr)))
+    {
+        DEBUG("Unknown Failure during png writing\n");
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+        return;
+    }
+
+    png_init_io(png_ptr, fp);
+
+    // Output 8bit RGBA
+    png_set_IHDR(
+        png_ptr,
+        info_ptr,
+        width, 
+        height,
+        8,
+        PNG_COLOR_TYPE_RGB,
+        PNG_INTERLACE_NONE,
+        PNG_COMPRESSION_TYPE_DEFAULT,
+        PNG_FILTER_TYPE_DEFAULT
+    );
+
+    png_write_info(png_ptr, info_ptr);
+
+    // Popular some row_pointers
+    png_bytep *row_pointers = calloc(height, sizeof(png_bytep));
+    for (int y = 0; y < height; ++y)
+    {
+        row_pointers[y] = calloc(width, sizeof(png_byte) * 3);
+        for (int x = 0; x < width; ++x)
+        {
+            row_pointers[y][x * 3 + 0] = data[x * 3 + 2 + y * height];
+            row_pointers[y][x * 3 + 1] = data[x * 3 + 1 + y * height];
+            row_pointers[y][x * 3 + 2] = data[x * 3 + 0 + y * height];
+        }
+    }
+
+    png_write_image(png_ptr, row_pointers);
+    png_write_end(png_ptr, NULL);
+
+    // Clean up
+    for (int y = 0; y < height; ++y)
+    {
+        free(row_pointers[y]);
+    }
+    free(row_pointers);
+
+    fclose(fp);
+
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+}
+
 /// Writes given pixelchunk map to file as if it was an image
 void write_node_map_to_file(chunkmap map, char *fileaddress)
 {
@@ -360,7 +513,6 @@ void write_ppm_map(chunkmap map, char* filename)
 void throw_on_outofbounds(coordinate location, int width, int height) {
     if (location.x < 0 || location.y < 0 || location.x >= width || location.y >= height) {
         DEBUG("chunk out of bounds at (%d, %d)\n", location.x, location.y);
-        exit(ASSUMPTION_WRONG);
     }
 
     else {
@@ -375,6 +527,9 @@ bool iterate_through_chunk(const void* item, void* udata)
     struct nodemap* map = stuff->map;
     throw_on_outofbounds(chunk->location, map->width, map->height);
     
+    if (chunk->location.x < 0 || chunk->location.y < 0 || chunk->location.x >= map->width || chunk->location.y >= map->height)
+        return true;
+
     DEBUG("write chunk at (%d, %d), with colour (%d, %d, %d)\n", chunk->location.x, chunk->location.y, stuff->colour.r, stuff->colour.g, stuff->colour.b);
     map->colours[chunk->location.x + map->width * chunk->location.y] = stuff->colour;
     return true;
@@ -441,5 +596,5 @@ void write_chunkmap_to_file(chunkmap map, char* fileaddress)
         }
     }
 
-    write_image_to_file(output_img, fileaddress);
+    write_image_to_png_file(output_img, fileaddress);
 }

@@ -146,16 +146,8 @@ MunitResult test69_can_write_chunkmap_shapes_to_file(const MunitParameter params
   DEBUG("filling chunkmap\n");
   fill_chunkmap(&stuff->map, &options);
 
-  x = map.groups_array_2d[0]->location.x;
-  y = map.groups_array_2d[0]->location.y;
-  DEBUG("x: %d, y: %d\n", x, y); 
-
   DEBUG("Now winding back chunk_shapes\n");
   wind_back_chunkshapes(&stuff->map.shape_list);
-
-  x = map.groups_array_2d[0]->location.x;
-  y = map.groups_array_2d[0]->location.y;
-  DEBUG("x: %d, y: %d\n", x, y); 
 
   DEBUG("writing chunkmap to file\n");
   write_chunkmap_to_file(stuff->map, out_fileaddress);
@@ -174,7 +166,7 @@ int main(int argc, char** argv) {
   char* param1[] = { "../../../../test/test.png", NULL };
   char* param2[] = { "4", NULL };
   char* param3[] = { "0", NULL };
-  char* param4[] = { "./chunkmap.bmp", NULL };
+  char* param4[] = { "./chunkmap.png", NULL };
 
   MunitParameterEnum test_params[] = { 
     { 
