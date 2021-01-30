@@ -52,6 +52,10 @@ First configure the xmake build tool with:
     xmake f -m debug -y
 
 This gets xmake to find the correct compiler and linker, and allows conan to download the dependancies  
+It also configures xmake for debug building
+You can configure it to produce release builds with:
+
+    xmake f -m release
 
 Now you should be able to run xmake and successfully build the C binaries  
 Simply call:
@@ -75,7 +79,6 @@ The C code builds to `/build/windows/x64/`.
 Now to build the Rust Component  
 
 The rust component links to the C code, which in turn depends on libpng (which depends on zlib)
-See note for help on obtaining **libpng** and **zlib** static libraries
 
 Now in the `discord-v` folder, run:
 
@@ -84,12 +87,6 @@ Now in the `discord-v` folder, run:
 It should succeed
 If it doesn't, you or I have done something wrong
 
-Note on obtaining **libpng** and **zlib** library files:  
-    If you have built the C component, this means Conan has already downloaded **libpng** and **zlib** itself  
-    Therefore you should find a file similar to **libpng16.lib** or **libpng.a** wherever conan has installed those files  
-    I found my (windows machine) **libpng16.lib** and **zlib.lib** in  
-    - `C:\Users\<username>\.conan\data\libpng\1.6.37\_\_\package\c6eb1796d6a9d59338fa618b78b90859da126b06\lib\`  
-    - `C:\Users\<username>\.conan\data\zlib\1.2.11\_\_\package\3fb49604f9c2f729b85ba3115852006824e72cab\lib\`  
 
 The rust part builds to `/discord-v/target/debug/`.
 

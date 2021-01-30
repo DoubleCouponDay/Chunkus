@@ -21,6 +21,13 @@ int get_error()
 }
 
 int entrypoint(int argc, char* argv[]) {
+	printf("entrypoint with: ");
+	for (int i = 1; i < argc; ++i)
+	{
+		printf("%s, ", argv[i]);
+	}
+	printf("\n");
+
 	if (argc <= 1)
 	{
 		printf("error: No Arguments given");
@@ -64,7 +71,9 @@ int entrypoint(int argc, char* argv[]) {
 
 	float threshold = 0.f;
 	if (argc > 4)
-		threshold = atof(argv[4]);
+		threshold = (float)atof(argv[4]);
+	
+	printf("atof-ed threshold=%f", threshold);
 	
 	if (threshold < 0.f)
 		threshold = 0.f;
@@ -76,7 +85,7 @@ int entrypoint(int argc, char* argv[]) {
 		return 0;
 	}
 
-	printf("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%d' \n", input_file_p, output_file_p, chunk_size, threshold);
+	printf("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f' \n", input_file_p, output_file_p, chunk_size, threshold);
 
 	// Execute program
 

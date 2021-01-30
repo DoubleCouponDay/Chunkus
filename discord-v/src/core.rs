@@ -14,16 +14,7 @@ mod ffimodule
     }
 }
 
-pub fn call_vectorize(argc: c_int, argv: *mut *mut u8) -> c_int
-{
-    let result;
-
-    unsafe { 
-        result = ffimodule::entrypoint(argc, argv); 
-    };
-    result
-}
-pub fn call_vectorizer(input: &mut CString, output: &mut CString, chunk: &mut CString, threshold: &mut CString) -> c_int
+pub fn call_vectorize(input: &mut CString, output: &mut CString, chunk: &mut CString, threshold: &mut CString) -> c_int
 {
     let result;
 
@@ -34,14 +25,14 @@ pub fn call_vectorizer(input: &mut CString, output: &mut CString, chunk: &mut CS
     result
 }
 
-pub fn do_vectorize(input_file: &String, output_file: &String, chunk_size: Option<&str>, threshold: Option<&str>) -> c_int
+pub fn do_vectorize(input_file: &String, output_file: &String, chunk_size: Option<String>, threshold: Option<String>) -> c_int
 {
-    println!("do_vectorize with input: {} output: {}", input_file, output_file);
-
     let input_copy = input_file.clone();
     let output_copy = output_file.clone();
-    let chunk_size_copy = String::from(chunk_size.unwrap_or("4"));
-    let threshold_copy = String::from(threshold.unwrap_or("0"));
+    let chunk_size_copy = chunk_size.unwrap_or(String::from("4"));
+    let threshold_copy = threshold.unwrap_or(String::from("0"));
+    
+    println!("do_vectorize with input: {} output: {}, chunk: {}, thres: {}", input_file, output_file, chunk_size_copy, threshold_copy);
     
     let mut input_c;
     let mut output_c;
@@ -60,7 +51,7 @@ pub fn do_vectorize(input_file: &String, output_file: &String, chunk_size: Optio
                 if let Ok(ccccc) = CString::new(threshold_copy)
                 {
                     threshold_c = ccccc;
-                    return call_vectorizer(&mut input_c, &mut output_c, &mut chunk_c, &mut threshold_c)
+                    return call_vectorize(&mut input_c, &mut output_c, &mut chunk_c, &mut threshold_c)
                 }
             }
         }

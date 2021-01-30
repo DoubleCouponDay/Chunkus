@@ -133,6 +133,7 @@ pub async fn create_vec_bot(token: &str) -> Client
         let mut data = client.data.write().await;
         data.insert::<MsgListen>(HashSet::<MessageId>::new());
         data.insert::<MsgUpdate>(HashMap::<MessageId, MessageUpdateEvent>::new());
+        data.insert::<VectorizeOptionsKey>(VectorizeOptions { chunk_size: 4u32, threshold: 0.25f32 });
     }
 
     client
@@ -141,7 +142,7 @@ pub async fn create_vec_bot(token: &str) -> Client
 pub struct DefaultHandler;
 
 #[group]
-#[commands(vectorize)]
+#[commands(vectorize, params, delete)]
 struct General;
 
 #[async_trait]
@@ -192,6 +193,12 @@ impl EventHandler for DefaultHandler {
 
 struct MsgListen;
 struct MsgUpdate;
+struct VectorizeOptionsKey;
+struct VectorizeOptions
+{
+    chunk_size: u32,
+    threshold: f32,
+}
 
 impl TypeMapKey for MsgListen
 {
@@ -202,6 +209,12 @@ impl TypeMapKey for MsgUpdate
 {
     type Value = HashMap<MessageId, MessageUpdateEvent>;
 }
+
+impl TypeMapKey for VectorizeOptionsKey
+{
+    type Value = VectorizeOptions;
+}
+
 /*
 
 async def run_with_timeout(timeout, func, func_args):
@@ -321,6 +334,42 @@ async fn wait_for_message_update(msg_id: MessageId, ctx: &Context) -> Result<Mes
     let stored_hashset = data_write.get_mut::<MsgListen>().unwrap();
     stored_hashset.remove(&msg_id);
     Err(String::from("timed out"))
+}
+
+#[command]
+#[aliases("p")]
+async fn params(ctx: &Context, msg: &Message, args: Args) -> CommandResult
+{
+    let mut argss = args;
+    if let Ok(chunk_size) = argss.single::<u32>()
+    {
+        let threshold = argss.single::<f32>().unwrap_or(0.5f32);
+
+        let mut data_write = ctx.data.write().await;
+        let options = data_write.get_mut::<VectorizeOptionsKey>().unwrap();
+        options.chunk_size = chunk_size;
+        options.threshold = threshold;
+
+        if let Err(why) = msg.reply(&ctx.http, format!("Set Chunk Size to: {} and Threshold to: {}", options.chunk_size, options.threshold)).await
+        {
+            eprintln!("Error sending params reply: {:?}", why);
+        }
+    }
+    Ok(())
+}
+
+#[command]
+#[aliases("d")]
+async fn delete(ctx: &Context, msg: &Message, args: Args) -> CommandResult
+{
+    if let Ok(msg_id) = args.rest().parse::<u64>()
+    {
+        if let Err(why) = ctx.http.delete_message(msg.channel_id.0, msg_id).await
+        {
+            eprintln!("Error deleting message: {:?}", why);
+        }
+    }
+    Ok(())
 }
 
 #[command]
@@ -456,8 +505,16 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
         let input = String::from(constants::INPUTFILENAME);
         let output = String::from(constants::OUTPUTFILENAME);
 
-        let chunksize = "4";
-        let threshold = "0";
+
+        // Get Options
+        let chunksize;
+        let threshold;
+        {
+            let data_read = ctx.data.read().await;
+            let options = data_read.get::<VectorizeOptionsKey>().unwrap();
+            chunksize = String::from(format!("{}", options.chunk_size));
+            threshold = String::from(format!("{}", options.threshold));
+        }
         
         println!("Vectorizing....");
         let result = do_vectorize(&input, &output, Some(chunksize), Some(threshold));

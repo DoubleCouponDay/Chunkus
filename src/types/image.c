@@ -60,7 +60,7 @@ void free_image_contents(image img)
 {
     if (!img.pixels_array_2d) {
         DEBUG("image has null pointers \n");
-        exit(NULL_ARGUMENT_ERROR);
+        return;
     }
     
     for (int i = 0; i < img.width; ++i)

@@ -298,7 +298,7 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
 
 void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     //create set of shapes
-    DEBUG("Fill chunkmap with threshold: %d\n", options->shape_colour_threshhold);
+    DEBUG("Fill chunkmap with threshold: %f\n", options->shape_colour_threshhold);
     int tenth_of_map = (int)floorf(map->map_width * map->map_height / 10.f);
     list_holder list = (list_holder){ map->shape_list };
     int count = 0;
