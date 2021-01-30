@@ -52,7 +52,7 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
     {
         for (int y = 0; y < node_height; ++y)
         {
-            pixel* currentpixel_p = &(input.pixels_array_2d[y_offset + y][x_offset + x]);
+            pixel* currentpixel_p = &(input.pixels_array_2d[x_offset + x][y_offset + y]);
             average_r += currentpixel_p->r;
             average_g += currentpixel_p->g;
             average_b += currentpixel_p->b;
@@ -90,11 +90,11 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
     if (!input.pixels_array_2d)
     {
         DEBUG("Invalid image input \n");
-        exit(ASSUMPTION_WRONG);
+        return (chunkmap) { 0 };
     }
 
     if (input.width < 1 || input.height < 1 || !input.pixels_array_2d)
-        exit(ASSUMPTION_WRONG);
+        return (chunkmap) { 0 };
     
     chunkmap output; 
     output.map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
@@ -135,6 +135,7 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
             iterateImagePixels(x, y, input, options, output);
         }
     }
+    DEBUG("generated chunkmap\n");
     return output;
 }
 
