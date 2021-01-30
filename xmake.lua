@@ -1,7 +1,7 @@
 
 -- add modes: debug and release
 add_rules("mode.debug")
-add_defines("DEBUG")
+add_rules("mode.release")
 add_requires("CONAN::libpng/1.6.37", {alias = "libpng"})
 add_requires("CONAN::libjpeg/9d", {alias = "libjpeg"})
 add_requires("CONAN::nanosvg/20190405", {alias = "nanosvg"})

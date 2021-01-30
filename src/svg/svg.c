@@ -69,13 +69,13 @@ typedef struct list_holder
     chunkshape* list;
 } list_holder;
 
-void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int map_x, int map_y, float shape_colour_threshold)
+inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int map_x, int map_y, float shape_colour_threshold)
 {
     int num_not_similar = 0;
 
-    for (int adjacent_x = -1; adjacent_x < 2; ++adjacent_x)
+    for (int adjacent_y = -1; adjacent_y < 2; ++adjacent_y)
     {
-        for (int adjacent_y = -1; adjacent_y < 2; ++adjacent_y)
+        for (int adjacent_x = -1; adjacent_x < 2; ++adjacent_x)
         {
             if (adjacent_x == 0 && adjacent_y == 0)
                 continue; //skip center pixel
