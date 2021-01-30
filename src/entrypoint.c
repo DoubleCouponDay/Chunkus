@@ -13,6 +13,13 @@ const char *format2_p = "jpeg";
 
 int error_code = 0;
 
+int get_error()
+{
+	int tmp = error_code;
+	error_code = 0;
+	return tmp;
+}
+
 int entrypoint(int argc, char* argv[]) {
 	if (argc <= 1)
 	{
@@ -89,5 +96,7 @@ int entrypoint(int argc, char* argv[]) {
 
 	write_chunkmap_to_file(map, output_file_p);
 
-	return error_code;
+	write_image_to_png_file(img, "yo gotem.png");
+
+	return get_error();
 }

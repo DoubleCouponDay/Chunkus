@@ -75,5 +75,6 @@ conan.lock
 *.discord_token
 discord-v/Cargo.lock
 
-# input.png
+# Bot PNGs
 input.png
+output.png

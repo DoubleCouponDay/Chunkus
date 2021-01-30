@@ -295,11 +295,12 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
 
 void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     //create set of shapes
-    for(int map_x = 0; map_x < map->map_width; ++map_x)
+    for(int map_y = 0; map_y < map->map_height; ++map_y)
     {
-        for(int map_y = 0; map_y < map->map_height; ++map_y)
+        for(int map_x = 0; map_x < map->map_width; ++map_x)
         {
             pixelchunk* currentchunk_p = &map->groups_array_2d[map_x][map_y];
+            chunkshape *list = map->shape_list;
             find_shapes(map, currentchunk_p, map_x, map_y, options->shape_colour_threshhold);
         }
     }
