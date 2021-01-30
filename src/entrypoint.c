@@ -2,9 +2,16 @@
 
  #include <stdio.h>
  #include "entrypoint.h"
+ #include "imagefile.h"
+ #include "svg/svg.h"
+ #include "../test/tools.h"
+
+ #include <stdlib.h>
 
 const char *format1_p = "png";
 const char *format2_p = "jpeg";
+
+int error_code = 0;
 
 int entrypoint(int argc, char* argv[]) {
 	if (argc <= 1)
@@ -37,9 +44,23 @@ int entrypoint(int argc, char* argv[]) {
 
 	// If no output path given use default one
 	if (argc > 2)
-		output_file_p = "output.svg";
+		output_file_p = "output.png";
 	else
 		output_file_p = argv[2];
+
+	int chunk_size = 0;
+	if (argc > 3)
+		chunk_size = atoi(argv[3]);
+
+	if (chunk_size < 1)
+		chunk_size = 4;
+
+	float threshold = 0.f;
+	if (argc > 4)
+		threshold = atof(argv[4]);
+	
+	if (threshold < 0.f)
+		threshold = 0.f;
 
 	// Halt execution if either path is bad
 	if (input_file_p == NULL || output_file_p == NULL)
@@ -48,7 +69,25 @@ int entrypoint(int argc, char* argv[]) {
 		return 0;
 	}
 
+	printf("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%d' \n", input_file_p, output_file_p, chunk_size, threshold);
+
 	// Execute program
 
-	return 999;
+	image img = convert_png_to_image(input_file_p);
+
+	vectorize_options options = {
+		input_file_p,
+		chunk_size,
+		threshold
+	};
+
+	chunkmap map = generate_chunkmap(img, options);
+
+	fill_chunkmap(&map, &options);
+
+	wind_back_chunkshapes(&map.shape_list);
+
+	write_chunkmap_to_file(map, output_file_p);
+
+	return error_code;
 }

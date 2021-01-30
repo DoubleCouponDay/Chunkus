@@ -1,4 +1,5 @@
 use libc::c_int;
+use std::ffi::CString;
 use std::ptr;
 
 mod ffimodule
@@ -22,13 +23,47 @@ pub fn call_vectorize(argc: c_int, argv: *mut *mut u8) -> c_int
     };
     result
 }
-
-pub fn do_vectorize(input_file: &String, output_file: &String) -> c_int
+pub fn call_vectorizer(input: &mut CString, output: &mut CString, chunk: &mut CString, threshold: &mut CString) -> c_int
 {
-    let mut input_copy = input_file.clone();
-    let mut output_copy = output_file.clone();
+    let result;
 
-    let mut new_array: [*mut u8; 3] = [ptr::null_mut(), input_copy.as_mut_ptr(), output_copy.as_mut_ptr()];
+    unsafe { 
+        let mut argv: [*mut u8; 5] = [ptr::null_mut(), input.as_ptr() as *mut u8, output.as_ptr() as *mut u8, chunk.as_ptr() as *mut u8, threshold.as_ptr() as *mut u8];
+        result = ffimodule::entrypoint(5, argv.as_mut_ptr()); 
+    };
+    result
+}
+
+pub fn do_vectorize(input_file: &String, output_file: &String, chunk_size: Option<&str>, threshold: Option<&str>) -> c_int
+{
+    println!("do_vectorize with input: {} output: {}", input_file, output_file);
+
+    let input_copy = input_file.clone();
+    let output_copy = output_file.clone();
+    let chunk_size_copy = String::from(chunk_size.unwrap_or("4"));
+    let threshold_copy = String::from(threshold.unwrap_or("0"));
     
-    call_vectorize(3, new_array.as_mut_ptr())
+    let mut input_c;
+    let mut output_c;
+    let mut chunk_c;
+    let mut threshold_c;
+
+    if let Ok(cc) = CString::new(input_copy)
+    {
+        input_c = cc;
+        if let Ok(ccc) = CString::new(output_copy)
+        {
+            output_c = ccc;
+            if let Ok(cccc) = CString::new(chunk_size_copy)
+            {
+                chunk_c = cccc;
+                if let Ok(ccccc) = CString::new(threshold_copy)
+                {
+                    threshold_c = ccccc;
+                    return call_vectorizer(&mut input_c, &mut output_c, &mut chunk_c, &mut threshold_c)
+                }
+            }
+        }
+    }
+    -1
 }

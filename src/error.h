@@ -12,3 +12,11 @@ enum vectorizing_opcodes {
     OVERFLOW_ERROR,
     BAD_ARGUMENT_ERROR,
 };
+
+extern int error_code;
+
+enum error_codes
+{
+    NONE = 0,
+    NOT_PNG = 2,
+};
