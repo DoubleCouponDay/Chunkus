@@ -298,11 +298,22 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
 
 void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     //create set of shapes
+    DEBUG("Fill chunkmap with threshold: %d\n", options->shape_colour_threshhold);
+    int tenth_of_map = (int)floorf(map->map_width * map->map_height / 10.f);
     list_holder list = (list_holder){ map->shape_list };
+    int count = 0;
+    int tenth_count = 0;
     for(int map_y = 0; map_y < map->map_height; ++map_y)
     {
         for(int map_x = 0; map_x < map->map_width; ++map_x)
         {
+            ++count;
+            if (tenth_of_map > 0 && count % tenth_of_map == 0)
+            {
+                ++tenth_count;
+                DEBUG("Progress: %d%%\n", tenth_count * 10);
+            }
+
             pixelchunk* currentchunk_p = &map->groups_array_2d[map_x][map_y];
             find_shapes(map, currentchunk_p, &list, map_x, map_y, options->shape_colour_threshhold);
         }
