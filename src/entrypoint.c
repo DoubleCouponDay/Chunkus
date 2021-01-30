@@ -98,5 +98,8 @@ int entrypoint(int argc, char* argv[]) {
 
 	write_image_to_png_file(img, "yo gotem.png");
 
+	free_group_map(&map);
+	free_image_contents(img);
+
 	return get_error();
 }
