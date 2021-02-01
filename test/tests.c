@@ -164,8 +164,8 @@ int main(int argc, char** argv) {
   DEBUG("test runner initializing... \n");
 
   char* param1[] = { "../../../../test/test.png", NULL };
-  char* param2[] = { "4", NULL };
-  char* param3[] = { "0", NULL };
+  char* param2[] = { "3", NULL };
+  char* param3[] = { "400", NULL };
   char* param4[] = { "./chunkmap.png", NULL };
 
   MunitParameterEnum test_params[] = { 

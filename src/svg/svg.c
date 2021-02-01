@@ -92,15 +92,17 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int 
 
             pixelchunk* adjacent = &map->groups_array_2d[adjacent_index_x][adjacent_index_y];
 
-            if (colours_are_similar(current->average_colour, adjacent->average_colour, shape_colour_threshold))
-            {
+            if (colours_are_similar(current->average_colour, adjacent->average_colour, shape_colour_threshold) == false) { //colours are not similar
+                ++num_not_similar;
+                current->is_boundary = true;
+
                 chunkshape* isinshape = big_chungus_already_in_shape(map, adjacent);
                 
                 if (isinshape) {
                     add_chunk_to_shape(isinshape, current);
                 }
 
-                else if(hashmap_oom(l->list->chunks) == false){
+                else if(hashmap_oom(l->list->chunks) == false) { //create new shape with minimum 2 points
                     l->list = add_new_shape(l->list);
                     hashmap_set(l->list->chunks, current);
                     hashmap_set(l->list->chunks, adjacent);
@@ -111,11 +113,6 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int 
                     exit(HASHMAP_OOM);
                 }
             }
-
-            else {
-                ++num_not_similar;
-                current->is_boundary = true;
-            }
         }
     }
 
@@ -124,6 +121,7 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int 
             DEBUG("hashmap out of mana\n");
             exit(HASHMAP_OOM);
         }
+        current->is_boundary = true;
         l->list = add_new_shape(l->list);
         hashmap_set(l->list->chunks, current);
     }
@@ -176,9 +174,10 @@ bool iterate_new_path(const void* item, void* udata) {
     }
 
     else { //first path supplied
+        DEBUG("connecting to existing path\n");
         int x = chunk->location.x;
         int y = chunk->location.y;
-        DEBUG("coords 1: %d, %d\n", x, y);
+        
         coordinate previous_coord = {
             currentpath->pts[2],
             currentpath->pts[3]
@@ -192,7 +191,6 @@ bool iterate_new_path(const void* item, void* udata) {
     }
     currentpath->next = nextsegment;
     current->paths = nextsegment;
-DEBUG("coords 4: %d, %d\n", currentpath->pts[0], currentpath->pts[1]);
     return true;
 }
 
@@ -237,6 +235,7 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
     //iterate shapes
     while(map.shape_list != NULL) {        
         DEBUG("iteration: %d \n", i);
+
         if(output->shapes == NULL) {
             DEBUG("using first shape\n");
             output->shapes = firstshape;
@@ -257,13 +256,14 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
         iter_struct shape_data = {
             map, output, firstpath, NULL
         };
+        size_t hashcount = hashmap_count(map.shape_list->chunks);
 
         if(firstrun == false && 
-            hashmap_count(map.shape_list->chunks) == 0) {
+            hashcount == 1) { //only one point
             DEBUG("no chunks found in hashmap\n");
             continue;    
         }
-        DEBUG("iterating hashmap, count: %d \n", hashmap_count(map.shape_list->chunks));
+        DEBUG("iterating hashmap, count: %d \n", hashcount);
         hashmap_scan(map.shape_list->chunks, iterate_new_path, &shape_data);
 
         if(firstpath->pts[2] == NONE_FILLED) {
