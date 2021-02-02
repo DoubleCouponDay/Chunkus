@@ -4,11 +4,9 @@ Convert a raster image into a scalable vector graphic and back.
 
 # TASKS
 
-- check all free methods so that every pointer is checked for null
-
 - check that in scope dynamic allocations are freed upon error
 
-- refactor all C structs to be heap allocated
+- make chunkmap a heap variable
 
 - clean up rust warnings
 
