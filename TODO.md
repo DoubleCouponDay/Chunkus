@@ -4,8 +4,6 @@ Convert a raster image into a scalable vector graphic and back.
 
 # TASKS
 
-- check that in scope dynamic allocations are freed upon error
-
 - make chunkmap a heap variable
 
 - clean up rust warnings

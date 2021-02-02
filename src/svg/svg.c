@@ -186,7 +186,7 @@ bool iterate_new_path(const void* item, void* udata) {
         };
         
         nextsegment = create_path(
-            shape_data->map.input, 
+            shape_data->map->input, 
             previous_coord,
             chunk->location
         );
@@ -202,7 +202,7 @@ bool iterate_new_path(const void* item, void* udata) {
         };
 
         nextsegment = create_path(
-            shape_data->map.input, 
+            shape_data->map->input, 
             previous_coord,
             chunk->location
         );
@@ -244,11 +244,11 @@ void throw_on_max(unsigned long* subject) {
     }
 }
 
-void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
+void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
 {
     DEBUG("checking if shapelist is null\n");
     //create the svg
-    if(map.shape_list == NULL) {
+    if(map->shape_list == NULL) {
         DEBUG("NO SHAPES FOUND\n");
         setError(ASSUMPTION_WRONG);
         return;
@@ -258,13 +258,13 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
     DEBUG("iterating shapes list\n");
     char* firstid = "firstshape";
     long firstidlength = 10;
-    NSVGshape* firstshape = create_shape(&map, firstid, firstidlength);
+    NSVGshape* firstshape = create_shape(map, firstid, firstidlength);
     output->shapes = NULL; //get rid of fluff in the template
     unsigned long i = 0;
     bool firstrun = true;
 
     //iterate shapes
-    while(map.shape_list != NULL) {        
+    while(map->shape_list != NULL) {        
         DEBUG("iteration: %d \n", i);
 
         if(output->shapes == NULL) {
@@ -275,12 +275,12 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
         else {
             DEBUG("creating new shape\n");
             char longaschar = i;
-            NSVGshape* newshape = create_shape(&map, &longaschar, 1);
+            NSVGshape* newshape = create_shape(map, &longaschar, 1);
             output->shapes->next = newshape;
             output->shapes = newshape;
         }
         coordinate empty = {NONE_FILLED, NONE_FILLED};
-        NSVGpath* firstpath = create_path(map.input, empty, empty);
+        NSVGpath* firstpath = create_path(map->input, empty, empty);
         int code = getLastError();
 
         if(code != SUCCESS_CODE) {
@@ -293,7 +293,7 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
         iter_struct shape_data = {
             map, output, firstpath, NULL
         };
-        size_t hashcount = hashmap_count(map.shape_list->chunks);
+        size_t hashcount = hashmap_count(map->shape_list->chunks);
 
         if(firstrun == false && 
             hashcount == 1) { //only one point
@@ -301,7 +301,7 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
             continue;    
         }
         DEBUG("iterating hashmap, count: %d \n", hashcount);
-        hashmap_scan(map.shape_list->chunks, iterate_new_path, &shape_data);
+        hashmap_scan(map->shape_list->chunks, iterate_new_path, &shape_data);
         code = getLastError();
 
         if(code != SUCCESS_CODE) {
@@ -315,7 +315,7 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
             return;
         }
         DEBUG("closing path\n");
-        close_path(&map, output, firstpath);
+        close_path(map, output, firstpath);
         output->shapes->paths = firstpath; //wind back the paths
         
         //set the colour of the shape while prevent undefined behaviour
@@ -331,7 +331,7 @@ void iterate_chunk_shapes(chunkmap map, NSVGimage* output)
             NSVG_RGB(0, 0, 0)
         };
         output->shapes->stroke = stroke;
-        map.shape_list = map.shape_list->next; //go to next shape
+        map->shape_list = map->shape_list->next; //go to next shape
 
         throw_on_max(&i);
         code = getLastError();
@@ -380,27 +380,27 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
 //entry point of the file
 NSVGimage* vectorize_image(image input, vectorize_options options) {
     DEBUG("generating chunkmap\n");
-    chunkmap map = generate_chunkmap(input, options);
+    chunkmap* map = generate_chunkmap(input, options);
     
     if (getLastError() != SUCCESS_CODE)
     {
         DEBUG("generate_chunkmap failed with code: %d \n", getLastError());
-        free_group_map(&map);
+        free_group_map(map);
         return NULL;
     }
 
     DEBUG("filling chunkmap\n");
-    fill_chunkmap(&map, &options);
+    fill_chunkmap(map, &options);
 
     if (getLastError() != SUCCESS_CODE)
     {
         DEBUG("fill_chunkmap failed with code %d\n", getLastError());
-        free_group_map(&map);
+        free_group_map(map);
         return NULL;
     }
 
     DEBUG("Now winding back chunk_shapes\n");
-    wind_back_chunkshapes(&map.shape_list);
+    wind_back_chunkshapes(&map->shape_list);
 
     DEBUG("iterating chunk shapes\n");
     NSVGimage* output = create_nsvgimage(input.width, input.height);
@@ -409,14 +409,14 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     if (getLastError() != SUCCESS_CODE)
     {
         DEBUG("iterate_chunk_shapes failed with code: %d\n", getLastError());
-        free_group_map(&map);
+        free_group_map(map);
         if (output)
             free_image(output);
         return NULL;
     }
     
     DEBUG("freeing group map\n");
-    free_group_map(&map);
+    free_group_map(map);
     return output;
 }
 

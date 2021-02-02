@@ -89,32 +89,32 @@ int entrypoint(int argc, char* argv[]) {
 		threshold
 	};
 
-	chunkmap map = generate_chunkmap(img, options);
+	chunkmap* map = generate_chunkmap(img, options);
 	int code = getLastError();
 
 	if(code != SUCCESS_CODE) {
 		DEBUG("generate_chunkmap failed with code: %d\n", code);
 		free_image_contents(img);
-		free_group_map(&map);
+		free_group_map(map);
 		return getAndResetErrorCode();
 	}
 
-	fill_chunkmap(&map, &options);
+	fill_chunkmap(map, &options);
 	code = getLastError();
 
 	if(code != SUCCESS_CODE) {
 		free_image_contents(img);
-		free_group_map(&map);
+		free_group_map(map);
 		DEBUG("fill_chunkmap failed with code: %d\n", code);
 		return getAndResetErrorCode();
 	}
 
-	wind_back_chunkshapes(&map.shape_list);
+	wind_back_chunkshapes(&map->shape_list);
 	code = getLastError();
 
 	if(code != SUCCESS_CODE) {
 		free_image_contents(img);
-		free_group_map(&map);
+		free_group_map(map);
 		DEBUG("wind_back_chunkshapes failed with code: %d\n", code);
 		return getAndResetErrorCode();
 	}
@@ -124,7 +124,7 @@ int entrypoint(int argc, char* argv[]) {
 	
 	if(code != SUCCESS_CODE) {
 		free_image_contents(img);
-		free_group_map(&map);
+		free_group_map(map);
 		DEBUG("write_chunkmap_to_file failed with code: %d\n", code);
 		return getAndResetErrorCode();
 	}
@@ -134,13 +134,13 @@ int entrypoint(int argc, char* argv[]) {
 
 	if(code != SUCCESS_CODE) {
 		free_image_contents(img);
-		free_group_map(&map);
+		free_group_map(map);
 		DEBUG("write_image_to_png_file failed with code: %d\n", code);
 		return getAndResetErrorCode();
 	}
 
 	free_image_contents(img);
-	free_group_map(&map);	
+	free_group_map(map);
 
 	return getAndResetErrorCode();
 }

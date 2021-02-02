@@ -10,12 +10,12 @@
 #include "svg/tidwallcopy.h"
 #include "error.h"
 
-void iterateImagePixels(int x, int y, image input, vectorize_options options, chunkmap output) {
+void iterateImagePixels(int x, int y, image input, vectorize_options options, chunkmap* output) {
     int x_offset = x * options.chunk_size;
     int y_offset = y * options.chunk_size;
 
     // Grab the pixelchunk
-    pixelchunk* outputnodes = &output.groups_array_2d[x][y];
+    pixelchunk* outputnodes = &output->groups_array_2d[x][y];
     
     coordinate location = {
         x, y
@@ -85,59 +85,55 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
     outputnodes->average_colour = average_p;
 }
 
-chunkmap generate_chunkmap(image input, vectorize_options options)
+chunkmap* generate_chunkmap(image input, vectorize_options options)
 {
     if (!input.pixels_array_2d)
     {
         DEBUG("Invalid image input \n");
         setError(ASSUMPTION_WRONG);
-        return (chunkmap) { 0 };
+        return NULL;
     }
 
     if (input.width < 1 || input.height < 1 || !input.pixels_array_2d)
     {
         DEBUG("Invalid dimensions or bad image\n");
         setError(ASSUMPTION_WRONG);
-        return (chunkmap) { 0 };
-    }
-    
-    chunkmap output; 
-    output.map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
-    output.map_height = (int)ceilf((float)input.height / (float)options.chunk_size);
+        return NULL;
+    }    
+    chunkmap* output = calloc(1, sizeof(chunkmap));
+    output->input = input;
+    output->map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
+    output->map_height = (int)ceilf((float)input.height / (float)options.chunk_size);
     
     DEBUG("creating pixelchunk\n");
-    pixelchunk* thing1 = calloc(1, sizeof(pixelchunk*) * output.map_width);
-    output.groups_array_2d = thing1;
+    pixelchunk* newarray = calloc(1, sizeof(pixelchunk*) * output->map_width);
+    output->groups_array_2d = newarray;
     DEBUG("creating chunkshape\n");
-    chunkshape* thing2 = calloc(1, sizeof(chunkshape));
-    output.shape_list = thing2;
+    chunkshape* shape_list = calloc(1, sizeof(chunkshape));
+    output->shape_list = shape_list;
     DEBUG("allocating new hashmap\n");
     hashmap* newhashy = hashmap_new(sizeof(pixelchunk), 16, 0, 0, chunk_hash, chunk_compare, NULL); 
 
     if(newhashy == NULL) {
         DEBUG("new hashmap failed during creation\n");
         setError(ASSUMPTION_WRONG);
-        return (chunkmap) {0};
+        return NULL;
     }
 
     DEBUG("assign shape_list hashmap\n");
-    output.shape_list->chunks = newhashy;
+    output->shape_list->chunks = newhashy;
 
     DEBUG("allocating row pointers\n");
 
-    for (int i = 0; i < output.map_width; ++i)
+    for (int i = 0; i < output->map_width; ++i)
     {
-        output.groups_array_2d[i] = calloc(1, sizeof(pixelchunk) * output.map_height);
-    }
-    DEBUG("copying image to chunkmap\n");
-
-    output.input = input;
-
+        output->groups_array_2d[i] = calloc(1, sizeof(pixelchunk) * output->map_height);
+    }    
     DEBUG("iterating chunkmap pixels\n");
     
-    for (int x = 0; x < output.map_width; ++x)
+    for (int x = 0; x < output->map_width; ++x)
     {
-        for (int y = 0; y < output.map_height; ++y)
+        for (int y = 0; y < output->map_height; ++y)
         {
             iterateImagePixels(x, y, input, options, output);
         }
@@ -146,7 +142,26 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
     return output;
 }
 
-void free_group_map(chunkmap* map_p) //chunkmap is a stack variable. dont free it!
+//takes a double pointer so that we can update the list itself
+void wind_back_chunkshapes(chunkshape** list)
+{
+    if(list == NULL) {
+        DEBUG("the list you passed was non existent.\n");
+        return;
+    }
+
+    chunkshape* iter = *list;
+    if (iter == NULL)
+        return;
+
+    while (iter->previous != NULL)
+    {
+        iter = iter->previous;
+    }
+    *list = iter;
+}
+
+void free_group_map(chunkmap* map_p)
 {
     if (!map_p) {
         return;
@@ -176,22 +191,8 @@ void free_group_map(chunkmap* map_p) //chunkmap is a stack variable. dont free i
             map_p->shape_list = next;
         }
     }
-}
 
-void wind_back_chunkshapes(chunkshape** list)
-{
-    if(list == NULL) {
-        DEBUG("the list you passed was non existent.\n");
-        return;
+    if(map_p) {
+        free(map_p);
     }
-
-    chunkshape* iter = *list;
-    if (iter == NULL)
-        return;
-
-    while (iter->previous != NULL)
-    {
-        iter = iter->previous;
-    }
-    *list = iter;
 }

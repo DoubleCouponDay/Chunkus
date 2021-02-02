@@ -10,7 +10,7 @@
 
 typedef struct
 {
-    chunkmap map;
+    chunkmap* map;
     NSVGimage* output;
     NSVGpath* first_path;
     NSVGpaint* shapescolour;

@@ -35,7 +35,7 @@ typedef struct
     float shape_colour_threshhold;
 } vectorize_options;
 
-chunkmap generate_chunkmap(image inputimage_p, vectorize_options options);
+chunkmap* generate_chunkmap(image inputimage_p, vectorize_options options);
 
 void free_group_map(chunkmap* map_p);
 

@@ -14,7 +14,7 @@ void test3teardown(void* fixture);
 
 typedef struct {
     image img;
-    chunkmap map;
+    chunkmap* map;
 } test4stuff;
 void* test4setup(const MunitParameter params[], void* userdata);
 void test4teardown(void* fixture);
@@ -39,7 +39,7 @@ void test6teardown(void* fixture);
 typedef struct
 {
     image img;
-    chunkmap map;
+    chunkmap* map;
 } test69stuff;
 
 void* test69setup(const MunitParameter params[], void* userdata);
