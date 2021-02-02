@@ -26,7 +26,7 @@ void test3teardown(void* fixture) {
 }
 
 void* test4setup(const MunitParameter params[], void* userdata) {
-  return malloc(sizeof(test4stuff));
+  return calloc(1, sizeof(test4stuff));
 };
 
 void test4teardown(void* fixture) {
@@ -38,7 +38,7 @@ void test4teardown(void* fixture) {
 }
 
 void* test5setup(const MunitParameter params[], void* userdata) {
-  return malloc(sizeof(test5stuff));
+  return calloc(1, sizeof(test5stuff));
 };
 
 void test5teardown(void* fixture) {
@@ -51,7 +51,7 @@ void test5teardown(void* fixture) {
 
 void* test6setup(const MunitParameter params[], void* userdata)
 {
-  return malloc(sizeof(test6stuff));
+  return calloc(1, sizeof(test6stuff));
 }
 
 void test6teardown(void* fixture)
@@ -67,7 +67,7 @@ void test6teardown(void* fixture)
 
 void* test69setup(const MunitParameter params[], void* userdata)
 {
-  return malloc(sizeof(test69stuff));
+  return calloc(1, sizeof(test69stuff));
 }
 
 void test69teardown(void* fixture)
