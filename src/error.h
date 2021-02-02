@@ -11,12 +11,7 @@ enum vectorizing_opcodes {
     HASHMAP_OOM,
     OVERFLOW_ERROR,
     BAD_ARGUMENT_ERROR,
+    NOT_PNG
 };
 
 extern int error_code;
-
-enum error_codes
-{
-    NONE = 0,
-    NOT_PNG = 2,
-};
