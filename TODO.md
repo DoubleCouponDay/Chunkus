@@ -4,8 +4,6 @@ Convert a raster image into a scalable vector graphic and back.
 
 # TASKS
 
-- make chunkmap a heap variable
-
 - clean up rust warnings
 
 - store SVGimage in a file

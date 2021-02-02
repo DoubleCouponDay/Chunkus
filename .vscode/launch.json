@@ -13,7 +13,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}\\build\\windows\\x64\\debug",
             "environment": [],
-            "externalConsole": false
+            "console": "internalConsole"
         },
         {
             "name": "(Windows) Launch Test 7",
@@ -24,7 +24,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}\\build\\windows\\x64\\debug",
             "environment": [],
-            "externalConsole": false
+            "console": "internalConsole"
         },
         {
             "name": "(Windows) Launch Vectorizer against input.png",
@@ -35,7 +35,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}\\build\\windows\\x64\\debug",
             "environment": [],
-            "externalConsole": false
+            "console": "internalConsole"
         },
     ]
 }
