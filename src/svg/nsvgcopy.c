@@ -19,7 +19,8 @@ char* gettemplate(char* pathtofile) {
 
 	if (!fp) {
         DEBUG("could not find svg template file.\n");
-        exit(TEMPLATE_FILE_NOT_FOUND);
+        setError(TEMPLATE_FILE_NOT_FOUND);
+		return NULL;
     };
 	fseek(fp, 0, SEEK_END);
 	size = ftell(fp);
@@ -28,12 +29,14 @@ char* gettemplate(char* pathtofile) {
 
 	if (data == NULL) {
         DEBUG("something went wrong allocating svg space. \n");
-        exit(SVG_SPACE_ERROR);
+		setError(SVG_SPACE_ERROR);
+        return NULL;
     }
 
 	if (fread(data, 1, size, fp) != size) {
         DEBUG("something went wrong reading the file data. \n");
-        exit(READ_FILE_ERROR);
+		setError(READ_FILE_ERROR);
+        return NULL;
     };
 	data[size] = '\0';	// Must be null terminated.
 	fclose(fp);

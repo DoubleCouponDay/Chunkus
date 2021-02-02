@@ -14,4 +14,8 @@ enum vectorizing_opcodes {
     NOT_PNG
 };
 
-extern int error_code;
+int getLastError();
+
+void setError(int error);
+
+int getAndResetErrorCode();

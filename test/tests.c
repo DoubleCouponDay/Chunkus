@@ -61,7 +61,9 @@ MunitResult test4_can_convert_file_to_node_map(const MunitParameter params[], vo
     atof(params[2].value)
   };
   stuff->img = convert_png_to_image(options.file_path);
-  stuff->map = generate_chunkmap(stuff->img, options);
+  chunkmap map = generate_chunkmap(stuff->img, options);
+  munit_assert_int(getLastError(), ==, SUCCESS_CODE);
+  stuff->map = map;
   return MUNIT_OK;
 }
 
@@ -102,8 +104,9 @@ MunitResult test6_can_vectorize_image(const MunitParameter params[], void* userd
   int ting1 = stuff->img.pixels_array_2d[1][1].location.x;
   int ting2 = stuff->img.pixels_array_2d[1][1].location.y;
   DEBUG("coord 5757: %d, %d\n", ting1, ting2);
-
-  stuff->svg = vectorize_image(stuff->img, options);
+  NSVGimage* svg = vectorize_image(stuff->img, options);
+  munit_assert_int(getLastError(), ==, SUCCESS_CODE);
+  stuff->svg = svg;
 
   return MUNIT_OK;
 }
@@ -136,21 +139,24 @@ MunitResult test69_can_write_chunkmap_shapes_to_file(const MunitParameter params
   stuff->img = convert_png_to_image(fileaddress);
   DEBUG("asserting pixels_array_2d not null\n");
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
-
   DEBUG("generating chunkmap\n");
   chunkmap map = generate_chunkmap(stuff->img, options);
+  munit_assert_int(getLastError(), ==, SUCCESS_CODE);
   stuff->map = map;
 
   DEBUG("asserting groups_array_2d not null\n");
   munit_assert_ptr_not_null(stuff->map.groups_array_2d);
   DEBUG("filling chunkmap\n");
   fill_chunkmap(&stuff->map, &options);
+  munit_assert_int(getLastError(), ==, SUCCESS_CODE);
 
   DEBUG("Now winding back chunk_shapes\n");
   wind_back_chunkshapes(&stuff->map.shape_list);
+  munit_assert_int(getLastError(), ==, SUCCESS_CODE);
 
   DEBUG("writing chunkmap to file\n");
   write_chunkmap_to_file(stuff->map, out_fileaddress);
+  munit_assert_int(getLastError(), ==, SUCCESS_CODE);
 
   FILE* fp = fopen(out_fileaddress, "r");
 

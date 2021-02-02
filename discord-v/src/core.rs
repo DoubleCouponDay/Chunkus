@@ -1,6 +1,12 @@
 use libc::c_int;
 use std::ffi::CString;
 use std::ptr;
+use crate::constants::{
+    FfiResult
+};
+
+const CHUNK_SIZE: &str = "3";
+const THRESHHOLD: &str = "400";
 
 mod ffimodule
 {
@@ -9,28 +15,32 @@ mod ffimodule
     #[link(name = "zlib", kind = "static")]
     #[link(name = "libpng16", kind = "static")]
     #[link(name = "vec", kind = "static")]
-    extern {
+    extern {        
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
     }
 }
 
-pub fn call_vectorize(input: &mut CString, output: &mut CString, chunk: &mut CString, threshold: &mut CString) -> c_int
+pub fn call_vectorize(input: &mut CString, output: &mut CString, chunk: &mut CString, threshold: &mut CString) -> FfiResult
 {
-    let result;
+    let result: FfiResult;
 
     unsafe { 
         let mut argv: [*mut u8; 5] = [ptr::null_mut(), input.as_ptr() as *mut u8, output.as_ptr() as *mut u8, chunk.as_ptr() as *mut u8, threshold.as_ptr() as *mut u8];
-        result = ffimodule::entrypoint(5, argv.as_mut_ptr()); 
+        let cint = ffimodule::entrypoint(5, argv.as_mut_ptr()); 
+        let between: i32 = cint;
+        println!("between: {}", between);
+        result = FfiResult::from(between);
     };
+    println!("result: {}", result);
     result
 }
 
-pub fn do_vectorize(input_file: &String, output_file: &String, chunk_size: Option<String>, threshold: Option<String>) -> c_int
+pub fn do_vectorize(input_file: &String, output_file: &String, chunk_size: Option<String>, threshold: Option<String>) -> FfiResult
 {
     let input_copy = input_file.clone();
     let output_copy = output_file.clone();
-    let chunk_size_copy = chunk_size.unwrap_or(String::from("4"));
-    let threshold_copy = threshold.unwrap_or(String::from("0"));
+    let chunk_size_copy = chunk_size.unwrap_or(String::from(CHUNK_SIZE)); //set inputs or just default
+    let threshold_copy = threshold.unwrap_or(String::from(THRESHHOLD));
     
     println!("do_vectorize with input: {} output: {}, chunk: {}, thres: {}", input_file, output_file, chunk_size_copy, threshold_copy);
     
@@ -56,5 +66,5 @@ pub fn do_vectorize(input_file: &String, output_file: &String, chunk_size: Optio
             }
         }
     }
-    -1
+    FfiResult::AssumptionWrong
 }

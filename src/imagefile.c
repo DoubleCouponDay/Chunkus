@@ -76,7 +76,7 @@ image convert_png_to_image(char *fileaddress)
 
     if (!read_struct)
     {
-        DEBUG("Failed to create png read struct");
+        DEBUG("Failed to create png read struct\n");
         return (image){NULL, 0, 0};
     }
     
@@ -110,7 +110,7 @@ image convert_png_to_image(char *fileaddress)
     color_type = png_get_color_type(read_struct, info);
     if (color_type != PNG_COLOR_TYPE_RGB && color_type != PNG_COLOR_TYPE_RGBA)
     {
-        DEBUG("Only RGB/A PNGs are supported for import, format: %d", color_type);
+        DEBUG("Only RGB/A PNGs are supported for import, format: %d\n", color_type);
         return (image){NULL, 0, 0};
     }
     bit_depth = png_get_bit_depth(read_struct, info);
@@ -197,7 +197,7 @@ image convert_png_to_image(char *fileaddress)
     }
     else
     {
-        DEBUG("wtf\n");
+        DEBUG("color type is not RGBA\n");
     }
 
     for (int i = 0; i < output.height; ++i)

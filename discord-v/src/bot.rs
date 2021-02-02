@@ -2,7 +2,7 @@ use serenity::{
     async_trait,
     http::Http,
     model::{
-        prelude::{Message, ChannelId, MessageId, MessageUpdateEvent}
+        prelude::{Message, MessageId, MessageUpdateEvent}
     },
     prelude::TypeMapKey,
     framework::standard::{
@@ -25,77 +25,11 @@ use std::{
     path::Path,
     io::prelude::*,
     time::{Duration, Instant},
-    future::Future
 };
 use crate::constants;
-
-
-pub async fn create_bot(token: &'static str) -> Client {
-    
-    println!("creating http token...");
-    let http = serenity::http::Http::new_with_token(&token);
-    
-    println!("fetching owner id, bot id...");
-
-    let (_, _bot_id) = match http.get_current_application_info().await {
-        Ok(info) => {
-            let mut owners = HashSet::new();
-            owners.insert(info.owner.id);
-
-            (owners, info.id)
-        },
-        Err(why) => panic!("Could not access application info: {:?}", why),
-    };
-    println!("creating framework...");
-
-    let framework = StandardFramework::new().configure(|c| c
-        .on_mention(Some(_bot_id))
-        .with_whitespace(true));
-        
-    println!("creating client...");
-
-    // Use ClientBuilder to generate the Client instance
-    let client = ClientBuilder::new(&token)
-        .event_handler(DefaultHandler)
-        .framework(framework)
-        .await
-        .expect("Error Building Client");
-
-    client
-}
-
-pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, handler: H) -> Client {    
-    println!("creating http token...");
-    let http = Http::new_with_token(&token);
-    
-    println!("fetching owner id, bot id...");
-
-    let (_, _bot_id) = match http.get_current_application_info().await {
-        Ok(info) => {
-            let mut owners = HashSet::new();
-            owners.insert(info.owner.id);
-
-            (owners, info.id)
-        },
-        Err(why) => panic!("Could not access application info: {:?}", why),
-    };
-    println!("creating framework...");
-
-    let framework = StandardFramework::new().configure(|c| c
-        .on_mention(Some(_bot_id))
-        .with_whitespace(true));
-        
-    println!("creating client...");
-
-    // Login with a bot token from the environment
-    let client = ClientBuilder::new(&token)
-        .event_handler(handler)
-        .framework(framework)
-        .await
-        .expect("Error creating client");
-
-    client
-}
+use crate::constants::{
+    FfiResult
+};
 
 pub async fn create_vec_bot(token: &str) -> Client
 {
@@ -120,14 +54,14 @@ pub async fn create_vec_bot(token: &str) -> Client
         .with_whitespace(true))
             .group(&GENERAL_GROUP);
         
-    println!("creating client...");
+    println!("bot is running...");
 
     // Login with a bot token from the environment
     let client = ClientBuilder::new(&token)
         .event_handler(DefaultHandler)
         .framework(framework)
         .await
-        .expect("Error creating client");
+        .expect("Error bot is running");
 
     {
         let mut data = client.data.write().await;
@@ -374,7 +308,7 @@ async fn delete(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 
 #[command]
 #[aliases("v")]
-async fn vectorize(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+async fn vectorize(ctx: &Context, msg: &Message, _args: Args) -> CommandResult {
     println!("Joe Mama");
     
     let mut embed_urls: Vec<String> = vec![];
@@ -509,7 +443,8 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
         // Get Options
         let chunksize;
         let threshold;
-        {
+
+        { //dont hold the entire read in memory for too long
             let data_read = ctx.data.read().await;
             let options = data_read.get::<VectorizeOptionsKey>().unwrap();
             chunksize = String::from(format!("{}", options.chunk_size));
@@ -517,20 +452,32 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
         }
         
         println!("Vectorizing....");
-        let result = do_vectorize(&input, &output, Some(chunksize), Some(threshold));
-        println!("Vectorized with return code: {0}", result);
+        let result = do_vectorize(&input, &output, Some(chunksize), Some(threshold));        
 
-        if result != 0
-        {
-            println!("Vectorizing returned {}", result);
-
-            match result
-            {
-                2 => { if let Err(why) = msg.reply(&ctx.http, format!("URL: '{}' is not a png", url)).await { println!("Error replying: {:?}",why); } },
-                0 => println!("Zero return code"),
-                _ => continue,
+        let possibleerror = match result {
+            FfiResult::SuccessCode => {
+                println!("success");
+                ""
+            },
+            FfiResult::AssumptionWrong => "assumption wrong",
+            FfiResult::TemplateFileNotFound => "template file not found",
+            FfiResult::SvgSpaceError => "svg space error",
+            FfiResult::ReadFileError => "read file error",
+            FfiResult::ArrayDiffSizeError => "array diff size error",
+            FfiResult::NullArgumentError => "null argument error",
+            FfiResult::HashmapOom => "hashmap out of mana",
+            FfiResult::OverflowError => "overflow error",
+            FfiResult::BadArgumentError => "bad argument error",
+            _ => {
+                panic!("error code not accounted for!");
             }
+        };
 
+        if possibleerror != "" {
+            if let Err(why) = msg.reply(&ctx.http, possibleerror)
+            .await { 
+                println!("Error replying: {:?}",why);
+            };
             continue;
         }
 

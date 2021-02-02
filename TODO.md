@@ -4,14 +4,17 @@ Convert a raster image into a scalable vector graphic and back.
 
 # TASKS
 
-- fix coordinate values being corrupted
+- check all free methods so that every pointer is checked for null
 
-- fix half the `hashmap_set` calls failing
+- check that in scope dynamic allocations are freed upon error
 
-- fix no paths found
+- refactor all C structs to be heap allocated
 
-- convert svg to bmp and submit it to discord
-    - store SVG paths to a file
+- clean up rust warnings
+
+- store SVGimage in a file
+
+- convert svg to bmp and store it in a file
 
 - deploy to azure web apps for containers
 

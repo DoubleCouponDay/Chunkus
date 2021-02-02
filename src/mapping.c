@@ -90,10 +90,12 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
     if (!input.pixels_array_2d)
     {
         DEBUG("Invalid image input \n");
+        setError(ASSUMPTION_WRONG);
         return (chunkmap) { 0 };
     }
 
     if (input.width < 1 || input.height < 1 || !input.pixels_array_2d)
+        setError(ASSUMPTION_WRONG);
         return (chunkmap) { 0 };
     
     chunkmap output; 
@@ -111,8 +113,10 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
 
     if(newhashy == NULL) {
         DEBUG("new hashmap failed during creation\n");
-        exit(ASSUMPTION_WRONG);
+        setError(ASSUMPTION_WRONG);
+        return (chunkmap) {0};
     }
+
     DEBUG("assign shape_list hashmap\n");
     output.shape_list->chunks = newhashy;
 
@@ -142,26 +146,32 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
 void free_group_map(chunkmap* map_p)
 {
     if (!map_p) {
-        DEBUG("chunkmap is null\n");
-        exit(NULL_ARGUMENT_ERROR);
+        return;
     }
 
-    for (int x = 0; x < map_p->map_width; ++x)
-    {
-        pixelchunk* current = map_p->groups_array_2d[x];
-        free(current);
+    else {
+        for (int x = 0; x < map_p->map_width; ++x)
+        {
+            pixelchunk* current = map_p->groups_array_2d[x];
+            free(current);
+        }
     }
-    free(map_p->groups_array_2d);
 
-    wind_back_chunkshapes(&(map_p->shape_list));
+    if(map_p->groups_array_2d) {
+        free(map_p->groups_array_2d);
+    }
+    
+    if(map_p->shape_list) {
+        wind_back_chunkshapes(&(map_p->shape_list));
 
-    //free all shapes
-    while (map_p->shape_list)
-    {
-        chunkshape* next = map_p->shape_list->next;
-        hashmap_free(map_p->shape_list->chunks);
-        free(map_p->shape_list);
-        map_p->shape_list = next;
+        //free all shapes
+        while (map_p->shape_list)
+        {
+            chunkshape* next = map_p->shape_list->next;
+            hashmap_free(map_p->shape_list->chunks);
+            free(map_p->shape_list);
+            map_p->shape_list = next;
+        }
     }
 }
 
@@ -169,7 +179,7 @@ void wind_back_chunkshapes(chunkshape** list)
 {
     if(list == NULL) {
         DEBUG("the list you passed was non existent.\n");
-        exit(NULL_ARGUMENT_ERROR);
+        return;
     }
 
     chunkshape* iter = *list;
