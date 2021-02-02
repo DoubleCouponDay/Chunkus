@@ -1,7 +1,7 @@
 #![allow(unused_imports)]
 fn main() {
     let path = std::env::current_dir().unwrap();
-    let do_release = std::env::var("RELEASE").unwrap_or(String::from("false")).parse::<bool>().unwrap_or(false);
+    let do_release = std::env::var("releasebuild").unwrap_or(String::from("false")).parse::<bool>().unwrap_or(false);
 
     if let Some(currentdir) = path.as_path().to_str() {
         println!("current directory: {}", currentdir);
