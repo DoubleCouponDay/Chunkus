@@ -95,8 +95,11 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
     }
 
     if (input.width < 1 || input.height < 1 || !input.pixels_array_2d)
+    {
+        DEBUG("Invalid dimensions or bad image\n");
         setError(ASSUMPTION_WRONG);
         return (chunkmap) { 0 };
+    }
     
     chunkmap output; 
     output.map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
@@ -143,7 +146,7 @@ chunkmap generate_chunkmap(image input, vectorize_options options)
     return output;
 }
 
-void free_group_map(chunkmap* map_p)
+void free_group_map(chunkmap* map_p) //chunkmap is a stack variable. dont free it!
 {
     if (!map_p) {
         return;

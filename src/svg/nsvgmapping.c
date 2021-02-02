@@ -23,8 +23,7 @@ void fill_strokedash_array(float* strokedash, float* fill, int array_length) {
     DEBUG("filling strokedash array\n");
     fill_float_array(strokedash, fill, array_length, STROKEDASH_LENGTH);
 
-    if(getLastError() != SUCCESS_CODE)
-    {
+    if(getLastError() != SUCCESS_CODE) {
         DEBUG("fill_float_array failed with code: %d\n", getLastError());
         return;
     }

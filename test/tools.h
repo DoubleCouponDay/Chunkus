@@ -1,15 +1,7 @@
 #pragma once
 
 #ifdef _WIN32
-#if _DEBUG
 #define DEBUG(fmt, ...) printf("DEBUG: %s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__)
 #else
-#define DEBUG(fmt, ...)
-#endif
-#else
-#ifdef _DEBUG
 #define DEBUG(fmt, args...) printf("DEBUG: %s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, ##args)
-#else
-#define DEBUG(fmt, args...)
-#endif
 #endif

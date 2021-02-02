@@ -160,7 +160,6 @@ bool iterate_new_path(const void* item, void* udata) {
 
     //add chunk to path if its a boundary
     if(currentpath->pts[0] == NONE_FILLED) { //first point not supplied
-        DEBUG("creating first point\n");
         coordinate empty = {0, 0};
         currentpath->pts[0] = chunk->location.x; //x1
         currentpath->pts[1] = chunk->location.y; //y1
@@ -178,7 +177,6 @@ bool iterate_new_path(const void* item, void* udata) {
     }
 
     else if(currentpath->pts[2] == NONE_FILLED) { //first point supplied but not first path
-        DEBUG("connecting first path\n");
         currentpath->pts[2] = chunk->location.x; //x2
         currentpath->pts[3] = chunk->location.y; //y2
         coordinate previous_coord = {
@@ -193,7 +191,6 @@ bool iterate_new_path(const void* item, void* udata) {
     }
 
     else { //first path supplied
-        DEBUG("connecting to existing path\n");
         int x = chunk->location.x;
         int y = chunk->location.y;
         
@@ -370,8 +367,10 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
             int code = getLastError();
 
             if (code != SUCCESS_CODE)
+            {
                 DEBUG("find_shapes failed with code: %d\n", code);
                 return;
+            }
         }
     }
 }
@@ -421,7 +420,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
 
 void free_image(NSVGimage* input) {
     if(!input) {
-        DEBUG("input is null\n");        
+        DEBUG("input is null\n");
         return;
     }
 
