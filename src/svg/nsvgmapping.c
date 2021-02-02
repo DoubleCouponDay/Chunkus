@@ -154,10 +154,9 @@ NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {
         map->input.width, 
         map->input.height
     };
-
     fill_bounds(output->bounds, newbounds, BOUNDS_LENGTH);
-    if (getLastError() != SUCCESS_CODE)
-    {
+
+    if (getLastError() != SUCCESS_CODE) {
         free(output);
         DEBUG("fill_bounds failed with: %d\n", getLastError());
         return NULL;

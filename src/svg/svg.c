@@ -179,10 +179,12 @@ bool iterate_new_path(const void* item, void* udata) {
     else if(currentpath->pts[2] == NONE_FILLED) { //first point supplied but not first path
         currentpath->pts[2] = chunk->location.x; //x2
         currentpath->pts[3] = chunk->location.y; //y2
+
         coordinate previous_coord = {
             currentpath->pts[0],
             currentpath->pts[1]
         };
+        
         nextsegment = create_path(
             shape_data->map.input, 
             previous_coord,
@@ -428,6 +430,10 @@ void free_image(NSVGimage* input) {
         NSVGpath* currentpath = input->shapes->paths;
 
         while(currentpath != NULL) {
+            if (currentpath->pts){
+                free(currentpath->pts);
+            }
+                
             NSVGpath* nextpath = currentpath->next;
             free(currentpath);
             currentpath = nextpath;

@@ -103,6 +103,8 @@ int entrypoint(int argc, char* argv[]) {
 	code = getLastError();
 
 	if(code != SUCCESS_CODE) {
+		free_image_contents(img);
+		free_group_map(&map);
 		DEBUG("fill_chunkmap failed with code: %d\n", code);
 		return getAndResetErrorCode();
 	}
@@ -111,6 +113,8 @@ int entrypoint(int argc, char* argv[]) {
 	code = getLastError();
 
 	if(code != SUCCESS_CODE) {
+		free_image_contents(img);
+		free_group_map(&map);
 		DEBUG("wind_back_chunkshapes failed with code: %d\n", code);
 		return getAndResetErrorCode();
 	}
@@ -119,6 +123,8 @@ int entrypoint(int argc, char* argv[]) {
 	code = getLastError();
 	
 	if(code != SUCCESS_CODE) {
+		free_image_contents(img);
+		free_group_map(&map);
 		DEBUG("write_chunkmap_to_file failed with code: %d\n", code);
 		return getAndResetErrorCode();
 	}
@@ -127,6 +133,8 @@ int entrypoint(int argc, char* argv[]) {
 	code = getLastError();
 
 	if(code != SUCCESS_CODE) {
+		free_image_contents(img);
+		free_group_map(&map);
 		DEBUG("write_image_to_png_file failed with code: %d\n", code);
 		return getAndResetErrorCode();
 	}
