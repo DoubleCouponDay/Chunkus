@@ -2,30 +2,41 @@
 
 #include "types/colour.h"
 #include "types/image.h"
-#include "variance.h"
-#include "types/map.h"
+#include "tidwall.h"
+#include <stdbool.h>
 
 typedef struct 
 {
     pixel average_colour;
-    node_variance variance;
     pixel** pixels_array_2d;
     coordinate location;
-} pixelgroup;
+    bool is_boundary;
+} pixelchunk;
+
+typedef struct chunkshape {
+    hashmap* chunks;
+    struct chunkshape* next;
+    struct chunkshape* previous;
+} chunkshape;
 
 typedef struct 
 {
-    pixelgroup** groups_array_2d;
+    pixelchunk** groups_array_2d;
+    chunkshape* shape_list;
     int map_width; 
     int map_height;
-    image input_p;
-} groupmap;
+    image input;
+} chunkmap;
 
 typedef struct
 {
+    char* file_path;
     int chunk_size;
+    float shape_colour_threshhold;
 } vectorize_options;
 
-groupmap generate_pixel_group(image inputimage_p, vectorize_options options);
+chunkmap* generate_chunkmap(image inputimage_p, vectorize_options options);
 
-void free_group_map(groupmap map_p);
+void free_group_map(chunkmap* map_p);
+
+void wind_back_chunkshapes(chunkshape** list);

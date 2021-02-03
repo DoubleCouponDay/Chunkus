@@ -1,5 +1,3 @@
-#pragma once
-
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -8,14 +6,12 @@
 #include "../src/entrypoint.h"
 #include "../src/types/colour.h"
 #include <png.h>
-#include <nanosvg.h>
 #include <errno.h>
 #ifndef _WIN32
 #include <dirent.h>
 #endif
-#include "../src/tools.h"
+#include "../test/tools.h"
 #include "./readpng.h"
-#define NANOSVG_IMPLEMENTATION
 #define ERROR -1
 
 filesetup* createfilesetup(const MunitParameter params[], void* userdata)
@@ -28,14 +24,7 @@ filesetup* createfilesetup(const MunitParameter params[], void* userdata)
   DEBUG("finding the file param \n");
   // Find file address parameter  
   
-  char* file_address = NULL;
-  for (int i = 0; params[i].name != NULL && params[i].value != NULL; ++i)
-  {
-    if (strcmp(params[i].name, "filename") == 0)
-    {
-      file_address = params[i].value;
-    }
-  }
+  char* file_address = params[0].value;
 
   munit_assert_ptr_not_null(file_address);
 
@@ -45,7 +34,7 @@ filesetup* createfilesetup(const MunitParameter params[], void* userdata)
 
   if (setup->file == NULL)
   {
-    DEBUG("File pointer was null");
+    DEBUG("File pointer was null \n");
     return NULL;
   }
   
@@ -113,10 +102,10 @@ fileresources* readfile(const MunitParameter params[], filesetup* setup) {
       //*NULL; //throw segfault
   }
   DEBUG("image is valid\n");
-  resources->row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
+  resources->row_pointers = (png_bytep*)calloc(1, sizeof(png_bytep) * height);
 
   for(int y = 0; y < height; y++) {
-    resources->row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(png_ptr, info_ptr));
+    resources->row_pointers[y] = (png_byte*)calloc(1, png_get_rowbytes(png_ptr, info_ptr));
   }
   DEBUG("read the image\n");
   imagestruct.format = PNG_FORMAT_RGB;

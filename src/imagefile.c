@@ -1,6 +1,7 @@
 #include "imagefile.h"
 
-#include "tools.h"
+#include "../test/tools.h"
+#include "error.h"
 
 #include <png.h>
 #include <stdio.h>
@@ -14,6 +15,8 @@ unsigned char* createBitmapInfoHeader(int height, int width);
 const int BYTES_PER_PIXEL = 3; /// red, green, & blue
 const int FILE_HEADER_SIZE = 14;
 const int INFO_HEADER_SIZE = 40;
+
+extern int error_code;
 
 /// Takes a filename (assumed to be a png file), and creates an image struct full of the png's pixels
 /// 
@@ -35,8 +38,12 @@ image convert_png_to_image(char *fileaddress)
 
     if (!file_p)
     {
-        DEBUG("Could not open file '%s' for reading", fileaddress);
+        DEBUG("Could not open file '%s' for reading\n", fileaddress);
         return (image){NULL, 0, 0};
+    }
+    else
+    {
+        DEBUG("File '%s' exists!\n", fileaddress);
     }
 
     /// Verify File
@@ -47,6 +54,7 @@ image convert_png_to_image(char *fileaddress)
     if (png_sig_cmp(header, 0, 8))
     {
         DEBUG("File \'%s\' was not recognised as a PNG file\n", fileaddress);
+        error_code = NOT_PNG;
         return (image){NULL, 0, 0};
     }
     
@@ -68,7 +76,7 @@ image convert_png_to_image(char *fileaddress)
 
     if (!read_struct)
     {
-        DEBUG("Failed to create png read struct");
+        DEBUG("Failed to create png read struct\n");
         return (image){NULL, 0, 0};
     }
     
@@ -77,13 +85,13 @@ image convert_png_to_image(char *fileaddress)
     png_infop info = png_create_info_struct(read_struct);
     if (!info)
     {
-        DEBUG("Error: png_create_info_struct failed");
+        DEBUG("Error: png_create_info_struct failed\n");
         return (image) { NULL, 0, 0 };
     }
 
     if (setjmp(png_jmpbuf(read_struct)))
     {
-        DEBUG("Error during init_io");
+        DEBUG("Error during init_io\n");
         png_destroy_read_struct(read_struct, info, NULL);
         return (image) { NULL, 0, 0 };
     }
@@ -100,15 +108,15 @@ image convert_png_to_image(char *fileaddress)
     image output = create_image(png_get_image_width(read_struct, info), png_get_image_height(read_struct, info));
 
     color_type = png_get_color_type(read_struct, info);
-    if (color_type != PNG_COLOR_TYPE_RGB)
+    if (color_type != PNG_COLOR_TYPE_RGB && color_type != PNG_COLOR_TYPE_RGBA)
     {
-        DEBUG("Only RGB PNGs are supported for import, format: %d", color_type);
+        DEBUG("Only RGB/A PNGs are supported for import, format: %d\n", color_type);
         return (image){NULL, 0, 0};
     }
     bit_depth = png_get_bit_depth(read_struct, info);
     if (bit_depth != 8)
     {
-        DEBUG("Only 24bpp PNGs are supported, depth: %d", bit_depth * 3);
+        DEBUG("Only 24bpp PNGs are supported, depth: %d \n", bit_depth * 3);
         return (image){NULL, 0, 0};
     }
 
@@ -116,7 +124,7 @@ image convert_png_to_image(char *fileaddress)
 
     if (setjmp(png_jmpbuf(read_struct)))
     {
-        DEBUG("Error during early PNG reading");
+        DEBUG("Error during early PNG reading \n");
         png_destroy_read_struct(read_struct, info, NULL);
         return (image){NULL, 0, 0};
     }
@@ -126,11 +134,11 @@ image convert_png_to_image(char *fileaddress)
     DEBUG("dimensions: %d x %d \n", output.width, output.height);
 
     // Allocate row pointers to be filled
-    png_bytep* row_pointers_p = (png_bytep*)malloc(sizeof(png_bytep) * output.height);
+    png_bytep* row_pointers_p = (png_bytep*)calloc(1, sizeof(png_bytep) * output.height);
 
     for (int y = 0; y < output.height; ++y)
     {
-        row_pointers_p[y] = (png_byte*)malloc(png_get_rowbytes(read_struct, info));
+        row_pointers_p[y] = (png_byte*)calloc(1, png_get_rowbytes(read_struct, info));
     }
 
     DEBUG("reading the image...\n");
@@ -147,22 +155,49 @@ image convert_png_to_image(char *fileaddress)
     
     DEBUG("putting dereferenced row pointers in custom struct...\n");
 
-    for (int y = 0; y < output.height; ++y)
+    if (color_type == PNG_COLOR_TYPE_RGB)
     {
-        png_byte* row_p = row_pointers_p[y];
-
-        for (int x = 0; x < output.width; ++x)
+        DEBUG("Type is RGB\n");
+        for (int y = 0; y < output.height; ++y)
         {
-            png_byte* pixel_p = &(row_p[x * 3]);
+            png_byte *row_p = row_pointers_p[y];
 
-            output.pixels_array_2d[x][y].r = pixel_p[0];
-            output.pixels_array_2d[x][y].g = pixel_p[1];
-            output.pixels_array_2d[x][y].b = pixel_p[2];
+            for (int x = 0; x < output.width; ++x)
+            {
+                png_byte *pixel_p = &(row_p[x * 3]);
 
-            output.pixels_array_2d[x][y].location = (coordinate) {
-                x, y
-            };
+                output.pixels_array_2d[x][y].r = pixel_p[0];
+                output.pixels_array_2d[x][y].g = pixel_p[1];
+                output.pixels_array_2d[x][y].b = pixel_p[2];
+
+                output.pixels_array_2d[x][y].location = (coordinate){
+                    x, y};
+            }
         }
+    }
+    else if (color_type == PNG_COLOR_TYPE_RGBA)
+    {
+        DEBUG("Type is RGBA\n");
+        for (int y = 0; y < output.height; ++y)
+        {
+            png_byte *row_p = row_pointers_p[y];
+
+            for (int x = 0; x < output.width; ++x)
+            {
+                png_byte *pixel_p = &(row_p[x * 4]);
+
+                output.pixels_array_2d[x][y].r = pixel_p[0];
+                output.pixels_array_2d[x][y].g = pixel_p[1];
+                output.pixels_array_2d[x][y].b = pixel_p[2];
+
+                output.pixels_array_2d[x][y].location = (coordinate){
+                    x, y};
+            }
+        }
+    }
+    else
+    {
+        DEBUG("color type is not RGBA\n");
     }
 
     for (int i = 0; i < output.height; ++i)
@@ -178,7 +213,7 @@ void write_image_to_file(image img, char* fileaddress_p) {
     if (!img.pixels_array_2d || !fileaddress_p)
         return;
 
-    unsigned char *as_bytes = malloc(BYTES_PER_PIXEL * img.height * img.width);
+    unsigned char *as_bytes = calloc(1, BYTES_PER_PIXEL * img.height * img.width);
 
     for (int x = 0; x < img.width; ++x)
     {
@@ -190,54 +225,185 @@ void write_image_to_file(image img, char* fileaddress_p) {
             as_bytes[index + 2] = img.pixels_array_2d[x][y].r;
         }
     }
-
     generateBitmapImage(as_bytes, img.height, img.width, fileaddress_p);
 }
 
-/// Writes given pixelgroup map to file as if it was an image (discards variance) (assumes fileaddress ends with .bmp)
-void write_node_map_to_file(groupmap map, char *fileaddress)
+void write_image_to_png_file(image img, char* fileaddress)
 {
-    if (!map.groups_array_2d || !fileaddress)
+    if (!img.pixels_array_2d || !fileaddress)
         return;
 
-    unsigned char* as_bytes = malloc(BYTES_PER_PIXEL * map.map_height * map.map_width);
-
-    for (int x = 0; x < map.map_width; ++x)
+FILE* fp = fopen(fileaddress, "wb");
+    if (!fp)
     {
-        for (int y = 0; y < map.map_height; ++y)
+        DEBUG("File: %s not found\n", fileaddress);
+        return;
+    }
+
+    png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (!png_ptr)
+    {
+        DEBUG("Couldn't create png_struct for writing\n");
+        return;
+    }
+
+    png_infop info_ptr = png_create_info_struct(png_ptr);
+    if (!info_ptr)
+    {
+        DEBUG("Couldn't create png_info struct for writing\n");
+        return;
+    }
+
+    if (setjmp(png_jmpbuf(png_ptr)))
+    {
+        DEBUG("Unknown Failure during png writing\n");
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+        return;
+    }
+
+    png_init_io(png_ptr, fp);
+
+    // Output 8bit RGBA
+    png_set_IHDR(
+        png_ptr,
+        info_ptr,
+        img.width, 
+        img.height,
+        8,
+        PNG_COLOR_TYPE_RGB,
+        PNG_INTERLACE_NONE,
+        PNG_COMPRESSION_TYPE_DEFAULT,
+        PNG_FILTER_TYPE_DEFAULT
+    );
+
+    png_write_info(png_ptr, info_ptr);
+
+    // Popular some row_pointers
+    png_bytep *row_pointers = calloc(img.height, sizeof(png_bytep));
+    for (int y = 0; y < img.height; ++y)
+    {
+        row_pointers[y] = calloc(img.width, sizeof(png_byte) * 3);
+        for (int x = 0; x < img.width; ++x)
         {
-            int index = x * 3 + y * BYTES_PER_PIXEL * map.map_width;
-            as_bytes[index]     = map.groups_array_2d[x][y].average_colour.b;
-            as_bytes[index + 1] = map.groups_array_2d[x][y].average_colour.g;
-            as_bytes[index + 2] = map.groups_array_2d[x][y].average_colour.r;
+            row_pointers[y][x * 3 + 0] = img.pixels_array_2d[x][y].r;
+            row_pointers[y][x * 3 + 1] = img.pixels_array_2d[x][y].g;
+            row_pointers[y][x * 3 + 2] = img.pixels_array_2d[x][y].b;
         }
     }
 
-    generateBitmapImage(as_bytes, map.map_height, map.map_width, fileaddress);
+    png_write_image(png_ptr, row_pointers);
+    png_write_end(png_ptr, NULL);
+
+    // Clean up
+    for (int y = 0; y < img.height; ++y)
+    {
+        free(row_pointers[y]);
+    }
+    free(row_pointers);
+
+    fclose(fp);
+
+    png_destroy_write_struct(&png_ptr, &info_ptr);
 }
 
-void write_node_map_variance_to_file(groupmap map, char *filename)
+void write_bytes_to_png(unsigned char* data, int width, int height, char* fileaddress)
 {
-    if (!map.groups_array_2d || !filename)
-        return;
-
-    unsigned char *as_bytes = malloc(BYTES_PER_PIXEL * map.map_height * map.map_width);
-
-    for (int x = 0; x < map.map_width; ++x)
+    FILE* fp = fopen(fileaddress, "wb");
+    if (!fp)
     {
-        for (int y = 0; y < map.map_height; ++y)
+        DEBUG("File: %s not found\n", fileaddress);
+        return;
+    }
+
+    png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (!png_ptr)
+    {
+        DEBUG("Couldn't create png_struct for writing\n");
+        return;
+    }
+
+    png_infop info_ptr = png_create_info_struct(png_ptr);
+    if (!info_ptr)
+    {
+        DEBUG("Couldn't create png_info struct for writing\n");
+        return;
+    }
+
+    if (setjmp(png_jmpbuf(png_ptr)))
+    {
+        DEBUG("Unknown Failure during png writing\n");
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+        return;
+    }
+
+    png_init_io(png_ptr, fp);
+
+    // Output 8bit RGBA
+    png_set_IHDR(
+        png_ptr,
+        info_ptr,
+        width, 
+        height,
+        8,
+        PNG_COLOR_TYPE_RGB,
+        PNG_INTERLACE_NONE,
+        PNG_COMPRESSION_TYPE_DEFAULT,
+        PNG_FILTER_TYPE_DEFAULT
+    );
+
+    png_write_info(png_ptr, info_ptr);
+
+    // Popular some row_pointers
+    png_bytep *row_pointers = calloc(height, sizeof(png_bytep));
+    for (int y = 0; y < height; ++y)
+    {
+        row_pointers[y] = calloc(width, sizeof(png_byte) * 3);
+        for (int x = 0; x < width; ++x)
         {
-            pixel p = convert_colorf_to_pixel(map.groups_array_2d[x][y].variance);
-            int index = x * 3 + y * BYTES_PER_PIXEL * map.map_width;
-            as_bytes[index]     = p.b;
-            as_bytes[index + 1] = p.g;
-            as_bytes[index + 2] = p.r;
+            row_pointers[y][x * 3 + 0] = data[x * 3 + 2 + y * height];
+            row_pointers[y][x * 3 + 1] = data[x * 3 + 1 + y * height];
+            row_pointers[y][x * 3 + 2] = data[x * 3 + 0 + y * height];
         }
     }
-    generateBitmapImage(as_bytes, map.map_height, map.map_width, filename);
+
+    png_write_image(png_ptr, row_pointers);
+    png_write_end(png_ptr, NULL);
+
+    // Clean up
+    for (int y = 0; y < height; ++y)
+    {
+        free(row_pointers[y]);
+    }
+    free(row_pointers);
+
+    fclose(fp);
+
+    png_destroy_write_struct(&png_ptr, &info_ptr);
 }
 
-void generateBitmapImage (unsigned char* image, int height, int width, char* imageFileName)
+/// Writes given pixelchunk map to file as if it was an image
+void write_node_map_to_file(chunkmap* map, char *fileaddress)
+{
+    if (!map->groups_array_2d || !fileaddress)
+        return;
+
+    unsigned char* as_bytes = calloc(1, BYTES_PER_PIXEL * map->map_height * map->map_width);
+
+    for (int x = 0; x < map->map_width; ++x)
+    {
+        for (int y = 0; y < map->map_height; ++y)
+        {
+            int index = x * 3 + y * BYTES_PER_PIXEL * map->map_width;
+            as_bytes[index]     = map->groups_array_2d[x][y].average_colour.b;
+            as_bytes[index + 1] = map->groups_array_2d[x][y].average_colour.g;
+            as_bytes[index + 2] = map->groups_array_2d[x][y].average_colour.r;
+        }
+    }
+
+    generateBitmapImage(as_bytes, map->map_height, map->map_width, fileaddress);
+}
+
+void generateBitmapImage(unsigned char* image, int height, int width, char* imageFileName)
 {
     int widthInBytes = width * BYTES_PER_PIXEL;
 
@@ -320,7 +486,7 @@ void write_ppm(image img, char *file_name)
 {
     int x, y;
   /* 2D array for colors (shades of gray) */
-  unsigned char* data = malloc(img.height * img.width * 3);
+  unsigned char* data = calloc(1, img.height * img.width * 3);
   /* color component is coded from 0 to 255 ;  it is 8 bit color file */
   const int MaxColorComponentValue = 255;
   FILE * fp;
@@ -347,11 +513,11 @@ void write_ppm(image img, char *file_name)
   fclose(fp);
 }
 
-void write_ppm_map(groupmap map, char* filename)
+void write_ppm_map(chunkmap map, char* filename)
 {
     int x, y;
   /* 2D array for colors (shades of gray) */
-  unsigned char* data = malloc(map.map_height * map.map_width * 3);
+  unsigned char* data = calloc(1, map.map_height * map.map_width * 3);
   /* color component is coded from 0 to 255 ;  it is 8 bit color file */
   const int MaxColorComponentValue = 255;
   FILE * fp;
@@ -376,4 +542,82 @@ void write_ppm_map(groupmap map, char* filename)
   /* write image data bytes to the file */
   fwrite(data, 3, map.map_width * map.map_height, fp);
   fclose(fp);
+}
+
+bool iterate_through_chunk(const void* item, void* udata)
+{
+    pixelchunk* chunk = item;    
+    struct write_node_map_chunks_struct* stuff = udata;
+    struct nodemap* map = stuff->map;
+    
+    if (chunk->location.x < 0 || chunk->location.y < 0 || chunk->location.x >= map->width || chunk->location.y >= map->height)
+        return true;
+
+    //DEBUG("Writing (%d, %d, %d) to pos (%d, %d)\n", stuff->colour.r, stuff->colour.g, stuff->colour.b, chunk->location.x, chunk->location.y);
+    map->colours[chunk->location.x + map->width * chunk->location.y] = stuff->colour;
+    return true;
+}
+
+void write_chunkmap_to_file(chunkmap* map, char* fileaddress)
+{
+    if (map->map_width < 1 || map->map_height < 1)
+    {
+        DEBUG("can not write 0 dimension chunkmap to file\n");
+        return;
+    }
+
+    const colour shape_colours[] = { { 0x00, 0x00, 0x00 }, { 0x00, 0x00, 0x33 }, { 0x00, 0x00, 0x66 }, { 0x00, 0x00, 0x99 }, { 0x00, 0x00, 0xcc }, { 0x00, 0x00, 0xff }, { 0x00, 0x33, 0x00 }, { 0x00, 0x33, 0x33 }, { 0x00, 0x33, 0x66 }, { 0x00, 0x33, 0x99 }, { 0x00, 0x33, 0xcc }, { 0x00, 0x33, 0xff }, { 0x00, 0x66, 0x00 }, { 0x00, 0x66, 0x33 }, { 0x00, 0x66, 0x66 }, { 0x00, 0x66, 0x99 }, { 0x00, 0x66, 0xcc }, { 0x00, 0x66, 0xff }, { 0x00, 0x99, 0x00 }, { 0x00, 0x99, 0x33 }, { 0x00, 0x99, 0x66 }, { 0x00, 0x99, 0x99 }, { 0x00, 0x99, 0xcc }, { 0x00, 0x99, 0xff }, { 0x00, 0xcc, 0x00 }, { 0x00, 0xcc, 0x33 }, { 0x00, 0xcc, 0x66 }, { 0x00, 0xcc, 0x99 }, { 0x00, 0xcc, 0xcc }, { 0x00, 0xcc, 0xff }, { 0x00, 0xff, 0x00 }, { 0x00, 0xff, 0x33 }, { 0x00, 0xff, 0x66 }, { 0x00, 0xff, 0x99 }, { 0x00, 0xff, 0xcc }, { 0x00, 0xff, 0xff }, { 0x33, 0x00, 0x00 }, { 0x33, 0x00, 0x33 }, { 0x33, 0x00, 0x66 }, { 0x33, 0x00, 0x99 }, { 0x33, 0x00, 0xcc }, { 0x33, 0x00, 0xff }, { 0x33, 0x33, 0x00 }, { 0x33, 0x33, 0x33 }, { 0x33, 0x33, 0x66 }, { 0x33, 0x33, 0x99 }, { 0x33, 0x33, 0xcc }, { 0x33, 0x33, 0xff }, { 0x33, 0x66, 0x00 }, { 0x33, 0x66, 0x33 }, { 0x33, 0x66, 0x66 }, { 0x33, 0x66, 0x99 }, { 0x33, 0x66, 0xcc }, { 0x33, 0x66, 0xff }, { 0x33, 0x99, 0x00 }, { 0x33, 0x99, 0x33 }, { 0x33, 0x99, 0x66 }, { 0x33, 0x99, 0x99 }, { 0x33, 0x99, 0xcc }, { 0x33, 0x99, 0xff }, { 0x33, 0xcc, 0x00 }, { 0x33, 0xcc, 0x33 }, { 0x33, 0xcc, 0x66 }, { 0x33, 0xcc, 0x99 }, { 0x33, 0xcc, 0xcc }, { 0x33, 0xcc, 0xff }, { 0x33, 0xff, 0x00 }, { 0x33, 0xff, 0x33 }, { 0x33, 0xff, 0x66 }, { 0x33, 0xff, 0x99 }, { 0x33, 0xff, 0xcc }, { 0x33, 0xff, 0xff }, { 0x66, 0x00, 0x00 }, { 0x66, 0x00, 0x33 }, { 0x66, 0x00, 0x66 }, { 0x66, 0x00, 0x99 }, { 0x66, 0x00, 0xcc }, { 0x66, 0x00, 0xff }, { 0x66, 0x33, 0x00 }, { 0x66, 0x33, 0x33 }, { 0x66, 0x33, 0x66 }, { 0x66, 0x33, 0x99 }, { 0x66, 0x33, 0xcc }, { 0x66, 0x33, 0xff }, { 0x66, 0x66, 0x00 }, { 0x66, 0x66, 0x33 }, { 0x66, 0x66, 0x66 }, { 0x66, 0x66, 0x99 }, { 0x66, 0x66, 0xcc }, { 0x66, 0x66, 0xff }, { 0x66, 0x99, 0x00 }, { 0x66, 0x99, 0x33 }, { 0x66, 0x99, 0x66 }, { 0x66, 0x99, 0x99 }, { 0x66, 0x99, 0xcc }, { 0x66, 0x99, 0xff }, { 0x66, 0xcc, 0x00 }, { 0x66, 0xcc, 0x33 }, { 0x66, 0xcc, 0x66 }, { 0x66, 0xcc, 0x99 }, { 0x66, 0xcc, 0xcc }, { 0x66, 0xcc, 0xff }, { 0x66, 0xff, 0x00 }, { 0x66, 0xff, 0x33 }, { 0x66, 0xff, 0x66 }, { 0x66, 0xff, 0x99 }, { 0x66, 0xff, 0xcc }, { 0x66, 0xff, 0xff }, { 0x99, 0x00, 0x00 }, { 0x99, 0x00, 0x33 }, { 0x99, 0x00, 0x66 }, { 0x99, 0x00, 0x99 }, { 0x99, 0x00, 0xcc }, { 0x99, 0x00, 0xff }, { 0x99, 0x33, 0x00 }, { 0x99, 0x33, 0x33 }, { 0x99, 0x33, 0x66 }, { 0x99, 0x33, 0x99 }, { 0x99, 0x33, 0xcc }, { 0x99, 0x33, 0xff }, { 0x99, 0x66, 0x00 }, { 0x99, 0x66, 0x33 }, { 0x99, 0x66, 0x66 }, { 0x99, 0x66, 0x99 }, { 0x99, 0x66, 0xcc }, { 0x99, 0x66, 0xff }, { 0x99, 0x99, 0x00 }, { 0x99, 0x99, 0x33 }, { 0x99, 0x99, 0x66 }, { 0x99, 0x99, 0x99 }, { 0x99, 0x99, 0xcc }, { 0x99, 0x99, 0xff }, { 0x99, 0xcc, 0x00 }, { 0x99, 0xcc, 0x33 }, { 0x99, 0xcc, 0x66 }, { 0x99, 0xcc, 0x99 }, { 0x99, 0xcc, 0xcc }, { 0x99, 0xcc, 0xff }, { 0x99, 0xff, 0x00 }, { 0x99, 0xff, 0x33 }, { 0x99, 0xff, 0x66 }, { 0x99, 0xff, 0x99 }, { 0x99, 0xff, 0xcc }, { 0x99, 0xff, 0xff }, { 0xcc, 0x00, 0x00 }, { 0xcc, 0x00, 0x33 }, { 0xcc, 0x00, 0x66 }, { 0xcc, 0x00, 0x99 }, { 0xcc, 0x00, 0xcc }, { 0xcc, 0x00, 0xff }, { 0xcc, 0x33, 0x00 }, { 0xcc, 0x33, 0x33 }, { 0xcc, 0x33, 0x66 }, { 0xcc, 0x33, 0x99 }, { 0xcc, 0x33, 0xcc }, { 0xcc, 0x33, 0xff }, { 0xcc, 0x66, 0x00 }, { 0xcc, 0x66, 0x33 }, { 0xcc, 0x66, 0x66 }, { 0xcc, 0x66, 0x99 }, { 0xcc, 0x66, 0xcc }, { 0xcc, 0x66, 0xff }, { 0xcc, 0x99, 0x00 }, { 0xcc, 0x99, 0x33 }, { 0xcc, 0x99, 0x66 }, { 0xcc, 0x99, 0x99 }, { 0xcc, 0x99, 0xcc }, { 0xcc, 0x99, 0xff }, { 0xcc, 0xcc, 0x00 }, { 0xcc, 0xcc, 0x33 }, { 0xcc, 0xcc, 0x66 }, { 0xcc, 0xcc, 0x99 }, { 0xcc, 0xcc, 0xcc }, { 0xcc, 0xcc, 0xff }, { 0xcc, 0xff, 0x00 }, { 0xcc, 0xff, 0x33 }, { 0xcc, 0xff, 0x66 }, { 0xcc, 0xff, 0x99 }, { 0xcc, 0xff, 0xcc }, { 0xcc, 0xff, 0xff }, { 0xff, 0x00, 0x00 }, { 0xff, 0x00, 0x33 }, { 0xff, 0x00, 0x66 }, { 0xff, 0x00, 0x99 }, { 0xff, 0x00, 0xcc }, { 0xff, 0x00, 0xff }, { 0xff, 0x33, 0x00 }, { 0xff, 0x33, 0x33 }, { 0xff, 0x33, 0x66 }, { 0xff, 0x33, 0x99 }, { 0xff, 0x33, 0xcc }, { 0xff, 0x33, 0xff }, { 0xff, 0x66, 0x00 }, { 0xff, 0x66, 0x33 }, { 0xff, 0x66, 0x66 }, { 0xff, 0x66, 0x99 }, { 0xff, 0x66, 0xcc }, { 0xff, 0x66, 0xff }, { 0xff, 0x99, 0x00 }, { 0xff, 0x99, 0x33 }, { 0xff, 0x99, 0x66 }, { 0xff, 0x99, 0x99 }, { 0xff, 0x99, 0xcc }, { 0xff, 0x99, 0xff }, { 0xff, 0xcc, 0x00 }, { 0xff, 0xcc, 0x33 }, { 0xff, 0xcc, 0x66 }, { 0xff, 0xcc, 0x99 }, { 0xff, 0xcc, 0xcc }, { 0xff, 0xcc, 0xff }, { 0xff, 0xff, 0x00 }, { 0xff, 0xff, 0x33 }, { 0xff, 0xff, 0x66 }, { 0xff, 0xff, 0x99 }, { 0xff, 0xff, 0xcc }, };
+    colour* colours = calloc(map->map_width * map->map_height, sizeof(struct colour));
+
+    nodemap intermediate = {
+        colours,
+        map->map_width,
+        map->map_height
+    };
+
+    int cur_colour = 0;
+
+    DEBUG("now iterating chunkshapes in chunkmap with dims %d x %d\n", map->map_width, map->map_height);
+    chunkshape* current = map->shape_list;
+    int shape_count = 0;
+
+    while (current)
+    {
+        //DEBUG("shape %d has %d chunks\n", shape_count, hashmap_count(current->chunks));
+        shape_count++;
+
+        write_node_map_chunks_struct stuff = {
+            shape_colours[cur_colour],
+            &intermediate
+        };
+
+        hashmap_scan(current->chunks, iterate_through_chunk, &stuff);
+
+        current = current->next;
+        int array_size = sizeof(shape_colours);
+        int colour_size = sizeof(colour);
+        cur_colour = (cur_colour + 1 < (array_size / colour_size) ? cur_colour + 1 : 0);
+    }
+    DEBUG("iterated %d shapes in chunkmap\n", shape_count);
+    image output_img = create_image(intermediate.width * 3, intermediate.height * 3);
+    
+    for (int x = 0; x < intermediate.width; ++x)
+    {
+        for (int y = 0; y < intermediate.height; ++y)
+        {
+            colour* bob = &intermediate.colours[x + intermediate.width * y];
+            for (int xx = 0; xx < 3; ++xx)
+            {
+                for (int yy = 0; yy < 3; ++yy)
+                {
+                    pixel* img_pix = &(output_img.pixels_array_2d[x * 3 + xx][y * 3 + yy]);
+                    img_pix->r = bob->r;
+                    img_pix->g = bob->g;
+                    img_pix->b = bob->b;
+                }
+            }
+        }
+    }
+
+    write_image_to_png_file(output_img, fileaddress);
 }

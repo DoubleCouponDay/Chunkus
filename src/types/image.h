@@ -1,7 +1,11 @@
 #pragma once
 
-#include "map.h"
+#include <stdbool.h>
 
+typedef struct {
+    int x;
+    int y;
+} coordinate;
 
 typedef unsigned char byte;
 
@@ -40,11 +44,15 @@ typedef struct
     int width;
     int height;
     pixel** pixels_array_2d;
-    pixel* topleftcorner_p; //todo
-    pixel* toprightcorner_p; //todo
-    pixel* bottomleftcorner_p; //todo
-    pixel* bottomrightcorner_p; //todo
+    pixel* topleftcorner_p;
+    pixel* toprightcorner_p; 
+    pixel* bottomleftcorner_p; 
+    pixel* bottomrightcorner_p; 
 } image;
+
+bool colours_are_similar(pixel color_a, pixel color_b, float max_distance);
+
+char* rgb_to_string(pixel* input);
 
 image create_image(int width, int height);
 

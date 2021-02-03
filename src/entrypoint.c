@@ -1,17 +1,29 @@
 
 
  #include <stdio.h>
-// #include <png.h>
  #include "entrypoint.h"
+ #include "imagefile.h"
+ #include "svg/svg.h"
+ #include "../test/tools.h"
+ #include "error.h"
+
+ #include <stdlib.h>
 
 const char *format1_p = "png";
 const char *format2_p = "jpeg";
 
 int entrypoint(int argc, char* argv[]) {
+	printf("entrypoint with: ");
+	for (int i = 1; i < argc; ++i)
+	{
+		printf("%s, ", argv[i]);
+	}
+	printf("\n");
+
 	if (argc <= 1)
 	{
 		printf("error: No Arguments given");
-		return 0;
+		return SUCCESS_CODE;
 	}
 
     char* firstargument_p = argv[1];
@@ -25,7 +37,7 @@ int entrypoint(int argc, char* argv[]) {
 		printf("the first argument should be the absolute path to your bitmap.\n");
 		printf("the second argument can be -t or --test. it will run the test suite to check if all the characteristics of this program are working\n");
 		printf("debug: %s \n", firstargument_p);
-		return 1;
+		return SUCCESS_CODE;
 	}
 
 	// Not a help message, execute the program
@@ -38,18 +50,97 @@ int entrypoint(int argc, char* argv[]) {
 
 	// If no output path given use default one
 	if (argc > 2)
-		output_file_p = "output.svg";
+		output_file_p = "output.png";
 	else
 		output_file_p = argv[2];
+
+	int chunk_size = 0;
+	if (argc > 3)
+		chunk_size = atoi(argv[3]);
+
+	if (chunk_size < 1)
+		chunk_size = 4;
+
+	float threshold = 0.f;
+	if (argc > 4)
+		threshold = (float)atof(argv[4]);
+	
+	printf("atof-ed threshold=%f", threshold);
+	
+	if (threshold < 0.f)
+		threshold = 0.f;
 
 	// Halt execution if either path is bad
 	if (input_file_p == NULL || output_file_p == NULL)
 	{
 		printf("Empty input or output file");
-		return 0;
+		return SUCCESS_CODE;
 	}
+
+	printf("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f' \n", input_file_p, output_file_p, chunk_size, threshold);
 
 	// Execute program
 
-	return 999;
+	image img = convert_png_to_image(input_file_p);
+
+	vectorize_options options = {
+		input_file_p,
+		chunk_size,
+		threshold
+	};
+
+	chunkmap* map = generate_chunkmap(img, options);
+	int code = getLastError();
+
+	if(code != SUCCESS_CODE) {
+		DEBUG("generate_chunkmap failed with code: %d\n", code);
+		free_image_contents(img);
+		free_group_map(map);
+		return getAndResetErrorCode();
+	}
+
+	fill_chunkmap(map, &options);
+	code = getLastError();
+
+	if(code != SUCCESS_CODE) {
+		free_image_contents(img);
+		free_group_map(map);
+		DEBUG("fill_chunkmap failed with code: %d\n", code);
+		return getAndResetErrorCode();
+	}
+
+	wind_back_chunkshapes(&map->shape_list);
+	code = getLastError();
+
+	if(code != SUCCESS_CODE) {
+		free_image_contents(img);
+		free_group_map(map);
+		DEBUG("wind_back_chunkshapes failed with code: %d\n", code);
+		return getAndResetErrorCode();
+	}
+
+	write_chunkmap_to_file(map, output_file_p);
+	code = getLastError();
+	
+	if(code != SUCCESS_CODE) {
+		free_image_contents(img);
+		free_group_map(map);
+		DEBUG("write_chunkmap_to_file failed with code: %d\n", code);
+		return getAndResetErrorCode();
+	}
+
+	write_image_to_png_file(img, "yo gotem.png");
+	code = getLastError();
+
+	if(code != SUCCESS_CODE) {
+		free_image_contents(img);
+		free_group_map(map);
+		DEBUG("write_image_to_png_file failed with code: %d\n", code);
+		return getAndResetErrorCode();
+	}
+
+	free_image_contents(img);
+	free_group_map(map);
+
+	return getAndResetErrorCode();
 }

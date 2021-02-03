@@ -1,25 +1,46 @@
 #![allow(unused_imports)]
 fn main() {
     let path = std::env::current_dir().unwrap();
+    let do_release = std::env::var("releasebuild").unwrap_or(String::from("false")).parse::<bool>().unwrap_or(false);
 
     if let Some(currentdir) = path.as_path().to_str() {
         println!("current directory: {}", currentdir);
 
         //detect the C part
+        let windowsfound_shared;
+        let linuxfound_shared;
+        let windows_found_static;
+        if do_release
+        {
+            windowsfound_shared = std::fs::copy(
+                "../build/windows/x64/release/vec.dll",
+                "./vec.dll"
+            );
+            linuxfound_shared = std::fs::copy(
+                "../build/linux/x86_64/release/libvec.a",
+                "./vec.so",
+            );
+            windows_found_static = std::fs::copy(
+                "../build/windows/x64/release/vec.lib",
+                "./vec.lib"
+            );
+        }
+        else
+        {
+            windowsfound_shared = std::fs::copy(
+                "../build/windows/x64/debug/vec.dll",
+                "./vec.dll"
+            );
+            linuxfound_shared = std::fs::copy(
+                "../build/linux/x86_64/debug/libvec.a",
+                "./vec.so",
+            );
 
-        let windowsfound_shared = std::fs::copy(
-            "../build/windows/x64/debug/vec.dll",
-            "./vec.dll"
-        );
-        let linuxfound_shared = std::fs::copy(
-            "../build/linux/x86_64/debug/vec.so",
-            "./vec.so",
-        );
-
-        let windows_found_static = std::fs::copy(
-            "../build/windows/x64/debug/vec.lib",
-            "./vec.lib"
-        );
+            windows_found_static = std::fs::copy(
+                "../build/windows/x64/debug/vec.lib",
+                "./vec.lib"
+            );
+        }
 
         if windowsfound_shared.is_err() && linuxfound_shared.is_err() && windows_found_static.is_err() {
             println!("C part not found on either OS.");
@@ -30,7 +51,7 @@ fn main() {
         
         if let Ok(conanpathstr) = std::env::var("conanpath") {
             let conanpath = std::path::Path::new(&conanpathstr);
-            link_C_libs(conanpath);
+            link_c_libs(conanpath);
         }
 
         else {
@@ -49,7 +70,7 @@ fn main() {
     }
 }
 
-fn link_C_libs(directory: &std::path::Path) {
+fn link_c_libs(directory: &std::path::Path) {
     match directory.read_dir()
     {
         Ok(mut real_dir) => {   
@@ -77,7 +98,7 @@ fn check_file_type(real_item: &std::fs::DirEntry, directory: &std::path::Path) {
     {
         if real_file_type.is_dir()
         {
-            link_C_libs(&real_item.path());
+            link_c_libs(&real_item.path());
         }
         else if real_file_type.is_file()
         {

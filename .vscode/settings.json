@@ -38,6 +38,16 @@
         "xmemory": "cpp",
         "algorithm": "cpp",
         "xutility": "cpp",
-        "*.rh": "cpp"
-    }
+        "*.rh": "cpp",
+        "compare": "c",
+        "utility": "c",
+        "cmath": "c",
+        "iterator": "cpp",
+        "list": "cpp",
+        "vector": "cpp",
+        "xstring": "cpp",
+        "svg.h": "c",
+        "tears.h": "c"
+    },
+    "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

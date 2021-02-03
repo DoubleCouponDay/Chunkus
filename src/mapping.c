@@ -1,36 +1,44 @@
-#include "mapping.h"
-#include <math.h>
 #include <stdlib.h>
-#include "types/colour.h"
-#include "tools.h"
+#include <math.h>
 #include <errno.h>
+#include <string.h>
 
-#ifndef NULL
-#define NULL 0
-#endif
+#include "mapping.h"
+#include "types/colour.h"
+#include "../test/tools.h"
+#include "tidwall.h"
+#include "svg/tidwallcopy.h"
+#include "error.h"
 
-void iterateImagePixels(int x, int y, image input, vectorize_options options, groupmap output) {
+void iterateImagePixels(int x, int y, image input, vectorize_options options, chunkmap* output) {
     int x_offset = x * options.chunk_size;
     int y_offset = y * options.chunk_size;
 
-    // Grab the pixelgroup
-    pixelgroup* outputnodes = &output.groups_array_2d[x][y];
+    // Grab the pixelchunk
+    pixelchunk* outputnodes = &output->groups_array_2d[x][y];
     
-    // Assigned the edge case pixelgroup dimensions
+    coordinate location = {
+        x, y
+    };
+    outputnodes->location = location;
+    
+    // Assigned the edge case pixelchunk dimensions
     int node_width = input.width - x * options.chunk_size;
     int node_height = input.height - y * options.chunk_size;
     
     // Check if not actually on the edge
     if (node_width > options.chunk_size)
         node_width = options.chunk_size;
+
     if (node_height > options.chunk_size)
         node_height = options.chunk_size;
     
-    outputnodes->pixels_array_2d = malloc(sizeof(pixel*) * node_width);
-
-    for (int i = 0; i < node_width; ++i)
-        outputnodes->pixels_array_2d[i] = &input.pixels_array_2d[x_offset + i][y_offset];
-
+    outputnodes->pixels_array_2d = calloc(1, sizeof(pixel*) * node_width);
+    
+    for(int i = 0; i < node_width; ++i) {        
+         outputnodes->pixels_array_2d[i] = calloc(1, sizeof(pixel) * node_height);
+         outputnodes->pixels_array_2d[i] = &input.pixels_array_2d[x_offset + i][y_offset];
+    }
     int count = node_width * node_height;
 
     // Calculate the average of all these pixels
@@ -44,7 +52,7 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, gr
     {
         for (int y = 0; y < node_height; ++y)
         {
-            pixel* currentpixel_p = &(input.pixels_array_2d[y_offset + y][x_offset + x]);
+            pixel* currentpixel_p = &(input.pixels_array_2d[x_offset + x][y_offset + y]);
             average_r += currentpixel_p->r;
             average_g += currentpixel_p->g;
             average_b += currentpixel_p->b;
@@ -75,92 +83,116 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, gr
         (byte)((float)average_b / (float)count) 
     };
     outputnodes->average_colour = average_p;
-
-    //malloc space for columns
-    pixel** node_pixels_array2d = malloc(sizeof(pixel*) * node_width);
-
-    //malloc space for rows
-    for (int i = 0; i < node_height; ++i)
-        node_pixels_array2d[i] = malloc(sizeof(pixel) * node_height);
-
-    for (int x = 0; x < node_width; ++x)
-    {
-        for (int y = 0; y < node_height; ++y)
-        {
-            node_pixels_array2d[x][y] = input.pixels_array_2d[y_offset + y][x_offset + x];
-        }
-    }
-    outputnodes->variance = calculate_pixel_variance(node_pixels_array2d, node_width, node_height);
-
-    //only print if at the end
-    if ((x == y && x % 20 == 0) || (x == 0 && y == 0) || (x == (output.map_width - 1) && y == (output.map_height - 1)))
-    {
-        DEBUG("pixelgroup (%d, %d) variance: (%g, %g, %g), average: (%d, %d, %d), node_width: %d, node_height %d, min: %d, %d, %d, max: %d, %d, %d\n", 
-        x, y, 
-        outputnodes->variance.r,
-        outputnodes->variance.g,
-        outputnodes->variance.b, 
-        outputnodes->average_colour.r, 
-        outputnodes->average_colour.g, 
-        outputnodes->average_colour.b, 
-        node_width, 
-        node_height, 
-        min.r, min.g, min.b, max.r, max.g, max.b);
-    }
 }
 
-groupmap generate_pixel_group(image input, vectorize_options options)
+chunkmap* generate_chunkmap(image input, vectorize_options options)
 {
     if (!input.pixels_array_2d)
     {
         DEBUG("Invalid image input \n");
-        return (groupmap){ NULL, 0, 0 };
+        setError(ASSUMPTION_WRONG);
+        return NULL;
     }
 
     if (input.width < 1 || input.height < 1 || !input.pixels_array_2d)
-        return (groupmap){ NULL, 0, 0 };
-
-    if (options.chunk_size < 2)
-        options.chunk_size = 2;
-    
-    groupmap output;
-    output.map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
-    output.map_height = (int)ceilf((float)input.height / (float)options.chunk_size);
-    output.groups_array_2d = malloc(sizeof(pixelgroup*) * output.map_width);
-
-    for (int i = 0; i < output.map_width; ++i)
     {
-        output.groups_array_2d[i] = malloc(sizeof(pixelgroup) * output.map_height);
+        DEBUG("Invalid dimensions or bad image\n");
+        setError(ASSUMPTION_WRONG);
+        return NULL;
+    }    
+    chunkmap* output = calloc(1, sizeof(chunkmap));
+    output->input = input;
+    output->map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
+    output->map_height = (int)ceilf((float)input.height / (float)options.chunk_size);
+    
+    DEBUG("creating pixelchunk\n");
+    pixelchunk* newarray = calloc(1, sizeof(pixelchunk*) * output->map_width);
+    output->groups_array_2d = newarray;
+    DEBUG("creating chunkshape\n");
+    chunkshape* shape_list = calloc(1, sizeof(chunkshape));
+    output->shape_list = shape_list;
+    DEBUG("allocating new hashmap\n");
+    hashmap* newhashy = hashmap_new(sizeof(pixelchunk), 16, 0, 0, chunk_hash, chunk_compare, NULL); 
+
+    if(newhashy == NULL) {
+        DEBUG("new hashmap failed during creation\n");
+        setError(ASSUMPTION_WRONG);
+        return NULL;
     }
 
-    output.input_p = input;
+    DEBUG("assign shape_list hashmap\n");
+    output->shape_list->chunks = newhashy;
 
-    for (int x = 0; x < output.map_width; ++x)
+    DEBUG("allocating row pointers\n");
+
+    for (int i = 0; i < output->map_width; ++i)
     {
-        for (int y = 0; y < output.map_height; ++y)
+        output->groups_array_2d[i] = calloc(1, sizeof(pixelchunk) * output->map_height);
+    }    
+    DEBUG("iterating chunkmap pixels\n");
+    
+    for (int x = 0; x < output->map_width; ++x)
+    {
+        for (int y = 0; y < output->map_height; ++y)
         {
             iterateImagePixels(x, y, input, options, output);
         }
     }
+    DEBUG("generated chunkmap\n");
     return output;
 }
 
-void free_group_map(groupmap* map_p)
+//takes a double pointer so that we can update the list itself
+void wind_back_chunkshapes(chunkshape** list)
 {
-    if (!map_p) {
-        DEBUG("groupmap is null\n");
+    if(list == NULL) {
+        DEBUG("the list you passed was non existent.\n");
         return;
     }
 
-    DEBUG("freeing groups\n");
+    chunkshape* iter = *list;
+    if (iter == NULL)
+        return;
 
-    for (int x = 0; x < map_p->map_width; ++x)
+    while (iter->previous != NULL)
     {
-        DEBUG("indexing groupmap\n");
-        pixelgroup* current = map_p->groups_array_2d[x];
-        DEBUG("freeing one group\n");
-        free(current);
+        iter = iter->previous;
     }
-    DEBUG("freeing groups collection\n");
-    free(map_p->groups_array_2d);
+    *list = iter;
+}
+
+void free_group_map(chunkmap* map_p)
+{
+    if (!map_p) {
+        return;
+    }
+
+    else {
+        for (int x = 0; x < map_p->map_width; ++x)
+        {
+            pixelchunk* current = map_p->groups_array_2d[x];
+            free(current);
+        }
+    }
+
+    if(map_p->groups_array_2d) {
+        free(map_p->groups_array_2d);
+    }
+    
+    if(map_p->shape_list) {
+        wind_back_chunkshapes(&(map_p->shape_list));
+
+        //free all shapes
+        while (map_p->shape_list)
+        {
+            chunkshape* next = map_p->shape_list->next;
+            hashmap_free(map_p->shape_list->chunks);
+            free(map_p->shape_list);
+            map_p->shape_list = next;
+        }
+    }
+
+    if(map_p) {
+        free(map_p);
+    }
 }

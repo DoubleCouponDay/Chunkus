@@ -1,8 +1,37 @@
 #include "image.h"
 
-#include "../tools.h"
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+
+#include <nanosvg.h>
+#include <stdbool.h>
+
+#include "../../test/tools.h"
 
 #include <stdlib.h>
+#include "../error.h"
+
+bool colours_are_similar(pixel color_a, pixel color_b, float max_distance)
+{
+    pixel diff;
+    diff.r = color_a.r - color_b.r;
+    diff.g = color_a.g - color_b.g;
+    diff.b = color_a.b - color_b.b;
+
+    float mag = sqrt(pow(diff.r, 2) + pow(diff.g, 2) + pow(diff.b, 2)); //pythagorean theorem
+
+    return mag <= max_distance;
+}
+
+char* rgb_to_string(pixel* input) {
+    char* output = input->r;
+    output += ',';
+    output += input->g;
+    output += ',';
+    output += input->b;
+    return output;
+}
 
 image create_image(int width, int height)
 {
@@ -10,11 +39,13 @@ image create_image(int width, int height)
         width, height
     };
 
-    output.pixels_array_2d = malloc(sizeof(pixel*) * width);
+    DEBUG("Creating Image with %d x %d Dimensions \n", width, height);
+
+    output.pixels_array_2d = calloc(1, sizeof(pixel*) * width);
 
     for (int i = 0; i < width; ++i)
     {
-        output.pixels_array_2d[i] = malloc(sizeof(pixel) * height);
+        output.pixels_array_2d[i] = calloc(1, sizeof(pixel) * height);
     }
 
     // Begin Changes
@@ -29,16 +60,14 @@ void free_image_contents(image img)
 {
     if (!img.pixels_array_2d) {
         DEBUG("image has null pointers \n");
-        return;    
+        return;
     }
     
     for (int i = 0; i < img.width; ++i)
     {
-        DEBUG("indexing pixels array\n");
         pixel* current = img.pixels_array_2d[i];
 
         if(current) {     
-            DEBUG("freeing pixel\n");       
             free(current);            
         }
 
@@ -47,11 +76,10 @@ void free_image_contents(image img)
     }
 
     if(img.pixels_array_2d) {
-        DEBUG("freeing pixel collection\n");
         free(img.pixels_array_2d);
     }
+
     else {
         DEBUG("pixel collection is null \n");
     }
-    DEBUG("freed image contents\n");
 }
