@@ -1,13 +1,12 @@
+#include <stdio.h>
+#include <stdlib.h>
 
+#include "entrypoint.h"
+#include "nsvg/usage.h"
+#include "../test/debug.h"
+#include "utility/error.h"
+#include "imagefile/pngfile.h"
 
- #include <stdio.h>
- #include "entrypoint.h"
- #include "imagefile.h"
- #include "svg/svg.h"
- #include "../test/tools.h"
- #include "error.h"
-
- #include <stdlib.h>
 
 const char *format1_p = "png";
 const char *format2_p = "jpeg";
@@ -27,7 +26,7 @@ int execute_program(char* input_file_p, int chunk_size, float threshold, char* o
 	if(code != SUCCESS_CODE) {
 		DEBUG("generate_chunkmap failed with code: %d\n", code);
 		free_image_contents(img);
-		free_group_map(map);
+		free_chunkmap(map);
 		return getAndResetErrorCode();
 	}
 
@@ -36,7 +35,7 @@ int execute_program(char* input_file_p, int chunk_size, float threshold, char* o
 
 	if(code != SUCCESS_CODE) {
 		free_image_contents(img);
-		free_group_map(map);
+		free_chunkmap(map);
 		DEBUG("fill_chunkmap failed with code: %d\n", code);
 		return getAndResetErrorCode();
 	}
@@ -46,33 +45,13 @@ int execute_program(char* input_file_p, int chunk_size, float threshold, char* o
 
 	if(code != SUCCESS_CODE) {
 		free_image_contents(img);
-		free_group_map(map);
+		free_chunkmap(map);
 		DEBUG("wind_back_chunkshapes failed with code: %d\n", code);
 		return getAndResetErrorCode();
 	}
 
-	write_chunkmap_to_png(map, output_file_p);
-	code = getLastError();
-	
-	if(code != SUCCESS_CODE) {
-		free_image_contents(img);
-		free_group_map(map);
-		DEBUG("write_chunkmap_to_file failed with code: %d\n", code);
-		return getAndResetErrorCode();
-	}
-
-	write_image_to_png(img, "yo gotem.png");
-	code = getLastError();
-
-	if(code != SUCCESS_CODE) {
-		free_image_contents(img);
-		free_group_map(map);
-		DEBUG("write_image_to_png_file failed with code: %d\n", code);
-		return getAndResetErrorCode();
-	}
-
 	free_image_contents(img);
-	free_group_map(map);
+	free_chunkmap(map);
 
 	return getAndResetErrorCode();
 }
@@ -116,7 +95,7 @@ int entrypoint(int argc, char* argv[]) {
 
 	// If no output path given use default one
 	if (argc > 2)
-		output_file_p = "output.png";
+		output_file_p = "output.svg";
 	else
 		output_file_p = argv[2];
 

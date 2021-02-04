@@ -1,6 +1,6 @@
 #include "error.h"
 
-#include "../test/tools.h"
+#include "../../test/debug.h"
 
 int error_code = SUCCESS_CODE;
 

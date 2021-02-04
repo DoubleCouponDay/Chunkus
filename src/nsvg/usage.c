@@ -6,17 +6,15 @@
 #include <math.h>
 #include <nanosvg.h>
 
-#include "svg.h"
-#include "../types/colour.h"
-#include "../types/image.h"
-#include "../mapping.h"
-#include "../../test/tools.h"
-#include "../tidwall.h"
-#include "../error.h"
-#include "nsvgcopy.h"
-#include "tidwallcopy.h"
-#include "nsvgmapping.h"
-#include "../imagefile.h"
+#include "usage.h"
+#include "../image.h"
+#include "../chunkmap.h"
+#include "../../test/debug.h"
+#include "../hashmap/tidwall.h"
+#include "../utility/error.h"
+#include "copy.h"
+#include "../hashmap/usage.h"
+#include "mapping.h"
 
 const int NONE_SIMILAR = 8;
 const int NONE_FILLED = -1;
@@ -148,7 +146,7 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int 
 //assumes first path and first shape are given
 bool iterate_new_path(const void* item, void* udata) {
     pixelchunk* chunk = item;
-    iter_struct* shape_data = udata;
+    svg_hashies_iter* shape_data = udata;
 
     if(chunk->is_boundary == false) {
         return true;
@@ -294,7 +292,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
         output->shapes->paths = firstpath; //first shapes path
         DEBUG("creating iter struct\n");
 
-        iter_struct shape_data = {
+        svg_hashies_iter shape_data = {
             map, output, firstpath, NULL
         };
         size_t hashcount = hashmap_count(map->shape_list->chunks);
@@ -390,7 +388,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     if (getLastError() != SUCCESS_CODE)
     {
         DEBUG("generate_chunkmap failed with code: %d \n", getLastError());
-        free_group_map(map);
+        free_chunkmap(map);
         return NULL;
     }
 
@@ -400,7 +398,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     if (getLastError() != SUCCESS_CODE)
     {
         DEBUG("fill_chunkmap failed with code %d\n", getLastError());
-        free_group_map(map);
+        free_chunkmap(map);
         return NULL;
     }
 
@@ -414,7 +412,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     if (getLastError() != SUCCESS_CODE)
     {
         DEBUG("iterate_chunk_shapes failed with code: %d\n", getLastError());
-        free_group_map(map);
+        free_chunkmap(map);
 
         if (output)
             free_nsvg(output);
@@ -423,7 +421,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     }
     
     DEBUG("freeing group map\n");
-    free_group_map(map);
+    free_chunkmap(map);
     return output;
 }
 

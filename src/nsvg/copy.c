@@ -1,8 +1,9 @@
 
 #include <nanosvg.h>
 #include <stdio.h>
-#include "../../test/tools.h"
-#include "../error.h";
+
+#include "../../test/debug.h"
+#include "../utility/error.h";
 
 const char* TEMPLATE_PATH = "template.svg";
 

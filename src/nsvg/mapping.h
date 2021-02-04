@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <nanosvg.h>
 
-#include "../types/image.h"
-#include "../mapping.h"
+#include "../image.h"
+#include "../chunkmap.h"
 
 enum mapping_consts {
     BEZIERCURVE_LENGTH = 8,
@@ -15,9 +15,7 @@ enum mapping_consts {
 };
 
 void fill_id(char* id, char* fill, int array_length);
-
 void fill_bounds(float* bounds, float* fill, int array_length);
-
 void fill_strokedash_array(float* strokedash, float* fill, int array_length);
 
 void fill_beziercurve(float* beziercurve,
@@ -28,7 +26,5 @@ void fill_beziercurve(float* beziercurve,
     float control_x2, float control_y2);
 
 NSVGpath* create_path(image input, coordinate start, coordinate end);
-
 NSVGshape* create_shape(chunkmap* map, char* id, long id_length);
-
 NSVGimage* create_nsvgimage(float width, float height);

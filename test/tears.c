@@ -33,7 +33,7 @@ void test4teardown(void* fixture) {
   DEBUG("freeing test 4\n");
   test4stuff* stuff = fixture;
   free_image_contents(stuff->img);
-  free_group_map(stuff->map);
+  free_chunkmap(stuff->map);
   free(fixture);
 }
 
@@ -74,6 +74,17 @@ void test69teardown(void* fixture)
 {
   test69stuff* stuff = fixture;
   free_image_contents(stuff->img);
-  free_group_map(stuff->map);
+  free_chunkmap(stuff->map);
+  free(fixture);
+}
+
+void* test8setup(const MunitParameter params[], void* userdata) {
+  return calloc(1, sizeof(test8stuff));
+}
+
+void test8teardown(void* fixture) {
+  test8stuff* stuff = fixture;
+  free_image_contents(stuff->img);
+  free_chunkmap(stuff->map);
   free(fixture);
 }

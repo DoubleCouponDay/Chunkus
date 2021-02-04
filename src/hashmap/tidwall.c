@@ -9,8 +9,6 @@
 #include <stddef.h>
 #include "tidwall.h"
 
-#include "../test/tools.h"
-
 static void *(*_malloc)(size_t) = NULL;
 static void (*_free)(void *) = NULL;
 

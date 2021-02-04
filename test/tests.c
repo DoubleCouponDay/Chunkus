@@ -8,17 +8,18 @@
 #include <png.h>
 #include <errno.h>
 
-#include "../src/defines.h"
+#include "../src/utility/defines.h"
 #include "munit.h"
-#include "tools.h"
+#include "debug.h"
 #include "readpng.h"
-#include "../src/mapping.h"
-#include "../src/imagefile.h"
+#include "../src/chunkmap.h"
+#include "../src/imagefile/pngfile.h"
+#include "../src/imagefile/bmp.h"
 #include "../src/entrypoint.h"
-#include "../src/types/colour.h"
-#include "../src/svg/svg.h"
+#include "../src/nsvg/usage.h"
 #include "tears.h"
-#include "../src/error.h"
+#include "../src/utility/error.h"
+#include "../src/imagefile/svg.h"
 
 const int SINGLE_TEST_RUN = 2;
 

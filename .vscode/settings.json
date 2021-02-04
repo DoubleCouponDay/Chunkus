@@ -47,7 +47,10 @@
         "vector": "cpp",
         "xstring": "cpp",
         "svg.h": "c",
-        "tears.h": "c"
+        "tears.h": "c",
+        "pngfile.h": "c",
+        "chunkmap.h": "c",
+        "image.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

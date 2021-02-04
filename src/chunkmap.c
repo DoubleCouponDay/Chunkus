@@ -3,12 +3,11 @@
 #include <errno.h>
 #include <string.h>
 
-#include "mapping.h"
-#include "types/colour.h"
-#include "../test/tools.h"
-#include "tidwall.h"
-#include "svg/tidwallcopy.h"
-#include "error.h"
+#include "chunkmap.h"
+#include "../test/debug.h"
+#include "hashmap/tidwall.h"
+#include "hashmap/usage.h"
+#include "utility/error.h"
 
 void iterateImagePixels(int x, int y, image input, vectorize_options options, chunkmap* output) {
     int x_offset = x * options.chunk_size;
@@ -166,7 +165,7 @@ void wind_back_chunkshapes(chunkshape** list)
     *list = iter;
 }
 
-void free_group_map(chunkmap* map_p)
+void free_chunkmap(chunkmap* map_p)
 {
     if (!map_p) {
         return;

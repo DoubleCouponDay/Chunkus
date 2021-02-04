@@ -2,6 +2,11 @@
 
 #include <stdbool.h>
 
+typedef struct colour
+{
+    short r, g, b;
+} colour;
+
 typedef struct {
     int x;    
     int y;
@@ -52,12 +57,15 @@ typedef struct
     pixel* bottomrightcorner_p; 
 } image;
 
+
+pixel convert_colorf_to_pixel(pixelF input);
+
+pixelF convert_pixel_to_colorf(pixel input);
+
+bool pixelf_equal(pixelF a, pixelF b);
+
 int calculate_int_units(int subject);
-
 bool colours_are_similar(pixel color_a, pixel color_b, float max_distance);
-
 char* rgb_to_string(pixel* input);
-
 image create_image(int width, int height);
-
 void free_image_contents(image img);

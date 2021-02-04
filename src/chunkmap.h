@@ -1,8 +1,8 @@
 #pragma once
 
-#include "types/colour.h"
-#include "types/image.h"
-#include "tidwall.h"
+#include <stdlib.h>
+#include "image.h"
+#include "hashmap/tidwall.h"
 #include <stdbool.h>
 
 typedef struct 
@@ -39,6 +39,6 @@ typedef struct
 
 chunkmap* generate_chunkmap(image inputimage_p, vectorize_options options);
 
-void free_group_map(chunkmap* map_p);
+void free_chunkmap(chunkmap* map_p);
 
 void wind_back_chunkshapes(chunkshape** list);

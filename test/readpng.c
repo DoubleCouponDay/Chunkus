@@ -4,13 +4,13 @@
 #include <assert.h>
 #include "munit.h"
 #include "../src/entrypoint.h"
-#include "../src/types/colour.h"
+#include "../src/image.h"
 #include <png.h>
 #include <errno.h>
 #ifndef _WIN32
 #include <dirent.h>
 #endif
-#include "../test/tools.h"
+#include "../test/debug.h"
 #include "./readpng.h"
 #define ERROR -1
 

@@ -1,11 +1,11 @@
 #include <stdlib.h>
 #include <nanosvg.h>
 
-#include "nsvgmapping.h"
-#include "../error.h"
-#include "../../test/tools.h"
-#include "../types/image.h"
-#include "../mapping.h"
+#include "mapping.h"
+#include "../utility/error.h"
+#include "../../test/debug.h"
+#include "../image.h"
+#include "../chunkmap.h"
 
 void fill_float_array(float* tobefilled, float* fill, int array_length, int max_length) {
     if(array_length > max_length) {

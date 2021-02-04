@@ -15,7 +15,5 @@ enum vectorizing_opcodes {
 };
 
 int getLastError();
-
 void setError(int error);
-
 int getAndResetErrorCode();

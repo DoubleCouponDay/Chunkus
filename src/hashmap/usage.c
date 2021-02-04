@@ -1,4 +1,4 @@
-#include "../mapping.h"
+#include "../chunkmap.h"
 
 uint64_t chunk_hash(const void *chunk, uint64_t seed0, uint64_t seed1) {
     pixelchunk* item = chunk;

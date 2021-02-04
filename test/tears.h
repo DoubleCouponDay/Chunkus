@@ -1,11 +1,11 @@
 #pragma once
 
 #include <stdio.h>
+#include <nanosvg.h>
+
 #include "readpng.h"
 #include "munit.h"
-#include "../src/mapping.h"
-
-#include <nanosvg.h>
+#include "../src/chunkmap.h"
 
 void test2teardown(void* fixture);
 
