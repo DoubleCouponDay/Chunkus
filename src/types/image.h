@@ -3,8 +3,10 @@
 #include <stdbool.h>
 
 typedef struct {
-    int x;
+    int x;    
     int y;
+    int x_unit_length;
+    int y_unit_length;
 } coordinate;
 
 typedef unsigned char byte;
@@ -49,6 +51,8 @@ typedef struct
     pixel* bottomleftcorner_p; 
     pixel* bottomrightcorner_p; 
 } image;
+
+int calculate_int_units(int subject);
 
 bool colours_are_similar(pixel color_a, pixel color_b, float max_distance);
 

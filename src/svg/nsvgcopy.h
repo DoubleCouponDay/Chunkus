@@ -4,4 +4,6 @@
 
 int NSVG_RGB(int r, int g, int b);
 
-NSVGimage* gettemplate(char* pathtofile);
+char* gettemplate();
+
+void free_template(char* data);

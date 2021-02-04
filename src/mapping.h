@@ -26,6 +26,8 @@ typedef struct
     int map_width; 
     int map_height;
     image input;
+    int pathcount;
+    int shapecount;
 } chunkmap;
 
 typedef struct

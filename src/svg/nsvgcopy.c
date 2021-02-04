@@ -4,18 +4,20 @@
 #include "../../test/tools.h"
 #include "../error.h";
 
+const char* TEMPLATE_PATH = "template.svg";
+
 ///nanosvg copypaste
 int NSVG_RGB(int r, int g, int b) {
     return ((unsigned int)r) | ((unsigned int)g << 8) | ((unsigned int)b << 16);
 }
 
 ///nanosvg copypaste
-char* gettemplate(char* pathtofile) {
+char* gettemplate() {
     FILE* fp = NULL;
 	size_t size;
 	char* data = NULL;
 	NSVGimage* image = NULL;
-	fp = fopen(pathtofile, "rb");
+	fp = fopen(TEMPLATE_PATH, "rb");
 
 	if (!fp) {
         DEBUG("could not find svg template file.\n");
@@ -43,6 +45,6 @@ char* gettemplate(char* pathtofile) {
 	data;
 }
 
-void freetemplate(char* data) {
+void free_template(char* data) {
 	free(data);
 }

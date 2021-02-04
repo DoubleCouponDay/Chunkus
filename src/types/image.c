@@ -12,6 +12,15 @@
 #include <stdlib.h>
 #include "../error.h"
 
+int calculate_int_units(int subject) {
+    int sum = 1;
+
+    while(log(sum) > 1) {
+        sum *= 10;
+    }
+    return sum;
+}
+
 bool colours_are_similar(pixel color_a, pixel color_b, float max_distance)
 {
     pixel diff;

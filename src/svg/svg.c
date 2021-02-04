@@ -20,7 +20,6 @@
 
 const int NONE_SIMILAR = 8;
 const int NONE_FILLED = -1;
-const char* TEMPLATE_PATH = "template.svg";
 const char* OOM_MESSAGE = "hashmap out of mana\n";
 
 chunkshape* add_new_shape(chunkshape* shape_list) {
@@ -160,7 +159,7 @@ bool iterate_new_path(const void* item, void* udata) {
 
     //add chunk to path if its a boundary
     if(currentpath->pts[0] == NONE_FILLED) { //first point not supplied
-        coordinate empty = {0, 0};
+        coordinate empty = {0, 0, 1, 1};
         currentpath->pts[0] = chunk->location.x; //x1
         currentpath->pts[1] = chunk->location.y; //y1
 
@@ -182,7 +181,8 @@ bool iterate_new_path(const void* item, void* udata) {
 
         coordinate previous_coord = {
             currentpath->pts[0],
-            currentpath->pts[1]
+            currentpath->pts[1],
+            1, 1
         };
         
         nextsegment = create_path(
@@ -190,6 +190,7 @@ bool iterate_new_path(const void* item, void* udata) {
             previous_coord,
             chunk->location
         );
+        ++shape_data->map->pathcount;
     }
 
     else { //first path supplied
@@ -198,7 +199,8 @@ bool iterate_new_path(const void* item, void* udata) {
         
         coordinate previous_coord = {
             currentpath->pts[2],
-            currentpath->pts[3]
+            currentpath->pts[3],
+            1, 1
         };
 
         nextsegment = create_path(
@@ -220,12 +222,14 @@ bool iterate_new_path(const void* item, void* udata) {
 void close_path(chunkmap* map, NSVGimage* output, NSVGpath* firstpath) {
     coordinate realstart = {
         output->shapes->paths->pts[2],
-        output->shapes->paths->pts[3]
+        output->shapes->paths->pts[3],
+        1, 1
     };
 
     coordinate realend = {
         firstpath->pts[0],
-        firstpath->pts[1]
+        firstpath->pts[1],
+        1, 1
     };        
     NSVGpath* path = create_path(map->input, realstart, realend);
     int code = getLastError();
@@ -279,7 +283,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
             output->shapes->next = newshape;
             output->shapes = newshape;
         }
-        coordinate empty = {NONE_FILLED, NONE_FILLED};
+        coordinate empty = {NONE_FILLED, NONE_FILLED, 1, 1};
         NSVGpath* firstpath = create_path(map->input, empty, empty);
         int code = getLastError();
 
@@ -342,6 +346,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
         }
         ++i;
         firstrun = false;
+        ++map->shapecount; //used by svgfile.c
     }
     output->shapes = firstshape;
 }
@@ -410,8 +415,10 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     {
         DEBUG("iterate_chunk_shapes failed with code: %d\n", getLastError());
         free_group_map(map);
+
         if (output)
             free_image(output);
+
         return NULL;
     }
     

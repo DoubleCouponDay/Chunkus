@@ -17,8 +17,12 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
     // Grab the pixelchunk
     pixelchunk* outputnodes = &output->groups_array_2d[x][y];
     
+    int x_units = calculate_int_units(x);
+    int y_units = calculate_int_units(y);
+
     coordinate location = {
-        x, y
+        x, y,
+        x_units, y_units
     };
     outputnodes->location = location;
     
@@ -35,8 +39,7 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
     
     outputnodes->pixels_array_2d = calloc(1, sizeof(pixel*) * node_width);
     
-    for(int i = 0; i < node_width; ++i) {        
-         outputnodes->pixels_array_2d[i] = calloc(1, sizeof(pixel) * node_height);
+    for(int i = 0; i < node_width; ++i) {
          outputnodes->pixels_array_2d[i] = &input.pixels_array_2d[x_offset + i][y_offset];
     }
     int count = node_width * node_height;
@@ -104,6 +107,8 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
     output->input = input;
     output->map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
     output->map_height = (int)ceilf((float)input.height / (float)options.chunk_size);
+    output->pathcount = 0;
+    output->shapecount = 0;
     
     DEBUG("creating pixelchunk\n");
     pixelchunk* newarray = calloc(1, sizeof(pixelchunk*) * output->map_width);
