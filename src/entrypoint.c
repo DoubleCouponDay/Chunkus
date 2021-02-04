@@ -12,6 +12,72 @@
 const char *format1_p = "png";
 const char *format2_p = "jpeg";
 
+int execute_program(char* input_file_p, int chunk_size, float threshold, char* output_file_p) {
+	image img = convert_png_to_image(input_file_p);
+
+	vectorize_options options = {
+		input_file_p,
+		chunk_size,
+		threshold
+	};
+
+	chunkmap* map = generate_chunkmap(img, options);
+	int code = getLastError();
+
+	if(code != SUCCESS_CODE) {
+		DEBUG("generate_chunkmap failed with code: %d\n", code);
+		free_image_contents(img);
+		free_group_map(map);
+		return getAndResetErrorCode();
+	}
+
+	fill_chunkmap(map, &options);
+	code = getLastError();
+
+	if(code != SUCCESS_CODE) {
+		free_image_contents(img);
+		free_group_map(map);
+		DEBUG("fill_chunkmap failed with code: %d\n", code);
+		return getAndResetErrorCode();
+	}
+
+	wind_back_chunkshapes(&map->shape_list);
+	code = getLastError();
+
+	if(code != SUCCESS_CODE) {
+		free_image_contents(img);
+		free_group_map(map);
+		DEBUG("wind_back_chunkshapes failed with code: %d\n", code);
+		return getAndResetErrorCode();
+	}
+
+	write_chunkmap_to_png(map, output_file_p);
+	code = getLastError();
+	
+	if(code != SUCCESS_CODE) {
+		free_image_contents(img);
+		free_group_map(map);
+		DEBUG("write_chunkmap_to_file failed with code: %d\n", code);
+		return getAndResetErrorCode();
+	}
+
+	write_image_to_png(img, "yo gotem.png");
+	code = getLastError();
+
+	if(code != SUCCESS_CODE) {
+		free_image_contents(img);
+		free_group_map(map);
+		DEBUG("write_image_to_png_file failed with code: %d\n", code);
+		return getAndResetErrorCode();
+	}
+
+	free_image_contents(img);
+	free_group_map(map);
+
+	return getAndResetErrorCode();
+}
+
+
 int entrypoint(int argc, char* argv[]) {
 	printf("entrypoint with: ");
 	for (int i = 1; i < argc; ++i)
@@ -79,68 +145,5 @@ int entrypoint(int argc, char* argv[]) {
 
 	printf("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f' \n", input_file_p, output_file_p, chunk_size, threshold);
 
-	// Execute program
-
-	image img = convert_png_to_image(input_file_p);
-
-	vectorize_options options = {
-		input_file_p,
-		chunk_size,
-		threshold
-	};
-
-	chunkmap* map = generate_chunkmap(img, options);
-	int code = getLastError();
-
-	if(code != SUCCESS_CODE) {
-		DEBUG("generate_chunkmap failed with code: %d\n", code);
-		free_image_contents(img);
-		free_group_map(map);
-		return getAndResetErrorCode();
-	}
-
-	fill_chunkmap(map, &options);
-	code = getLastError();
-
-	if(code != SUCCESS_CODE) {
-		free_image_contents(img);
-		free_group_map(map);
-		DEBUG("fill_chunkmap failed with code: %d\n", code);
-		return getAndResetErrorCode();
-	}
-
-	wind_back_chunkshapes(&map->shape_list);
-	code = getLastError();
-
-	if(code != SUCCESS_CODE) {
-		free_image_contents(img);
-		free_group_map(map);
-		DEBUG("wind_back_chunkshapes failed with code: %d\n", code);
-		return getAndResetErrorCode();
-	}
-
-	write_chunkmap_to_file(map, output_file_p);
-	code = getLastError();
-	
-	if(code != SUCCESS_CODE) {
-		free_image_contents(img);
-		free_group_map(map);
-		DEBUG("write_chunkmap_to_file failed with code: %d\n", code);
-		return getAndResetErrorCode();
-	}
-
-	write_image_to_png_file(img, "yo gotem.png");
-	code = getLastError();
-
-	if(code != SUCCESS_CODE) {
-		free_image_contents(img);
-		free_group_map(map);
-		DEBUG("write_image_to_png_file failed with code: %d\n", code);
-		return getAndResetErrorCode();
-	}
-
-	free_image_contents(img);
-	free_group_map(map);
-
-	return getAndResetErrorCode();
+	return execute_program(input_file_p, chunk_size, threshold, output_file_p);
 }

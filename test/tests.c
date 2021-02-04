@@ -80,7 +80,7 @@ MunitResult test5_opensPngAndOutputsBmp(const MunitParameter params[], void* use
 
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d); // FAILED TO CONVERT IMAGE
 
-  write_image_to_file(stuff->img, out_file);
+  write_image_to_bmp(stuff->img, out_file);
 
   FILE* fp = fopen(out_file, "r");
   stuff->fp = fp;
@@ -155,7 +155,7 @@ MunitResult test69_can_write_chunkmap_shapes_to_file(const MunitParameter params
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
   DEBUG("writing chunkmap to file\n");
-  write_chunkmap_to_file(stuff->map, out_fileaddress);
+  write_chunkmap_to_png(stuff->map, out_fileaddress);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
   FILE* fp = fopen(out_fileaddress, "r");

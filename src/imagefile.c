@@ -213,7 +213,7 @@ image convert_png_to_image(char *fileaddress)
     return output;
 }
 
-void write_image_to_file(image img, char* fileaddress_p) {
+void write_image_to_bmp(image img, char* fileaddress_p) {
     if (!img.pixels_array_2d || !fileaddress_p)
         return;
 
@@ -232,7 +232,7 @@ void write_image_to_file(image img, char* fileaddress_p) {
     generateBitmapImage(as_bytes, img.height, img.width, fileaddress_p);
 }
 
-void write_image_to_png_file(image img, char* fileaddress)
+void write_image_to_png(image img, char* fileaddress)
 {
     if (!img.pixels_array_2d || !fileaddress)
         return;
@@ -385,28 +385,6 @@ void write_bytes_to_png(unsigned char* data, int width, int height, char* filead
     png_destroy_write_struct(&png_ptr, &info_ptr);
 }
 
-/// Writes given pixelchunk map to file as if it was an image
-void write_node_map_to_file(chunkmap* map, char *fileaddress)
-{
-    if (!map->groups_array_2d || !fileaddress)
-        return;
-
-    unsigned char* as_bytes = calloc(1, BYTES_PER_PIXEL * map->map_height * map->map_width);
-
-    for (int x = 0; x < map->map_width; ++x)
-    {
-        for (int y = 0; y < map->map_height; ++y)
-        {
-            int index = x * 3 + y * BYTES_PER_PIXEL * map->map_width;
-            as_bytes[index]     = map->groups_array_2d[x][y].average_colour.b;
-            as_bytes[index + 1] = map->groups_array_2d[x][y].average_colour.g;
-            as_bytes[index + 2] = map->groups_array_2d[x][y].average_colour.r;
-        }
-    }
-
-    generateBitmapImage(as_bytes, map->map_height, map->map_width, fileaddress);
-}
-
 void generateBitmapImage(unsigned char* image, int height, int width, char* imageFileName)
 {
     int widthInBytes = width * BYTES_PER_PIXEL;
@@ -433,7 +411,7 @@ void generateBitmapImage(unsigned char* image, int height, int width, char* imag
     fclose(imageFile);
 }
 
-unsigned char* createBitmapFileHeader (int height, int stride)
+unsigned char* createBitmapFileHeader(int height, int stride)
 {
     int fileSize = FILE_HEADER_SIZE + INFO_HEADER_SIZE + (stride * height);
 
@@ -562,7 +540,7 @@ bool iterate_through_chunk(const void* item, void* udata)
     return true;
 }
 
-void write_chunkmap_to_file(chunkmap* map, char* fileaddress)
+void write_chunkmap_to_png(chunkmap* map, char* fileaddress)
 {
     if (map->map_width < 1 || map->map_height < 1)
     {
@@ -623,5 +601,5 @@ void write_chunkmap_to_file(chunkmap* map, char* fileaddress)
         }
     }
 
-    write_image_to_png_file(output_img, fileaddress);
+    write_image_to_png(output_img, fileaddress);
 }
