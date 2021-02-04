@@ -2,8 +2,7 @@ mod secrettoken;
 mod constants;
 mod bot;
 mod core;
-
-use tokio::runtime::Builder;
+mod svg;
 
 // #[tokio::main(flavor = "current_thread")]
 // async fn main() {

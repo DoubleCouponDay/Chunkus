@@ -1,4 +1,3 @@
-use libc::c_int;
 use std::ffi::CString;
 use std::ptr;
 use crate::constants::{

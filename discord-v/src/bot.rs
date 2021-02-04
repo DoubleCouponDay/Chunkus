@@ -30,6 +30,7 @@ use crate::constants;
 use crate::constants::{
     FfiResult
 };
+use crate::svg::render_svg_to_png;
 
 pub async fn create_vec_bot(token: &str) -> Client
 {
@@ -93,7 +94,6 @@ impl EventHandler for DefaultHandler {
         println!("Received Message Update for {:?}", event.id);
 
         let id = event.id;
-        let contains: bool;
 
         // wait_for_message_update
 
@@ -437,7 +437,7 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
         // Execute Algorithm
         let input = String::from(constants::INPUTFILENAME);
-        let output = String::from(constants::OUTPUTFILENAME);
+        let output = String::from(constants::OUTPUT_SVG_FILE);
 
 
         // Get Options
@@ -481,8 +481,14 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
             continue;
         }
 
+        let png_output = String::from(constants::OUTPUTFILENAME);
+
+        // Render to png
+        render_svg_to_png(output, png_output);
+
+
         // Send the output
-        let msg_files = vec![output.as_str()];
+        let msg_files = vec![png_output.as_str()];
 
         let msg = msg.channel_id.send_files(&ctx.http, msg_files, |m|
         {
