@@ -417,7 +417,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
         free_group_map(map);
 
         if (output)
-            free_image(output);
+            free_nsvg(output);
 
         return NULL;
     }
@@ -427,7 +427,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     return output;
 }
 
-void free_image(NSVGimage* input) {
+void free_nsvg(NSVGimage* input) {
     if(!input) {
         DEBUG("input is null\n");
         return;
