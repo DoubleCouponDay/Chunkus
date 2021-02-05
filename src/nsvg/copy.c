@@ -48,7 +48,7 @@ char* gettemplate() {
 	DEBUG("null terminating the data\n");
 	data[size] = '\0';	// Must be null terminated.
 	fclose(fp);
-	data;
+	return data;
 }
 
 void free_template(char* data) {

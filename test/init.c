@@ -20,7 +20,7 @@ MunitTest* filtertests(namedtest* tests_array, int arraylength, char* testname) 
     for(int i = 0; i < arraylength; ++i) {
         namedtest currenttest = tests_array[i];
 
-        if(currenttest.name = testname) {
+        if(strcmp(currenttest.name, testname) == 0) {  //fixed
             output[0] = currenttest.test;            
             break;
         }
@@ -43,9 +43,5 @@ MunitTest* filtertests(namedtest* tests_array, int arraylength, char* testname) 
         }
     }
   }
-
-  DEBUG("checking for access violation\n");
-  MunitTest throw2 = output[0];
-  char* throw = throw2.name;
   return output;
 }

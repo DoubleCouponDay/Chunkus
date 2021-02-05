@@ -81,11 +81,10 @@ MunitResult can_vectorize_image(const MunitParameter params[], void* userdata)
   };
   
   stuff->img = convert_png_to_image(options.file_path);
+  stuff->nsvg_image = vectorize_image(stuff->img, options);
 
-  stuff->result = vectorize_image(stuff->img, options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
-  munit_assert_ptr_not_null(stuff->result.nsvg_image);
-  munit_assert_ptr_not_null(stuff->result.map);
+  munit_assert_ptr_not_null(stuff->nsvg_image);
 
   return MUNIT_OK;
 }
@@ -169,10 +168,10 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  stuff->result = vectorize_image(stuff->img, options);
+  stuff->nsvg_image = vectorize_image(stuff->img, options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  munit_assert(write_svg_file(stuff->result.nsvg_image, stuff->result.map));
+  munit_assert(write_svg_file(stuff->nsvg_image));
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
   FILE* fp = fopen(OUTPUT_PATH, "r");
@@ -188,7 +187,7 @@ int main(int argc, char** argv) {
   DEBUG("test runner initializing... \n");
   DEBUG("args: ");
   for (int i = 0; i < argc; ++i)
-    DEBUG("%s, ", argv[i]);
+    printf("%s, ", argv[i]);
   DEBUG("\n");
 
   char* param1[] = { "../../../../test/test.png", NULL };

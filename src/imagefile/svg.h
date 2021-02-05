@@ -5,6 +5,6 @@
 
 #include "../chunkmap.h"
 
-bool write_svg_file(NSVGimage* input, chunkmap* map);
+bool write_svg_file(NSVGimage* input);
 
 extern const char* OUTPUT_PATH;

@@ -6,7 +6,7 @@
 #include "../test/debug.h"
 #include "utility/error.h"
 #include "imagefile/pngfile.h"
-
+#include "imagefile/svg.h"
 
 const char *format1_p = "png";
 const char *format2_p = "jpeg";
@@ -20,39 +20,27 @@ int execute_program(char* input_file_p, int chunk_size, float threshold, char* o
 		threshold
 	};
 
-	chunkmap* map = generate_chunkmap(img, options);
+	NSVGimage* nsvg = vectorize_image(img, options);
 	int code = getLastError();
 
 	if(code != SUCCESS_CODE) {
-		DEBUG("generate_chunkmap failed with code: %d\n", code);
 		free_image_contents(img);
-		free_chunkmap(map);
+		free_nsvg(nsvg);
+		DEBUG("vectorize_image failed with code: %d\n", code);
 		return getAndResetErrorCode();
 	}
-
-	fill_chunkmap(map, &options);
+	bool result = write_svg_file(nsvg);
 	code = getLastError();
 
-	if(code != SUCCESS_CODE) {
+	if(result == false || code != SUCCESS_CODE) {
 		free_image_contents(img);
-		free_chunkmap(map);
-		DEBUG("fill_chunkmap failed with code: %d\n", code);
-		return getAndResetErrorCode();
-	}
-
-	wind_back_chunkshapes(&map->shape_list);
-	code = getLastError();
-
-	if(code != SUCCESS_CODE) {
-		free_image_contents(img);
-		free_chunkmap(map);
+		free_nsvg(nsvg);
 		DEBUG("wind_back_chunkshapes failed with code: %d\n", code);
 		return getAndResetErrorCode();
 	}
 
 	free_image_contents(img);
-	free_chunkmap(map);
-
+	free_nsvg(nsvg);
 	return getAndResetErrorCode();
 }
 
@@ -72,20 +60,6 @@ int entrypoint(int argc, char* argv[]) {
 	}
 
     char* firstargument_p = argv[1];
-
-	if (!strcmp(firstargument_p, "--help") || !strcmp(firstargument_p, "-h"))
-	{
-		printf("welcome to the vectorizer.exe help page.\n");
-		printf("this program converts a bitmap image into a scalable vector graphic using line tracing techniques.\n");
-		printf("supports the png and jpeg formats as input.\n");
-		printf("arguments:\n");
-		printf("the first argument should be the absolute path to your bitmap.\n");
-		printf("the second argument can be -t or --test. it will run the test suite to check if all the characteristics of this program are working\n");
-		printf("debug: %s \n", firstargument_p);
-		return SUCCESS_CODE;
-	}
-
-	// Not a help message, execute the program
 
 	// Grab input file path
 	char* input_file_p = firstargument_p;
