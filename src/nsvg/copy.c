@@ -1,6 +1,7 @@
 
 #include <nanosvg.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "../../test/debug.h"
 #include "../utility/error.h";
@@ -35,12 +36,16 @@ char* gettemplate() {
 		setError(SVG_SPACE_ERROR);
         return NULL;
     }
+	DEBUG("reading the template of size: %d \n", size);
+	size_t readsize = fread(data, 1, size, fp);
+	DEBUG("comparing size of reads\n");
 
-	if (fread(data, 1, size, fp) != size) {
+	if (readsize != size) {
         DEBUG("something went wrong reading the file data. \n");
 		setError(READ_FILE_ERROR);
         return NULL;
     };
+	DEBUG("null terminating the data\n");
 	data[size] = '\0';	// Must be null terminated.
 	fclose(fp);
 	data;
