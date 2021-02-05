@@ -6,7 +6,7 @@ Convert a raster image into a scalable vector graphic and back.
 
 //refactor all file names to make more sense
 
-- replace readpng in favour of pngfile
+//replace readpng in favour of pngfile
 
 - store SVGimage in a file
 

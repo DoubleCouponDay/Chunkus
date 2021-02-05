@@ -4,11 +4,11 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "../error.h"
-#include "nsvgcopy.h"
-#include "../test/tools.h"
-#include "../mapping.h"
-#include "tidwallcopy.h"
+#include "../utility/error.h"
+#include "../nsvg/copy.h"
+#include "../../test/debug.h"
+#include "../chunkmap.h"
+#include "../hashmap/usage.h"
 
 const char* OUTPUT_PATH = "output.svg";
 const SHAPE_SIZE = 41;
@@ -98,17 +98,19 @@ bool write_svg_file(NSVGimage* input, chunkmap* map) {
     while(currentshape != NULL) {
         bool ran_once = false;
         NSVGpath* currentpath = currentshape->paths;
+
+        DEBUG("creating <path> element\n");
+        strcat(output, "<path fill=\"rgb(");
+        DEBUG("set the fill attribute to the shapes fill property\n");
+        // strcat(output, itoa(currentshape->fill->r));
+        
+
+        DEBUG("use rgb(,,) notation inside escaped \doublequotes\n");
+
         
         DEBUG("iterating nsvgpaths");
         while(currentpath != NULL) {
-            DEBUG("creating <path> element\n");
-            strcat(output, "<path fill=\"rgb(");
-            DEBUG("set the fill attribute to the shapes fill property\n");
-            strcat(output, itoa());
-                
-
-            DEBUG("use rgb(,,) notation inside escaped \doublequotes\n");
-
+            
             DEBUG("start with M moveto command\n");
             
             DEBUG("add a new coordinate to the d property\n");
