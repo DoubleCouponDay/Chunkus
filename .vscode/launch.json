@@ -16,11 +16,11 @@
             "console": "internalConsole"
         },
         {
-            "name": "(Windows) Launch Test 7",
+            "name": "(Windows) Launch one test",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}\\build\\windows\\x64\\debug\\tests.exe",
-            "args": ["test7"],
+            "args": ["nsvg_to_svg"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}\\build\\windows\\x64\\debug",
             "environment": [],
