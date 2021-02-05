@@ -100,19 +100,24 @@ bool write_svg_file(NSVGimage* input, chunkmap* map) {
         NSVGpath* currentpath = currentshape->paths;
 
         DEBUG("creating <path> element\n");
-        strcat(output, "<path fill=\"rgb(");
+        strcat(output, "<path fill=\"#");
         DEBUG("set the fill attribute to the shapes fill property\n");
-        // strcat(output, itoa(currentshape->fill->r));
-        
-
-        DEBUG("use rgb(,,) notation inside escaped \doublequotes\n");
-
-        
+        int colour = currentshape->fill.color;
+        strcat(output, colour);
+        strcat(output, "\" d=\"");
         DEBUG("iterating nsvgpaths");
+
+        bool ranonce = true;
+
         while(currentpath != NULL) {
-            
-            DEBUG("start with M moveto command\n");
-            
+            if(ranonce == true) {
+                DEBUG("start with M moveto command\n");
+                strcat(output, "M ");
+            }
+
+            else {
+                strcat(output, " L ");
+            }            
             DEBUG("add a new coordinate to the d property\n");
 
             DEBUG("each coordinate starts with L followed by x and y space separated values\n");
@@ -121,6 +126,7 @@ bool write_svg_file(NSVGimage* input, chunkmap* map) {
 
             DEBUG("close the path element\n");
             currentpath = currentpath->next;
+            ranonce = true;
         }
         currentshape = currentshape->next;
     }
