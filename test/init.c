@@ -9,6 +9,7 @@
 const int ONE_TEST_SIZE = 2;
 
 MunitTest* filtertests(namedtest* tests_array, int arraylength, char* testname) {
+  DEBUG("filtering tests for '%s'\n", testname);
   MunitTest* output;
   MunitTest endofarray = { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL };
 

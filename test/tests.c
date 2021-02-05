@@ -234,7 +234,6 @@ int main(int argc, char** argv) {
     {cherry.name, cherry},
     {banana.name, banana}
   };
-  DEBUG("filtering tests...\n");
   MunitTest* filteredtests = filtertests(tests, NUM_TESTS, testname);
   MunitSuite suite = { "tests.", filteredtests };
   int result = munit_suite_main(&suite, NULL, 0, argv);
