@@ -13,15 +13,15 @@ fn main() {
         if do_release
         {
             windowsfound_shared = std::fs::copy(
-                "../build/windows/x64/release/vec.dll",
+                "../../build/windows/x64/release/vec.dll",
                 "./vec.dll"
             );
             linuxfound_shared = std::fs::copy(
-                "../build/linux/x86_64/release/libvec.a",
+                "../../build/linux/x86_64/release/libvec.a",
                 "./vec.so",
             );
             windows_found_static = std::fs::copy(
-                "../build/windows/x64/release/vec.lib",
+                "../../build/windows/x64/release/vec.lib",
                 "./vec.lib"
             );
         }

@@ -1,12 +1,18 @@
+# Discord token
+*.discord_token
+**/Cargo.lock
+
+# Bot PNGs
+**/input.png
+**/output.png
+**/output.svg
+**/chunkmap.png
+
 **/secrettoken.rs
-discord-v/target
+Rust_part/target
 
-/.xmake/
-
-/build
-
-rasterizer
-rasterizer.exe
+C_part/.xmake/
+C_part/build
 
 # Prerequisites
 *.d
@@ -70,11 +76,3 @@ conan.lock
 .xmake/linux/x86_64/cache/config
 .vscode/.conan_tools/conanInfo.dot
 .xmake/linux/x86_64/xmake.conf
-
-# Discord token
-*.discord_token
-discord-v/Cargo.lock
-
-# Bot PNGs
-input.png
-output.png
