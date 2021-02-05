@@ -15,8 +15,8 @@
 /// Allocate memory to hold the image contents
 /// Read the image into the memory
 /// Convert the obtained memory into a contiguous format (convert the row pointers from a 2 dimensional array into a single array)
-image convert_png_to_image(char *fileaddress)
-{
+image convert_png_to_image(char* fileaddress) {
+    DEBUG("converting png to image struct...\n");
     DEBUG("opening image file...\n");
 
     if (!fileaddress)

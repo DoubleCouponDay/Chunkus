@@ -1,28 +1,17 @@
 #include <stdio.h>
-#include "readpng.h"
 #include "munit.h"
 #include "tears.h"
+#include "debug.h"
+#include "../src/nsvg/usage.h"
+
+void test2setup(const MunitParameter params[], void* userdata) {
+  return calloc(1, sizeof(test2stuff));
+};
 
 void test2teardown(void* fixture) {
-  if (fixture == NULL)
-    return;
-
-  filesetup* file_setup = (filesetup*)fixture;
-
-  if (file_setup->file)
-    fclose(file_setup->file);
-}
-
-void* test3setup(const MunitParameter params[], void* userdata) {
-  filesetup* setup = createfilesetup(params, NULL);
-  return readfile(params, setup);
-}
-
-void test3teardown(void* fixture) {
-  fileresources* resources = fixture;
-  void* accessaVoidproperty = resources->setup;
-  test2teardown(accessaVoidproperty);
-  freefile(fixture); 
+  test2stuff* stuff = fixture;
+  free_image_contents(stuff->img);
+  free(stuff);
 }
 
 void* test4setup(const MunitParameter params[], void* userdata) {
@@ -60,7 +49,7 @@ void test6teardown(void* fixture)
   DEBUG("freeing image contents\n");
   free_image_contents(stuff->img);
   DEBUG("freeing image\n");
-  free_image(stuff->svg);  
+  free_nsvg(stuff->svg);  
   DEBUG("freeing test6stuff\n");
   free(stuff);
 }

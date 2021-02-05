@@ -8,10 +8,10 @@
 #include <png.h>
 #include <errno.h>
 
+#include "init.h"
 #include "../src/utility/defines.h"
 #include "munit.h"
 #include "debug.h"
-#include "readpng.h"
 #include "../src/chunkmap.h"
 #include "../src/imagefile/pngfile.h"
 #include "../src/imagefile/bmp.h"
@@ -21,39 +21,19 @@
 #include "../src/utility/error.h"
 #include "../src/imagefile/svg.h"
 
-const int SINGLE_TEST_RUN = 2;
-
 MunitResult aTestCanPass(const MunitParameter params[], void* data) {
   DEBUG("test 1 passed\n");
   return MUNIT_OK;
 }
 
-MunitResult test2_itCanDecompressAPng(const MunitParameter params[], void* userdata) {
-  DEBUG("reading file.\n");
-  fileresources* resources = readfile(params, userdata);
-  DEBUG("freeing file\n");
-  freefile(resources);
+MunitResult can_read_png(const MunitParameter params[], void* userdata) {
+  test2stuff* stuff = userdata;
+  image subject = convert_png_to_image("test.png");
+  stuff->img = subject;
   return MUNIT_OK;
 }
 
-MunitResult test3_weKnownHowToGetPixelDataFromPng(const MunitParameter params[], void* userdata) {
-  DEBUG("creating resources...\n");
-  fileresources* resources = userdata;
-  int x = 3, y = 9;
-  png_color color, color2;
-  DEBUG("Row Pointers: %s\n", resources->row_pointers);
-  color = *(png_color*)(resources->row_pointers[y] + x * 3);
-  x += 1;
-  color2 = *(png_color*)(resources->row_pointers[y] + x * 3);
-
-  DEBUG("Extracted Color: (%d, %d, %d)\n", color.red, color.green, color.blue);
-  DEBUG("Extracted 2nd Color: (%d, %d, %d)\n", color2.red, color2.green, color2.blue);
-
-  // returns if didn't seg fault, that counts as success
-  return MUNIT_OK;
-}
-
-MunitResult test4_can_convert_file_to_node_map(const MunitParameter params[], void* userdata) {
+MunitResult can_convert_png_to_chunkmap(const MunitParameter params[], void* userdata) {
   test4stuff* stuff = userdata;
   
   vectorize_options options = {
@@ -68,7 +48,7 @@ MunitResult test4_can_convert_file_to_node_map(const MunitParameter params[], vo
   return MUNIT_OK;
 }
 
-MunitResult test5_opensPngAndOutputsBmp(const MunitParameter params[], void* userdata) {
+MunitResult opensPngAndOutputsBmp(const MunitParameter params[], void* userdata) {
   test5stuff* stuff = userdata;
   // Use constant input/output path
   char* in_file = params[0].value;
@@ -90,7 +70,7 @@ MunitResult test5_opensPngAndOutputsBmp(const MunitParameter params[], void* use
   return MUNIT_OK;
 }
 
-MunitResult test6_can_vectorize_image(const MunitParameter params[], void* userdata)
+MunitResult can_vectorize_image(const MunitParameter params[], void* userdata)
 {
   test6stuff* stuff = userdata;
 
@@ -109,7 +89,7 @@ MunitResult test6_can_vectorize_image(const MunitParameter params[], void* userd
   return MUNIT_OK;
 }
 
-MunitResult test69_can_write_chunkmap_shapes_to_file(const MunitParameter params[], void* userdata)
+MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], void* userdata)
 {
   typedef struct
   {
@@ -164,6 +144,10 @@ MunitResult test69_can_write_chunkmap_shapes_to_file(const MunitParameter params
   return MUNIT_OK;
 }
 
+MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) {
+
+}
+
 int main(int argc, char** argv) {
   DEBUG("test runner initializing... \n");
 
@@ -171,6 +155,7 @@ int main(int argc, char** argv) {
   char* param2[] = { "3", NULL };
   char* param3[] = { "400", NULL };
   char* param4[] = { "./chunkmap.png", NULL };
+  char* testname = argv[1];
 
   MunitParameterEnum test_params[] = { 
     { 
@@ -187,72 +172,31 @@ int main(int argc, char** argv) {
     },
     { NULL, NULL} 
   };
-  
-  MunitTest test1 = { "aTestCanPass", aTestCanPass, NULL, NULL, MUNIT_TEST_OPTION_NONE };
-  MunitTest test2 = { "itCanDecompressAPng", test2_itCanDecompressAPng, createfilesetup, test2teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest test3 = { "weKnowHowToGetPixelDataFromPng", test3_weKnownHowToGetPixelDataFromPng, test3setup, test3teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest test4 = { "can_convert_image_to_node_map", test4_can_convert_file_to_node_map, test4setup, test4teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest test5 = { "opensPngAndOutputsBmp", test5_opensPngAndOutputsBmp, test5setup, test5teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest test6 = { "canVectorizeImage", test6_can_vectorize_image, test6setup, test6teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest test7 = { "can_write_chunkmap_to_file", test69_can_write_chunkmap_shapes_to_file, test69setup, test69teardown, MUNIT_TEST_OPTION_NONE, test_params };
 
-  //UPDATE THIS WHEN NEEDED
-  int testcount = 8; //testcount plus the last null item
-  char* unindexed = argv[1];
+  MunitTest apple = { "can_pass", aTestCanPass, NULL, NULL, MUNIT_TEST_OPTION_NONE };
+  MunitTest orange = { "read_png", can_read_png, test2setup, test2teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest mango = { "png_to_chunkmap", can_convert_png_to_chunkmap, test4setup, test4teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest peach = { "png_to_bmp", opensPngAndOutputsBmp, test5setup, test5teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest melon = { "png_to_nsvg", can_vectorize_image, test6setup, test6teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest cherry = { "chunkmap_to_png", can_write_chunkmap_shapes_to_file, test69setup, test69teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest banana = { "nsvg_to_svg", can_write_to_svgfile, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
 
-  if(unindexed != NULL) {
-    testcount = SINGLE_TEST_RUN;
-  }
-  MunitTest* testarray = calloc(1, sizeof(MunitTest) * testcount);
-  MunitTest endofarray = { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL };
-  
-  if(testcount == SINGLE_TEST_RUN) {
-    if(!strcmp(unindexed, "test1")) {
-      testarray[0] = test1;
-    }
+  enum { 
+    NUM_TESTS = 7 //UPDATE THIS WHEN YOU ADD NEW TESTS
+  }; 
 
-    else if(!strcmp(unindexed, "test2")) {
-      testarray[0] = test2;
-    }
-    
-    else if(!strcmp(unindexed, "test3")) {
-      testarray[0] = test3;
-    }
-
-    else if(!strcmp(unindexed, "test4")) {
-      testarray[0] = test4;
-    }
-    
-    else if(!strcmp(unindexed, "test5")) {
-      testarray[0] = test5;
-    }
-
-    else if(!strcmp(unindexed, "test6")) {
-      testarray[0] = test6;
-    }
-    
-    else if(!strcmp(unindexed, "test7")) {
-      testarray[0] = test7;
-    }
-
-    else {
-      DEBUG("assumption wrong. argv was: %s\n", unindexed);
-      exit(ASSUMPTION_WRONG);
-    }
-    testarray[1] = endofarray;
-  }
-
-  else {
-    testarray[0] = test1;
-    testarray[1] = test2;
-    testarray[2] = test3;
-    testarray[3] = test4;
-    testarray[4] = test5;
-    testarray[5] = test6;
-    testarray[6] = test7;
-    testarray[7] = endofarray;
-  }
-  MunitSuite suite = { "tests.", testarray };
+  namedtest tests[NUM_TESTS] = {
+    {apple.name, apple},
+    {orange.name, orange},
+    {mango.name, mango},
+    {peach.name, peach},
+    {melon.name, melon},
+    {cherry.name, cherry},
+    {banana.name, banana}
+  };
+  DEBUG("filtering tests...\n");
+  MunitTest* filteredtests = filtertests(tests, NUM_TESTS, testname);
+  MunitSuite suite = { "tests.", filteredtests };
   int result = munit_suite_main(&suite, NULL, 0, argv);
   return result;
 }

@@ -3,14 +3,16 @@
 #include <stdio.h>
 #include <nanosvg.h>
 
-#include "readpng.h"
+#include "../src/imagefile/pngfile.h"
 #include "munit.h"
 #include "../src/chunkmap.h"
 
-void test2teardown(void* fixture);
+typedef struct {
+  image img;
+} test2stuff;
 
-void* test3setup(const MunitParameter params[], void* userdata);
-void test3teardown(void* fixture);
+void test2setup(const MunitParameter params[], void* userdata);
+void test2teardown(void* fixture);
 
 typedef struct {
     image img;
@@ -44,3 +46,13 @@ typedef struct
 
 void* test69setup(const MunitParameter params[], void* userdata);
 void test69teardown(void* fixture);
+
+typedef struct
+{
+    image img;
+    chunkmap* map;
+    NSVGimage* nsvg;
+} test8stuff;
+
+void* test8setup(const MunitParameter params[], void* userdata);
+void test8teardown(void* fixture);
