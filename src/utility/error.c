@@ -9,7 +9,7 @@ int getLastError() {
 }
 
 void setError(int error) {
-    DEBUG("setting error_code: %d\n", error);
+    DEBUG("setting status code: %d\n", error);
     error_code = error;
 }
 
