@@ -49,7 +49,8 @@ void test6teardown(void* fixture)
   DEBUG("freeing image contents\n");
   free_image_contents(stuff->img);
   DEBUG("freeing image\n");
-  free_nsvg(stuff->svg);  
+  free_nsvg(stuff->result.nsvg_image);  
+  free_chunkmap(stuff->result.map);
   DEBUG("freeing test6stuff\n");
   free(stuff);
 }
@@ -74,6 +75,7 @@ void* test8setup(const MunitParameter params[], void* userdata) {
 void test8teardown(void* fixture) {
   test8stuff* stuff = fixture;
   free_image_contents(stuff->img);
-  free_chunkmap(stuff->map);
+  free_nsvg(stuff->result.nsvg_image);
+  free_chunkmap(stuff->result.map);
   free(fixture);
 }

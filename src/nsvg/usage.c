@@ -381,7 +381,7 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
 }
 
 //entry point of the file
-NSVGimage* vectorize_image(image input, vectorize_options options) {
+vectorize_result vectorize_image(image input, vectorize_options options) {
     DEBUG("generating chunkmap\n");
     chunkmap* map = generate_chunkmap(input, options);
     
@@ -389,7 +389,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     {
         DEBUG("generate_chunkmap failed with code: %d \n", getLastError());
         free_chunkmap(map);
-        return NULL;
+        return (vectorize_result){ 0, 0 };
     }
 
     DEBUG("filling chunkmap\n");
@@ -399,7 +399,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     {
         DEBUG("fill_chunkmap failed with code %d\n", getLastError());
         free_chunkmap(map);
-        return NULL;
+        return (vectorize_result){ 0, 0 };
     }
 
     DEBUG("Now winding back chunk_shapes\n");
@@ -417,12 +417,9 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
         if (output)
             free_nsvg(output);
 
-        return NULL;
+        return (vectorize_result){ 0, 0 };
     }
-    
-    DEBUG("freeing group map\n");
-    free_chunkmap(map);
-    return output;
+    return (vectorize_result){ output, map };
 }
 
 void free_nsvg(NSVGimage* input) {

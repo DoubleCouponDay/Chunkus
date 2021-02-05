@@ -82,8 +82,10 @@ MunitResult can_vectorize_image(const MunitParameter params[], void* userdata)
   
   stuff->img = convert_png_to_image(options.file_path);
 
-  NSVGimage* svg = vectorize_image(stuff->img, options);
+  stuff->result = vectorize_image(stuff->img, options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
+  munit_assert_ptr_not_null(stuff->result.nsvg_image);
+  munit_assert_ptr_not_null(stuff->result.map);
   stuff->svg = svg;
 
   return MUNIT_OK;
@@ -145,7 +147,42 @@ MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], voi
 }
 
 MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) {
+  test8stuff* stuff = userdata;
 
+  char* fileaddress = params[0].value;
+
+  char* chunk_size_str = params[1].value;
+  int chunk_size = atoi(chunk_size_str);
+
+  char* threshold_str = params[2].value;
+  float threshold = atof(threshold_str);
+  
+  char* out_fileaddress = params[3].value;
+
+  vectorize_options options = {
+    fileaddress,
+    chunk_size,
+    threshold,
+  };
+
+  stuff->img = convert_png_to_image(fileaddress);
+  DEBUG("asserting pixels_array_2d not null\n");
+  munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
+
+  stuff->result = vectorize_image(stuff->img, options);
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
+
+  munit_assert(write_svg_file(stuff->result.nsvg_image, stuff->result.map));
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
+
+  FILE* fp = fopen(OUTPUT_PATH, "r");
+
+  munit_assert_ptr_not_null(fp);
+
+  fclose(fp);
+
+  return MUNIT_OK;
 }
 
 int main(int argc, char** argv) {

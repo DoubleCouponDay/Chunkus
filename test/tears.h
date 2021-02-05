@@ -31,8 +31,9 @@ void test5teardown(void* fixture);
 typedef struct
 {
     image img;
-    NSVGimage* svg;
+    vectorize_result result;
 } test6stuff;
+
 
 void* test6setup(const MunitParameter params[], void* userdata);
 void test6teardown(void* fixture);
@@ -50,8 +51,7 @@ void test69teardown(void* fixture);
 typedef struct
 {
     image img;
-    chunkmap* map;
-    NSVGimage* nsvg;
+    vectorize_result result;
 } test8stuff;
 
 void* test8setup(const MunitParameter params[], void* userdata);

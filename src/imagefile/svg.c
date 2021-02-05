@@ -27,7 +27,7 @@ const int NEW_LINE_LENGTH = 0;
 
 bool iterate_hashies(const void* item, void* udata) {
     long* coordcount = udata;
-    pixelchunk* chunk = item;
+    const pixelchunk* chunk = item;
     *coordcount += chunk->location.x_unit_length;
     *coordcount += chunk->location.y_unit_length;
 }
@@ -67,10 +67,10 @@ bool write_svg_file(NSVGimage* input, chunkmap* map) {
     unsigned long i = 0;
     unsigned long templatelength = strlen(template);
 
-    while(template[i] != ">") {
+    while(template[i] != '>') {
         ++i;
 
-        if(i >= templatelength || template[i] == NULL) {
+        if(i >= templatelength || (template[i] == '\0')) {
             DEBUG("something wrong with the svg template\n");
             setError(ASSUMPTION_WRONG);
             return false;
@@ -78,19 +78,19 @@ bool write_svg_file(NSVGimage* input, chunkmap* map) {
     }
 
     DEBUG("calculate the length of the output string");
-    long total_chars = get_total_count(map, templatelength, map->shapecount, map->pathcount);
+    //long total_chars = get_total_count(map, templatelength, map->shapecount, map->pathcount);
 
     DEBUG("dynamically allocate a string with this length");
-    size_t memoryneeded = sizeof(char) * (total_chars + 1);
-    char* filetext = calloc(1, memoryneeded);
+    //size_t memoryneeded = sizeof(char) * (total_chars + 1);
+    //char* filetext = calloc(1, memoryneeded);
 
     DEBUG("include null at the end of the string");
-    unsigned long outputlength = strlen(output);
-    filetext[outputlength - 1] = NULL;
+    //unsigned long outputlength = strlen(output);
+    //filetext[outputlength - 1] = NULL;
 
     DEBUG("copy the template into the output string");
-    strcpy(output, template);
-    strcat(output, NEW_LINE);
+    fprintf(output, template);
+    fprintf(output, NEW_LINE);
 
     DEBUG("iterating nsvgshapes");
     NSVGshape* currentshape = input->shapes;
@@ -100,42 +100,44 @@ bool write_svg_file(NSVGimage* input, chunkmap* map) {
         NSVGpath* currentpath = currentshape->paths;
 
         DEBUG("creating <path> element\n");
-        strcat(output, "<path fill=\"#");
+        fprintf(output, "<path fill=\"#");
         DEBUG("set the fill attribute to the shapes fill property\n");
         int colour = currentshape->fill.color;
-        strcat(output, colour);
-        strcat(output, "\" d=\"");
-        DEBUG("iterating nsvgpaths");
+        fprintf(output, colour);
+        fprintf(output, "\" d=\"");
+        DEBUG("iterating nsvgpaths\n");
 
         bool ranonce = true;
 
         while(currentpath != NULL) {
             if(ranonce == true) {
                 DEBUG("start with M moveto command\n");
-                strcat(output, "M ");
+                fprintf(output, "M ");
             }
 
             else {
-                strcat(output, " L ");
+                fprintf(output, " L ");
             }            
             DEBUG("add a new coordinate to the d property\n");
-
             DEBUG("each coordinate starts with L followed by x and y space separated values\n");
-
-            DEBUG("finish the d with Z\n");
-
-            DEBUG("close the path element\n");
+            fprintf(output, "%d", currentpath->pts[3]);
+            fprintf(output, " ");
+            fprintf(output, "%d", currentpath->pts[4]);
             currentpath = currentpath->next;
             ranonce = true;
         }
+        DEBUG("finish the d with Z\n");
+        fprintf(output, " Z\"");
+        DEBUG("close the path element\n");
+        fprintf(output, "/>\n");
         currentshape = currentshape->next;
     }
 
-    DEBUG("freeing template");
+    DEBUG("freeing template\n");
     free_template(template);
 
-    DEBUG("freeing the output string");
-    free(output);
+    DEBUG("closing file\n");
+    fclose(output);
 
     return true;
 }
