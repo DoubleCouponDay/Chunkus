@@ -38,7 +38,7 @@ MunitResult can_convert_png_to_chunkmap(const MunitParameter params[], void* use
   
   vectorize_options options = {
     params[0].value,
-    (int)params[1].value,
+    atoi(params[1].value),
     atof(params[2].value)
   };
   stuff->img = convert_png_to_image(options.file_path);
@@ -86,7 +86,6 @@ MunitResult can_vectorize_image(const MunitParameter params[], void* userdata)
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
   munit_assert_ptr_not_null(stuff->result.nsvg_image);
   munit_assert_ptr_not_null(stuff->result.map);
-  stuff->svg = svg;
 
   return MUNIT_OK;
 }
@@ -187,6 +186,10 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
 
 int main(int argc, char** argv) {
   DEBUG("test runner initializing... \n");
+  DEBUG("args: ");
+  for (int i = 0; i < argc; ++i)
+    DEBUG("%s, ", argv[i]);
+  DEBUG("\n");
 
   char* param1[] = { "../../../../test/test.png", NULL };
   char* param2[] = { "3", NULL };
