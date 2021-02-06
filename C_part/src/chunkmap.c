@@ -142,7 +142,6 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
             iterateImagePixels(x, y, input, options, output);
         }
     }
-    DEBUG("generated chunkmap\n");
     return output;
 }
 

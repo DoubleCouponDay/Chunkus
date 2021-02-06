@@ -109,8 +109,8 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int 
                 }
 
                 else if(hashmap_oom(l->list->chunks) == false) { //create new shape with minimum 2 points
-                    DEBUG("adding two points new shape");
                     l->list = add_new_shape(l->list);
+                    ++map->shapecount;
                     int code = getLastError();
 
                     if(isBadError()) {
@@ -145,6 +145,7 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int 
         }
         current->is_boundary = true;
         l->list = add_new_shape(l->list);
+        ++map->shapecount;
         hashmap_set(l->list->chunks, current);
     }
 }
@@ -212,6 +213,7 @@ bool iterate_new_path(const void* item, void* udata) {
             previous_coord,
             chunk->location
         );
+        ++shape_data->map->pathcount;
     }
     int code = getLastError();
 
@@ -270,6 +272,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
     output->shapes = NULL; //get rid of fluff in the template
     unsigned long i = 0;
     bool ranonce = false;
+    DEBUG("shapecount: %d\n", map->shapecount);
 
     //iterate shapes
     while(map->shape_list != NULL) {        
@@ -307,6 +310,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
             hashcount == 1) { //only one point
             DEBUG("no chunks found in hashmap\n");
             ++i;
+            map->shape_list = map->shape_list->next; //go to next shape
             continue;    
         }
         DEBUG("iterating hashmap, count: %d \n", hashcount);
@@ -339,8 +343,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
             NSVG_PAINT_NONE,
             NSVG_RGB(0, 0, 0)
         };
-        output->shapes->stroke = stroke;
-        map->shape_list = map->shape_list->next; //go to next shape
+        output->shapes->stroke = stroke;        
 
         throw_on_max(&i);
         code = getLastError();
@@ -351,8 +354,9 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
         }
         ++i;
         ranonce = true;
-        ++map->shapecount; //used by svgfile.c
+        map->shape_list = map->shape_list->next; //go to next shape
     }
+    DEBUG("pathcount: %d\n", map->pathcount);
     output->shapes = firstshape;
 }
 

@@ -51,7 +51,7 @@ bool write_svg_file(NSVGimage* input) {
 
         DEBUG("creating <path> element\n");
         fprintf(output, "<path fill=\"#");
-        DEBUG("set the fill attribute to the shapes fill property: %d\n", currentshape->fill.color);
+        DEBUG("set the fill attribute to the shapes fill property: %x\n", currentshape->fill.color);
         unsigned int colour = currentshape->fill.color;
         fprintf(output, "%x", colour);
         fprintf(output, "\" d=\"");
