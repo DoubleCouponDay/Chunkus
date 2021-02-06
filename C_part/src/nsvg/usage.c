@@ -103,26 +103,33 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int 
                     add_chunk_to_shape(isinshape, current);
                     int code = getLastError();
 
-                    if (code != SUCCESS_CODE) {
+                    if (isBadError()) {
                         DEBUG("add_chunk_to_shape failed with code: %d\n", code);
                         return;
                     }                        
                 }
 
                 else if(hashmap_oom(l->list->chunks) == false) { //create new shape with minimum 2 points
+                    DEBUG("adding two points new shape");
                     l->list = add_new_shape(l->list);
                     int code = getLastError();
 
-                    if(code != SUCCESS_CODE) {
+                    if(isBadError()) {
                         DEBUG("add_new_shape failed with code: %d\n", code);
-                        return NULL;
+                        return;
                     }
 
-                    hashmap_set(l->list->chunks, current);
-                    hashmap_set(l->list->chunks, adjacent);
+                    void* result1 = hashmap_set(l->list->chunks, current);
+                    void* result2 = hashmap_set(l->list->chunks, adjacent);
+                    
+                    if(result1 != NULL || result2 != NULL) { //should never happen right?
+                        debug("hashmap replaced existing hash!\n");
+                        setError(ASSUMPTION_WRONG);
+                        return;
+                    }
                 }
 
-                else { //probably never happen
+                else { //probably will never happen
                     DEBUG("hashmap out of mana\n");
                     setError(HASHMAP_OOM);
                     return;
@@ -209,7 +216,7 @@ bool iterate_new_path(const void* item, void* udata) {
     }
     int code = getLastError();
 
-    if(code != SUCCESS_CODE) {
+    if(isBadError()) {
         return false;
     }
     currentpath->next = nextsegment;
@@ -232,7 +239,7 @@ void close_path(chunkmap* map, NSVGimage* output, NSVGpath* firstpath) {
     NSVGpath* path = create_path(map->input, realstart, realend);
     int code = getLastError();
     
-    if(code != SUCCESS_CODE) {
+    if(isBadError()) {
         DEBUG("create_path failed with code: %d\n", code);
         return;
     }
@@ -263,7 +270,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
     NSVGshape* firstshape = create_shape(map, firstid, firstidlength);
     output->shapes = NULL; //get rid of fluff in the template
     unsigned long i = 0;
-    bool firstrun = true;
+    bool ranonce = false;
 
     //iterate shapes
     while(map->shape_list != NULL) {        
@@ -285,7 +292,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
         NSVGpath* firstpath = create_path(map->input, empty, empty);
         int code = getLastError();
 
-        if(code != SUCCESS_CODE) {
+        if(isBadError()) {
             DEBUG("create_path failed with code: %d\n", code);
             return;
         }
@@ -297,16 +304,17 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
         };
         size_t hashcount = hashmap_count(map->shape_list->chunks);
 
-        if(firstrun == false && 
+        if(ranonce == true && 
             hashcount == 1) { //only one point
             DEBUG("no chunks found in hashmap\n");
+            ++i;
             continue;    
         }
         DEBUG("iterating hashmap, count: %d \n", hashcount);
         hashmap_scan(map->shape_list->chunks, iterate_new_path, &shape_data);
         code = getLastError();
 
-        if(code != SUCCESS_CODE) {
+        if(isBadError()) {
             DEBUG("iterate_new_path failed with code: %d\n", code);
             return;
         }
@@ -338,12 +346,12 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
         throw_on_max(&i);
         code = getLastError();
 
-        if(code != SUCCESS_CODE) {
+        if(isBadError()) {
             DEBUG("throw_on_max failed with code: %d\n", code);
             return;
         }
         ++i;
-        firstrun = false;
+        ranonce = true;
         ++map->shapecount; //used by svgfile.c
     }
     output->shapes = firstshape;
@@ -371,7 +379,7 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
             find_shapes(map, currentchunk_p, &list, map_x, map_y, options->shape_colour_threshhold);
             int code = getLastError();
 
-            if (code != SUCCESS_CODE)
+            if (isBadError())
             {
                 DEBUG("find_shapes failed with code: %d\n", code);
                 return;
@@ -385,7 +393,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     DEBUG("generating chunkmap\n");
     chunkmap* map = generate_chunkmap(input, options);
     
-    if (getLastError() != SUCCESS_CODE)
+    if (isBadError())
     {
         DEBUG("generate_chunkmap failed with code: %d \n", getLastError());
         free_chunkmap(map);
@@ -395,7 +403,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     DEBUG("filling chunkmap\n");
     fill_chunkmap(map, &options);
 
-    if (getLastError() != SUCCESS_CODE)
+    if (isBadError())
     {
         DEBUG("fill_chunkmap failed with code %d\n", getLastError());
         free_chunkmap(map);
@@ -409,7 +417,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     NSVGimage* output = create_nsvgimage(input.width, input.height);
     iterate_chunk_shapes(map, output);
 
-    if (getLastError() != SUCCESS_CODE)
+    if (isBadError())
     {
         DEBUG("iterate_chunk_shapes failed with code: %d\n", getLastError());
         free_chunkmap(map);

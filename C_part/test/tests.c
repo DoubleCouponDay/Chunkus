@@ -191,8 +191,8 @@ int main(int argc, char** argv) {
   DEBUG("\n");
 
   char* param1[] = { "../../../../test/test.png", NULL };
-  char* param2[] = { "3", NULL };
-  char* param3[] = { "400", NULL };
+  char* param2[] = { "1", NULL };
+  char* param3[] = { "200", NULL };
   char* param4[] = { "./chunkmap.png", NULL };
   char* testname = argv[1];
 

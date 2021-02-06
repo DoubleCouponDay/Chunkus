@@ -23,7 +23,7 @@ int execute_program(char* input_file_p, int chunk_size, float threshold, char* o
 	NSVGimage* nsvg = vectorize_image(img, options);
 	int code = getLastError();
 
-	if(code != SUCCESS_CODE) {
+	if(isBadError()) {
 		free_image_contents(img);
 		free_nsvg(nsvg);
 		DEBUG("vectorize_image failed with code: %d\n", code);
@@ -32,7 +32,7 @@ int execute_program(char* input_file_p, int chunk_size, float threshold, char* o
 	bool result = write_svg_file(nsvg);
 	code = getLastError();
 
-	if(result == false || code != SUCCESS_CODE) {
+	if(result == false || isBadError()) {
 		free_image_contents(img);
 		free_nsvg(nsvg);
 		DEBUG("wind_back_chunkshapes failed with code: %d\n", code);

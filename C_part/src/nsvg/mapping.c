@@ -23,7 +23,7 @@ void fill_strokedash_array(float* strokedash, float* fill, int array_length) {
     DEBUG("filling strokedash array\n");
     fill_float_array(strokedash, fill, array_length, STROKEDASH_LENGTH);
 
-    if(getLastError() != SUCCESS_CODE) {
+    if(isBadError()) {
         DEBUG("fill_float_array failed with code: %d\n", getLastError());
         return;
     }
@@ -47,7 +47,7 @@ void fill_bounds(float* bounds, float* fill, int array_length) {
     fill_float_array(bounds, fill, array_length, BOUNDS_LENGTH);
     int code = getLastError();
     
-    if(code != SUCCESS_CODE) {
+    if(isBadError()) {
         DEBUG("fill_float_array failed with code: %d\n", code);
         return;
     }
@@ -91,7 +91,7 @@ NSVGpath* create_path(image input, coordinate start, coordinate end) {
     fill_bounds(output->bounds, boundingbox, BOUNDS_LENGTH);
     int code = getLastError();
 
-    if(code != SUCCESS_CODE) {
+    if(isBadError()) {
         DEBUG("fill_bounds failed with code: %d\n", code);
         free(output);
         free(points);        
@@ -108,7 +108,7 @@ NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {
     NSVGshape* output = calloc(1, sizeof(NSVGshape));
     fill_id(output->id, id, ID_LENGTH);
 
-    if (getLastError() != SUCCESS_CODE)
+    if (isBadError())
     {
         free(output);
         DEBUG("fill_id failed with code: %d\n", getLastError());
@@ -136,7 +136,7 @@ NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {
     fill_strokedash_array(output->strokeDashArray, strokedash, strokeDashCount); //idk if we need this
     int code = getLastError();
 
-    if(code != SUCCESS_CODE) {
+    if(isBadError()) {
         free(output);
         DEBUG("fill_strokedash_array failed with code: %d\n", code);
         return NULL;
@@ -156,7 +156,7 @@ NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {
     };
     fill_bounds(output->bounds, newbounds, BOUNDS_LENGTH);
 
-    if (getLastError() != SUCCESS_CODE) {
+    if (isBadError()) {
         free(output);
         DEBUG("fill_bounds failed with: %d\n", getLastError());
         return NULL;

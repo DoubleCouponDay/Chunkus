@@ -33,7 +33,7 @@ bool write_svg_file(NSVGimage* input) {
     char* template = gettemplate();
     int code = getLastError();
 
-    if(code != SUCCESS_CODE) {
+    if(isBadError()) {
         DEBUG("gettemplate failed with code: %d\n", code);
         return false;
     }
