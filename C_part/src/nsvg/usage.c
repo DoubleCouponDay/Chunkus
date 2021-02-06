@@ -70,8 +70,7 @@ typedef struct list_holder
     chunkshape* list;
 } list_holder;
 
-inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int map_x, int map_y, float shape_colour_threshold)
-{
+inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int map_x, int map_y, float shape_colour_threshold) {
     int num_not_similar = 0;
 
     for (int adjacent_y = -1; adjacent_y < 2; ++adjacent_y)
@@ -123,7 +122,7 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int 
                     void* result2 = hashmap_set(l->list->chunks, adjacent);
                     
                     if(result1 != NULL || result2 != NULL) { //should never happen right?
-                        debug("hashmap replaced existing hash!\n");
+                        DEBUG("hashmap replaced existing hash!\n");
                         setError(ASSUMPTION_WRONG);
                         return;
                     }
