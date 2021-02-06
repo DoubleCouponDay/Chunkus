@@ -4,13 +4,7 @@ Convert a raster image into a scalable vector graphic and back.
 
 # TASKS
 
-//refactor all file names to make more sense
-
-//replace readpng in favour of pngfile
-
-- store SVGimage in a file
-
-- convert svg to bmp and store it in a file
+- threshhold: 200 created thousands of shapes with only 1 point???
 
 - clean up rust warnings
 
