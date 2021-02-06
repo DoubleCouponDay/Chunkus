@@ -110,7 +110,7 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int 
 
                 else if(hashmap_oom(l->list->chunks) == false) { //create new shape with minimum 2 points
                     l->list = add_new_shape(l->list);
-                    ++map->shapecount;
+                    ++map->totalshapecount;
                     int code = getLastError();
 
                     if(isBadError()) {
@@ -145,7 +145,7 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int 
         }
         current->is_boundary = true;
         l->list = add_new_shape(l->list);
-        ++map->shapecount;
+        ++map->totalshapecount;
         hashmap_set(l->list->chunks, current);
     }
 }
@@ -164,7 +164,6 @@ bool iterate_new_path(const void* item, void* udata) {
 
     //add chunk to path if its a boundary
     if(currentpath->pts[0] == NONE_FILLED) { //first point not supplied
-        coordinate empty = {0, 0, 1, 1};
         currentpath->pts[0] = chunk->location.x; //x1
         currentpath->pts[1] = chunk->location.y; //y1
 
@@ -195,7 +194,7 @@ bool iterate_new_path(const void* item, void* udata) {
             previous_coord,
             chunk->location
         );
-        ++shape_data->map->pathcount;
+        ++shape_data->map->totalpathcount;
     }
 
     else { //first path supplied
@@ -213,7 +212,7 @@ bool iterate_new_path(const void* item, void* udata) {
             previous_coord,
             chunk->location
         );
-        ++shape_data->map->pathcount;
+        ++shape_data->map->totalpathcount;
     }
     int code = getLastError();
 
@@ -272,7 +271,6 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
     output->shapes = NULL; //get rid of fluff in the template
     unsigned long i = 0;
     bool ranonce = false;
-    DEBUG("shapecount: %d\n", map->shapecount);
 
     //iterate shapes
     while(map->shape_list != NULL) {        
@@ -356,7 +354,6 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
         ranonce = true;
         map->shape_list = map->shape_list->next; //go to next shape
     }
-    DEBUG("pathcount: %d\n", map->pathcount);
     output->shapes = firstshape;
 }
 

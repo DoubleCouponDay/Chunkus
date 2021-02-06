@@ -15,6 +15,7 @@ typedef struct
 
 typedef struct chunkshape {
     hashmap* chunks;
+    int pathcount;
     struct chunkshape* next;
     struct chunkshape* previous;
 } chunkshape;
@@ -26,8 +27,8 @@ typedef struct
     int map_width; 
     int map_height;
     image input;
-    int pathcount;
-    int shapecount;
+    int totalpathcount;
+    int totalshapecount;
 } chunkmap;
 
 typedef struct

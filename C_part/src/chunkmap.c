@@ -106,14 +106,16 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
     output->input = input;
     output->map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
     output->map_height = (int)ceilf((float)input.height / (float)options.chunk_size);
-    output->pathcount = 0;
-    output->shapecount = 0;
+    output->totalpathcount = 0;
+    output->totalshapecount = 0;
     
     DEBUG("creating pixelchunk\n");
     pixelchunk* newarray = calloc(1, sizeof(pixelchunk*) * output->map_width);
     output->groups_array_2d = newarray;
     DEBUG("creating chunkshape\n");
     chunkshape* shape_list = calloc(1, sizeof(chunkshape));
+    shape_list->next = NULL;
+    shape_list->previous = NULL;
     output->shape_list = shape_list;
     DEBUG("allocating new hashmap\n");
     hashmap* newhashy = hashmap_new(sizeof(pixelchunk), 16, 0, 0, chunk_hash, chunk_compare, NULL); 
