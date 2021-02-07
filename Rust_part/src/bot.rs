@@ -484,7 +484,16 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
         let png_output = String::from(constants::OUTPUTFILENAME);
 
         // Render to png
-        render_svg_to_png(&output, &png_output);
+        println!("Rendering Output");
+        if let Err(why) = render_svg_to_png(&output, &png_output)
+        {
+            println!("Failed to render svg to png: {}", why);
+            if let Err(msg_why) = msg.reply(&ctx.http, format!("Failed to render svg to png: {}", why)).await
+            {
+                println!("Failed to reply to msg: {}", msg_why);
+            }
+            continue;
+        }
 
 
         // Send the output

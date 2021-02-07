@@ -1,6 +1,6 @@
 use usvg::SystemFontDB;
 
-pub fn render_svg_to_png(input: &String, output: &String)
+pub fn render_svg_to_png(input: &String, output: &String) -> Result<(), String>
 {
     
     let mut opt = usvg::Options::default();
@@ -8,11 +8,21 @@ pub fn render_svg_to_png(input: &String, output: &String)
     opt.fontdb.load_system_fonts();
     opt.fontdb.set_generic_families();
 
-    if let Ok(rtree) = usvg::Tree::from_file(&input, &opt)
+    let tree: usvg::Tree;
+    match usvg::Tree::from_file(&input, &opt)
     {
-        let pixmap_size = rtree.svg_node().size.to_screen_size();
-        let mut pixmap = tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
-        resvg::render(&rtree, usvg::FitTo::Original, pixmap.as_mut()).unwrap();
-        pixmap.save_png(&output).unwrap();
+        Ok(rtree) => tree = rtree,
+        Err(why) => return Err(format!("{}", why))
     }
+    let pixmap_size = tree.svg_node().size.to_screen_size();
+    let mut pixmap = tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
+    if resvg::render(&tree, usvg::FitTo::Original, pixmap.as_mut()).is_none()
+    {
+        return Err(String::from("Error Rendering SVG"));
+    }
+    if let Err(why) = pixmap.save_png(&output)
+    {
+        return Err(format!("{}", why));
+    }
+    return Ok(());
 }
