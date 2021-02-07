@@ -38,6 +38,15 @@ bool write_svg_file(NSVGimage* input) {
         return false;
     }
 
+    {
+        int extra_len = strlen(template) + 40;
+        char *modified_template = calloc(extra_len, sizeof(char));
+        snprintf(modified_template, extra_len, template, input->width, input->height, input->width, input->height);
+
+        free_template(template);
+        template = modified_template;
+    }
+
     DEBUG("copy the template into the output string\n");
     fprintf(output, template);
     fprintf(output, NEW_LINE);
