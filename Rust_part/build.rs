@@ -13,31 +13,31 @@ fn main() {
         if do_release
         {
             windowsfound_shared = std::fs::copy(
-                "../../build/windows/x64/release/vec.dll",
+                "../C_part/build/windows/x64/release/vec.dll",
                 "./vec.dll"
             );
             linuxfound_shared = std::fs::copy(
-                "../../build/linux/x86_64/release/libvec.a",
+                "../C_part/build/linux/x86_64/release/libvec.a",
                 "./vec.so",
             );
             windows_found_static = std::fs::copy(
-                "../../build/windows/x64/release/vec.lib",
+                "../C_part/build/windows/x64/release/vec.lib",
                 "./vec.lib"
             );
         }
         else
         {
             windowsfound_shared = std::fs::copy(
-                "../build/windows/x64/debug/vec.dll",
+                "../C_part/build/windows/x64/debug/vec.dll",
                 "./vec.dll"
             );
             linuxfound_shared = std::fs::copy(
-                "../build/linux/x86_64/debug/libvec.a",
+                "../C_part/build/linux/x86_64/debug/libvec.a",
                 "./vec.so",
             );
 
             windows_found_static = std::fs::copy(
-                "../build/windows/x64/debug/vec.lib",
+                "../C_part/build/windows/x64/debug/vec.lib",
                 "./vec.lib"
             );
         }
