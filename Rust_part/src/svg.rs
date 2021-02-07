@@ -1,7 +1,6 @@
 use usvg::SystemFontDB;
-use crate::constants;
 
-fn render_svg_to_png(input: String, output: String)
+pub fn render_svg_to_png(input: &String, output: &String)
 {
     
     let mut opt = usvg::Options::default();
@@ -14,6 +13,6 @@ fn render_svg_to_png(input: String, output: String)
         let pixmap_size = rtree.svg_node().size.to_screen_size();
         let mut pixmap = tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
         resvg::render(&rtree, usvg::FitTo::Original, pixmap.as_mut()).unwrap();
-        pixmap.save_png(output).unwrap();
+        pixmap.save_png(&output).unwrap();
     }
 }

@@ -484,7 +484,7 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
         let png_output = String::from(constants::OUTPUTFILENAME);
 
         // Render to png
-        render_svg_to_png(output, png_output);
+        render_svg_to_png(&output, &png_output);
 
 
         // Send the output
