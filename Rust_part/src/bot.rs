@@ -497,7 +497,7 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
 
         // Send the output
-        let msg_files = vec![png_output.as_str()];
+        let msg_files = vec![output.as_str(), png_output.as_str()];
 
         let msg = msg.channel_id.send_files(&ctx.http, msg_files, |m|
         {
