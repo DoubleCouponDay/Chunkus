@@ -414,7 +414,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     wind_back_chunkshapes(&map->shape_list);
 
     DEBUG("iterating chunk shapes\n");
-    NSVGimage* output = create_nsvgimage(input.width, input.height);
+    NSVGimage* output = create_nsvgimage(map->map_width, map->map_height);
     iterate_chunk_shapes(map, output);
 
     if (isBadError())
