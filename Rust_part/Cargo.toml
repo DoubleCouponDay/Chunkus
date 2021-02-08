@@ -1,5 +1,5 @@
 [package]
-name = "discord-v"
+name = "vecbot"
 version = "0.1.0"
 authors = ["dcdgo <mail@samueljenks.me>"]
 edition = "2018"

@@ -1,49 +1,71 @@
 #![allow(unused_imports)]
 fn main() {
     let path = std::env::current_dir().unwrap();
-    let do_release = std::env::var("releasebuild").unwrap_or(String::from("false")).parse::<bool>().unwrap_or(false);
+    let release_env_var = std::env::var("releasebuild");
+    
+    let unwrapped_var: bool = match release_env_var {
+        Err(_) => {
+            let message = "'releasebuild' environment variable not found.";
+            println!("{}", message);
+            panic!(message);
+        },
+        Ok(v) => {
+            let parsed = v.parse::<bool>();
+            
+            let success = match parsed {
+                Err(_) => {
+                    let message = "'releasebuild' is not a boolean";
+                    println!("{}", message);
+                    panic!(message);
+                },
+                Ok(v) => v
+            };
+            success
+        }
+    }; 
+
+    //copy the template svg    
+    let _ = std::fs::copy("../template.svg", std::env::var("OUT_DIR").unwrap());
 
     if let Some(currentdir) = path.as_path().to_str() {
         println!("current directory: {}", currentdir);
+        println!("unwrapped_var: {}", unwrapped_var);
 
         //detect the C part
-        let windowsfound_shared;
         let linuxfound_shared;
         let windows_found_static;
-        if do_release
-        {
-            windowsfound_shared = std::fs::copy(
-                "../C_part/build/windows/x64/release/vec.dll",
-                "./vec.dll"
-            );
-            linuxfound_shared = std::fs::copy(
-                "../C_part/build/linux/x86_64/release/libvec.a",
-                "./vec.so",
-            );
-            windows_found_static = std::fs::copy(
-                "../C_part/build/windows/x64/release/vec.lib",
-                "./vec.lib"
-            );
-        }
-        else
-        {
-            windowsfound_shared = std::fs::copy(
-                "../C_part/build/windows/x64/debug/vec.dll",
-                "./vec.dll"
-            );
-            linuxfound_shared = std::fs::copy(
-                "../C_part/build/linux/x86_64/debug/libvec.a",
-                "./vec.so",
-            );
 
+        if unwrapped_var //release build
+        {
+            println!("release C build detected");
+            linuxfound_shared = std::fs::copy(
+                std::path::Path::new("../C_part/build/linux/x86_64/release/libvec.a"),
+                std::path::Path::new("vec.so"),
+            );
             windows_found_static = std::fs::copy(
-                "../C_part/build/windows/x64/debug/vec.lib",
-                "./vec.lib"
+                std::path::Path::new("../C_part/build/windows/x64/release/vec.lib"),
+                std::path::Path::new("vec.lib")
             );
         }
 
-        if windowsfound_shared.is_err() && linuxfound_shared.is_err() && windows_found_static.is_err() {
-            println!("C part not found on either OS.");
+        else //debug build
+        {
+            println!("debug C build detected");
+            linuxfound_shared = std::fs::copy(
+                std::path::Path::new("../C_part/build/linux/x86_64/debug/libvec.a"),
+                std::path::Path::new("vec.so"),
+            );
+
+            windows_found_static = std::fs::copy(
+                std::path::Path::new("../C_part/build/windows/x64/debug/vec.lib"),
+                std::path::Path::new("vec.lib")
+            );
+        }
+
+        if linuxfound_shared.is_err() && windows_found_static.is_err() {
+            let copy_err = windows_found_static.unwrap_err();
+            println!("C part not found on either OS. error: {}", copy_err);
+            panic!("copy_err: {}", copy_err);
         }
         println!("cargo:rustc-link-search=./");
 
@@ -117,8 +139,6 @@ fn check_file_type(real_item: &std::fs::DirEntry, directory: &std::path::Path) {
 }
 
 fn add_directory_to_linker(dir_name: &str, real_file_name: &str) {
-println!("yo we found something: {} \n", real_file_name);
-
     println!("cargo:rustc-link-search={}", dir_name);
     println!("cargo:rustc-link-lib=static={}", real_file_name.strip_suffix(".lib").expect("Build script failed to remove '.lib' from a filename"));
 }
