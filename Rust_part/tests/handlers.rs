@@ -19,7 +19,7 @@ pub struct ReceiveEmbedMessageHandler
 }
 pub struct ReceiveMessageHandler
 {
-    pub message_received_mutex: Arc<Mutex<bool>>,
+    pub message_received_mutex: Arc<Mutex<bool>>
 }
 pub struct ReceiveImageEmbedMessageHandler
 {
@@ -29,7 +29,7 @@ pub struct ReceiveImageEmbedMessageHandler
 #[async_trait]
 impl EventHandler for ReceiveEmbedMessageHandler
 {
-    async fn message(&self, ctx: Context, msg: Message)
+    async fn message(&self, _ctx: Context, msg: Message)
     {
         if msg.content == MESSAGE_CONTENT && msg.embeds.len() > 0
         {
@@ -47,13 +47,13 @@ impl EventHandler for ReceiveEmbedMessageHandler
 #[async_trait]
 impl EventHandler for ReceiveImageEmbedMessageHandler
 {
-    async fn message(&self, ctx: Context, msg: Message)
+    async fn message(&self, _ctx: Context, msg: Message)
     {
         if msg.content == MESSAGE_CONTENT && msg.embeds.len() > 0
         {
             match &msg.embeds[0].image
             {
-                Some(img) => {
+                Some(_img) => {
                     println!("Found special test message");
                 
                 }
@@ -71,7 +71,7 @@ impl EventHandler for ReceiveImageEmbedMessageHandler
 #[async_trait]
 impl EventHandler for ReceiveMessageHandler
 {
-    async fn message(&self, ctx: Context, msg: Message)
+    async fn message(&self, _ctx: Context, msg: Message)
     {
         if msg.content == MESSAGE_CONTENT
         {
