@@ -208,7 +208,8 @@ void write_image_to_png(image img, char* fileaddress)
     if (!img.pixels_array_2d || !fileaddress)
         return;
 
-FILE* fp = fopen(fileaddress, "wb");
+    FILE* fp = fopen(fileaddress, "wb");
+
     if (!fp)
     {
         DEBUG("File: %s not found\n", fileaddress);
@@ -365,7 +366,6 @@ bool iterate_through_chunk(const void* item, void* udata)
     if (chunk->location.x < 0 || chunk->location.y < 0 || chunk->location.x >= map->width || chunk->location.y >= map->height)
         return true;
 
-    //DEBUG("Writing (%d, %d, %d) to pos (%d, %d)\n", stuff->colour.r, stuff->colour.g, stuff->colour.b, chunk->location.x, chunk->location.y);
     map->colours[chunk->location.x + map->width * chunk->location.y] = stuff->colour;
     return true;
 }
@@ -396,7 +396,6 @@ void write_chunkmap_to_png(chunkmap* map, char* fileaddress)
 
     while (current)
     {
-        //DEBUG("shape %d has %d chunks\n", shape_count, hashmap_count(current->chunks));
         shape_count++;
 
         png_hashies_iter stuff = {
