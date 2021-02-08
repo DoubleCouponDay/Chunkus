@@ -26,6 +26,12 @@ const int NEW_LINE_LENGTH = 0;
 #endif
 
 bool write_svg_file(NSVGimage* input) {
+    if(input->shapes == NULL) {
+        DEBUG("no shapes found in nsvg!\n");
+        setError(ASSUMPTION_WRONG);
+        return false;
+    }
+
     DEBUG("create a file for read/write and destroy contents if already exists\n");
     FILE* output = fopen(OUTPUT_PATH, "w+"); 
 
@@ -38,14 +44,6 @@ bool write_svg_file(NSVGimage* input) {
         return false;
     }
 
-    {
-        int extra_len = strlen(template) + 40;
-        char *modified_template = calloc(extra_len, sizeof(char));
-        snprintf(modified_template, extra_len, template, input->width, input->height, input->width, input->height);
-
-        free_template(template);
-        template = modified_template;
-    }
 
     DEBUG("copy the template into the output string\n");
     fprintf(output, template);
@@ -55,7 +53,6 @@ bool write_svg_file(NSVGimage* input) {
     NSVGshape* currentshape = input->shapes;
 
     while(currentshape != NULL) {
-        bool ran_once = false;
         NSVGpath* currentpath = currentshape->paths;
 
         DEBUG("creating <path> element\n");
@@ -64,28 +61,26 @@ bool write_svg_file(NSVGimage* input) {
         DEBUG("set the fill attribute to the shapes fill property: %x\n", colour);
         fprintf(output, "%x", colour);
         fprintf(output, "\" d=\"");
-
         bool ranonce = false;
 
         while(currentpath != NULL) {
             int x;
             int y;
+
             if(ranonce == false) {
                 DEBUG("start with M moveto command\n");
                 fprintf(output, "M ");
                 x = currentpath->pts[0];
                 y = currentpath->pts[1];
-                fprintf(output, "%d ", x);
-                fprintf(output, "%d", y);
             }
 
             else {
                 fprintf(output, " L ");
                 x = currentpath->pts[2];
                 y = currentpath->pts[3];
-                fprintf(output, "%d ", x);
-                fprintf(output, "%d", y);
-            }            
+            }
+            fprintf(output, "%d ", x);
+            fprintf(output, "%d", y);
             currentpath = currentpath->next;
             ranonce = true;
         }

@@ -270,26 +270,32 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
     NSVGshape* firstshape = create_shape(map, firstid, firstidlength);
     output->shapes = NULL; //get rid of fluff in the template
     unsigned long i = 0;
-    bool ranonce = false;
 
     //iterate shapes
     while(map->shape_list != NULL) {        
         DEBUG("iteration: %d \n", i);
+        size_t hashcount = hashmap_count(map->shape_list->chunks);
 
         if(output->shapes == NULL) {
             DEBUG("using first shape\n");
             output->shapes = firstshape;
         }
 
-        else {
+        else if(hashcount > 1) {
             DEBUG("creating new shape\n");
             char longaschar = i;
             NSVGshape* newshape = create_shape(map, &longaschar, 1);
             output->shapes->next = newshape;
             output->shapes = newshape;
         }
+
+        else {
+            DEBUG("not enough chunks found in hashmap\n");
+            ++i;
+            map->shape_list = map->shape_list->next;
+        }
         coordinate empty = {NONE_FILLED, NONE_FILLED, 1, 1};
-        NSVGpath* firstpath = create_path(map->input, empty, empty);
+        NSVGpath* firstpath = create_path(map->input, empty, empty); //lets us wind back the path list
         int code = getLastError();
 
         if(isBadError()) {
@@ -302,15 +308,6 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
         svg_hashies_iter shape_data = {
             map, output, firstpath, NULL
         };
-        size_t hashcount = hashmap_count(map->shape_list->chunks);
-
-        if(ranonce == true && 
-            hashcount == 1) { //only one point
-            DEBUG("no chunks found in hashmap\n");
-            ++i;
-            map->shape_list = map->shape_list->next; //go to next shape
-            continue;    
-        }
         DEBUG("iterating hashmap, count: %d \n", hashcount);
         hashmap_scan(map->shape_list->chunks, iterate_new_path, &shape_data);
         code = getLastError();
@@ -351,7 +348,6 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
             return;
         }
         ++i;
-        ranonce = true;
         map->shape_list = map->shape_list->next; //go to next shape
     }
     output->shapes = firstshape;
