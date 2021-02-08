@@ -32,6 +32,40 @@ use crate::constants::{
 };
 use crate::svg::render_svg_to_png;
 
+
+pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, handler: H) -> Client {    
+    println!("creating http token...");
+    let http = Http::new_with_token(&token);
+    
+    println!("fetching owner id, bot id...");
+
+    let (_, _bot_id) = match http.get_current_application_info().await {
+        Ok(info) => {
+            let mut owners = HashSet::new();
+            owners.insert(info.owner.id);
+
+            (owners, info.id)
+        },
+        Err(why) => panic!("Could not access application info: {:?}", why),
+    };
+    println!("creating framework...");
+
+    let framework = StandardFramework::new().configure(|c| c
+        .on_mention(Some(_bot_id))
+        .with_whitespace(true));
+        
+    println!("creating client...");
+
+    // Login with a bot token from the environment
+    let client = ClientBuilder::new(&token)
+        .event_handler(handler)
+        .framework(framework)
+        .await
+        .expect("Error creating client");
+
+    client
+}
+
 pub async fn create_vec_bot(token: &str) -> Client
 {
     println!("creating http token...");
@@ -149,28 +183,6 @@ impl TypeMapKey for VectorizeOptionsKey
     type Value = VectorizeOptions;
 }
 
-/*
-
-async def run_with_timeout(timeout, func, func_args):
-    start = now()
-
-    loop:
-        if start.elapsed() > timeout
-            break
-        
-        res = await func(ctx, func_args)
-        if res:
-            return True
-    
-    return False
-
-async def check_if_msg_id_exists(hash_map, msg_id)
-    blah
-
-await run_with_timeout(5, check_if_msg_id_exists, func_args=(hash_map, msg_id))
-
-
-*/
 //async fn has_data<F>(ctx: &Context, msg_id: MessageId, timeout: Duration, f: F) -> Result<(), ()> where F: Fn(&Context) -> bool
 async fn has_data(ctx: &Context, msg_id: MessageId, timeout: Duration) -> Result<(), ()>
 {
@@ -436,8 +448,8 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
 
         // Execute Algorithm
-        let input = String::from(constants::INPUTFILENAME);
-        let output = String::from(constants::OUTPUT_SVG_FILE);
+        let inputname = String::from(constants::INPUTFILENAME);
+        let outputname = String::from(constants::OUTPUT_SVG_FILE);
 
 
         // Get Options
@@ -452,7 +464,7 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
         }
         
         println!("Vectorizing....");
-        let result = do_vectorize(&input, &output, Some(chunksize), Some(threshold));        
+        let result = do_vectorize(&inputname, &outputname, Some(chunksize), Some(threshold));        
 
         let possibleerror = match result {
             FfiResult::SuccessCode => {
@@ -485,7 +497,7 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
         // Render to png
         println!("Rendering Output");
-        if let Err(why) = render_svg_to_png(&output, &png_output)
+        if let Err(why) = render_svg_to_png(&outputname, &png_output)
         {
             println!("Failed to render svg to png: {}", why);
             if let Err(msg_why) = msg.reply(&ctx.http, format!("Failed to render svg to png: {}", why)).await
@@ -497,7 +509,7 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
 
         // Send the output
-        let msg_files = vec![output.as_str(), png_output.as_str()];
+        let msg_files = vec![outputname.as_str(), png_output.as_str()];
 
         let msg = msg.channel_id.send_files(&ctx.http, msg_files, |m|
         {
