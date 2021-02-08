@@ -36,10 +36,6 @@ Install Conan.io. it can only be run from cmd, not powershell. Windows defender 
     cd into build directory
     
     conan install ..
-
-You must add an environment variable called `conanpath` and make its value the absolute path to your `.conan` folder. Usually this is found in your user folder.
-
-Open the '<nanosvg.h>` file and add `#pragma once` at the top.
   
 ---
 
@@ -51,11 +47,13 @@ First configure the xmake build tool with:
     
     xmake f -m debug -y
 
-This gets xmake to find the correct compiler and linker, and allows conan to download the dependancies  
+This gets xmake to find the correct compiler and linker, and allows conan to download the dependencies  
 It also configures xmake for debug building
 You can configure it to produce release builds with:
 
     xmake f -m release
+
+You must add an environment variable called `conanpath` and make its value the absolute path to your `.conan` folder. Usually this is found in your user folder.
 
 Now you should be able to run xmake and successfully build the C binaries  
 Simply call:
