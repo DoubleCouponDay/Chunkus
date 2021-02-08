@@ -9,26 +9,15 @@ add_requires("CONAN::nanosvg/20190405", {alias = "nanosvg"})
 rule("copytemplate")
     after_build(function (target)
         print("Target Dir: %s", target:targetdir())
-        os.cp("template.svg", path.join(target:targetdir(), "template.svg"))
+        os.cp("../template.svg", path.join(target:targetdir(), "template.svg"))
     end)
-
--- 
-target("vectorizer")
-    if is_plat("linux") then
-        add_syslinks("m")
-    end
-    -- set rule
-    add_rules("copytemplate")
-    -- set kind
-    set_kind("binary")
-    -- add files
-    add_files("./src/**.c")
-    add_packages("libpng", "libjpeg", "nanosvg")
 
 target("tests")
     if is_plat("linux") then
         add_syslinks("m")
     end
+    -- set rule
+    add_rules("copytemplate")
     -- set kind
     set_kind("binary")
     -- add files
