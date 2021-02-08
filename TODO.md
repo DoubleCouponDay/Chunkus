@@ -4,9 +4,11 @@ Convert a raster image into a scalable vector graphic and back.
 
 # TASKS
 
-- threshhold: 200 created thousands of shapes with only 1 point???
+//- threshhold: 200 created thousands of shapes with only 1 point???
 
-- clean up rust warnings
+//- clean up rust warnings
+
+- fix svg shapes with only one point in them
 
 - deploy to azure web apps for containers
 
