@@ -3,13 +3,13 @@ use usvg::SystemFontDB;
 pub fn render_svg_to_png(input: &String, output: &String) -> Result<(), String>
 {
     
-    let mut opt = usvg::Options::default();
-    opt.resources_dir = std::fs::canonicalize(&input).ok().and_then(|p| p.parent().map(|p| p.to_path_buf()));
-    opt.fontdb.load_system_fonts();
-    opt.fontdb.set_generic_families();
+    let mut options = usvg::Options::default();
+    options.resources_dir = std::fs::canonicalize(&input).ok().and_then(|p| p.parent().map(|p| p.to_path_buf()));
+    options.fontdb.load_system_fonts();
+    options.fontdb.set_generic_families();
 
     let tree: usvg::Tree;
-    match usvg::Tree::from_file(&input, &opt)
+    match usvg::Tree::from_file(&input, &options)
     {
         Ok(rtree) => tree = rtree,
         Err(why) => return Err(format!("{}", why))
