@@ -270,12 +270,6 @@ void add_chunk_to_hashmap(chunkshape* shape_list, pixelchunk* item) {
         return;
     }
     void* result = hashmap_set(shape_list->chunks, item);
-
-    // if(result != NULL) {
-    //     DEBUG("hashmap replaced existing hash!\n");
-    //     setError(ASSUMPTION_WRONG);
-    //     return;
-    // }
 }
 
 //returns the shape its in. else, NULL
