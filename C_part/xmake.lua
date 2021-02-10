@@ -5,6 +5,7 @@ add_rules("mode.release")
 add_requires("CONAN::libpng/1.6.37", {alias = "libpng"})
 add_requires("CONAN::libjpeg/9d", {alias = "libjpeg"})
 add_requires("CONAN::nanosvg/20190405", {alias = "nanosvg"})
+add_requires("CONAN::cpp-sort/1.9.0", {alias = "sort"})
 
 rule("copytemplate")
     after_build(function (target)
@@ -23,7 +24,7 @@ target("tests")
     -- add files
     add_files("./src/**.c|main.c")
     add_files("./test/**.c")
-    add_packages("libpng", "libjpeg", "nanosvg")
+    add_packages("libpng", "libjpeg", "nanosvg", "sort")
 
 target("vec")
     if is_plat("linux") then
@@ -31,4 +32,4 @@ target("vec")
     end
     set_kind("static")
     add_files("./src/**.c|main.c")
-    add_packages("libpng", "libjpeg", "nanosvg")
+    add_packages("libpng", "libjpeg", "nanosvg", "sort")

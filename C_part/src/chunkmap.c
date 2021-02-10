@@ -113,10 +113,17 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
     pixelchunk* newarray = calloc(1, sizeof(pixelchunk*) * output->map_width);
     output->groups_array_2d = newarray;
     DEBUG("creating chunkshape\n");
+
     chunkshape* shape_list = calloc(1, sizeof(chunkshape));
     shape_list->next = NULL;
     shape_list->previous = NULL;
-    output->shape_list = shape_list;
+
+    pixelchunk_list* chunklist = calloc(1, sizeof(pixelchunk_list));
+    chunklist->firstitem = chunklist;
+    chunklist->chunk_p = NULL;
+    chunklist->next = NULL;
+    shape_list->boundaries = chunklist;
+        
     DEBUG("allocating new hashmap\n");
     hashmap* newhashy = hashmap_new(sizeof(pixelchunk), 16, 0, 0, chunk_hash, chunk_compare, NULL); 
 
@@ -126,8 +133,9 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
         return NULL;
     }
 
+    shape_list->chunks = newhashy;
     DEBUG("assign shape_list hashmap\n");
-    output->shape_list->chunks = newhashy;
+    output->shape_list = shape_list;
 
     DEBUG("allocating row pointers\n");
 
@@ -166,6 +174,16 @@ void wind_back_chunkshapes(chunkshape** list)
     *list = iter;
 }
 
+void free_boundaries(chunkshape* shape) {
+    chunkshape* current = shape;
+
+    while(current != NULL) {
+        chunkshape* tofree = current;
+        current = current->next;
+        free(tofree); //the reference held to the pixel will be cleaned up
+    }
+}
+
 void free_chunkmap(chunkmap* map_p)
 {
     if (!map_p) {
@@ -192,6 +210,7 @@ void free_chunkmap(chunkmap* map_p)
         {
             chunkshape* next = map_p->shape_list->next;
             hashmap_free(map_p->shape_list->chunks);
+            free_boundaries(next);
             free(map_p->shape_list);
             map_p->shape_list = next;
         }

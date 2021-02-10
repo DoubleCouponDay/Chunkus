@@ -15,10 +15,22 @@
 #include "copy.h"
 #include "../hashmap/usage.h"
 #include "mapping.h"
+#include "../sort.h"
 
 const int NONE_SIMILAR = 8;
 const int NONE_FILLED = -1;
 const char* OOM_MESSAGE = "hashmap out of mana\n";
+
+pixelchunk_list* add_chunk_to_list(chunkshape* shape, pixelchunk* chunk) {
+    pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
+    new->firstitem = shape->boundaries->firstitem;
+    new->chunk_p = NULL;
+    new->next = NULL;
+
+    shape->boundaries->next = new;
+    ++shape->boundaries_length;
+    return new;
+}
 
 chunkshape* add_new_shape(chunkshape* shape_list) {
     chunkshape* new = calloc(1, sizeof(chunkshape));
@@ -35,21 +47,33 @@ chunkshape* add_new_shape(chunkshape* shape_list) {
         free(new);  
         setError(ASSUMPTION_WRONG);
         return NULL;
-    }  
+    }
+    pixelchunk_list* orderedlist = calloc(1, sizeof(pixelchunk_list));
+    orderedlist->firstitem = NULL;
+    orderedlist->chunk_p = NULL;
+    orderedlist->next = NULL;
+
     new->chunks = newhashy;
     new->next = NULL;
     new->previous = shape_list;
+    new->boundaries = orderedlist;
     shape_list->next = new;
     return new;
 }
 
-void add_chunk_to_shape(chunkshape* shape_list, pixelchunk* item) {
+void add_chunk_to_hashmap(chunkshape* shape_list, pixelchunk* item) {
     if(hashmap_oom(shape_list->chunks)){
         DEBUG("hashmap out of mana\n");
         setError(HASHMAP_OOM);
         return;
     }
-    hashmap_set(shape_list->chunks, item);
+    void* result = hashmap_set(shape_list->chunks, item);
+
+    if(result != NULL) {
+        DEBUG("hashmap replaced existing hash!\n");
+        setError(ASSUMPTION_WRONG);
+        return;
+    }
 }
 
 //returns the shape its in. else, NULL
@@ -70,9 +94,8 @@ typedef struct list_holder
     chunkshape* list;
 } list_holder;
 
-inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int map_x, int map_y, float shape_colour_threshold) {
-    int num_not_similar = 0;
-
+//welcome to the meat and potatoes of the program!
+inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output, chunkshape* firstshape, int map_x, int map_y, float shape_colour_threshold) {    
     for (int adjacent_y = -1; adjacent_y < 2; ++adjacent_y)
     {
         for (int adjacent_x = -1; adjacent_x < 2; ++adjacent_x)
@@ -91,73 +114,75 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder *l, int 
                 continue;
 
             pixelchunk* adjacent = &map->groups_array_2d[adjacent_index_x][adjacent_index_y];
+            chunkshape* currentinshape = big_chungus_already_in_shape(map, current);
+            chunkshape* adjacentinshape = big_chungus_already_in_shape(map, adjacent);
+            chunkshape* chosenshape;
 
-            if (colours_are_similar(current->average_colour, adjacent->average_colour, shape_colour_threshold) == false) { //colours are not similar
-                ++num_not_similar;
-                current->is_boundary = true;
+            if (colours_are_similar(current->average_colour, adjacent->average_colour, shape_colour_threshold)) {                
+                if(currentinshape == NULL && adjacentinshape == NULL) {
+                    if(firstshape->filled == false) {
+                        chosenshape = firstshape;    
+                    }
 
-                chunkshape* isinshape = big_chungus_already_in_shape(map, adjacent);
+                    else {
+                        chosenshape = output->list = add_new_shape(output->list);
+                    }
+
+                    add_chunk_to_hashmap(chosenshape, current);
+                    add_chunk_to_hashmap(chosenshape, adjacent);
+                    chosenshape->colour = current->average_colour;
+                }
+
+                else if (currentinshape && adjacentinshape == NULL)
+                {
+                    add_chunk_to_hashmap(currentinshape, adjacent);
+                }
+
+                else if(currentinshape == NULL && adjacentinshape)
+                {
+                    add_chunk_to_hashmap(adjacentinshape, current);
+                }
+
+                else {
+                    continue;
+                }
+            }
+
+            else { // Not similar
+                if(firstshape->filled == false) {
+                    chosenshape = firstshape;
+                    chosenshape->colour = current->average_colour;
+                    add_chunk_to_hashmap(chosenshape, current); //cant put this in the "isinshape" state as that would throw
+                }
+
+                else if(currentinshape) {
+                    chosenshape = currentinshape;
+                }
+
+                else { //current is not in a shape
+                    chosenshape = output->list = add_new_shape(output->list);
+                    chosenshape->colour = current->average_colour;
+                    add_chunk_to_hashmap(chosenshape, current);                    
+                }
                 
-                if (isinshape) {
-                    add_chunk_to_shape(isinshape, current);
-                    int code = getLastError();
-
-                    if (isBadError()) {
-                        DEBUG("add_chunk_to_shape failed with code: %d\n", code);
-                        return;
-                    }                        
+                if(chosenshape->boundaries->chunk_p == NULL) { //use first boundary
+                    chosenshape->boundaries->chunk_p = current;
+                    ++chosenshape->boundaries_length;
                 }
 
-                else if(hashmap_oom(l->list->chunks) == false) { //create new shape with minimum 2 points
-                    l->list = add_new_shape(l->list);
-                    ++map->totalshapecount;
-                    int code = getLastError();
-
-                    if(isBadError()) {
-                        DEBUG("add_new_shape failed with code: %d\n", code);
-                        return;
-                    }
-
-                    void* result1 = hashmap_set(l->list->chunks, current);
-                    void* result2 = hashmap_set(l->list->chunks, adjacent);
-                    
-                    if(result1 != NULL || result2 != NULL) { //should never happen right?
-                        DEBUG("hashmap replaced existing hash!\n");
-                        setError(ASSUMPTION_WRONG);
-                        return;
-                    }
-                }
-
-                else { //probably will never happen
-                    DEBUG("hashmap out of mana\n");
-                    setError(HASHMAP_OOM);
-                    return;
-                }
+                else { //create boundary item
+                    add_chunk_to_list(chosenshape, current);                    
+                }                
             }
         }
     }
-
-    if(num_not_similar == NONE_SIMILAR) {
-        if(hashmap_oom(l->list->chunks)) {
-            DEBUG("hashmap out of mana\n");
-            setError(HASHMAP_OOM);
-            return;
-        }
-        current->is_boundary = true;
-        l->list = add_new_shape(l->list);
-        ++map->totalshapecount;
-        hashmap_set(l->list->chunks, current);
-    }
+    output->list->boundaries = output->list->boundaries->firstitem;
 }
 
 //assumes first path and first shape are given
 bool iterate_new_path(const void* item, void* udata) {
     pixelchunk* chunk = item;
     svg_hashies_iter* shape_data = udata;
-
-    if(chunk->is_boundary == false) {
-        return true;
-    }
     NSVGshape* current = shape_data->output->shapes;
     NSVGpath* currentpath = current->paths;
     NSVGpath* nextsegment;
@@ -309,7 +334,10 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
             map, output, firstpath, NULL
         };
         DEBUG("iterating hashmap, count: %d \n", hashcount);
-        hashmap_scan(map->shape_list->chunks, iterate_new_path, &shape_data);
+        for (pixelchunk_list* iter = map->shape_list->boundaries; iter; iter = iter->next)
+        {
+            iterate_new_path(iter->chunk_p, &shape_data);
+        }
         code = getLastError();
 
         if(isBadError()) {
@@ -360,6 +388,8 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     list_holder list = (list_holder){ map->shape_list };
     int count = 0;
     int tenth_count = 0;
+    chunkshape* firstshape = map->shape_list;
+
     for(int map_y = 0; map_y < map->map_height; ++map_y)
     {
         for(int map_x = 0; map_x < map->map_width; ++map_x)
@@ -372,7 +402,7 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
             }
 
             pixelchunk* currentchunk_p = &map->groups_array_2d[map_x][map_y];
-            find_shapes(map, currentchunk_p, &list, map_x, map_y, options->shape_colour_threshhold);
+            find_shapes(map, currentchunk_p, &list, firstshape, map_x, map_y, options->shape_colour_threshhold);
             int code = getLastError();
 
             if (isBadError())
@@ -406,6 +436,13 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
         return NULL;
     }
 
+    DEBUG("sorting boundaries\n");
+    chunkshape* current = map->shape_list;
+    
+    while(current != NULL) {
+        sort_boundary(current);
+        current = current->next;
+    }
     DEBUG("Now winding back chunk_shapes\n");
     wind_back_chunkshapes(&map->shape_list);
 

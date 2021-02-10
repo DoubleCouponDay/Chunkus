@@ -10,12 +10,22 @@ typedef struct
     pixel average_colour;
     pixel** pixels_array_2d;
     coordinate location;
-    bool is_boundary;
 } pixelchunk;
 
+typedef struct pixelchunk_list
+{    
+    pixelchunk* chunk_p;
+    struct pixelchunk_list* firstitem;
+    struct pixelchunk_list* next;
+} pixelchunk_list;
+
 typedef struct chunkshape {
+    bool filled;
     hashmap* chunks;
+    int boundaries_length;
+    pixelchunk_list* boundaries;
     int pathcount;
+    pixel colour;
     struct chunkshape* next;
     struct chunkshape* previous;
 } chunkshape;

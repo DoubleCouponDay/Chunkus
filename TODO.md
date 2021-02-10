@@ -4,11 +4,18 @@ Convert a raster image into a scalable vector graphic and back.
 
 # TASKS
 
-//- threshhold: 200 created thousands of shapes with only 1 point???
 
-//- clean up rust warnings
+<!-- - fix hashmap iteration is not in order
+    //implement the new find_shapes algorithm
 
-- fix svg shapes with only one point in them
+    free pixelchunk_list and members     -->
+
+- fix no paths found error.
+    when can boundary = false?
+
+    remove is_boundary
+
+- remove previous from linked list
 
 - deploy to azure web apps for containers
 

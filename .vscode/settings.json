@@ -50,7 +50,12 @@
         "tears.h": "c",
         "pngfile.h": "c",
         "chunkmap.h": "c",
-        "image.h": "c"
+        "image.h": "c",
+        "mapping.h": "c",
+        "stdlib.h": "c",
+        "copy.h": "c",
+        "limits.h": "c",
+        "debug.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }
