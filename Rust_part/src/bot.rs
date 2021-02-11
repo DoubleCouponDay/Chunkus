@@ -27,9 +27,6 @@ use std::{
     time::{Duration, Instant},
 };
 use crate::constants;
-use crate::constants::{
-    FfiResult
-};
 use crate::svg::render_svg_to_png;
 
 
@@ -383,22 +380,6 @@ async fn vectorize(ctx: &Context, msg: &Message, _args: Args) -> CommandResult {
     println!("Sending {0} urls to vectoriser", embed_urls.len());
     println!("Yo Mama {:?}", embed_urls);
     vectorize_urls(&ctx, &msg, &embed_urls).await;
-
-    /*
-    bug: image embed not always included in message object as image not yet processed on discord side.
-    i.e  message object is the state of the message before image has been processed.
-
-    
-    maybe pull fresh message if no embed.
-
-    max message refreshes const
-    
-    => check if message has embed
-    => if not, wait for MESSAGE_UPDATE ???
-    
-    await wait_for message_id in global dict
-
-    */  
     
     Ok(())
 }
@@ -466,31 +447,18 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
         println!("Vectorizing....");
         let result = do_vectorize(&inputname, &outputname, Some(chunksize), Some(threshold));        
 
-        let possibleerror = match result {
-            FfiResult::SuccessCode => {
-                println!("success");
-                ""
-            },
-            FfiResult::AssumptionWrong => "assumption wrong",
-            FfiResult::TemplateFileNotFound => "template file not found",
-            FfiResult::SvgSpaceError => "svg space error",
-            FfiResult::ReadFileError => "read file error",
-            FfiResult::ArrayDiffSizeError => "array diff size error",
-            FfiResult::NullArgumentError => "null argument error",
-            FfiResult::HashmapOom => "hashmap out of mana",
-            FfiResult::OverflowError => "overflow error",
-            FfiResult::BadArgumentError => "bad argument error",
-            _ => {
-                panic!("error code not accounted for!");
-            }
-        };
+        let possibleerror: &str = result.into();
 
         if possibleerror != "" {
             if let Err(why) = msg.reply(&ctx.http, possibleerror)
             .await { 
-                println!("Error replying: {:?}",why);
+                println!("Error replying: {}", why);
             };
             continue;
+        }
+
+        else {
+            println!("success");
         }
 
         let png_output = String::from(constants::OUTPUTFILENAME);

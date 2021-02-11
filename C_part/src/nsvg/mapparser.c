@@ -174,6 +174,13 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
         svg_hashies_iter shape_data = {
             map, output, firstpath, NULL
         };
+
+        if(map->shape_list->boundaries->chunk_p == NULL) {
+            DEBUG("no boundaries created\n!");
+            setError(NO_BOUNDARIES_CREATED);
+            return;
+        }
+
         DEBUG("iterating hashmap, count: %d \n", hashcount);
 
         for (pixelchunk_list* iter = map->shape_list->boundaries; iter; iter = iter->next)

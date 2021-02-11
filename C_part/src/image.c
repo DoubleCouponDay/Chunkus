@@ -32,6 +32,15 @@ pixelF convert_pixel_to_colorf(pixel input)
     return out;
 }
 
+colour convert_pixel_to_colour(pixel input)
+{
+    colour out;
+    out.r = ((float)input.r) / 255.f;
+    out.g = ((float)input.g) / 255.f;
+    out.b = ((float)input.b) / 255.f;
+    return out;
+}
+
 bool pixelf_equal(pixelF a, pixelF b) {
     return a.r == b.r && a.g == b.g && a.b == b.b;
 }
@@ -48,9 +57,9 @@ int calculate_int_units(int subject) {
 bool colours_are_similar(pixel color_a, pixel color_b, float max_distance)
 {
     pixel diff;
-    diff.r = color_a.r - color_b.r;
-    diff.g = color_a.g - color_b.g;
-    diff.b = color_a.b - color_b.b;
+    diff.r = abs((int)color_a.r - (int)color_b.r);
+    diff.g = abs((int)color_a.g - (int)color_b.g);
+    diff.b = abs((int)color_a.b - (int)color_b.b);
 
     float abc = (diff.r * diff.r) + (diff.g * diff.g) + (diff.b * diff.b);
     float mag_max = max_distance * max_distance;

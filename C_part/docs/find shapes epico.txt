@@ -1,0 +1,42 @@
+
+BEFORE find_shapes:
+    - prepare hashmap for shape lookup
+
+let shape_ints: int[chunkmap.width][chunkmap.height] = 0
+let next_shape_int: int = 1
+
+find_shapes scan lining through chunkmap:
+    
+    look through adjacents:
+        shapes_ints[current] |= shapes_ints[adjacent]
+
+    // Increments next_shape_int is shape_ints[current] is zero
+    next_shape_int = next_shape_int + (!shape_ints[current] * 1)
+    // Assigns next_shape_int to shape_ints[current] is shape_ints[current] is zero
+    shape_ints[current] |= (!shape_ints[current] * next_shape_int) 
+    
+
+get_shape_sizes:
+    let shape_sizes: int[next_shape_int]
+
+    scanline chunkmap:
+        shape_sizes[shape_ints[current]]++
+    
+convert_to_shapes:
+    let shape_array: shape[next_shape_int]
+    let shape_indices: int[next_shape_int] = 0
+    for i in 0..next_shape_int
+        let shape_array[i]: shape of size shape_sizes[i]
+
+    scanline through chunkmap:
+        shape_array[shape_ints[current]][shape_indices++] = current
+
+After these three steps there the shape_array should be full of shapes with the correct pixelchunks
+
+
+
+find_boundaries:
+    let boundaries: bool[chunkmap.width][chunkmap.height]
+    iterate through shape_array:
+        iterate through shape_array[current_shape]:
+

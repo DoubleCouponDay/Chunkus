@@ -23,6 +23,7 @@ target("tests")
     -- add files
     add_files("./src/**.c|main.c")
     add_files("./test/**.c")
+    add_includedirs("./src/")
     add_packages("libpng", "libjpeg", "nanosvg", "sort")
 
 target("vec")
@@ -31,4 +32,5 @@ target("vec")
     end
     set_kind("static")
     add_files("./src/**.c|main.c")
+    add_includedirs("./src/")
     add_packages("libpng", "libjpeg", "nanosvg", "sort")

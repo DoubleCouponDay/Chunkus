@@ -30,7 +30,6 @@ pub fn call_vectorize(input: &mut CString, output: &mut CString, chunk: &mut CSt
         println!("between: {}", between);
         result = FfiResult::from(between);
     };
-    println!("result: {}", result);
     result
 }
 

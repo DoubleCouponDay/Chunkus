@@ -1,5 +1,3 @@
-use std::fmt;
-
 
 pub const INPUTFILENAME: &str = "input.png";
 
@@ -21,15 +19,14 @@ pub enum FfiResult {
     HashmapOom,
     OverflowError,
     BadArgumentError,
-    NotPngError
+    NotPngError,
+    NoBoundariesCreated,
+    UnknownError
 }
 
-impl From<i32> for FfiResult
-{
-    fn from(num: i32) -> Self
-    {
-        match num
-        {
+impl From<i32> for FfiResult {
+    fn from(num: i32) -> Self {
+        match num {
             0 => FfiResult::SuccessCode,
             1 => FfiResult::AssumptionWrong,
             2 => FfiResult::TemplateFileNotFound,
@@ -41,28 +38,32 @@ impl From<i32> for FfiResult
             8 => FfiResult::OverflowError,
             9 => FfiResult::BadArgumentError,
             10 => FfiResult::NotPngError,
-            _ => FfiResult::AssumptionWrong
+            11 => FfiResult::NoBoundariesCreated,
+            _ => FfiResult::UnknownError
         }
     }
 }
 
-impl fmt::Display for FfiResult
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
-    {
-        match self
-        {
-            FfiResult::SuccessCode => write!(f, "SuccessCode"),
-            FfiResult::AssumptionWrong => write!(f, "AssumptionWrong"),
-            FfiResult::TemplateFileNotFound => write!(f, "TemplateFileNotFound"),
-            FfiResult::SvgSpaceError => write!(f, "SvgSpaceError"),
-            FfiResult::ReadFileError => write!(f, "ReadFileError"),
-            FfiResult::ArrayDiffSizeError => write!(f, "ArrayDiffSizeError"),
-            FfiResult::NullArgumentError => write!(f, "NullArgumentError"),
-            FfiResult::HashmapOom => write!(f, "HashmapOom"),
-            FfiResult::OverflowError => write!(f, "OverflowError"),
-            FfiResult::BadArgumentError => write!(f, "BadArgumentError"),
-            FfiResult::NotPngError => write!(f, "NotPngError")
-        }
+impl Into<&'static str> for FfiResult {
+    fn into(self) -> &'static str {
+        ffiresult_to_string(&self)
+    }
+}
+
+fn ffiresult_to_string(input: &FfiResult) -> &'static str {
+    match input {
+        FfiResult::SuccessCode => "SuccessCode",
+        FfiResult::AssumptionWrong => "AssumptionWrong",
+        FfiResult::TemplateFileNotFound => "TemplateFileNotFound",
+        FfiResult::SvgSpaceError => "SvgSpaceError",
+        FfiResult::ReadFileError => "ReadFileError",
+        FfiResult::ArrayDiffSizeError => "ArrayDiffSizeError",
+        FfiResult::NullArgumentError => "NullArgumentError",
+        FfiResult::HashmapOom => "HashmapOom",
+        FfiResult::OverflowError => "OverflowError",
+        FfiResult::BadArgumentError => "BadArgumentError",
+        FfiResult::NotPngError => "NotPngError",
+        FfiResult::NoBoundariesCreated => "NoBoundariesCreated",
+        FfiResult::UnknownError => "UnknownError"
     }
 }

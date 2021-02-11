@@ -366,7 +366,7 @@ bool iterate_through_chunk(const void* item, void* udata)
     if (chunk->location.x < 0 || chunk->location.y < 0 || chunk->location.x >= map->width || chunk->location.y >= map->height)
         return true;
 
-    map->colours[chunk->location.x + map->width * chunk->location.y] = stuff->colour;
+    map->colours[chunk->location.x + map->width * chunk->location.y] = convert_pixel_to_colour(chunk->average_colour);
     return true;
 }
 

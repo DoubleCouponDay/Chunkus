@@ -183,6 +183,31 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   return MUNIT_OK;
 }
 
+MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdata)
+{
+  speedy_vectorize_stuff* stuff = userdata;
+
+  char* fileaddress = params[0].value;
+
+  char* chunk_size_str = params[1].value;
+  int chunk_size = atoi(chunk_size_str);
+
+  char* threshold_str = params[2].value;
+  float threshold = atof(threshold_str);
+  
+  char* out_fileaddress = params[3].value;
+
+  vectorize_options options = {
+    fileaddress,
+    chunk_size,
+    threshold,
+  };
+
+  stuff->img = convert_png_to_image(fileaddress);
+
+  vectorize_image_speed(stuff->img, options);
+}
+
 int main(int argc, char** argv) {
   DEBUG("test runner initializing... \n");
   DEBUG("args: ");
@@ -219,9 +244,10 @@ int main(int argc, char** argv) {
   MunitTest melon = { "png_to_nsvg", can_vectorize_image, test6setup, test6teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest cherry = { "chunkmap_to_png", can_write_chunkmap_shapes_to_file, test69setup, test69teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest banana = { "nsvg_to_svg", can_write_to_svgfile, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest yo_mama = { "speedy_vectorize", can_do_speedy_vectorize, speedy_vectorize_setup, speedy_vectorize_teardown, MUNIT_TEST_OPTION_NONE, test_params };
 
   enum { 
-    NUM_TESTS = 7 //UPDATE THIS WHEN YOU ADD NEW TESTS
+    NUM_TESTS = 8 //UPDATE THIS WHEN YOU ADD NEW TESTS
   }; 
 
   namedtest tests[NUM_TESTS] = {
@@ -231,7 +257,8 @@ int main(int argc, char** argv) {
     {peach.name, peach},
     {melon.name, melon},
     {cherry.name, cherry},
-    {banana.name, banana}
+    {banana.name, banana},
+    {yo_mama.name, yo_mama},
   };
   MunitTest* filteredtests = filtertests(tests, NUM_TESTS, testname);
   MunitSuite suite = { "tests.", filteredtests };

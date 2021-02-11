@@ -61,6 +61,7 @@ typedef struct
 pixel convert_colorf_to_pixel(pixelF input);
 
 pixelF convert_pixel_to_colorf(pixel input);
+colour convert_pixel_to_colour(pixel input);
 
 bool pixelf_equal(pixelF a, pixelF b);
 

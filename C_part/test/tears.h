@@ -57,3 +57,11 @@ typedef struct
 
 void* test8setup(const MunitParameter params[], void* userdata);
 void test8teardown(void* fixture);
+
+typedef struct
+{
+    image img;
+} speedy_vectorize_stuff;
+
+void* speedy_vectorize_setup(const MunitParameter params[], void* userdata);
+void speedy_vectorize_teardown(void* fixture);

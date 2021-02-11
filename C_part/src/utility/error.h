@@ -11,7 +11,8 @@ enum vectorizing_opcodes {
     HASHMAP_OOM,
     OVERFLOW_ERROR,
     BAD_ARGUMENT_ERROR,
-    NOT_PNG
+    NOT_PNG,
+    NO_BOUNDARIES_CREATED
 };
 
 int getLastError();
