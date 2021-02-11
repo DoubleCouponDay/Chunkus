@@ -34,12 +34,26 @@ void find_shapes_speed(chunkmap* map, float threshold)
                 for (int adj_y = 0 - (y > 0) * 1; adj_y < capped_y; ++adj_y)
                 {
                     int similarity = colours_are_similar(map->groups_array_2d[x][y].average_colour, map->groups_array_2d[x+adj_x][y+adj_y].average_colour, threshold);
-                    shape_ints[current] |= (((adj_x != 0) | (adj_y != 0)) * similarity * shape_ints[current + adj_x + adj_y * map->map_width]);
+                    int val = (((adj_x != 0) | (adj_y != 0)) * similarity * shape_ints[current + adj_x + adj_y * map->map_width]);
+                    shape_ints[current] = (!val * shape_ints[current]) + val;
                 }
             }
 
-            next_shape_int += 1 * (!shape_ints[current]);
-            shape_ints[current] |= next_shape_int * (!shape_ints[current]);
+            if (!shape_ints[current])
+                LOG_INFO("Creating new Shape" );
+
+            next_shape_int += 1 * (!shape_ints[current]); // Goes up every time a chunk has no similar neighbours with chunks
+            int val = next_shape_int * (!shape_ints[current]);
+            shape_ints[current] = (!val * shape_ints[current]) + val; // Assigns the incremented next_shape_int to this pixelchunk if it had no similar neighbours
+        }
+    }
+
+    for (int y = 0; y < map->map_height; ++y)
+    {
+        for (int x = 0; x < map->map_width; ++x)
+        {
+            int current = x + y * map->map_width;
+            --shape_ints[current];
         }
     }
 
@@ -47,27 +61,37 @@ void find_shapes_speed(chunkmap* map, float threshold)
     LOG_INFO("Num Shapes calculated to: %d", num_shapes);
 
     int* shape_counts = calloc(num_shapes * 3 + map->map_width * map->map_height, sizeof(int));
-    int* shape_pps = shape_counts + num_shapes;
-    int* shape_pps_unmodified = shape_pps + num_shapes;
-    int* shapes = shape_pps_unmodified + num_shapes;
+    int* increasing_shape_indices = shape_counts + num_shapes;
+    int* shape_indices = increasing_shape_indices + num_shapes;
+    int* shapes = shape_indices + num_shapes;
 
     for (int y = 0; y < map->map_height; ++y)
     {
         for (int x = 0; x < map->map_width; ++x)
         {
             int current = x + y * map->map_width;
-            ++shape_counts[shape_ints[current] - 1];
+            int index = shape_ints[current];
+            ++shape_counts[index];
         }
     }
 
-    memcpy(shape_pps + 1, shape_counts, (num_shapes - 1) * sizeof(int));
+    int total_found = 0;
+    for (int i = 0; i < num_shapes; ++i)
+    {
+        total_found += shape_counts[i];
+    }
+
+    LOG_INFO("Total Count: %d", total_found);
+
+    memcpy(increasing_shape_indices + 1, shape_counts, (num_shapes - 1) * sizeof(int));
+    memcpy(shape_indices + 1, shape_counts, (num_shapes - 1) * sizeof(int));
 
     for (int y = 0; y < map->map_height; ++y)
     {
         for (int x = 0; x < map->map_width; ++x)
         {
             int current = x + y * map->map_width;
-            shapes[shape_pps[shape_ints[current] - 1]++] = current;
+            shapes[increasing_shape_indices[shape_ints[current]]++] = current;
         }
     }
 
@@ -85,61 +109,64 @@ void find_shapes_speed(chunkmap* map, float threshold)
     //     }
     // }
 
-/// WRITE PNG SHIT DOWN HERE
-
-    colour* colours = calloc(map->map_width * map->map_height, sizeof(colour));
-
-    colourmap intermediate = {
-        colours,
-        map->map_width,
-        map->map_height
-    };
-
-    pixel color_check = { 255 };
-    for (int i = 0; i < num_shapes; ++i)
+    /// WRITE PNG SHIT DOWN HERE
     {
-        LOG_INFO("Shape %d has %d chunks", i, shape_counts[i]);
-        pixel color = map->groups_array_2d[shapes[shape_pps_unmodified[i]] % map->map_width][shapes[shape_pps_unmodified[i]] / map->map_width].average_colour;
-        LOG_INFO("Shape %d has color (%d, %d, %d)", i, color.r, color.g, color.b);
-        for (int j = shape_pps_unmodified[i]; j < shape_pps_unmodified[i] + shape_counts[i]; ++j)
+        colour *colours = calloc(map->map_width * map->map_height, sizeof(colour));
+        colour black = {0};
+
+        const colour asshole[] = {{0xaa, 0x14, 0x14}, {0x14, 0xaa, 0x14}, {0x14, 0x14, 0xaa}, {0xaa, 0xaa, 0x14}, {0xaa, 0x14, 0xaa}, {0x14, 0xaa, 0xaa}, {0xaa, 0xaa, 0xaa}};
+
+        colourmap intermediate = {
+            colours,
+            map->map_width,
+            map->map_height};
+
+        LOG_INFO("First colour in colourmap %s black", (memcmp(colours, &black, sizeof(colour)) ? "is not" : "is"));
+
+        pixel color_check = {255};
+        for (int i = 0; i < num_shapes; ++i)
         {
-            int index = shapes[j];
-            pixelchunk* chunga = &map->groups_array_2d[index % map->map_width][index / map->map_width];
-            pixel chunga_col = chunga->average_colour;
-            if (memcmp(&color_check, &chunga_col, sizeof(pixel)))
+            LOG_INFO("Shape %d has %d chunks", i, shape_counts[i]);
+            pixel color = map->groups_array_2d[shapes[shape_indices[i]] % map->map_width][shapes[shape_indices[i]] / map->map_width].average_colour;
+            LOG_INFO("Shape %d has color (%d, %d, %d)", i, color.r, color.g, color.b);
+            for (int j = shape_indices[i]; j < shape_indices[i] + shape_counts[i]; ++j)
             {
-                memcpy(&color_check, &chunga_col, sizeof(pixel));
-                LOG_INFO("New Color: (%d, %d, %d)", color_check.r, color_check.g, color_check.b);
+                int index = shapes[j];
+                pixelchunk *chunga = &map->groups_array_2d[index % map->map_width][index / map->map_width];
+                coordinate location = chunga->location;
+                colour *ass = &intermediate.colours[location.x + location.y * intermediate.width];
+                //ass->r = chunga->average_colour.r;
+                //ass->g = chunga->average_colour.g;
+                //ass->b = chunga->average_colour.b;
+                *ass = asshole[i % 7];
             }
-            coordinate location = chunga->location;
-            colour* ass = &intermediate.colours[location.x + location.y * intermediate.width];
-            ass->r = chunga->average_colour.r;
-            ass->g = chunga->average_colour.g;
-            ass->b = chunga->average_colour.b;
         }
-    }
 
-    image output_img = create_image(intermediate.width * 3, intermediate.height * 3);
-    
-    for (int x = 0; x < intermediate.width; ++x)
-    {
-        for (int y = 0; y < intermediate.height; ++y)
+        image output_img = create_image(intermediate.width * 3, intermediate.height * 3);
+
+        for (int x = 0; x < intermediate.width; ++x)
         {
-            colour* bob = &intermediate.colours[x + intermediate.width * y];
-            for (int xx = 0; xx < 3; ++xx)
+            for (int y = 0; y < intermediate.height; ++y)
             {
-                for (int yy = 0; yy < 3; ++yy)
+                colour *bob = &intermediate.colours[x + intermediate.width * y];
+                for (int xx = 0; xx < 3; ++xx)
                 {
-                    pixel* img_pix = &(output_img.pixels_array_2d[x * 3 + xx][y * 3 + yy]);
-                    img_pix->r = bob->r;
-                    img_pix->g = bob->g;
-                    img_pix->b = bob->b;
+                    for (int yy = 0; yy < 3; ++yy)
+                    {
+                        pixel *img_pix = &(output_img.pixels_array_2d[x * 3 + xx][y * 3 + yy]);
+                        img_pix->r = bob->r;
+                        img_pix->g = bob->g;
+                        img_pix->b = bob->b;
+                    }
                 }
             }
         }
-    }
 
-    write_image_to_png(output_img, "yo mama.png");
+        write_image_to_png(output_img, "yo mama.png");
+
+        free_image_contents(output_img);
+        free(intermediate.colours);
+    }
     // WRITE PNG SHIT STOPPED
     
 
