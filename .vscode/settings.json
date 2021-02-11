@@ -55,7 +55,8 @@
         "stdlib.h": "c",
         "copy.h": "c",
         "limits.h": "c",
-        "debug.h": "c"
+        "debug.h": "c",
+        "stdbool.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

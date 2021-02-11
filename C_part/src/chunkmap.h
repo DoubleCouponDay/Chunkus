@@ -5,12 +5,14 @@
 #include "hashmap/tidwall.h"
 #include <stdbool.h>
 
+struct chunkshape; //allows circular reference
+
 typedef struct 
 {
     pixel average_colour;
     pixel** pixels_array_2d;
     coordinate location;
-    chunkshape* shape_chunk_in;
+    struct chunkshape* shape_chunk_in;
 } pixelchunk;
 
 typedef struct pixelchunk_list

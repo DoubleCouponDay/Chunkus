@@ -175,6 +175,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
             map, output, firstpath, NULL
         };
         DEBUG("iterating hashmap, count: %d \n", hashcount);
+
         for (pixelchunk_list* iter = map->shape_list->boundaries; iter; iter = iter->next)
         {
             iterate_new_path(iter->chunk_p, &shape_data);

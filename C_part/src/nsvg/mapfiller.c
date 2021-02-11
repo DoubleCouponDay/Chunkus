@@ -108,7 +108,8 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output,
             if (colours_are_similar(current->average_colour, adjacent->average_colour, shape_colour_threshold)) {                
                 if(currentinshape == NULL && adjacentinshape == NULL) {
                     if(firstshape->filled == false) {
-                        chosenshape = firstshape;    
+                        chosenshape = firstshape;
+                        firstshape->filled = true;
                     }
 
                     else {
@@ -139,6 +140,7 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output,
             else { // Not similar
                 if(firstshape->filled == false) { //use firstshape
                     chosenshape = firstshape;
+                    firstshape->filled = true;
                     chosenshape->colour = current->average_colour;
                     add_chunk_to_hashmap(chosenshape, current);
                 }
@@ -184,7 +186,7 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
             if (tenth_of_map > 0 && count % tenth_of_map == 0)
             {
                 ++tenth_count;
-                DEBUG("Progress: %d%%\n", tenth_count);
+                DEBUG("Progress: %d0%%\n", tenth_count);
             }
             pixelchunk* currentchunk_p = &map->groups_array_2d[map_x][map_y];
             find_shapes(map, currentchunk_p, &list, firstshape, map_x, map_y, options->shape_colour_threshhold);
