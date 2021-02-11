@@ -4,16 +4,10 @@ Convert a raster image into a scalable vector graphic and back.
 
 # TASKS
 
+- fix incredibly slow find_shapes algorithm
 
-<!-- - fix hashmap iteration is not in order
-    //implement the new find_shapes algorithm
-
-    free pixelchunk_list and members     -->
-
-- fix no paths found error.
-    when can boundary = false?
-
-    remove is_boundary
+- fix crashing after this debug line
+    DEBUG: src\nsvg\mapparser.c:177:iterate_chunk_shapes(): iterating hashmap, count: 115140
 
 - remove previous from linked list
 
