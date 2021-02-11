@@ -14,7 +14,7 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
     int y_offset = y * options.chunk_size;
 
     // Grab the pixelchunk
-    pixelchunk* outputnodes = &output->groups_array_2d[x][y];
+    pixelchunk* chunk = &output->groups_array_2d[x][y];
     
     int x_units = calculate_int_units(x);
     int y_units = calculate_int_units(y);
