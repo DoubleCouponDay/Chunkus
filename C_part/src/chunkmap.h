@@ -10,6 +10,7 @@ typedef struct
     pixel average_colour;
     pixel** pixels_array_2d;
     coordinate location;
+    chunkshape* shape_chunk_in;
 } pixelchunk;
 
 typedef struct pixelchunk_list

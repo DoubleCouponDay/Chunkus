@@ -52,9 +52,10 @@ bool colours_are_similar(pixel color_a, pixel color_b, float max_distance)
     diff.g = color_a.g - color_b.g;
     diff.b = color_a.b - color_b.b;
 
-    float mag = sqrt(pow(diff.r, 2) + pow(diff.g, 2) + pow(diff.b, 2)); //pythagorean theorem
+    //float mag = sqrt(pow(diff.r, 2) + pow(diff.g, 2) + pow(diff.b, 2)); //pythagorean theorem //go away with slow ass code
+    float sqrMag = diff.r * diff.r + diff.g * diff.g + diff.b * diff.b;
 
-    return mag <= max_distance;
+    return sqrMag <= max_distance * max_distance;
 }
 
 char* rgb_to_string(pixel* input) {

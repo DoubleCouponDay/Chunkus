@@ -23,7 +23,7 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
         x, y,
         x_units, y_units
     };
-    outputnodes->location = location;
+    chunk->location = location;
     
     // Assigned the edge case pixelchunk dimensions
     int node_width = input.width - x * options.chunk_size;
@@ -36,10 +36,10 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
     if (node_height > options.chunk_size)
         node_height = options.chunk_size;
     
-    outputnodes->pixels_array_2d = calloc(1, sizeof(pixel*) * node_width);
+    chunk->pixels_array_2d = calloc(1, sizeof(pixel*) * node_width);
     
     for(int i = 0; i < node_width; ++i) {
-         outputnodes->pixels_array_2d[i] = &input.pixels_array_2d[x_offset + i][y_offset];
+        chunk->pixels_array_2d[i] = &input.pixels_array_2d[x_offset + i][y_offset];
     }
     int count = node_width * node_height;
 
@@ -84,7 +84,8 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
         (byte)((float)average_g / (float)count), 
         (byte)((float)average_b / (float)count) 
     };
-    outputnodes->average_colour = average_p;
+    chunk->average_colour = average_p;
+    chunk->shape_chunk_in = NULL;
 }
 
 chunkmap* generate_chunkmap(image input, vectorize_options options)

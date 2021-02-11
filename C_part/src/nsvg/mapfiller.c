@@ -58,25 +58,22 @@ chunkshape* add_new_shape(chunkshape* shape_list) {
 }
 
 void add_chunk_to_hashmap(chunkshape* shape_list, pixelchunk* item) {
-    if(hashmap_oom(shape_list->chunks)){
+    if(item->shape_chunk_in != NULL) {
+        return;
+    }
+
+    else if(hashmap_oom(shape_list->chunks)){
         DEBUG("hashmap out of mana\n");
         setError(HASHMAP_OOM);
         return;
     }
     void* result = hashmap_set(shape_list->chunks, item);
+    item->shape_chunk_in = shape_list;
 }
 
 //returns the shape its in. else, NULL
 chunkshape* big_chungus_already_in_shape(chunkmap* map, pixelchunk* chungus) {
-    chunkshape* current = map->shape_list;
-
-    while(current->next != NULL) {
-        if (!hashmap_get(current->chunks, chungus))
-            return current;
-
-        current = current->next;
-    }
-    return NULL;
+    return chungus->shape_chunk_in;
 }
 
 typedef struct list_holder
@@ -117,7 +114,6 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output,
                     else {
                         chosenshape = output->list = add_new_shape(output->list);
                     }
-
                     add_chunk_to_hashmap(chosenshape, current);
                     add_chunk_to_hashmap(chosenshape, adjacent);
                     chosenshape->colour = current->average_colour;
@@ -125,12 +121,14 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output,
 
                 else if (currentinshape && adjacentinshape == NULL)
                 {
-                    add_chunk_to_hashmap(currentinshape, adjacent);
+                    chosenshape = currentinshape;
+                    add_chunk_to_hashmap(chosenshape, adjacent);
                 }
 
                 else if(currentinshape == NULL && adjacentinshape)
                 {
-                    add_chunk_to_hashmap(adjacentinshape, current);
+                    chosenshape = adjacentinshape;
+                    add_chunk_to_hashmap(chosenshape, current);
                 }
 
                 else {
@@ -139,20 +137,20 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output,
             }
 
             else { // Not similar
-                if(firstshape->filled == false) {
+                if(firstshape->filled == false) { //use firstshape
                     chosenshape = firstshape;
                     chosenshape->colour = current->average_colour;
                     add_chunk_to_hashmap(chosenshape, current);
                 }
 
-                else if(currentinshape) {
+                else if(currentinshape) { //set shape for boundary manipulation
                     chosenshape = currentinshape;
                 }
 
                 else { //current is not in a shape
                     chosenshape = output->list = add_new_shape(output->list);
                     chosenshape->colour = current->average_colour;
-                    add_chunk_to_hashmap(chosenshape, current);                    
+                    add_chunk_to_hashmap(chosenshape, current);
                 }
                 
                 if(chosenshape->boundaries->chunk_p == NULL) { //use first boundary
@@ -161,7 +159,7 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output,
                 }
 
                 else { //create boundary item
-                    add_chunk_to_list(chosenshape, current);                    
+                    add_chunk_to_list(chosenshape, current);  
                 }                
             }
         }
