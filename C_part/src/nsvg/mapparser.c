@@ -177,7 +177,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
             return;
         }
 
-        DEBUG("iterating bounday, count: %d \n", chunkcount);
+        DEBUG("iterating boundaries, count: %d \n", chunkcount);
 
         for (pixelchunk_list* iter = map->shape_list->boundaries; iter; iter = iter->next)
         {

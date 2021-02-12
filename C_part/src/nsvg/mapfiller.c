@@ -156,8 +156,6 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output,
             }
         }
     }
-    output->list->boundaries = output->list->boundaries->firstitem;
-    output->list->chunks = output->list->chunks->firstitem;
 }
 
 void fill_chunkmap(chunkmap* map, vectorize_options* options) {
@@ -188,6 +186,8 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
                 DEBUG("find_shapes failed with code: %d\n", code);
                 return;
             }
+            map->shape_list->boundaries = firstshape->boundaries;
+            map->shape_list->chunks = firstshape->chunks;
         }
     }
     map->shape_list = firstshape;
