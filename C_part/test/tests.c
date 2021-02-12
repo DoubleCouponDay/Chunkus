@@ -54,7 +54,7 @@ MunitResult opensPngAndOutputsBmp(const MunitParameter params[], void* userdata)
   test5stuff* stuff = userdata;
   // Use constant input/output path
   char* in_file = params[0].value;
-  char* out_file = "test_out.bmp";
+  char* out_file = "output.bmp";
 
   // Delete output file
   remove(out_file);
