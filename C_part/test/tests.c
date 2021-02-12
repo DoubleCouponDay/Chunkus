@@ -28,7 +28,9 @@ MunitResult aTestCanPass(const MunitParameter params[], void* data) {
 
 MunitResult can_read_png(const MunitParameter params[], void* userdata) {
   test2stuff* stuff = userdata;
-  image subject = convert_png_to_image("test.png");
+  char* filepath = params[0].value;
+  image subject = convert_png_to_image(filepath);
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
   stuff->img = subject;
   return MUNIT_OK;
 }

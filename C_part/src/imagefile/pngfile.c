@@ -19,8 +19,11 @@ image convert_png_to_image(char* fileaddress) {
     DEBUG("converting png to image struct...\n");
     DEBUG("opening image file...\n");
 
-    if (!fileaddress)
+    if (fileaddress == NULL) {
+        DEBUG("fileaddress not given\n");
+        setError(NULL_ARGUMENT_ERROR);
         return (image){NULL, 0, 0};
+    }
 
     /// Open File
     FILE* file_p = fopen(fileaddress, "rb");
@@ -28,11 +31,8 @@ image convert_png_to_image(char* fileaddress) {
     if (!file_p)
     {
         DEBUG("Could not open file '%s' for reading\n", fileaddress);
+        setError(ASSUMPTION_WRONG);
         return (image){NULL, 0, 0};
-    }
-    else
-    {
-        DEBUG("File '%s' exists!\n", fileaddress);
     }
 
     /// Verify File
@@ -66,15 +66,17 @@ image convert_png_to_image(char* fileaddress) {
     if (!read_struct)
     {
         DEBUG("Failed to create png read struct\n");
+        setError(READ_FILE_ERROR);
         return (image){NULL, 0, 0};
     }
     
     DEBUG("Creating pnglib info struct...\n");
-
     png_infop info = png_create_info_struct(read_struct);
+
     if (!info)
     {
         DEBUG("Error: png_create_info_struct failed\n");
+        setError(READ_FILE_ERROR);
         return (image) { NULL, 0, 0 };
     }
 
@@ -100,12 +102,13 @@ image convert_png_to_image(char* fileaddress) {
     if (color_type != PNG_COLOR_TYPE_RGB && color_type != PNG_COLOR_TYPE_RGBA)
     {
         DEBUG("Only RGB/A PNGs are supported for import, format: %d\n", color_type);
+        setError(NOT_PNG);
         return (image){NULL, 0, 0};
     }
     bit_depth = png_get_bit_depth(read_struct, info);
-    if (bit_depth != 8)
-    {
+    if (bit_depth != 8) {
         DEBUG("Only 24bpp PNGs are supported, depth: %d \n", bit_depth * 3);
+        setError(NOT_PNG);
         return (image){NULL, 0, 0};
     }
 
@@ -114,6 +117,7 @@ image convert_png_to_image(char* fileaddress) {
     if (setjmp(png_jmpbuf(read_struct)))
     {
         DEBUG("Error during early PNG reading \n");
+        setError(READ_FILE_ERROR);
         png_destroy_read_struct(read_struct, info, NULL);
         return (image){NULL, 0, 0};
     }
@@ -123,11 +127,11 @@ image convert_png_to_image(char* fileaddress) {
     DEBUG("dimensions: %d x %d \n", output.width, output.height);
 
     // Allocate row pointers to be filled
-    png_bytep* row_pointers_p = (png_bytep*)calloc(1, sizeof(png_bytep) * output.height);
+    png_bytep* row_pointers_p = calloc(1, sizeof(png_bytep) * output.height);
 
     for (int y = 0; y < output.height; ++y)
     {
-        row_pointers_p[y] = (png_byte*)calloc(1, png_get_rowbytes(read_struct, info));
+        row_pointers_p[y] = calloc(1, png_get_rowbytes(read_struct, info));
     }
 
     DEBUG("reading the image...\n");
@@ -188,6 +192,7 @@ image convert_png_to_image(char* fileaddress) {
             }
         }
     }
+
     else
     {
         DEBUG("color type is not RGBA\n");
@@ -213,6 +218,7 @@ void write_image_to_png(image img, char* fileaddress)
     if (!fp)
     {
         DEBUG("File: %s not found\n", fileaddress);
+        setError(READ_FILE_ERROR);
         return;
     }
 
@@ -220,6 +226,7 @@ void write_image_to_png(image img, char* fileaddress)
     if (!png_ptr)
     {
         DEBUG("Couldn't create png_struct for writing\n");
+        setError(READ_FILE_ERROR);
         return;
     }
 
@@ -227,12 +234,14 @@ void write_image_to_png(image img, char* fileaddress)
     if (!info_ptr)
     {
         DEBUG("Couldn't create png_info struct for writing\n");
+        setError(READ_FILE_ERROR);
         return;
     }
 
     if (setjmp(png_jmpbuf(png_ptr)))
     {
         DEBUG("Unknown Failure during png writing\n");
+        setError(READ_FILE_ERROR);
         png_destroy_write_struct(&png_ptr, &info_ptr);
         return;
     }
@@ -255,7 +264,8 @@ void write_image_to_png(image img, char* fileaddress)
     png_write_info(png_ptr, info_ptr);
 
     // Popular some row_pointers
-    png_bytep *row_pointers = calloc(img.height, sizeof(png_bytep));
+    png_bytep* row_pointers = calloc(img.height, sizeof(png_bytep));
+
     for (int y = 0; y < img.height; ++y)
     {
         row_pointers[y] = calloc(img.width, sizeof(png_byte) * 3);
@@ -285,9 +295,11 @@ void write_image_to_png(image img, char* fileaddress)
 void write_bytes_to_png(unsigned char* data, int width, int height, char* fileaddress)
 {
     FILE* fp = fopen(fileaddress, "wb");
+
     if (!fp)
     {
         DEBUG("File: %s not found\n", fileaddress);
+        setError(READ_FILE_ERROR);
         return;
     }
 
@@ -295,6 +307,7 @@ void write_bytes_to_png(unsigned char* data, int width, int height, char* filead
     if (!png_ptr)
     {
         DEBUG("Couldn't create png_struct for writing\n");
+        setError(READ_FILE_ERROR);
         return;
     }
 
@@ -302,12 +315,14 @@ void write_bytes_to_png(unsigned char* data, int width, int height, char* filead
     if (!info_ptr)
     {
         DEBUG("Couldn't create png_info struct for writing\n");
+        setError(READ_FILE_ERROR);
         return;
     }
 
     if (setjmp(png_jmpbuf(png_ptr)))
     {
         DEBUG("Unknown Failure during png writing\n");
+        setError(READ_FILE_ERROR);
         png_destroy_write_struct(&png_ptr, &info_ptr);
         return;
     }
@@ -375,7 +390,6 @@ void iterate_through_shape(pixelchunk_list* list, png_hashies_iter* udata)
     
 }
 
-
 void write_chunkmap_to_png(chunkmap* map, char* fileaddress)
 {
     if (map->map_width < 1 || map->map_height < 1)
@@ -435,6 +449,5 @@ void write_chunkmap_to_png(chunkmap* map, char* fileaddress)
             }
         }
     }
-
     write_image_to_png(output_img, fileaddress);
 }

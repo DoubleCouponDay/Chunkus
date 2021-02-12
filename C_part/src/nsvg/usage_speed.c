@@ -159,7 +159,7 @@ void find_shapes_speed(chunkmap* map, float threshold)
             }
         }
 
-        write_image_to_png(output_img, "yo mama.png");
+        write_image_to_png(output_img, "test.png");
 
         free_image_contents(output_img);
         free(intermediate.colours);
