@@ -49,7 +49,6 @@ chunkshape* add_new_shape(chunkshape* shape_list) {
     boundaries->next = NULL;
 
     new->next = NULL;
-    new->previous = shape_list;
     new->chunks = chunks;
     new->boundaries = boundaries;
 
@@ -181,7 +180,7 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
                 DEBUG("Progress: %d0%%\n", tenth_count);
             }
             pixelchunk* currentchunk_p = &map->groups_array_2d[map_x][map_y];
-            find_shapes(map, currentchunk_p, &list, firstshape, map_x, map_y, options->shape_colour_threshhold);
+            find_shapes(map, currentchunk_p, &list, firstshape, map_x, map_y, options->shape_colour_threshhold);            
             int code = getLastError();
 
             if (isBadError())
@@ -191,4 +190,5 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
             }
         }
     }
+    map->shape_list = firstshape;
 }

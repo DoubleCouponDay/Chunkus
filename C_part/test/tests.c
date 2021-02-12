@@ -130,10 +130,6 @@ MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], voi
   fill_chunkmap(stuff->map, &options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  DEBUG("Now winding back chunk_shapes\n");
-  wind_back_chunkshapes(&map->shape_list);
-  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
-
   DEBUG("writing chunkmap to file\n");
   write_chunkmap_to_png(stuff->map, out_fileaddress);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);

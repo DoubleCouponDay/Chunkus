@@ -30,7 +30,6 @@ typedef struct chunkshape {
     int pathcount;
     pixel colour;
     struct chunkshape* next;
-    struct chunkshape* previous;
 } chunkshape;
 
 typedef struct 
@@ -52,7 +51,4 @@ typedef struct
 } vectorize_options;
 
 chunkmap* generate_chunkmap(image inputimage_p, vectorize_options options);
-
 void free_chunkmap(chunkmap* map_p);
-
-void wind_back_chunkshapes(chunkshape** list);

@@ -46,8 +46,6 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
         sort_boundary(current);
         current = current->next;
     }
-    DEBUG("Now winding back chunk_shapes\n");
-    wind_back_chunkshapes(&map->shape_list);
 
     DEBUG("iterating chunk shapes\n");
     NSVGimage* output = create_nsvgimage(map->map_width, map->map_height);

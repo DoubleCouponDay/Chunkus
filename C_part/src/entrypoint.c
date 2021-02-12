@@ -35,7 +35,7 @@ int execute_program(char* input_file_p, int chunk_size, float threshold, char* o
 	if(result == false || isBadError()) {
 		free_image_contents(img);
 		free_nsvg(nsvg);
-		DEBUG("wind_back_chunkshapes failed with code: %d\n", code);
+		DEBUG("write_svg_file failed with code: %d\n", code);
 		return getAndResetErrorCode();
 	}
 

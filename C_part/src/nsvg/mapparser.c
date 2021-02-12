@@ -129,8 +129,8 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
     DEBUG("iterating shapes list\n");
     char* firstid = "firstshape";
     long firstidlength = 10;
+    chunkshape* firstchunkshape = map->shape_list;
     NSVGshape* firstshape = create_shape(map, firstid, firstidlength);
-    output->shapes = NULL; //get rid of fluff in the template
     unsigned long i = 0;
 
     //iterate shapes
@@ -223,5 +223,6 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
         ++i;
         map->shape_list = map->shape_list->next; //go to next shape
     }
+    map->shape_list = firstchunkshape;
     output->shapes = firstshape;
 }

@@ -115,7 +115,6 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
 
     chunkshape* shape_list = calloc(1, sizeof(chunkshape));
     shape_list->next = NULL;
-    shape_list->previous = NULL;
 
     DEBUG("allocating boundaries list\n");
     pixelchunk_list* boundaries = calloc(1, sizeof(pixelchunk_list));
@@ -151,25 +150,6 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
     return output;
 }
 
-//takes a double pointer so that we can update the list itself
-void wind_back_chunkshapes(chunkshape** list)
-{
-    if(list == NULL) {
-        DEBUG("the list you passed was non existent.\n");
-        return;
-    }
-
-    chunkshape* iter = *list;
-    if (iter == NULL)
-        return;
-
-    while (iter->previous != NULL)
-    {
-        iter = iter->previous;
-    }
-    *list = iter;
-}
-
 void free_pixelchunklist(pixelchunk_list* linkedlist) {
     pixelchunk_list* current = linkedlist;
 
@@ -199,7 +179,6 @@ void free_chunkmap(chunkmap* map_p)
     }
     
     if(map_p->shape_list) {
-        wind_back_chunkshapes(&(map_p->shape_list));
         chunkshape* current = map_p->shape_list;
         chunkshape* next;
 
