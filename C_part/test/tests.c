@@ -169,10 +169,17 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   stuff->nsvg_image = vectorize_image(stuff->img, options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  munit_assert(write_svg_file(stuff->nsvg_image));
+  bool outcome = write_svg_file(stuff->nsvg_image);
+  
+  if(outcome)
+    DEBUG("svg writing outcome: %s\n", "succeeded");
+
+  else 
+    DEBUG("svg writing outcome: %s\n", "failed");
+    
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  FILE* fp = fopen(OUTPUT_PATH, "r");
+  FILE* fp = fopen(OUTPUT_PATH, "r"); //check it at least creates a file every time
 
   munit_assert_ptr_not_null(fp);
 

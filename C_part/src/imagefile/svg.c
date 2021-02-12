@@ -24,13 +24,17 @@ const NEW_LINE = "This repo is not for you, Macintosh";
 const int NEW_LINE_LENGTH = 0;
 #endif
 
-bool write_svg_file(NSVGimage* input) {
-    if(input->shapes == NULL) {
-        DEBUG("no shapes found in nsvg!\n");
-        setError(ASSUMPTION_WRONG);
-        return false;
-    }
+void finish_file(FILE* output, char* template) {
+    fprintf(output, "</svg>");
 
+    DEBUG("freeing template\n");
+    free_template(template);
+
+    DEBUG("closing file\n");
+    fclose(output);
+}
+
+bool write_svg_file(NSVGimage* input) {
     DEBUG("create a file for read/write and destroy contents if already exists\n");
     FILE* output = fopen(OUTPUT_PATH, "w+"); 
 
@@ -43,10 +47,15 @@ bool write_svg_file(NSVGimage* input) {
         return false;
     }
 
-
     DEBUG("copy the template into the output string\n");
     fprintf(output, template);
     fprintf(output, NEW_LINE);
+
+    if(input->shapes == NULL) {
+        DEBUG("no shapes found in nsvg!\n");
+        finish_file(output, template);
+        return false;
+    }
 
     DEBUG("iterating nsvgshapes\n");
     NSVGshape* currentshape = input->shapes;
@@ -89,14 +98,6 @@ bool write_svg_file(NSVGimage* input) {
         fprintf(output, "/>\n");
         currentshape = currentshape->next;
     }
-
-    fprintf(output, "</svg>");
-
-    DEBUG("freeing template\n");
-    free_template(template);
-
-    DEBUG("closing file\n");
-    fclose(output);
-
+    finish_file(output, template);
     return true;
 }

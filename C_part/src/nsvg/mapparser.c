@@ -107,7 +107,7 @@ void close_path(chunkmap* map, NSVGimage* output, NSVGpath* firstpath) {
 }
 
 void throw_on_max(unsigned long* subject) {
-    if(subject == 0xffffffff) {
+    if(subject == (unsigned long*)0xffffffff) {
         DEBUG("long is way too big!\n");
         setError(OVERFLOW_ERROR);
     }
@@ -118,7 +118,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
     DEBUG("checking if shapelist is null\n");
     //create the svg
     if(map->shape_list == NULL) {
-        DEBUG("NO SHAPES FOUND\n");
+        DEBUG("no shapes given to mapparser\n");
         setError(ASSUMPTION_WRONG);
         return;
     }    
@@ -135,6 +135,19 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
     while(map->shape_list != NULL) {        
         DEBUG("iteration: %d \n", i);
         int chunkcount = map->shape_list->chunks_amount;
+
+        if(map->shape_list->boundaries_length < 2) {
+            DEBUG("skipping shape with too small boundary\n");
+            ++i;
+            map->shape_list = map->shape_list->next;
+            continue;
+        }
+
+        else if(map->shape_list->boundaries->chunk_p == NULL) {
+            DEBUG("boundary creation broken!\n");
+            setError(NO_BOUNDARIES_CREATED);
+            return;
+        }
 
         if(output->shapes == NULL) {
             DEBUG("using first shape\n");
@@ -168,20 +181,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
 
         svg_hashies_iter shape_data = {
             map, output, firstpath, NULL
-        };
-
-        if(map->shape_list->boundaries_length < 2) {
-            DEBUG("skipping shape with no boundary\n");
-            ++i;
-            map->shape_list = map->shape_list->next;
-            continue;
-        }
-
-        else if(map->shape_list->boundaries->chunk_p == NULL) {
-            DEBUG("no boundaries created\n!");
-            setError(NO_BOUNDARIES_CREATED);
-            return;
-        }
+        };        
 
         DEBUG("iterating boundaries, count: %d \n", map->shape_list->boundaries_length);
 
@@ -230,5 +230,12 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
         map->shape_list = map->shape_list->next; //go to next shape
     }
     map->shape_list = firstchunkshape;
-    output->shapes = firstshape;
+
+    if(firstshape->paths != NULL) {
+        output->shapes = firstshape;
+    }
+
+    else {
+        DEBUG("not giving any paths to nsvgimage since no paths found\n");
+    }    
 }
