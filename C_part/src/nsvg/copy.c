@@ -6,7 +6,7 @@
 #include "../../test/debug.h"
 #include "../utility/error.h";
 
-const char* TEMPLATE_PATH = "../../../template.svg";
+const char* TEMPLATE_PATH = "../../../../../template.svg";
 
 ///nanosvg copypaste
 int NSVG_RGB(int r, int g, int b) {
