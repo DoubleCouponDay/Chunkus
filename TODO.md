@@ -4,14 +4,10 @@ Convert a raster image into a scalable vector graphic and back.
 
 # TASKS
 
-//- fix incredibly slow find_shapes algorithm
-
-- fix crashing after this debug line
-    DEBUG: src\nsvg\mapparser.c:177:iterate_chunk_shapes(): iterating hashmap, count: 115140
-
-    mapparser.c line33: chunk was nullptr
-
-- remove previous from linked list
+- fix: Exception has occurred: W32/0xc0000005
+Unhandled exception thrown: read access violation.
+currentpath was 0xFFFFFFFFFFFFFFFF.
+    mapparser.c 28
 
 - deploy to azure web apps for containers
 
