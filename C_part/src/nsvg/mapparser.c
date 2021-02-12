@@ -169,13 +169,18 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
             map, output, firstpath, NULL
         };
 
-        if(map->shape_list->boundaries->chunk_p == NULL) {
+        if(map->shape_list->boundaries_length < 2) {
+            DEBUG("skipping shape with no boundary\n");
+            continue;
+        }
+
+        else if(map->shape_list->boundaries->chunk_p == NULL) {
             DEBUG("no boundaries created\n!");
             setError(NO_BOUNDARIES_CREATED);
             return;
         }
 
-        DEBUG("iterating boundaries, count: %d \n", chunkcount);
+        DEBUG("iterating boundaries, count: %d \n", map->shape_list->boundaries_length);
 
         for (pixelchunk_list* iter = map->shape_list->boundaries; iter; iter = iter->next)
         {
