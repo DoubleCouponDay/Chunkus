@@ -56,7 +56,6 @@ bool iterate_new_path(pixelchunk* chunk, svg_hashies_iter* udata) {
             previous_coord,
             chunk->location
         );
-        ++udata->map->totalpathcount;
     }
 
     else { //first path supplied
@@ -74,7 +73,6 @@ bool iterate_new_path(pixelchunk* chunk, svg_hashies_iter* udata) {
             previous_coord,
             chunk->location
         );
-        ++udata->map->totalpathcount;
     }
     int code = getLastError();
 
@@ -190,7 +188,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
             return;
         }
 
-        else if(firstpath->pts[2] == NONE_FILLED) {
+        else if(firstpath->pts[2] == NONE_FILLED) { //didnt form at least one path between two coordinates
             DEBUG("NO PATHS FOUND\n");
             setError(ASSUMPTION_WRONG);
             return;
