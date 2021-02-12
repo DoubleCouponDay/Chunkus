@@ -49,3 +49,28 @@ void logger(const char* tag, const char* message, ...) {
 
     va_end(args);
 }
+
+void logger_noline(const char* msg, ...)
+{
+    if (!logfile)
+    {
+        printf("Make sure open_log is called at the beginning of the program!!!\n");
+        return;
+    }
+
+    va_list args;
+    va_start(args, msg);
+
+    time_t now;
+    struct tm * timeinfo;
+    char time_buffer[100];
+
+    time(&now);
+    timeinfo = localtime(&now);
+    strftime(time_buffer, 100, "%b %e %T", timeinfo);
+
+    vfprintf(logfile, msg, args);
+    vprintf(msg, args);
+
+    va_end(args);
+}

@@ -5,6 +5,7 @@ void open_log(char* filename);
 void close_log();
 
 void logger(const char* tag, const char* message, ...);
+void logger_noline(const char* msg, ...);
 
 #ifdef _WIN32
 #define LOG_INFO(fmt, ...) logger("INFO", "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__)
