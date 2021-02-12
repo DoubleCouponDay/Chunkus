@@ -20,7 +20,7 @@ const int NONE_FILLED = -1;
 
 //assumes first path and first shape are given
 bool iterate_new_path(pixelchunk* chunk, svg_hashies_iter* udata) {
-    NSVGshape* current = udata->map->shape_list;
+    NSVGshape* current = udata->output->shapes;
     NSVGpath* currentpath = current->paths;
     NSVGpath* nextsegment;
 
