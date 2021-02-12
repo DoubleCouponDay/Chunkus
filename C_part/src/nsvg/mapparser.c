@@ -171,6 +171,8 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
 
         if(map->shape_list->boundaries_length < 2) {
             DEBUG("skipping shape with no boundary\n");
+            ++i;
+            map->shape_list = map->shape_list->next;
             continue;
         }
 
