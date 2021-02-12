@@ -35,7 +35,7 @@ bool write_svg_file(NSVGimage* input) {
     FILE* output = fopen(OUTPUT_PATH, "w+"); 
 
     DEBUG("open the template as a string\n");
-    char* template = gettemplate();
+    char* template = gettemplate(input->width, input->height);
     int code = getLastError();
 
     if(isBadError()) {

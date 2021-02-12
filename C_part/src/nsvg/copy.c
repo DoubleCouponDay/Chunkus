@@ -31,7 +31,6 @@ char* gettemplate(int width, int height) {
     FILE* fp = NULL;
 	size_t size;
 	char* data = NULL;
-	NSVGimage* image = NULL;
 	fp = fopen(TEMPLATE_PATH, "rb");
 
 	if (!fp) {

@@ -4,6 +4,6 @@
 
 int NSVG_RGB(int r, int g, int b);
 
-char* gettemplate();
+char* gettemplate(int width, int height);
 
 void free_template(char* data);
