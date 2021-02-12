@@ -153,6 +153,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
             DEBUG("not enough chunks found in shape!\n");
             ++i;
             map->shape_list = map->shape_list->next;
+            continue;
         }
         coordinate empty = {NONE_FILLED, NONE_FILLED, 1, 1};
         NSVGpath* firstpath = create_path(map->input, empty, empty); //lets us wind back the path list

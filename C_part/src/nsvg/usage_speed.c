@@ -1,6 +1,5 @@
 #include "usage_speed.h"
 
-#include "hashmap/usage.h"
 #include "utility/logger.h"
 #include "utility/vec.h"
 #include "imagefile/pngfile.h"
