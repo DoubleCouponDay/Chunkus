@@ -76,3 +76,5 @@ conan.lock
 .xmake/linux/x86_64/cache/config
 .vscode/.conan_tools/conanInfo.dot
 .xmake/linux/x86_64/xmake.conf
+
+*.lock

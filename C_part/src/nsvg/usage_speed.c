@@ -1,12 +1,9 @@
 #include "usage_speed.h"
-
-#include "hashmap/usage.h"
 #include "utility/logger.h"
 #include "imagefile/pngfile.h"
 
 #include <stdlib.h>
 #include <stdio.h>
-
 
 void find_shapes_speed(chunkmap* map, float threshold)
 {
@@ -111,10 +108,10 @@ void find_shapes_speed(chunkmap* map, float threshold)
 
     /// WRITE PNG SHIT DOWN HERE
     {
-        colour *colours = calloc(map->map_width * map->map_height, sizeof(colour));
+        colour* colours = calloc(map->map_width * map->map_height, sizeof(colour));
         colour black = {0};
 
-        const colour asshole[] = {{0xaa, 0x14, 0x14}, {0x14, 0xaa, 0x14}, {0x14, 0x14, 0xaa}, {0xaa, 0xaa, 0x14}, {0xaa, 0x14, 0xaa}, {0x14, 0xaa, 0xaa}, {0xaa, 0xaa, 0xaa}};
+        const colour stack_colours[] = {{0xaa, 0x14, 0x14}, {0x14, 0xaa, 0x14}, {0x14, 0x14, 0xaa}, {0xaa, 0xaa, 0x14}, {0xaa, 0x14, 0xaa}, {0x14, 0xaa, 0xaa}, {0xaa, 0xaa, 0xaa}};
 
         colourmap intermediate = {
             colours,
@@ -134,11 +131,11 @@ void find_shapes_speed(chunkmap* map, float threshold)
                 int index = shapes[j];
                 pixelchunk *chunga = &map->groups_array_2d[index % map->map_width][index / map->map_width];
                 coordinate location = chunga->location;
-                colour *ass = &intermediate.colours[location.x + location.y * intermediate.width];
-                //ass->r = chunga->average_colour.r;
-                //ass->g = chunga->average_colour.g;
-                //ass->b = chunga->average_colour.b;
-                *ass = asshole[i % 7];
+                colour *currentcolour = &intermediate.colours[location.x + location.y * intermediate.width];
+                //currentcolour->r = chunga->average_colour.r;
+                //currentcolour->g = chunga->average_colour.g;
+                //currentcolour->b = chunga->average_colour.b;
+                *currentcolour = stack_colours[i % 7];
             }
         }
 

@@ -5,8 +5,6 @@
 
 #include "chunkmap.h"
 #include "../test/debug.h"
-#include "hashmap/tidwall.h"
-#include "hashmap/usage.h"
 #include "utility/error.h"
 
 void iterateImagePixels(int x, int y, image input, vectorize_options options, chunkmap* output) {
@@ -119,23 +117,20 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
     shape_list->next = NULL;
     shape_list->previous = NULL;
 
-    pixelchunk_list* chunklist = calloc(1, sizeof(pixelchunk_list));
-    chunklist->firstitem = chunklist;
-    chunklist->chunk_p = NULL;
-    chunklist->next = NULL;
-    shape_list->boundaries = chunklist;
+    DEBUG("allocating boundaries list\n");
+    pixelchunk_list* boundaries = calloc(1, sizeof(pixelchunk_list));
+    boundaries->firstitem = boundaries;
+    boundaries->chunk_p = NULL;
+    boundaries->next = NULL;
+    shape_list->boundaries = boundaries;
         
-    DEBUG("allocating new hashmap\n");
-    hashmap* newhashy = hashmap_new(sizeof(pixelchunk), 16, 0, 0, chunk_hash, chunk_compare, NULL); 
+    DEBUG("allocating chunks list\n");
+    pixelchunk_list* chunks = calloc(1, sizeof(pixelchunk_list));
+    chunks->firstitem = chunks;
+    chunks->chunk_p = NULL;
+    chunks->next = NULL;
+    shape_list->chunks = chunks;
 
-    if(newhashy == NULL) {
-        DEBUG("new hashmap failed during creation\n");
-        setError(ASSUMPTION_WRONG);
-        return NULL;
-    }
-
-    shape_list->chunks = newhashy;
-    DEBUG("assign shape_list hashmap\n");
     output->shape_list = shape_list;
 
     DEBUG("allocating row pointers\n");
@@ -175,13 +170,13 @@ void wind_back_chunkshapes(chunkshape** list)
     *list = iter;
 }
 
-void free_boundaries(chunkshape* shape) {
-    chunkshape* current = shape;
+void free_pixelchunklist(pixelchunk_list* linkedlist) {
+    pixelchunk_list* current = linkedlist;
 
     while(current != NULL) {
-        chunkshape* tofree = current;
-        current = current->next;
+        pixelchunk_list* tofree = current;
         free(tofree); //the reference held to the pixel will be cleaned up
+        current = current->next;
     }
 }
 
@@ -209,11 +204,11 @@ void free_chunkmap(chunkmap* map_p)
         //free all shapes
         while (map_p->shape_list)
         {
-            chunkshape* next = map_p->shape_list->next;
-            hashmap_free(map_p->shape_list->chunks);
-            free_boundaries(next);
-            free(map_p->shape_list);
-            map_p->shape_list = next;
+            chunkshape* current = map_p->shape_list;
+            free_pixelchunklist(current->boundaries);
+            free_pixelchunklist(current->chunks);
+            free(current);
+            current = current->next;
         }
     }
 

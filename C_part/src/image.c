@@ -3,13 +3,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-
+#include <stdlib.h>
 #include <nanosvg.h>
 #include <stdbool.h>
 
 #include "../test/debug.h"
-
-#include <stdlib.h>
 #include "utility/error.h"
 
 pixel convert_colorf_to_pixel(pixelF input)

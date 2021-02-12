@@ -2,7 +2,6 @@
 
 #include <stdlib.h>
 #include "image.h"
-#include "hashmap/tidwall.h"
 #include <stdbool.h>
 
 struct chunkshape; //allows circular reference
@@ -24,7 +23,8 @@ typedef struct pixelchunk_list
 
 typedef struct chunkshape {
     bool filled;
-    hashmap* chunks;
+    int chunks_amount;
+    pixelchunk_list* chunks;
     int boundaries_length;
     pixelchunk_list* boundaries;
     int pathcount;

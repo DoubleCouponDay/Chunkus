@@ -16,7 +16,6 @@ pub enum FfiResult {
     ReadFileError,
     ArrayDiffSizeError,
     NullArgumentError,
-    HashmapOom,
     OverflowError,
     BadArgumentError,
     NotPngError,
@@ -34,11 +33,10 @@ impl From<i32> for FfiResult {
             4 => FfiResult::ReadFileError,
             5 => FfiResult::ArrayDiffSizeError,
             6 => FfiResult::NullArgumentError,
-            7 => FfiResult::HashmapOom,
-            8 => FfiResult::OverflowError,
-            9 => FfiResult::BadArgumentError,
-            10 => FfiResult::NotPngError,
-            11 => FfiResult::NoBoundariesCreated,
+            7 => FfiResult::OverflowError,
+            8 => FfiResult::BadArgumentError,
+            9 => FfiResult::NotPngError,
+            10 => FfiResult::NoBoundariesCreated,
             _ => FfiResult::UnknownError
         }
     }
@@ -59,7 +57,6 @@ fn ffiresult_to_string(input: &FfiResult) -> &'static str {
         FfiResult::ReadFileError => "ReadFileError",
         FfiResult::ArrayDiffSizeError => "ArrayDiffSizeError",
         FfiResult::NullArgumentError => "NullArgumentError",
-        FfiResult::HashmapOom => "HashmapOom",
         FfiResult::OverflowError => "OverflowError",
         FfiResult::BadArgumentError => "BadArgumentError",
         FfiResult::NotPngError => "NotPngError",

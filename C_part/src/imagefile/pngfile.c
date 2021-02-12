@@ -357,17 +357,22 @@ void write_bytes_to_png(unsigned char* data, int width, int height, char* filead
     png_destroy_write_struct(&png_ptr, &info_ptr);
 }
 
-bool iterate_through_chunk(const void* item, void* udata)
+void iterate_through_shape(pixelchunk_list* list, png_hashies_iter* udata)
 {
-    pixelchunk* chunk = item;    
-    png_hashies_iter* stuff = udata;
-    colourmap* map = stuff->map;
-    
-    if (chunk->location.x < 0 || chunk->location.y < 0 || chunk->location.x >= map->width || chunk->location.y >= map->height)
-        return true;
+    pixelchunk_list* current = list;
 
-    map->colours[chunk->location.x + map->width * chunk->location.y] = convert_pixel_to_colour(chunk->average_colour);
-    return true;
+    while(current != NULL) {
+            pixelchunk* chunk = list;    
+            png_hashies_iter* stuff = udata;
+            colourmap* map = stuff->map;
+        
+        if (chunk->location.x < 0 || chunk->location.y < 0 || chunk->location.x >= map->width || chunk->location.y >= map->height)
+            continue;
+
+        map->colours[chunk->location.x + map->width * chunk->location.y] = convert_pixel_to_colour(chunk->average_colour);
+        current = current->next;
+    }
+    
 }
 
 
@@ -403,7 +408,7 @@ void write_chunkmap_to_png(chunkmap* map, char* fileaddress)
             &intermediate
         };
 
-        hashmap_scan(current->chunks, iterate_through_chunk, &stuff);
+        iterate_through_shape(current->chunks, &stuff);
 
         current = current->next;
         int array_size = sizeof(shape_colours);

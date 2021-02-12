@@ -10,10 +10,8 @@
 #include "../image.h"
 #include "../chunkmap.h"
 #include "../../test/debug.h"
-#include "../hashmap/tidwall.h"
 #include "../utility/error.h"
 #include "copy.h"
-#include "../hashmap/usage.h"
 #include "mapping.h"
 #include "../sort.h"
 
@@ -21,10 +19,8 @@ const int NONE_FILLED = -1;
 
 
 //assumes first path and first shape are given
-bool iterate_new_path(const void* item, void* udata) {
-    pixelchunk* chunk = item;
-    svg_hashies_iter* shape_data = udata;
-    NSVGshape* current = shape_data->output->shapes;
+bool iterate_new_path(pixelchunk* chunk, svg_hashies_iter* udata) {
+    NSVGshape* current = udata->map->shape_list;
     NSVGpath* currentpath = current->paths;
     NSVGpath* nextsegment;
 
@@ -33,8 +29,8 @@ bool iterate_new_path(const void* item, void* udata) {
         currentpath->pts[0] = chunk->location.x; //x1
         currentpath->pts[1] = chunk->location.y; //y1
 
-        shape_data->shapescolour = calloc(1, sizeof(NSVGpaint));    
-        NSVGpaint* fill = shape_data->shapescolour;
+        udata->shapescolour = calloc(1, sizeof(NSVGpaint));    
+        NSVGpaint* fill = udata->shapescolour;
         fill->type = NSVG_PAINT_COLOR;
 
         fill->color = NSVG_RGB(
@@ -56,11 +52,11 @@ bool iterate_new_path(const void* item, void* udata) {
         };
         
         nextsegment = create_path(
-            shape_data->map->input, 
+            udata->map->input, 
             previous_coord,
             chunk->location
         );
-        ++shape_data->map->totalpathcount;
+        ++udata->map->totalpathcount;
     }
 
     else { //first path supplied
@@ -74,11 +70,11 @@ bool iterate_new_path(const void* item, void* udata) {
         };
 
         nextsegment = create_path(
-            shape_data->map->input, 
+            udata->map->input, 
             previous_coord,
             chunk->location
         );
-        ++shape_data->map->totalpathcount;
+        ++udata->map->totalpathcount;
     }
     int code = getLastError();
 
@@ -140,14 +136,14 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
     //iterate shapes
     while(map->shape_list != NULL) {        
         DEBUG("iteration: %d \n", i);
-        size_t hashcount = hashmap_count(map->shape_list->chunks);
+        int chunkcount = map->shape_list->chunks_amount;
 
         if(output->shapes == NULL) {
             DEBUG("using first shape\n");
             output->shapes = firstshape;
         }
 
-        else if(hashcount > 1) {
+        else if(chunkcount > 1) {
             DEBUG("creating new shape\n");
             char longaschar = i;
             NSVGshape* newshape = create_shape(map, &longaschar, 1);
@@ -156,7 +152,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
         }
 
         else {
-            DEBUG("not enough chunks found in hashmap\n");
+            DEBUG("not enough chunks found in shape!\n");
             ++i;
             map->shape_list = map->shape_list->next;
         }
@@ -181,7 +177,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
             return;
         }
 
-        DEBUG("iterating hashmap, count: %d \n", hashcount);
+        DEBUG("iterating bounday, count: %d \n", chunkcount);
 
         for (pixelchunk_list* iter = map->shape_list->boundaries; iter; iter = iter->next)
         {

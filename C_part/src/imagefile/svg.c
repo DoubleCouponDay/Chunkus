@@ -8,7 +8,6 @@
 #include "../nsvg/copy.h"
 #include "../../test/debug.h"
 #include "../chunkmap.h"
-#include "../hashmap/usage.h"
 
 const char* OUTPUT_PATH = "output.svg";
 const SHAPE_SIZE = 41;

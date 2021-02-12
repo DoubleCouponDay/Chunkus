@@ -14,7 +14,7 @@
             "cwd": "${workspaceFolder}\\C_part\\build\\windows\\x64\\debug",
             "environment": [],
             "console": "internalConsole",
-            "requireExactSource": false
+            "requireExactSource": false,
         },
         {
             "name": "(Windows) Launch one test",
