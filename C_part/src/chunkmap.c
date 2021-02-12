@@ -200,19 +200,22 @@ void free_chunkmap(chunkmap* map_p)
     
     if(map_p->shape_list) {
         wind_back_chunkshapes(&(map_p->shape_list));
+        chunkshape* current = map_p->shape_list;
+        chunkshape* next;
 
         //free all shapes
-        while (map_p->shape_list)
-        {
-            chunkshape* current = map_p->shape_list;
+        while (current)
+        {            
             free_pixelchunklist(current->boundaries);
             free_pixelchunklist(current->chunks);
+            next = current->next;
             free(current);
-            current = current->next;
+            current = next;
         }
     }
 
     if(map_p) {
         free(map_p);
     }
+    DEBUG("freed chunkmap\n");
 }
