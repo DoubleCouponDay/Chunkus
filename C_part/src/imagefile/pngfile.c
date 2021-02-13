@@ -210,8 +210,11 @@ image convert_png_to_image(char* fileaddress) {
 
 void write_image_to_png(image img, char* fileaddress)
 {
-    if (!img.pixels_array_2d || !fileaddress)
+    if (!img.pixels_array_2d || !fileaddress) {
+        DEBUG("null arguments given to write_image_to_png\n");
+        setError(NULL_ARGUMENT_ERROR);
         return;
+    }
 
     FILE* fp = fopen(fileaddress, "wb");
 
@@ -386,15 +389,14 @@ void iterate_through_shape(pixelchunk_list* list, png_hashies_iter* udata)
 
         map->colours[chunk->location.x + map->width * chunk->location.y] = convert_pixel_to_colour(chunk->average_colour);
         current = current->next;
-    }
-    
+    }    
 }
 
-void write_chunkmap_to_png(chunkmap* map, char* fileaddress)
-{
+void write_chunkmap_to_png(chunkmap* map, char* fileaddress) {
     if (map->map_width < 1 || map->map_height < 1)
     {
         DEBUG("can not write 0 dimension chunkmap to file\n");
+        setError(ASSUMPTION_WRONG);
         return;
     }
 

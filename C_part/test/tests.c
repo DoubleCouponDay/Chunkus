@@ -93,11 +93,6 @@ MunitResult can_vectorize_image(const MunitParameter params[], void* userdata)
 
 MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], void* userdata)
 {
-  typedef struct
-  {
-    int a;
-  } your_mom;
-
   test69stuff* stuff = userdata;
 
   char* fileaddress = params[0].value;

@@ -16,6 +16,7 @@
 #include "../sort.h"
 #include "mapparser.h"
 #include "mapfiller.h"
+#include "imagefile/pngfile.h"
 
 //entry point of the file
 NSVGimage* vectorize_image(image input, vectorize_options options) {
@@ -45,6 +46,15 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     while(current != NULL) {
         sort_boundary(current);
         current = current->next;
+    }
+
+    DEBUG("printing chunkmap\n");
+    write_chunkmap_to_png(map, "chunkmap.png");
+    
+    if(isBadError()) {
+        DEBUG("write_chunkmap_to_png failed with code: %d\n", getLastError());
+        free_chunkmap(map);
+        return NULL;
     }
 
     DEBUG("iterating chunk shapes\n");
