@@ -283,7 +283,7 @@ void find_shapes_speed(chunkmap* map, float threshold)
 
     /// WRITE PNG SHIT DOWN HERE
     {
-        LOG_INFO("Writing found shapes to yo mama.png");
+        LOG_INFO("Writing found shapes to output.png");
         colour *colours = calloc(map->map_width * map->map_height, sizeof(colour));
         colour black = {0};
 
@@ -359,7 +359,7 @@ void find_shapes_speed(chunkmap* map, float threshold)
 
 NSVGimage* vectorize_image_speed(image input, vectorize_options options)
 {
-    open_log("joe mama.txt");
+    open_log("log.txt");
     chunkmap* map = generate_chunkmap(input, options);
 
     find_shapes_speed(map, options.shape_colour_threshhold);
