@@ -4,7 +4,8 @@ Convert a raster image into a scalable vector graphic and back.
 
 # TASKS
 
-- count the number of unsatisfactory boundaries and setError() if its over a certain amount
+-fix: mapfiller.c line 19
+    prevents boundaries longer than 1
 
 - fix chunkmap.png is always black
 

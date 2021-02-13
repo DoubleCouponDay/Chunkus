@@ -133,7 +133,6 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
 
     //iterate shapes
     while(map->shape_list != NULL) {        
-        DEBUG("iteration: %d \n", i);
         int chunkcount = map->shape_list->chunks_amount;
 
         if(low_boundary_shapes == map->shape_count - 1) {
