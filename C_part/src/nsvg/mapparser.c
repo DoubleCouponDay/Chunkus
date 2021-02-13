@@ -121,31 +121,38 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
         DEBUG("no shapes given to mapparser\n");
         setError(ASSUMPTION_WRONG);
         return;
-    }    
+    }
+    int low_boundary_shapes = 0;
     DEBUG("creating first shape\n");
-
-    DEBUG("iterating shapes list\n");
     char* firstid = "firstshape";
     long firstidlength = 10;
     chunkshape* firstchunkshape = map->shape_list;
     NSVGshape* firstshape = create_shape(map, firstid, firstidlength);
     unsigned long i = 0;
+    DEBUG("iterating shapes list\n");
 
     //iterate shapes
     while(map->shape_list != NULL) {        
         DEBUG("iteration: %d \n", i);
         int chunkcount = map->shape_list->chunks_amount;
 
-        if(map->shape_list->boundaries_length < 2) {
+        if(low_boundary_shapes == map->shape_count - 1) {
+            DEBUG("MOST BOUNDARIES NOT BIG ENOUGH\n");
+            setError(LOW_BOUNDARIES_CREATED);
+            return;
+        }
+
+        else if(map->shape_list->boundaries_length < 2) {
             DEBUG("skipping shape with too small boundary\n");
             ++i;
+            ++low_boundary_shapes;
             map->shape_list = map->shape_list->next;
             continue;
         }
 
         else if(map->shape_list->boundaries->chunk_p == NULL) {
             DEBUG("boundary creation broken!\n");
-            setError(NO_BOUNDARIES_CREATED);
+            setError(LOW_BOUNDARIES_CREATED);
             return;
         }
 
@@ -154,7 +161,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
             output->shapes = firstshape;
         }
 
-        else if(chunkcount > 1) {
+        else if(chunkcount > 1) { 
             DEBUG("creating new shape\n");
             char longaschar = i;
             NSVGshape* newshape = create_shape(map, &longaschar, 1);

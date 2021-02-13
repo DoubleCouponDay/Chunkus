@@ -36,6 +36,7 @@ typedef struct
 {
     pixelchunk** groups_array_2d;
     chunkshape* shape_list;
+    int shape_count;
     int map_width; 
     int map_height;
     image input;

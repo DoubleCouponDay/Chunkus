@@ -11,7 +11,7 @@ enum vectorizing_opcodes {
     OVERFLOW_ERROR,
     BAD_ARGUMENT_ERROR,
     NOT_PNG,
-    NO_BOUNDARIES_CREATED
+    LOW_BOUNDARIES_CREATED
 };
 
 int getLastError();
