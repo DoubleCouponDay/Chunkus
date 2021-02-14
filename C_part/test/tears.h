@@ -61,6 +61,7 @@ void test8teardown(void* fixture);
 typedef struct
 {
     image img;
+    NSVGimage* nsvg_image;
 } speedy_vectorize_stuff;
 
 void* speedy_vectorize_setup(const MunitParameter params[], void* userdata);

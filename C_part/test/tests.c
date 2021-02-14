@@ -17,6 +17,7 @@
 #include "../src/imagefile/bmp.h"
 #include "../src/entrypoint.h"
 #include "../src/nsvg/usage.h"
+#include "../src/nsvg/usage_speed.h"
 #include "tears.h"
 #include "../src/utility/error.h"
 #include "../src/imagefile/svg.h"
@@ -204,8 +205,22 @@ MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdat
   };
 
   stuff->img = convert_png_to_image(fileaddress);
+  munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  vectorize_image_speed(stuff->img, options);
+  stuff->nsvg_image = vectorize_image_speed(stuff->img, options);
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
+
+  munit_assert(write_svg_file(stuff->nsvg_image));
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
+  
+  FILE* fp = fopen(OUTPUT_PATH, "r");
+
+  munit_assert_ptr_not_null(fp);
+
+  fclose(fp);
+
+  return MUNIT_OK;
 }
 
 int main(int argc, char** argv) {
@@ -217,7 +232,7 @@ int main(int argc, char** argv) {
 
   char* param1[] = { "../../../../test/test.png", NULL };
   char* param2[] = { "1", NULL };
-  char* param3[] = { "200", NULL };
+  char* param3[] = { "50", NULL };
   char* param4[] = { "./chunkmap.png", NULL };
   char* testname = argv[1];
 

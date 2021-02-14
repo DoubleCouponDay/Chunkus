@@ -87,5 +87,6 @@ void speedy_vectorize_teardown(void* fixture)
 {
   speedy_vectorize_stuff* stuff = fixture;
   free_image_contents(stuff->img);
+  free_nsvg(stuff->nsvg_image);
   free(fixture);
 }
