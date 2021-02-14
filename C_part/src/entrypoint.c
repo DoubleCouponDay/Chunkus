@@ -13,7 +13,9 @@ const char *format1_p = "png";
 const char *format2_p = "jpeg";
 
 typedef NSVGimage* (*algorithm)(image, vectorize_options);
+typedef void (*algorithm_debug)(image, vectorize_options, char*,char*);
 algorithm target_algorithm = vectorize_image;
+algorithm_debug target_algorithm_debug = vectorize_debug;
 
 int execute_program(char* input_file_p, int chunk_size, float threshold, char* output_file_p) {
 	image img = convert_png_to_image(input_file_p);
@@ -105,15 +107,42 @@ int entrypoint(int argc, char* argv[]) {
 	return execute_program(input_file_p, chunk_size, threshold, output_file_p, 0);
 }
 
+int debug_image(char* input, int chunk_size, float threshold, char* shapefile, char* borderfile)
+{
+	vectorize_options opts = {
+		input,
+		chunk_size,
+		threshold
+	};
+
+	image img = convert_png_to_image(input);
+
+	if (isBadError())
+	{
+		printf("Error creating image from '%s'\n", input);
+		return getAndResetErrorCode();
+	}
+
+	target_algorithm_debug(img, opts, shapefile, borderfile);
+
+	if (isBadError())
+	{
+		printf("Error debugging '%s' image file, code: %d\n", input, getLastError());
+		return getAndResetErrorCode();
+	}
+}
+
 int set_algorithm(int algo)
 {
 	switch (algo)
 	{
 	case 0:
 		target_algorithm = vectorize_image;
+		target_algorithm_debug = vectorize_debug;
 		break;
 	case 1:
 		target_algorithm = vectorize_image_speed;
+		target_algorithm_debug = vectorize_debug_speed;
 		break;
 	default:
 		return BAD_ARGUMENT_ERROR;

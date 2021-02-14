@@ -39,6 +39,24 @@ colour convert_pixel_to_colour(pixel input)
     return out;
 }
 
+colour convert_pixelf_to_colour(pixelF input)
+{
+    colour out;
+    out.r = rintf(input.r * 255.f);
+    out.g = rintf(input.g * 255.f);
+    out.b = rintf(input.b * 255.f);
+    return out;
+}
+
+pixelF convert_colour_to_pixelf(colour input)
+{
+    pixelF out;
+    out.r = (float)input.r / 255.f;
+    out.g = (float)input.g / 255.f;
+    out.b = (float)input.b / 255.f;
+    return out;
+}
+
 bool pixelf_equal(pixelF a, pixelF b) {
     return a.r == b.r && a.g == b.g && a.b == b.b;
 }
