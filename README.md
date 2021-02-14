@@ -95,28 +95,37 @@ If it doesn't, you or I have done something wrong
 
 The rust part builds to `/discord-v/target/debug/`.
 
-## Running
+# Running
 
 Commands to use the bot:
-Vectorize: Goes through all attachments of the command message, executes the algorithm on them and returns the output
-`!v/!vectorize` with an attachment or url eg. `!v https://cdn.discordapp.com/attachments/787470274261549056/807847299752394773/ginormous.png`
+### Vectorize: Goes through all attachments of the command message, executes the algorithm on them and returns the output  
+`!v/!vectorize` with an attachment or url eg.  
+
+    !v https://cdn.discordapp.com/attachments/787470274261549056/807847299752394773/ginormous.png  
+
 You should receive a message with `output.svg` and a preview png attached
   
-Params: Sets the parameters to use with the algorithm, first item is chunk_size, second item is threshold
-Chunk Size is a reverse scale for the image, higher number improve speed while reducing quality (and losing information)
-Threshold is a number between 0 and 441.67 (The square root of 255^2 * 3 (vector math)) 
-    The threshold determines how easily another colour is considered a separate shape
-    A Threshold of 0 means any color that is not EXACTLY the same will be considered separate
-    A threshold of 441.67 means the only color values considered different are rgb(0,0,0) and rgb(255,255,255) (white and black)
-`!p/!params [chunksize] [threshold]` eg. `!params 2 50`
-You should receive a confirmation message telling you what you set the parameters to
+### Params: Sets the parameters to use with the algorithm, first item is chunk_size, second item is threshold  
+Chunk Size is a reverse scale for the image, higher number improve speed while reducing quality (and losing information)  
+Threshold is a number between 0 and 441.67 (The square root of 255^2 * 3 (vector math))  
+- The threshold determines how easily another colour is considered a separate shape  
+- A Threshold of 0 means any color that is not EXACTLY the same will be considered separate  
+- A threshold of 441.67 means the only color values considered different are rgb(0,0,0) and rgb(255,255,255) (white and black)  
+
+`!p/!params [chunksize] [threshold]` eg. 
+
+    !params 2 50  
+You should receive a confirmation message telling you what you set the parameters to  
   
-Set Algorithm: Sets which algorithm is used for shape identification
-    Currently only values of 0 and 1 are supported
-    Value 0 means linked-list aggregation algorithm
-    Value 1 means image-sweep algorithm
-`!algo/!set_algorithm [algorithm_num]` eg. `!algo 0`
-You should receive a confirmation message telling you which algorithm number you set it to
+### Set Algorithm: Sets which algorithm is used for shape identification  
+Currently only values of 0 and 1 are supported  
+- Value 0 means linked-list aggregation algorithm  
+- Value 1 means image-sweep algorithm  
+
+`!algo/!set_algorithm [algorithm_num]` eg.  
+    
+    !algo 0  
+You should receive a confirmation message telling you which algorithm number you set it to  
 
 # Package manager
 
