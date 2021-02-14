@@ -6,6 +6,6 @@
 #include "image.h"
 #include "chunkmap.h"
 
-void find_shapes_speed(chunkmap* map, float threshold);
+NSVGimage* find_shapes_speed(chunkmap* map, float threshold);
 
 NSVGimage* vectorize_image_speed(image input, vectorize_options options);

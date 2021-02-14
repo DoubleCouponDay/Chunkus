@@ -3,17 +3,21 @@
 #include "utility/logger.h"
 #include "utility/vec.h"
 #include "imagefile/pngfile.h"
+#include "mapping.h"
+#include "mapparser.h"
+#include "utility/error.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 
 
-void find_shapes_speed(chunkmap* map, float threshold)
+NSVGimage* find_shapes_speed(chunkmap* map, float threshold)
 {
     if (map->map_width < 1 || map->map_height < 1)
     {
         LOG_ERR("Can not process empty chunkmap");
-        return;
+        setError(BAD_ARGUMENT_ERROR);
+        return NULL;
     }
 
     LOG_INFO("Find Shapes Speedy with threshold: %.1f", threshold);
@@ -122,21 +126,6 @@ void find_shapes_speed(chunkmap* map, float threshold)
             LOG_INFO("No Found Duplicate indices");
         free(checked_indices);
     }
-
-    // Now convert this ridiculousness into actual shapes
-    chunkshape* actual_shapes = calloc(num_shapes, sizeof(chunkshape));
-
-    // for (int i = 0; i < num_shapes; ++i)
-    // {
-    //     actual_shapes[i].chunks = hashmap_new(sizeof(pixelchunk), 0, 0, 0, chunk_hash, chunk_compare, 0);
-    //     LOG_INFO("Shape %d has %d chunks", i, shape_counts[i]);
-    //     for (int j = shape_pps_unmodified[i]; j < shape_pps_unmodified[i] + shape_counts[i]; ++j)
-    //     {
-    //         int index = shapes[j];
-    //         hashmap_set(actual_shapes[i].chunks, &map->groups_array_2d[index % map->map_width][index / map->map_width]);
-    //     }
-    // }
-
     
     LOG_INFO("Beginning Border Detection");
     // Border Detection
@@ -191,14 +180,14 @@ void find_shapes_speed(chunkmap* map, float threshold)
         int x = current_chunk % map->map_width;
         int y = current_chunk / map->map_width;
         vector2 last = (vector2){(float)x, (float)y};
-        int pp = border_running_indices[i]++;
-        if (pp < 0 || pp >= border_total)
-            LOG_ERR("wtf");
+        int pp = border_running_indices[i];
+        //if (pp < 0 || pp >= border_total)// DEBUG
+            //LOG_ERR("wtf");//DEBUg
         border_chunk_indices[pp] = current_chunk;
         for (int j = 0; j < border_counts[i]; ++j)
         {
-            if (current_chunk < 0 || current_chunk >= total_found)
-                LOG_ERR("Wtf");
+            //if (current_chunk < 0 || current_chunk >= total_found)// DEBUG
+            //    LOG_ERR("Wtf");// DEBUG
             float last_angle = 3.1415926535897982384626433f * 2.f;
             vector2 current_vec;
             current_vec.x = x;
@@ -235,8 +224,8 @@ void find_shapes_speed(chunkmap* map, float threshold)
                 for (int adj_y = -1 * (y > 0); adj_y < capped_y; ++adj_y)
                 {
                     int adjacent = x + adj_x + (y + adj_y) * map->map_width;
-                    if (adjacent < 0 || adjacent >= total_found)
-                        LOG_ERR("Border detection Out-Of-Bounds error in adjacent block");
+                    //if (adjacent < 0 || adjacent >= total_found)
+                        //LOG_ERR("Border detection Out-Of-Bounds error in adjacent block");//DEBUG
                     vector2 my_vec = vec_normalize((vector2){adj_x, adj_y});
                     float angle = vec_angle_between(sum, my_vec);
                     int angle_is_better = (angle < last_angle);
@@ -252,8 +241,8 @@ void find_shapes_speed(chunkmap* map, float threshold)
             }
 
             // Assign next x, y, current_chunk
-            if (border_running_indices[i] < 0 || border_running_indices[i] >= border_total)
-                LOG_ERR("Border detection Out-Of-Bounds problem");
+            //if (border_running_indices[i] < 0 || border_running_indices[i] >= border_total)// DEBUG
+                //LOG_ERR("Border detection Out-Of-Bounds problem");// DEBUG
             border_chunk_indices[border_running_indices[i]] = next_boundary_index;
             border_running_indices[i] += 1 * (next_boundary_index != 0);
 
@@ -264,21 +253,9 @@ void find_shapes_speed(chunkmap* map, float threshold)
             x = current_chunk % map->map_width;
             y = current_chunk / map->map_width;
             ++iterations;
-            free(malloc(1));
-            free(malloc(10));
-            free(malloc(100));
-            free(malloc(100000));
         }
     }
-    free(malloc(1));
-    free(malloc(10));
-    free(malloc(100));
-    free(malloc(100000));
     free(border_bits);
-    free(malloc(1));
-    free(malloc(10));
-    free(malloc(100));
-    free(malloc(100000));
     // End Border Detection
 
     /// WRITE PNG SHIT DOWN HERE
@@ -344,7 +321,27 @@ void find_shapes_speed(chunkmap* map, float threshold)
     }
     // WRITE PNG SHIT STOPPED
 
-    free(border_counts);
+    // START CONVERT TO ACTUAL SHAPES
+    chunkshape* actual_shapes = calloc(num_shapes, sizeof(chunkshape));
+
+    for (int i = 0; i < num_shapes; ++i)
+    {
+        actual_shapes[i].next = (i + 1 < num_shapes ? &actual_shapes[i + 1] : NULL);
+        actual_shapes[i].boundaries_length = border_counts[i];
+        actual_shapes[i].boundaries = calloc(border_counts[i], sizeof(pixelchunk_list));
+        actual_shapes[i].chunks_amount = border_counts[i];
+        int first_chunk = chunk_index_of[shape_offsets[i]];
+        actual_shapes[i].colour = map->groups_array_2d[first_chunk % map->map_width][first_chunk / map->map_width].average_colour;
+        for (int j = 0; j < actual_shapes[i].boundaries_length; ++j)
+        {
+            int chunk_index = chunk_index_of[j + shape_offsets[i]];
+            actual_shapes[i].boundaries[j].chunk_p = &map->groups_array_2d[chunk_index % map->map_width][chunk_index / map->map_width];
+            actual_shapes[i].boundaries[j].next = (j + 1 < border_counts[i] ? &actual_shapes[i].boundaries[j + 1] : NULL);
+        }
+    }
+
+    // END CONVERT TO ACTUAL SHAPES
+
 
     free(shape_ints);
     free(shape_counts);
@@ -352,8 +349,23 @@ void find_shapes_speed(chunkmap* map, float threshold)
     chunkshape* tmp = map->shape_list;
     map->shape_list = actual_shapes;
 
+    NSVGimage* nsvg = create_nsvgimage(map->map_width, map->map_height);
+    iterate_chunk_shapes(map, nsvg);
+
+    if (isBadError())
+    {
+        LOG_ERR("Failed to iterate chunk shapes with error: %d", getLastError());
+        map->shape_list = tmp;
+        free(border_counts);
+        free(actual_shapes);
+        return NULL;
+    }
+
     map->shape_list = tmp;
+    free(border_counts);
     free(actual_shapes);
+
+    return nsvg;
 }
 
 
@@ -362,9 +374,16 @@ NSVGimage* vectorize_image_speed(image input, vectorize_options options)
     open_log("log.txt");
     chunkmap* map = generate_chunkmap(input, options);
 
-    find_shapes_speed(map, options.shape_colour_threshhold);
+    NSVGimage* out = find_shapes_speed(map, options.shape_colour_threshhold);
 
+    if (isBadError())
+    {
+        LOG_ERR("Failed to Vectorize Image (v2) error: %d", getLastError());
+        free_chunkmap(map);
+    }
+
+    free_chunkmap(map);
     close_log();
 
-    return NULL;
+    return out;
 }
