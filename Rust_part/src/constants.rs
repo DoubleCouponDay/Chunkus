@@ -7,7 +7,9 @@ pub const OUTPUTFILENAME: &str = "output.png";
 
 pub const WAIT_FOR_MESSAGE_UPDATE_TIMEOUT_S: u64 = 5;
 
+use std::fmt;
 
+#[derive(PartialEq, Eq)]
 pub enum FfiResult {
     SuccessCode = 0,
     AssumptionWrong,
@@ -45,6 +47,14 @@ impl From<i32> for FfiResult {
 impl Into<&'static str> for FfiResult {
     fn into(self) -> &'static str {
         ffiresult_to_string(&self)
+    }
+}
+
+impl fmt::Display for FfiResult
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
+    {
+        write!(f, "{}", self.to_string())
     }
 }
 

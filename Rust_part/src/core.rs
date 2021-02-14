@@ -16,6 +16,7 @@ mod ffimodule
     #[link(name = "vec", kind = "static")]
     extern {        
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
+        pub fn set_algorithm(algo: c_int) -> c_int;
     }
 }
 
@@ -27,9 +28,18 @@ pub fn call_vectorize(input: &mut CString, output: &mut CString, chunk: &mut CSt
         let mut argv: [*mut u8; 5] = [ptr::null_mut(), input.as_ptr() as *mut u8, output.as_ptr() as *mut u8, chunk.as_ptr() as *mut u8, threshold.as_ptr() as *mut u8];
         let cint = ffimodule::entrypoint(5, argv.as_mut_ptr()); 
         let between: i32 = cint;
-        println!("between: {}", between);
         result = FfiResult::from(between);
     };
+    result
+}
+
+pub fn set_algorithm(algorithm: i32) -> FfiResult
+{
+    let result: FfiResult;
+    unsafe
+    {
+        result = FfiResult::from(ffimodule::set_algorithm(algorithm));
+    }
     result
 }
 

@@ -3,6 +3,7 @@
 
 #include "entrypoint.h"
 #include "nsvg/usage.h"
+#include "nsvg/usage_speed.h"
 #include "../test/debug.h"
 #include "utility/error.h"
 #include "imagefile/pngfile.h"
@@ -10,6 +11,9 @@
 
 const char *format1_p = "png";
 const char *format2_p = "jpeg";
+
+typedef NSVGimage* (*algorithm)(image, vectorize_options);
+algorithm target_algorithm = vectorize_image;
 
 int execute_program(char* input_file_p, int chunk_size, float threshold, char* output_file_p) {
 	image img = convert_png_to_image(input_file_p);
@@ -20,7 +24,7 @@ int execute_program(char* input_file_p, int chunk_size, float threshold, char* o
 		threshold
 	};
 
-	NSVGimage* nsvg = vectorize_image(img, options);
+	NSVGimage* nsvg = target_algorithm(img, options);
 	int code = getLastError();
 
 	if(isBadError()) {
@@ -98,5 +102,21 @@ int entrypoint(int argc, char* argv[]) {
 
 	printf("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f' \n", input_file_p, output_file_p, chunk_size, threshold);
 
-	return execute_program(input_file_p, chunk_size, threshold, output_file_p);
+	return execute_program(input_file_p, chunk_size, threshold, output_file_p, 0);
+}
+
+int set_algorithm(int algo)
+{
+	switch (algo)
+	{
+	case 0:
+		target_algorithm = vectorize_image;
+		break;
+	case 1:
+		target_algorithm = vectorize_image_speed;
+		break;
+	default:
+		return BAD_ARGUMENT_ERROR;
+	}
+	return 0;
 }

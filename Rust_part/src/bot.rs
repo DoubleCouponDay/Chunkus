@@ -108,7 +108,7 @@ pub async fn create_vec_bot(token: &str) -> Client
 pub struct DefaultHandler;
 
 #[group]
-#[commands(vectorize, params, delete)]
+#[commands(vectorize, set_algorithm, params, delete)]
 struct General;
 
 #[async_trait]
@@ -318,6 +318,46 @@ async fn delete(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 #[command]
 #[aliases("v")]
 async fn vectorize(ctx: &Context, msg: &Message, _args: Args) -> CommandResult {
+    actual_vectorize(ctx, msg).await
+}
+
+#[command]
+#[aliases("algo")]
+async fn set_algorithm(ctx: &Context, msg: &Message, args: Args) -> CommandResult
+{
+    println!("Setting algorithm");
+    let potential_algo = args.rest().parse::<i32>();
+    if potential_algo.is_err()
+    {
+        if let Err(why) = msg.reply(&ctx.http, "Invalid input given!").await
+        {
+            eprintln!("Failed to reply to set_algorithm: {}", why);
+            return Ok(());
+        }
+    }
+    let algorithm: i32 = potential_algo.unwrap();
+
+    let c_error = super::core::set_algorithm(algorithm);
+
+    if c_error != constants::FfiResult::SuccessCode
+    {
+        if let Err(why) = msg.reply(&ctx.http, format!("An error occurred: {}", c_error)).await
+        {
+            eprintln!("Failed to send an error message: {}", why);
+        }
+    }
+    else
+    {
+        if let Err(why) = msg.reply(&ctx.http, format!("Successfully set algorithm to: {}", algorithm)).await
+        {
+            eprintln!("Failed to reply to set_algorithm call: {}", why);
+        }
+    }
+    Ok(())
+}
+
+async fn actual_vectorize(ctx: &Context, msg: &Message) -> CommandResult
+{
     println!("Joe Mama");
     
     let mut embed_urls: Vec<String> = vec![];
@@ -449,7 +489,7 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
         let possibleerror: &str = result.into();
 
-        if possibleerror != "" {
+        if possibleerror != "SuccessCode" {
             if let Err(why) = msg.reply(&ctx.http, possibleerror)
             .await { 
                 println!("Error replying: {}", why);
