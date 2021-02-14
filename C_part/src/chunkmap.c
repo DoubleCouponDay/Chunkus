@@ -196,3 +196,14 @@ void free_chunkmap(chunkmap* map_p)
     }
     DEBUG("freed chunkmap\n");
 }
+
+int count_list(pixelchunk_list* first)
+{
+    int count = 0;
+    pixelchunk_list* iter = first;
+    for (; iter; iter = iter->next)
+    {
+        count++;
+    }
+    return count;
+}
