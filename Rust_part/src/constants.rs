@@ -5,6 +5,10 @@ pub const OUTPUT_SVG_FILE: &str = "output.svg";
 
 pub const OUTPUTFILENAME: &str = "output.png";
 
+pub const SHAPE_DEBUG_FILE: &str = "shapes.png";
+
+pub const BORDER_DEBUG_FILE: &str = "borders.png";
+
 pub const WAIT_FOR_MESSAGE_UPDATE_TIMEOUT_S: u64 = 5;
 
 use std::fmt;

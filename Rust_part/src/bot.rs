@@ -17,7 +17,7 @@ use serenity::{
         Client, ClientBuilder, Context, EventHandler
     },
 };
-use crate::core::{do_vectorize};
+use crate::core::{do_vectorize, do_debug_vectorize};
 use std::{
     collections::{HashSet, HashMap},
     fs::File,
@@ -25,6 +25,7 @@ use std::{
     path::Path,
     io::prelude::*,
     time::{Duration, Instant},
+    convert::TryInto,
 };
 use crate::constants;
 use crate::svg::render_svg_to_png;
@@ -108,13 +109,13 @@ pub async fn create_vec_bot(token: &str) -> Client
 pub struct DefaultHandler;
 
 #[group]
-#[commands(vectorize, set_algorithm, params, delete)]
+#[commands(vectorize, debug_vectorize, set_algorithm, params, delete)]
 struct General;
 
 #[async_trait]
 impl EventHandler for DefaultHandler {
-    async fn message(&self, _ctx: Context, _msg: Message) {
-        println!("message received {:?}", _msg.content);
+    async fn message(&self, _ctx: Context, msg: Message) {
+        println!("message received {:?}", msg.content);
     }
 
     async fn message_update(&self, ctx: Context, _old_if_available: Option<Message>, _new: Option<Message>, event: MessageUpdateEvent)
@@ -322,6 +323,76 @@ async fn vectorize(ctx: &Context, msg: &Message, _args: Args) -> CommandResult {
 }
 
 #[command]
+#[aliases("debug")]
+async fn debug_vectorize(ctx: &Context, msg: &Message, _args: Args) -> CommandResult
+{
+    println!("Joe Mama");
+    
+    let mut embed_urls: Vec<String> = vec![];
+    if msg.embeds.len() < 1 && msg.attachments.len() < 1
+    {   
+        println!("No embeds; waiting for message update");
+        // No embed, lets wait for an on_update
+        match wait_for_message_update(msg.id, &ctx).await
+        {
+            Ok(update_data) =>
+                {
+                    println!("Received Ok from wait_for_message_update");
+                    if let Some(embeds) = update_data.embeds
+                    {
+                        for embed in embeds.iter()
+                        {
+                            if let Some(pp_url) = &embed.url
+                            {
+                                println!("Pushing embed url");
+                                embed_urls.push(pp_url.clone());
+                            }
+                        }
+                    }
+                    if let Some(attachments) = update_data.attachments
+                    {
+                        for attachment in attachments.iter()
+                        {
+                            println!("Pushing Attachment url");
+                            embed_urls.push(attachment.url.clone());
+                        }
+                    }
+                },
+            Err(err) =>
+
+            println!("Received Err {} from wait_for_message_update for id: {}", err, msg.id),
+        }
+    }
+    else
+    {
+            //embed_url = blah
+        // We have an embed
+        println!("vectorizing...");
+        println!("embed count {0}", msg.embeds.len());
+        println!("attachments count {0}", msg.attachments.len());
+        println!("message contents {0}", msg.content);
+        for embed in msg.embeds.iter() {
+            if let Some(url) = &embed.url
+            {
+                println!("Pushing embed url");
+                embed_urls.push(url.clone());
+            }
+        }
+        for attachment in msg.attachments.iter()
+        {
+            println!("Pushing attachment url");
+            embed_urls.push(attachment.url.clone());
+        }
+    }
+    
+    println!("Sending {0} urls to vectoriser", embed_urls.len());
+    println!("Yo Mama {:?}", embed_urls);
+    vectorize_urls(&ctx, &msg, &embed_urls, true).await;
+    
+    Ok(())
+}
+
+#[command]
 #[aliases("algo")]
 async fn set_algorithm(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 {
@@ -419,12 +490,12 @@ async fn actual_vectorize(ctx: &Context, msg: &Message) -> CommandResult
     
     println!("Sending {0} urls to vectoriser", embed_urls.len());
     println!("Yo Mama {:?}", embed_urls);
-    vectorize_urls(&ctx, &msg, &embed_urls).await;
+    vectorize_urls(&ctx, &msg, &embed_urls, false).await;
     
     Ok(())
 }
 
-async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
+async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>, do_debug: bool)
 {  
     println!("vectorize_urls with: {:?}", urls);
     for url in urls.iter()
@@ -433,6 +504,8 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
         // Download file using Reqwest
 
         let client = reqwest::Client::new();
+
+        let url_clone = url.clone();
 
         let response = match client.get(url).send().await
             {
@@ -470,63 +543,94 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
         // Execute Algorithm
         let inputname = String::from(constants::INPUTFILENAME);
-        let outputname = String::from(constants::OUTPUT_SVG_FILE);
 
 
         // Get Options
-        let chunksize;
-        let threshold;
+        let chunksize: i32;
+        let threshold: f32;
+        let chunksize_str;
+        let threshold_str;
 
         { //dont hold the entire read in memory for too long
             let data_read = ctx.data.read().await;
             let options = data_read.get::<VectorizeOptionsKey>().unwrap();
-            chunksize = String::from(format!("{}", options.chunk_size));
-            threshold = String::from(format!("{}", options.threshold));
+            chunksize = options.chunk_size.try_into().unwrap_or(1);
+            threshold = options.threshold;
+            chunksize_str = String::from(format!("{}", options.chunk_size));
+            threshold_str = String::from(format!("{}", options.threshold));
         }
         
-        println!("Vectorizing....");
-        let result = do_vectorize(&inputname, &outputname, Some(chunksize), Some(threshold));        
-
-        let possibleerror: &str = result.into();
-
-        if possibleerror != "SuccessCode" {
-            if let Err(why) = msg.reply(&ctx.http, possibleerror)
-            .await { 
-                println!("Error replying: {}", why);
-            };
-            continue;
-        }
-
-        else {
-            println!("success");
-        }
-
-        let png_output = String::from(constants::OUTPUTFILENAME);
-
-        // Render to png
-        println!("Rendering Output");
-        if let Err(why) = render_svg_to_png(&outputname, &png_output)
+        if do_debug
         {
-            println!("Failed to render svg to png: {}", why);
-            if let Err(msg_why) = msg.reply(&ctx.http, format!("Failed to render svg to png: {}", why)).await
+            let shape_file = String::from(constants::SHAPE_DEBUG_FILE);
+            let border_file = String::from(constants::BORDER_DEBUG_FILE);
+
+            println!("Debug Vectorizing...");
+            let result = do_debug_vectorize(&inputname, &shape_file, &border_file, chunksize, threshold);
+
+            if result != constants::FfiResult::SuccessCode
             {
-                println!("Failed to reply to msg: {}", msg_why);
+                if let Err(why) = msg.reply(&ctx.http, format!("Failed to debug vectorize with: {}", result)).await
+                {
+                    eprintln!("Error replying to debug vectorize request of url: {} with error: {}", url_clone, why);
+                }
+                continue;
             }
-            continue;
+            
+            let msg_files = vec![shape_file.as_str(), border_file.as_str()];
+
+            if let Err(why) = msg.channel_id.send_files(&ctx.http, msg_files, |m| { m.content("Debug Results:") }).await
+            {
+                eprintln!("Error sending debug vectorize results (which we probably succeeded to produce) of url: {}, with error: {}", url_clone, why);
+            }
         }
-
-
-        // Send the output
-        let msg_files = vec![outputname.as_str(), png_output.as_str()];
-
-        let msg = msg.channel_id.send_files(&ctx.http, msg_files, |m|
+        else
         {
-            m.content("Here's your result")
-        }).await;
+            let outputname = String::from(constants::OUTPUT_SVG_FILE);
+            println!("Vectorizing....");
+            let result = do_vectorize(&inputname, &outputname, Some(chunksize_str), Some(threshold_str));
 
-        if let Err(err) = msg
-        {
-            println!("Error sending result {}", err);
+            let possibleerror: &str = result.into();
+
+            if possibleerror != "SuccessCode" {
+                if let Err(why) = msg.reply(&ctx.http, possibleerror)
+                .await { 
+                    println!("Error replying: {}", why);
+                };
+                continue;
+            }
+
+            else {
+                println!("success");
+            }
+
+            let png_output = String::from(constants::OUTPUTFILENAME);
+
+            // Render to png
+            println!("Rendering Output");
+            if let Err(why) = render_svg_to_png(&outputname, &png_output)
+            {
+                println!("Failed to render svg to png: {}", why);
+                if let Err(msg_why) = msg.reply(&ctx.http, format!("Failed to render svg to png: {}", why)).await
+                {
+                    println!("Failed to reply to msg: {}", msg_why);
+                }
+                continue;
+            }
+
+
+            // Send the output
+            let msg_files = vec![outputname.as_str(), png_output.as_str()];
+
+            let msg = msg.channel_id.send_files(&ctx.http, msg_files, |m|
+            {
+                m.content("Here's your result")
+            }).await;
+
+            if let Err(err) = msg
+            {
+                println!("Error sending result {}", err);
+            }
         }
     }
 }

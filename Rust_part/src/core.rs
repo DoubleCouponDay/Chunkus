@@ -9,7 +9,7 @@ const THRESHHOLD: &str = "400";
 
 mod ffimodule
 {
-    use libc::c_int;
+    use libc::{c_int, c_float};
 
     #[link(name = "zlib", kind = "static")]
     #[link(name = "libpng16", kind = "static")]
@@ -17,6 +17,7 @@ mod ffimodule
     extern {        
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
         pub fn set_algorithm(algo: c_int) -> c_int;
+        pub fn debug_image(input: *mut u8, chunk_size: c_int, threshold: c_float, shapefile: *mut u8, borderfile: *mut u8) -> c_int;
     }
 }
 
@@ -71,6 +72,26 @@ pub fn do_vectorize(input_file: &String, output_file: &String, chunk_size: Optio
                     threshold_c = ccccc;
                     return call_vectorize(&mut input_c, &mut output_c, &mut chunk_c, &mut threshold_c)
                 }
+            }
+        }
+    }
+    FfiResult::AssumptionWrong
+}
+
+pub fn do_debug_vectorize(input_file: &String, shape_file: &String, border_file: &String, chunk_size: i32, threshold: f32) -> FfiResult
+{
+    if let Ok(input_c) = CString::new(input_file.clone())
+    {
+        if let Ok(shape_c) = CString::new(shape_file.clone())
+        {
+            if let Ok(border_c) = CString::new(border_file.clone())
+            {
+                let result;
+                unsafe
+                {
+                    result = FfiResult::from(ffimodule::debug_image(input_c.as_ptr() as *mut u8, chunk_size, threshold, shape_c.as_ptr() as *mut u8, border_c.as_ptr() as *mut u8));
+                }
+                return result;
             }
         }
     }
