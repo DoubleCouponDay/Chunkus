@@ -6,7 +6,7 @@
 #include "../../test/debug.h"
 #include "../utility/error.h";
 
-const char* TEMPLATE_PATH = "../../../../../template.svg";
+const char* TEMPLATE_PATH = "template.svg";
 
 ///nanosvg copypaste
 int NSVG_RGB(int r, int g, int b) {
@@ -20,7 +20,7 @@ void free_template(char* data) {
 char* format_template(char* template, int width, int height) {
 	int extra_len = strlen(template) + 40;
 	char *modified_template = calloc(extra_len, sizeof(char));
-	snprintf(modified_template, extra_len, template, width, height, width, height);
+	snprintf(modified_template, extra_len, template, (float)width, (float)height, (float)width, (float)height);
 
 	free_template(template);
 	return modified_template;
