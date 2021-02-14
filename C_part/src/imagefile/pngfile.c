@@ -385,9 +385,11 @@ void iterate_through_shape(pixelchunk_list* list, png_hashies_iter* udata)
             colourmap* map = stuff->map;
         
         if (chunk->location.x < 0 || chunk->location.y < 0 || chunk->location.x >= map->width || chunk->location.y >= map->height)
-            continue;
-
-        map->colours[chunk->location.x + map->width * chunk->location.y] = convert_pixel_to_colour(chunk->average_colour);
+        {
+            DEBUG("Error: chunk has waaaaay off coordinate\n");
+        }
+        else
+            map->colours[chunk->location.x + map->width * chunk->location.y] = stuff->colour;
         current = current->next;
     }    
 }
@@ -427,9 +429,8 @@ void write_chunkmap_to_png(chunkmap* map, char* fileaddress) {
         iterate_through_shape(current->chunks, &stuff);
 
         current = current->next;
-        int array_size = sizeof(shape_colours);
-        int colour_size = sizeof(colour);
-        cur_colour = (cur_colour + 1 < (array_size / colour_size) ? cur_colour + 1 : 0);
+        int array_size = (sizeof(shape_colours) / sizeof(colour));
+        cur_colour = cur_colour % array_size;
     }
     DEBUG("iterated %d shapes in chunkmap\n", shape_count);
     image output_img = create_image(intermediate.width * 3, intermediate.height * 3);
