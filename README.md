@@ -111,7 +111,12 @@ Threshold is a number between 0 and 441.67 (The square root of 255^2 * 3 (vector
 `!p/!params [chunksize] [threshold]` eg. `!params 2 50`
 You should receive a confirmation message telling you what you set the parameters to
   
+Set Algorithm: Sets which algorithm is used for shape identification
+    Currently only values of 0 and 1 are supported
+    Value 0 means linked-list aggregation algorithm
+    Value 1 means image-sweep algorithm
 `!algo/!set_algorithm [algorithm_num]` eg. `!algo 0`
+You should receive a confirmation message telling you which algorithm number you set it to
 
 # Package manager
 
