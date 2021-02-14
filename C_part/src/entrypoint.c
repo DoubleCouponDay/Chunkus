@@ -20,6 +20,12 @@ algorithm_debug target_algorithm_debug = vectorize_debug;
 int execute_program(char* input_file_p, int chunk_size, float threshold, char* output_file_p) {
 	image img = convert_png_to_image(input_file_p);
 
+	if (isBadError())
+	{
+		DEBUG("convert_png_to_image failed with: %d\n", getLastError());
+		return getAndResetErrorCode();
+	}
+
 	vectorize_options options = {
 		input_file_p,
 		chunk_size,
