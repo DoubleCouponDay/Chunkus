@@ -37,9 +37,10 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
     output.shape_ints = calloc(map->map_width * map->map_height, sizeof(int));
     int next_shape_int = 0;
 
-    for (int y = 0; y < map->map_height; ++y)
+    LOG_INFO("Initial Shape Sweep");
+    for (int x = 0; x < map->map_width; ++x)
     {
-        for (int x = 0; x < map->map_width; ++x)
+        for (int y = 0; y < map->map_height; ++y)
         {
             int current = x + y * map->map_width;
             int x_in_range = (x + 1 < map->map_width);
@@ -62,6 +63,10 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
         }
     }
 
+    output.num_shapes = next_shape_int;
+    LOG_INFO("Num Shapes calculated to: %d", output.num_shapes);
+
+    LOG_INFO("Fixing Indices");
     for (int y = 0; y < map->map_height; ++y)
     {
         for (int x = 0; x < map->map_width; ++x)
@@ -71,9 +76,86 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
         }
     }
 
-    output.num_shapes = next_shape_int;
-    LOG_INFO("Num Shapes calculated to: %d", output.num_shapes);
+    {
+        LOG_INFO("Shape Aggregation Sweep");
+        int original_count = output.num_shapes;
+        int *de_duplicated_indices = calloc(output.num_shapes * 2, sizeof(int));
+        int *index_gaps = de_duplicated_indices + output.num_shapes;
+        for (int i = 0; i < output.num_shapes; ++i)
+            de_duplicated_indices[i] = i;
+        for (int x = 0; x < map->map_width; ++x)
+        {
+            for (int y = 0; y < map->map_height; ++y)
+            {
+                int current = x + y * map->map_width;
+                int x_in_range = (x + 1 < map->map_width);
+                int y_in_range = (y + 1 < map->map_height);
+                int capped_x = (x_in_range * 2 + (!x_in_range) * 1);
+                int capped_y = (y_in_range * 2 + (!y_in_range) * 1);
+                int skip_me = de_duplicated_indices[output.shape_ints[current]] == output.shape_ints[current];
+                for (int adj_x = 0 - (x > 0) * 1; adj_x < capped_x; ++adj_x)
+                {
+                    for (int adj_y = 0 - (y > 0) * 1; adj_y < capped_y; ++adj_y)
+                    {
+                        int adjacent = current + adj_x + adj_y * map->map_width;
+                        int similarity = colours_are_similar(map->groups_array_2d[x][y].average_colour, map->groups_array_2d[x + adj_x][y + adj_y].average_colour, threshold);
+                        int in_different_shapes = de_duplicated_indices[output.shape_ints[current]] != de_duplicated_indices[output.shape_ints[adjacent]];
+                        int val = similarity * in_different_shapes * skip_me;
+                        int already_changed = de_duplicated_indices[output.shape_ints[adjacent]] != output.shape_ints[adjacent];
+                        de_duplicated_indices[output.shape_ints[adjacent]] = (de_duplicated_indices[output.shape_ints[adjacent]] * !val) + (de_duplicated_indices[output.shape_ints[current]] * val);
+                        output.num_shapes += -1 * val * !already_changed;
+                    }
+                }
+            }
+        }
 
+        int running_gaps = 0;
+        for (int i = 0; i < original_count; ++i)
+        {
+            index_gaps[i] = running_gaps;
+            running_gaps += 1 * (de_duplicated_indices[i] != i);
+        }
+
+        int lost_shapes = original_count - output.num_shapes;
+        if (lost_shapes)
+        {
+            LOG_INFO("Found %d duplicate shapes", lost_shapes);
+            LOG_INFO("Correcting Indices");
+            for (int x = 0; x < map->map_width; ++x)
+            {
+                for (int y = 0; y < map->map_height; ++y)
+                {
+                    int current = x + y * map->map_width;
+                    int de_dup_shape_index = de_duplicated_indices[output.shape_ints[current]];
+                    int val = de_dup_shape_index - index_gaps[de_dup_shape_index];
+                    output.shape_ints[current] = val;
+                }
+            }
+        }
+        else
+        {
+            LOG_INFO("No Shapes to De-Duplicate");
+        }
+        free(de_duplicated_indices);
+    }
+    
+    LOG_INFO("Num Shapes Now calculated to: %d", output.num_shapes);
+
+    {
+        int bad_ness = 0;
+        for (int x = 0; x < map->map_width; ++x)
+        {
+            for (int y = 0; y < map->map_height; ++y)
+            {
+                int current = x + y * map->map_width;
+                bad_ness = output.shape_ints[current] < 0 || output.shape_ints[current] >= output.num_shapes;
+            }
+        }
+        if (bad_ness)
+            LOG_ERR("Somehow De-Duplication failed to correct Shape Indices");
+    }
+
+    LOG_INFO("Counting up Shape numbers");
     output.shape_counts = calloc(output.num_shapes * 3 + map->map_width * map->map_height, sizeof(int));
     int* increasing_shape_indices = output.shape_counts + output.num_shapes;
     output.shape_offsets = increasing_shape_indices + output.num_shapes; // An array containing the index of the first chunk of each shape in the shapes array
@@ -85,6 +167,8 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
         {
             int current = x + y * map->map_width;
             int index = output.shape_ints[current];
+            if (index >= output.num_shapes || index < 0)
+                LOG_ERR("Shape Int of (%d, %d) was not properly updated in De-Duplication (has value: %d)", x, y, index);
             ++output.shape_counts[index];
         }
     }
@@ -95,11 +179,12 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
         total_found += output.shape_counts[i];
     }
 
-    LOG_INFO("Total Count: %d", total_found);
+    LOG_INFO("Total Shape Count: %d", total_found);
     if (total_found != map->map_width * map->map_height)
-        LOG_WARN("Total Count was not %u (map w x h)! Something is wrong...", map->map_width * map->map_height);
+        LOG_WARN("Total Shape Count was not %u (map w x h)! Something is wrong...", map->map_width * map->map_height);
     
     {
+        LOG_INFO("Calculating Shape Offsets");
         int running_index = 0;
         for (int i = 0; i < output.num_shapes; ++i)
         {
@@ -109,6 +194,7 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
         }
     }
 
+    LOG_INFO("Moving Chunk Indices into their Shapes");
     for (int y = 0; y < map->map_height; ++y)
     {
         for (int x = 0; x < map->map_width; ++x)
@@ -121,6 +207,7 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
     }
 
     {
+        LOG_INFO("Checking for Duplicates");
         unsigned char* checked_indices = calloc(map->map_width * map->map_height, sizeof(unsigned char));
         int did = 0;
         for (int i = 0; i < output.num_shapes; ++i)
@@ -129,7 +216,7 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
             {
                 if (checked_indices[output.chunk_index_of[j + output.shape_offsets[i]]])
                 {
-                    LOG_WARN("Shape %d has a duplicate index of: %d", j + output.shape_offsets[i]);
+                    LOG_WARN("Shape %d has a duplicate index of: %d", i, j + output.shape_offsets[i]);
                     did = 1;
                 }
                 checked_indices[output.chunk_index_of[j + output.shape_offsets[i]]] = 1;
@@ -141,6 +228,7 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
     }
     
     LOG_INFO("Beginning Border Detection");
+    LOG_INFO("Border Counting Sweep");
     // Border Detection
     output.border_counts = calloc(output.num_shapes * 3, sizeof(int));
     output.border_offsets = output.border_counts + output.num_shapes;
@@ -171,9 +259,12 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
             border_bits[current] = (char)border;
         }
     }
+    
+    LOG_INFO("Border count calculated as: %d", border_total);
 
     // Initialize Offsets
     {
+        LOG_INFO("Calculating Border Offsets");
         int running_offset = 0;
         for (int i = 0; i < output.num_shapes; ++i)
         {
@@ -183,7 +274,7 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
         }
     }
 
-    LOG_INFO("Border count calculated as: %d", border_total);
+    LOG_INFO("Border Ordering Sweep");
     output.border_chunk_indices = calloc(border_total, sizeof(int));
     int iterations = 0;
     for (int i = 0; i < output.num_shapes; ++i)
@@ -270,6 +361,8 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
     }
     free(border_bits);
     // End Border Detection
+
+    LOG_INFO("Border and Shape Detection Complete");
 
     return output;
 }
