@@ -58,7 +58,7 @@ impl fmt::Display for FfiResult
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
     {
-        write!(f, "{}", self.to_string())
+        write!(f, "{}", ffiresult_to_string(&self))
     }
 }
 
