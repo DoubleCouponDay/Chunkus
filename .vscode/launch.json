@@ -40,5 +40,21 @@
             "console": "internalConsole",
             "requireExactSource": false
         },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Launch",
+            "args": [],
+            "program": "${workspaceFolder}/Rust_part/target/debug/bot.exe",
+            "windows": {
+                "program": "${workspaceFolder}/Rust_part/target/debug/bot.exe"
+            },
+            "cwd": "${workspaceFolder}",
+            "stopOnEntry": false,
+            "sourceLanguages": ["rust"],
+            "sourceMap": {
+              "/rustc/*": "${env:HOME}/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust"
+            }
+          },
     ]
 }
