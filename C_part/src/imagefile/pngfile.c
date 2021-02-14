@@ -380,7 +380,7 @@ void iterate_through_shape(pixelchunk_list* list, png_hashies_iter* udata)
     pixelchunk_list* current = list;
 
     while(current != NULL) {
-            pixelchunk* chunk = list;    
+            pixelchunk* chunk = list->chunk_p;    
             png_hashies_iter* stuff = udata;
             colourmap* map = stuff->map;
         

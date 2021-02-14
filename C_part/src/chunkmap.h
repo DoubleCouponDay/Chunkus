@@ -51,3 +51,5 @@ typedef struct
 
 chunkmap* generate_chunkmap(image inputimage_p, vectorize_options options);
 void free_chunkmap(chunkmap* map_p);
+
+int count_list(pixelchunk_list* first);

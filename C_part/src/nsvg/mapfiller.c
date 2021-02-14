@@ -21,7 +21,7 @@ pixelchunk_list* add_chunk_to_list(chunkshape* shape, pixelchunk* chunk, pixelch
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
     new->firstitem = list->firstitem;
-    new->chunk_p = NULL;
+    new->chunk_p = chunk;
     new->next = NULL;
 
     list->next = new;
@@ -68,7 +68,7 @@ typedef struct list_holder
 } list_holder;
 
 //welcome to the meat and potatoes of the program!
-inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output, chunkshape* firstshape, int map_x, int map_y, float shape_colour_threshold) {    
+void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output, chunkshape* firstshape, int map_x, int map_y, float shape_colour_threshold) {    
     for (int adjacent_y = -1; adjacent_y < 2; ++adjacent_y)
     {
         for (int adjacent_x = -1; adjacent_x < 2; ++adjacent_x)
@@ -111,14 +111,12 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output,
                 {
                     chosenshape = currentinshape;
                     chosenshape->chunks = add_chunk_to_list(chosenshape, adjacent, chosenshape->chunks, &chosenshape->chunks_amount);
-                    ++chosenshape->chunks_amount;
                 }
 
                 else if(currentinshape == NULL && adjacentinshape)
                 {
                     chosenshape = adjacentinshape;
                     chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &chosenshape->chunks_amount);
-                    ++chosenshape->chunks_amount;
                 }
                 continue;
             }
@@ -129,7 +127,6 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output,
                 firstshape->filled = true;
                 chosenshape->colour = current->average_colour;
                 chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &chosenshape->chunks_amount);
-                ++chosenshape->chunks_amount;
             }
 
             else if(currentinshape) { //set shape for boundary manipulation
@@ -140,7 +137,6 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output,
                 chosenshape = output->list = add_new_shape(map, output->list);
                 chosenshape->colour = current->average_colour;
                 chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &chosenshape->chunks_amount);
-                ++chosenshape->chunks_amount;
             }
             
             if(chosenshape->boundaries->chunk_p == NULL) { //use first boundary
@@ -150,7 +146,9 @@ inline void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output,
             }
 
             else { //create boundary item
-                pixelchunk_list* possible = add_chunk_to_list(chosenshape, current, chosenshape->boundaries, &chosenshape->boundaries_length);
+                chosenshape->boundaries = add_chunk_to_list(chosenshape, current, chosenshape->boundaries, &chosenshape->boundaries_length);
+                if (chosenshape->boundaries_length > 2)
+                    DEBUG("Holy balls a shape with more than 2 boundaries\n"); // Would spam the terminal, but if it happens ever that'd be great
             }
         }
     }
