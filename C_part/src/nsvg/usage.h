@@ -19,4 +19,3 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options);
 NSVGimage* vectorize_image(image input, vectorize_options options);
 void free_nsvg(NSVGimage* input);
 
-void vectorize_debug(image input, vectorize_options options, char* shapefile, char* borderfile);

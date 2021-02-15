@@ -12,6 +12,7 @@ typedef struct
     pixel** pixels_array_2d;
     coordinate location;
     struct chunkshape* shape_chunk_in;
+    struct chunkshape* boundary_chunk_in;
 } pixelchunk;
 
 typedef struct pixelchunk_list
@@ -53,3 +54,4 @@ chunkmap* generate_chunkmap(image inputimage_p, vectorize_options options);
 void free_chunkmap(chunkmap* map_p);
 
 int count_list(pixelchunk_list* first);
+int count_shapes(chunkshape* first);

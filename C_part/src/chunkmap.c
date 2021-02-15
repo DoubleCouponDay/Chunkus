@@ -84,6 +84,7 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
     };
     chunk->average_colour = average_p;
     chunk->shape_chunk_in = NULL;
+    chunk->boundary_chunk_in = NULL;
 }
 
 chunkmap* generate_chunkmap(image input, vectorize_options options)
@@ -152,9 +153,9 @@ void free_pixelchunklist(pixelchunk_list* linkedlist) {
     pixelchunk_list* current = linkedlist;
 
     while(current != NULL) {
-        pixelchunk_list* tofree = current;
-        free(tofree); //the reference held to the pixel will be cleaned up
-        current = current->next;
+        pixelchunk_list* next = current->next;
+        free(current); //the reference held to the pixel will be cleaned up
+        current = next;
     }
 }
 
@@ -205,5 +206,13 @@ int count_list(pixelchunk_list* first)
     {
         count++;
     }
+    return count;
+}
+
+int count_shapes(chunkshape* first)
+{
+    int count = 0;
+    for (; first; first = first->next)
+        ++count;
     return count;
 }

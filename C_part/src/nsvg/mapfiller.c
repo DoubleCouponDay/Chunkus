@@ -15,8 +15,19 @@
 #include "mapping.h"
 #include "../sort.h"
 
-pixelchunk_list* add_chunk_to_list(chunkshape* shape, pixelchunk* chunk, pixelchunk_list* list, int* count) {
-    if(chunk->shape_chunk_in != NULL) {
+void windback_lists(chunkshape* firstshape) {
+    chunkshape* current = firstshape;
+
+    while(current != NULL) {
+        current->chunks = current->chunks->firstitem;
+        current->boundaries = current->boundaries->firstitem;
+
+        current = current->next;
+    }
+}
+
+pixelchunk_list* add_chunk_to_list(chunkshape* shape, pixelchunk* chunk, pixelchunk_list* list, chunkshape** list_chunk_in, int* counter) {
+    if(*list_chunk_in != NULL) {
         return list;
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
@@ -25,8 +36,8 @@ pixelchunk_list* add_chunk_to_list(chunkshape* shape, pixelchunk* chunk, pixelch
     new->next = NULL;
 
     list->next = new;
-    chunk->shape_chunk_in = shape;
-    *count++;
+    *list_chunk_in = shape;
+    ++(*counter);
     return new;
 }
 
@@ -44,7 +55,7 @@ chunkshape* add_new_shape(chunkmap* map, chunkshape* shape_list) {
     chunks->next = NULL;
 
     pixelchunk_list* boundaries = calloc(1, sizeof(pixelchunk_list));
-    boundaries->firstitem = NULL;
+    boundaries->firstitem = boundaries;
     boundaries->chunk_p = NULL;
     boundaries->next = NULL;
 
@@ -89,34 +100,46 @@ void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output, chunks
             pixelchunk* adjacent = &map->groups_array_2d[adjacent_index_x][adjacent_index_y];
             chunkshape* currentinshape = big_chungus_already_in_shape(map, current);
             chunkshape* adjacentinshape = big_chungus_already_in_shape(map, adjacent);
+
             chunkshape* chosenshape;
 
-            //is similar
+            //is similar? add shape
             if (colours_are_similar(current->average_colour, adjacent->average_colour, shape_colour_threshold)) {                
                 if(currentinshape == NULL && adjacentinshape == NULL) {
                     if(firstshape->filled == false) {
                         chosenshape = firstshape;
                         firstshape->filled = true;
+                        DEBUG("Using first shape as neither current nor adjacent have shapes, and first is unfilled\n");
                     }
 
                     else {
                         chosenshape = output->list = add_new_shape(map, output->list);
+                        DEBUG("Creating new shape because current and adjacent aren't in shapes\n");
                     }
-                    chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &chosenshape->chunks_amount);
-                    chosenshape->chunks = add_chunk_to_list(chosenshape, adjacent, chosenshape->chunks, &chosenshape->chunks_amount);
+
+                    if (chosenshape->chunks->chunk_p == NULL)
+                    {
+                        chosenshape->chunks->chunk_p = current;
+                        ++chosenshape->chunks_amount;
+                    }
+                    else
+                    {
+                        chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &current->shape_chunk_in, &chosenshape->chunks_amount);
+                    }
+                    chosenshape->chunks = add_chunk_to_list(chosenshape, adjacent, chosenshape->chunks, &current->shape_chunk_in, &chosenshape->chunks_amount);
                     chosenshape->colour = current->average_colour;
                 }
 
                 else if (currentinshape && adjacentinshape == NULL)
                 {
                     chosenshape = currentinshape;
-                    chosenshape->chunks = add_chunk_to_list(chosenshape, adjacent, chosenshape->chunks, &chosenshape->chunks_amount);
+                    chosenshape->chunks = add_chunk_to_list(chosenshape, adjacent, chosenshape->chunks, &current->shape_chunk_in, &chosenshape->chunks_amount);
                 }
 
                 else if(currentinshape == NULL && adjacentinshape)
                 {
                     chosenshape = adjacentinshape;
-                    chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &chosenshape->chunks_amount);
+                    chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &current->shape_chunk_in, &chosenshape->chunks_amount);
                 }
                 continue;
             }
@@ -126,7 +149,7 @@ void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output, chunks
                 chosenshape = firstshape;
                 firstshape->filled = true;
                 chosenshape->colour = current->average_colour;
-                chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &chosenshape->chunks_amount);
+                DEBUG("Using first shape to add a boundary to\n");
             }
 
             else if(currentinshape) { //set shape for boundary manipulation
@@ -136,19 +159,30 @@ void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output, chunks
             else { //current is not in a shape
                 chosenshape = output->list = add_new_shape(map, output->list);
                 chosenshape->colour = current->average_colour;
-                chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &chosenshape->chunks_amount);
+                DEBUG("Creating new shape because current is a boundary (at (%d, %d)) and did not have a shape\n", map_x, map_y);
             }
             
+            //add to boundary
             if(chosenshape->boundaries->chunk_p == NULL) { //use first boundary
                 chosenshape->boundaries->chunk_p = current;
                 ++chosenshape->boundaries_length;
-                current->shape_chunk_in = chosenshape;
+                current->boundary_chunk_in = chosenshape;
             }
 
             else { //create boundary item
-                chosenshape->boundaries = add_chunk_to_list(chosenshape, current, chosenshape->boundaries, &chosenshape->boundaries_length);
-                if (chosenshape->boundaries_length > 2)
-                    DEBUG("Holy balls a shape with more than 2 boundaries\n"); // Would spam the terminal, but if it happens ever that'd be great
+                chosenshape->boundaries = add_chunk_to_list(chosenshape, current, chosenshape->boundaries, &current->boundary_chunk_in, &chosenshape->boundaries_length);
+            }
+
+            //boundaries are part of the shape too
+            if (chosenshape->chunks->chunk_p == NULL) { 
+                chosenshape->chunks->chunk_p = current;
+                ++chosenshape->chunks_amount;
+                current->shape_chunk_in = chosenshape;
+            }
+
+            else
+            {
+                chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &current->shape_chunk_in, &chosenshape->chunks_amount);
             }
         }
     }
@@ -158,7 +192,7 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     //create set of shapes
     DEBUG("Fill chunkmap with threshold: %f\n", options->shape_colour_threshhold);
     int tenth_of_map = (int)floorf(map->map_width * map->map_height / 10.f);
-    list_holder list = (list_holder){ map->shape_list };
+    list_holder holder = (list_holder){ map->shape_list };
     int count = 0;
     int tenth_count = 0;
     chunkshape* firstshape = map->shape_list;
@@ -174,7 +208,7 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
                 DEBUG("Progress: %d0%%\n", tenth_count);
             }
             pixelchunk* currentchunk_p = &map->groups_array_2d[map_x][map_y];
-            find_shapes(map, currentchunk_p, &list, firstshape, map_x, map_y, options->shape_colour_threshhold);            
+            find_shapes(map, currentchunk_p, &holder, firstshape, map_x, map_y, options->shape_colour_threshhold);            
             int code = getLastError();
 
             if (isBadError())
@@ -182,9 +216,7 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
                 DEBUG("find_shapes failed with code: %d\n", code);
                 return;
             }
-            map->shape_list->boundaries = firstshape->boundaries;
-            map->shape_list->chunks = firstshape->chunks;
         }
     }
-    map->shape_list = firstshape;
+    windback_lists(firstshape);
 }

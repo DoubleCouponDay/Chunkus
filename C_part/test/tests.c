@@ -223,40 +223,6 @@ MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdat
   return MUNIT_OK;
 }
 
-MunitResult can_run_debug_images(const MunitParameter params[], void* userdata)
-{
-  char* fileaddress = params[0].value;
-  
-  char* chunk_size_str = params[1].value;
-  int chunk_size = atoi(chunk_size_str);
-
-  char* threshold_str = params[2].value;
-  float threshold = atof(threshold_str);
-
-  char* shape_file = "shape_tests.png";
-  char* border_file = "border_tests.png";
-
-  munit_assert_int(debug_image(fileaddress, chunk_size, threshold, shape_file, border_file), ==, 0);
-
-  FILE* fp = fopen(shape_file, "r");
-  munit_assert_ptr_not_null(fp);
-  fclose(fp);
-
-  // TODO: uncomment when write_chunkmap_boundaries_to_png has been written
-  //fp = fopen(border_file, "r");
-  //munit_assert_ptr_not_null(fp);
-  //fclose(fp);
-
-  munit_assert_int(set_algorithm(1), ==, 0);
-  munit_assert_int(debug_image(fileaddress, chunk_size, threshold, shape_file, border_file), ==, 0);
-
-  fp = fopen(shape_file, "r");
-  munit_assert_ptr_not_null(fp);
-  fclose(fp);
-
-  return MUNIT_OK;
-}
-
 int main(int argc, char** argv) {
   DEBUG("test runner initializing... \n");
   DEBUG("args: ");
@@ -266,7 +232,7 @@ int main(int argc, char** argv) {
 
   char* param1[] = { "../../../../test/test.png", NULL };
   char* param2[] = { "1", NULL };
-  char* param3[] = { "50", NULL };
+  char* param3[] = { "100", NULL }; //max threshhold 440
   char* param4[] = { "./chunkmap.png", NULL };
   char* testname = argv[1];
 
@@ -294,10 +260,9 @@ int main(int argc, char** argv) {
   MunitTest cherry = { "chunkmap_to_png", can_write_chunkmap_shapes_to_file, test69setup, test69teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest banana = { "nsvg_to_svg", can_write_to_svgfile, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest yo_mama = { "speedy_vectorize", can_do_speedy_vectorize, speedy_vectorize_setup, speedy_vectorize_teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest raspberry = { "debug_images", can_run_debug_images, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
 
   enum { 
-    NUM_TESTS = 9 //UPDATE THIS WHEN YOU ADD NEW TESTS
+    NUM_TESTS = 8 //UPDATE THIS WHEN YOU ADD NEW TESTS
   }; 
 
   namedtest tests[NUM_TESTS] = {
@@ -309,7 +274,6 @@ int main(int argc, char** argv) {
     {cherry.name, cherry},
     {banana.name, banana},
     {yo_mama.name, yo_mama},
-    {raspberry.name, raspberry},
   };
   MunitTest* filteredtests = filtertests(tests, NUM_TESTS, testname);
   MunitSuite suite = { "tests.", filteredtests };

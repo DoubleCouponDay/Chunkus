@@ -17,7 +17,6 @@
 
 const int NONE_FILLED = -1;
 
-
 //assumes first path and first shape are given
 bool iterate_new_path(pixelchunk* chunk, svg_hashies_iter* udata) {
     NSVGshape* current = udata->output->shapes;
@@ -160,19 +159,12 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
             output->shapes = firstshape;
         }
 
-        else if(chunkcount > 1) { 
+        else {
             DEBUG("creating new shape\n");
             char longaschar = i;
             NSVGshape* newshape = create_shape(map, &longaschar, 1);
             output->shapes->next = newshape;
             output->shapes = newshape;
-        }
-
-        else {
-            DEBUG("not enough chunks found in shape!\n");
-            ++i;
-            map->shape_list = map->shape_list->next;
-            continue;
         }
         coordinate empty = {NONE_FILLED, NONE_FILLED, 1, 1};
         NSVGpath* firstpath = create_path(map->input, empty, empty); //lets us wind back the path list
@@ -183,7 +175,6 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
             return;
         }
         output->shapes->paths = firstpath; //first shapes path
-        DEBUG("creating iter struct\n");
 
         svg_hashies_iter shape_data = {
             map, output, firstpath, NULL
@@ -236,6 +227,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
         map->shape_list = map->shape_list->next; //go to next shape
     }
     map->shape_list = firstchunkshape;
+    DEBUG("Iterated %d shapes\n", count_shapes(map->shape_list));
 
     if(firstshape->paths != NULL) {
         output->shapes = firstshape;

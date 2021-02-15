@@ -32,6 +32,9 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
 
     DEBUG("filling chunkmap\n");
     fill_chunkmap(map, &options);
+    
+    int count = count_shapes(map->shape_list);
+    DEBUG("Filled chunkmap with %d shapes\n", count);
 
     if (isBadError())
     {
@@ -51,6 +54,8 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     DEBUG("printing chunkmap\n");
     write_chunkmap_to_png(map, "chunkmap.png");
     
+    count = count_shapes(map->shape_list);
+    
     if(isBadError()) {
         DEBUG("write_chunkmap_to_png failed with code: %d\n", getLastError());
         free_chunkmap(map);
@@ -60,6 +65,8 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     DEBUG("iterating chunk shapes\n");
     NSVGimage* output = create_nsvgimage(map->map_width, map->map_height);
     iterate_chunk_shapes(map, output);
+    
+    count = count_shapes(map->shape_list);
 
     if (isBadError())
     {
@@ -73,52 +80,6 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     }
     free_chunkmap(map);
     return output;
-}
-
-void vectorize_debug(image input, vectorize_options options, char* shapefile, char* borderfile)
-{
-    DEBUG("Vectorize Debugging to shapes: '%s' and borders: '%s'\n", shapefile, borderfile);
-    chunkmap* map = generate_chunkmap(input, options);
-    
-    if (isBadError())
-    {
-        DEBUG("generate_chunkmap failed with code: %d \n", getLastError());
-        free_chunkmap(map);
-        return NULL;
-    }
-
-    DEBUG("filling chunkmap\n");
-    fill_chunkmap(map, &options);
-
-    if (isBadError())
-    {
-        DEBUG("fill_chunkmap failed with code %d\n", getLastError());
-        free_chunkmap(map);
-        return NULL;
-    }
-
-    DEBUG("sorting boundaries\n");
-    chunkshape* current = map->shape_list;
-    
-    while(current != NULL) {
-        sort_boundary(current);
-        current = current->next;
-    }
-
-    DEBUG("Writing chunkmap shapes to '%s'\n", shapefile);
-    write_chunkmap_to_png(map, shapefile);
-
-    DEBUG("Would write chunkmap shape borders to '%s' but that no exist yet\n", borderfile);
-    // TODO: write_chunkmap_boundaries_to_png
-    // write_chunkmap_boundaries_to_png(map, borderfile);
-    
-    if(isBadError()) {
-        DEBUG("write_chunkmap_to_png failed with code: %d\n", getLastError());
-        free_chunkmap(map);
-        return NULL;
-    }
-
-    free_chunkmap(map);
 }
 
 void free_nsvg(NSVGimage* input) {

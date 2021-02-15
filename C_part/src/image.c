@@ -77,9 +77,8 @@ bool colours_are_similar(pixel color_a, pixel color_b, float max_distance)
     diff.g = abs((int)color_a.g - (int)color_b.g);
     diff.b = abs((int)color_a.b - (int)color_b.b);
 
-    float abc = (diff.r * diff.r) + (diff.g * diff.g) + (diff.b * diff.b);
-    float mag_max = max_distance * max_distance;
-    return abc <= mag_max;
+    float abc = sqrtf((diff.r * diff.r) + (diff.g * diff.g) + (diff.b * diff.b));
+    return abc <= max_distance; // If difference less than the threshold
 }
 
 char* rgb_to_string(pixel* input) {
