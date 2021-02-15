@@ -66,7 +66,6 @@ bool write_svg_file(NSVGimage* input) {
         //DEBUG("creating <path> element\n");
         fprintf(output, "<path fill=\"#");
         unsigned int colour = currentshape->fill.color;
-        //DEBUG("set the fill attribute to the shapes fill property: %x\n", colour);
         fprintf(output, "%x", colour);
         fprintf(output, "\" d=\"");
         bool ranonce = false;

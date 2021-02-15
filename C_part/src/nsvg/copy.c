@@ -10,7 +10,7 @@ const char* TEMPLATE_PATH = "template.svg";
 
 ///nanosvg copypaste
 int NSVG_RGB(int r, int g, int b) {
-    return ((unsigned int)r) | ((unsigned int)g << 8) | ((unsigned int)b << 16);
+    return ((unsigned int)r << 16) | ((unsigned int)g << 8) | ((unsigned int)b);
 }
 
 void free_template(char* data) {
