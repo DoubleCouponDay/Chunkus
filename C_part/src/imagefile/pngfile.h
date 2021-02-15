@@ -13,7 +13,6 @@ typedef struct {
 } colourmap;
 
 typedef struct {
-    colour colour;
     colourmap* map;
 } png_hashies_iter;
 
