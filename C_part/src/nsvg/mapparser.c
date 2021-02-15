@@ -134,7 +134,7 @@ void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
     while(map->shape_list != NULL) {        
         int chunkcount = map->shape_list->chunks_amount;
 
-        if(low_boundary_shapes == map->shape_count - 1) {
+        if(low_boundary_shapes >= map->shape_count) {
             DEBUG("MOST BOUNDARIES NOT BIG ENOUGH\n");
             setError(LOW_BOUNDARIES_CREATED);
             return;

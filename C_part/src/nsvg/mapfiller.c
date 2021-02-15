@@ -109,6 +109,7 @@ void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output, chunks
                     if(firstshape->filled == false) {
                         chosenshape = firstshape;
                         firstshape->filled = true;
+                        ++map->shape_count;
                         DEBUG("Using first shape as neither current nor adjacent have shapes, and first is unfilled\n");
                     }
 
@@ -157,6 +158,7 @@ void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output, chunks
             if(firstshape->filled == false) { //use firstshape
                 chosenshape = firstshape;
                 firstshape->filled = true;
+                ++map->shape_count;
                 DEBUG("Using first shape to add a boundary to\n");
             }
 
