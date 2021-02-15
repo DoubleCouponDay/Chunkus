@@ -388,9 +388,10 @@ void iterate_through_shape(pixelchunk_list* list, png_hashies_iter* udata)
         {
             DEBUG("Error: chunk has waaaaay off coordinate\n");
         }
-        
+
         else {
-            map->colours[chunk->location.x + map->width * chunk->location.y] = convert_pixel_to_colour(chunk->average_colour);
+            colour avg = convert_pixel_to_colour(chunk->average_colour);
+            map->colours[chunk->location.x + map->width * chunk->location.y] = avg;
         }
         current = current->next;
     }    
