@@ -233,7 +233,7 @@ int main(int argc, char** argv) {
   char* param1[] = { "../../../../test/test.png", NULL };
   char* param2[] = { "1", NULL };
   char* param3[] = { "100", NULL }; //max threshhold 440
-  char* param4[] = { "./cherry.png", NULL };
+  char* param4[] = { "./chunkmap.png", NULL };
   char* testname = argv[1];
 
   MunitParameterEnum test_params[] = { 
