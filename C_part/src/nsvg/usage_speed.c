@@ -508,6 +508,7 @@ void free_shape_stuff(find_shapes_speed_stuff stuff)
 
 NSVGimage* produce_nsvg(chunkmap* map, float threshold, find_shapes_speed_stuff stuff)
 {
+    map->shape_count = stuff.num_shapes;
     // START CONVERT TO ACTUAL SHAPES
     chunkshape* actual_shapes = calloc(stuff.num_shapes, sizeof(chunkshape));
 
