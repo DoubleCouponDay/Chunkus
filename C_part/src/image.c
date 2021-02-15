@@ -33,9 +33,9 @@ pixelF convert_pixel_to_colorf(pixel input)
 colour convert_pixel_to_colour(pixel input)
 {
     colour out;
-    out.r = ((float)input.r) / 255.f;
-    out.g = ((float)input.g) / 255.f;
-    out.b = ((float)input.b) / 255.f;
+    out.r = input.r;
+    out.g = input.g;
+    out.b = input.b;
     return out;
 }
 
