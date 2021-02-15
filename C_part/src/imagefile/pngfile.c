@@ -428,23 +428,17 @@ void write_chunkmap_to_png(chunkmap* map, char* fileaddress) {
         current = current->next;
     }
     DEBUG("iterated %d shapes in chunkmap\n", shape_count);
-    image output_img = create_image(intermediate.width * 3, intermediate.height * 3);
+    image output_img = create_image(intermediate.width, intermediate.height);
     
     for (int x = 0; x < intermediate.width; ++x)
     {
         for (int y = 0; y < intermediate.height; ++y)
         {
             colour* bob = &intermediate.colours[x + intermediate.width * y];
-            for (int xx = 0; xx < 3; ++xx)
-            {
-                for (int yy = 0; yy < 3; ++yy)
-                {
-                    pixel* img_pix = &(output_img.pixels_array_2d[x * 3 + xx][y * 3 + yy]);
-                    img_pix->r = bob->r;
-                    img_pix->g = bob->g;
-                    img_pix->b = bob->b;
-                }
-            }
+            pixel* img_pix = &(output_img.pixels_array_2d[x][y]);
+            img_pix->r = bob->r;
+            img_pix->g = bob->g;
+            img_pix->b = bob->b;
         }
     }
     write_image_to_png(output_img, fileaddress);
