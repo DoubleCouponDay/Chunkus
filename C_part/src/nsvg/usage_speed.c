@@ -132,6 +132,7 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
                 }
             }
         }
+        
         else
         {
             LOG_INFO("No Shapes to De-Duplicate");
@@ -550,7 +551,6 @@ NSVGimage* produce_nsvg(chunkmap* map, float threshold, find_shapes_speed_stuff 
     return nsvg;
 }
 
-
 NSVGimage* vectorize_image_speed(image input, vectorize_options options)
 {
     open_log("log.txt");
@@ -574,20 +574,4 @@ NSVGimage* vectorize_image_speed(image input, vectorize_options options)
     close_log();
 
     return out;
-}
-
-void vectorize_debug_speed(image input, vectorize_options options, char* shapefile, char* borderfile)
-{
-    open_log("vectorize_debug.txt");
-    chunkmap* map = generate_chunkmap(input, options);
-
-    find_shapes_speed_stuff stuff = produce_shape_stuff(map, options.shape_colour_threshhold);
-
-    write_shape_borders_to_png(stuff, map, borderfile);
-    write_shape_struct_to_png(stuff, map, shapefile);
-
-    free_chunkmap(map);
-    free_shape_stuff(stuff);
-    close_log();
-
 }
