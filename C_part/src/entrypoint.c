@@ -33,7 +33,7 @@ int execute_program(char* input_file_p, int chunk_size, float threshold, char* o
 	NSVGimage* nsvg = target_algorithm(img, options);
 	int code = getLastError();
 
-	if(isBadError()) {
+	if(isBadError() || nsvg == NULL) {
 		free_image_contents(img);
 		free_nsvg(nsvg);
 		DEBUG("vectorize_image failed with code: %d\n", code);

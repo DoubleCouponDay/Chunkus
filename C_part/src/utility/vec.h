@@ -1,5 +1,6 @@
 #pragma once
 
+#include "defines.h"
 #include <math.h>
 
 typedef struct vector2
@@ -37,20 +38,27 @@ inline float vec_dot(vector2 a, vector2 b)
 
 inline float vec_mag(vector2 a)
 {
-    return sqrt((a.x * a.x) + (a.y * a.y));
+    return sqrtf((a.x * a.x) + (a.y * a.y));
 }
 
 inline float vec3_mag(vector3 a)
 {
-    return sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+    return sqrtf(a.x * a.x + a.y * a.y + a.z * a.z);
 }
 
 inline float vec_angle_between(vector2 a, vector2 b)
 {
     float mag_product = vec_mag(a) * vec_mag(b);
-    float inner = vec_dot(a, b) / (mag_product + (!mag_product) * 1);
-    float acos_part = acosf(inner * (inner <= 1.f && inner >= -1.f) + (inner > 1.f) - (inner < -1.f));
-    return (acos_part * !!mag_product) + (3.14159265358979823846f * 2.f * !mag_product);
+
+    if (mag_product == 0.f)
+        return M_PI * 2.f;
+        
+    float trig_coefficient = vec_dot(a, b) / mag_product;
+
+    if (trig_coefficient > 1.f || trig_coefficient < -1.f)
+        return M_PI * 2.f;
+
+    return acosf(trig_coefficient);
 }
 
 inline vector3 vec_cross(vector3 a, vector3 b)

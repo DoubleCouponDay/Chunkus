@@ -17,7 +17,7 @@ use serenity::{
         Client, ClientBuilder, Context, EventHandler
     },
 };
-use crate::core::{do_vectorize, do_debug_vectorize};
+use crate::core::{do_vectorize};
 use std::{
     collections::{HashSet, HashMap},
     fs::File,
@@ -559,78 +559,51 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>, do_deb
             chunksize_str = String::from(format!("{}", options.chunk_size));
             threshold_str = String::from(format!("{}", options.threshold));
         }
-        
-        if do_debug
-        {
-            let shape_file = String::from(constants::SHAPE_DEBUG_FILE);
-            let border_file = String::from(constants::BORDER_DEBUG_FILE);
 
-            println!("Debug Vectorizing...");
-            let result = do_debug_vectorize(&inputname, &shape_file, &border_file, chunksize, threshold);
+        let outputname = String::from(constants::OUTPUT_SVG_FILE);
+        println!("Vectorizing....");
+        let result = do_vectorize(&inputname, &outputname, Some(chunksize_str), Some(threshold_str));
 
-            if result != constants::FfiResult::SuccessCode
-            {
-                if let Err(why) = msg.reply(&ctx.http, format!("Failed to debug vectorize with: {}", result)).await
-                {
-                    eprintln!("Error replying to debug vectorize request of url: {} with error: {}", url_clone, why);
-                }
-                continue;
-            }
-            
-            let msg_files = vec![shape_file.as_str(), border_file.as_str()];
+        let possibleerror: &str = result.into();
 
-            if let Err(why) = msg.channel_id.send_files(&ctx.http, msg_files, |m| { m.content("Debug Results:") }).await
-            {
-                eprintln!("Error sending debug vectorize results (which we probably succeeded to produce) of url: {}, with error: {}", url_clone, why);
-            }
+        if possibleerror != "SuccessCode" {
+            if let Err(why) = msg.reply(&ctx.http, possibleerror)
+            .await { 
+                println!("Error replying: {}", why);
+            };
+            continue;
         }
-        else
+
+        else {
+            println!("success");
+        }
+
+        let png_output = String::from(constants::OUTPUTFILENAME);
+
+        // Render to png
+        println!("Rendering Output");
+        if let Err(why) = render_svg_to_png(&outputname, &png_output)
         {
-            let outputname = String::from(constants::OUTPUT_SVG_FILE);
-            println!("Vectorizing....");
-            let result = do_vectorize(&inputname, &outputname, Some(chunksize_str), Some(threshold_str));
-
-            let possibleerror: &str = result.into();
-
-            if possibleerror != "SuccessCode" {
-                if let Err(why) = msg.reply(&ctx.http, possibleerror)
-                .await { 
-                    println!("Error replying: {}", why);
-                };
-                continue;
-            }
-
-            else {
-                println!("success");
-            }
-
-            let png_output = String::from(constants::OUTPUTFILENAME);
-
-            // Render to png
-            println!("Rendering Output");
-            if let Err(why) = render_svg_to_png(&outputname, &png_output)
+            println!("Failed to render svg to png: {}", why);
+            if let Err(msg_why) = msg.reply(&ctx.http, format!("Failed to render svg to png: {}", why)).await
             {
-                println!("Failed to render svg to png: {}", why);
-                if let Err(msg_why) = msg.reply(&ctx.http, format!("Failed to render svg to png: {}", why)).await
-                {
-                    println!("Failed to reply to msg: {}", msg_why);
-                }
-                continue;
+                println!("Failed to reply to msg: {}", msg_why);
             }
+            continue;
+        }
 
 
-            // Send the output
-            let msg_files = vec![outputname.as_str(), png_output.as_str()];
+        // Send the output
+        let msg_files = vec![outputname.as_str(), png_output.as_str()];
 
-            let msg = msg.channel_id.send_files(&ctx.http, msg_files, |m|
-            {
-                m.content("Here's your result")
-            }).await;
+        let msg = msg.channel_id.send_files(&ctx.http, msg_files, |m|
+        {
+            m.content("Here's your result")
+        }).await;
 
-            if let Err(err) = msg
-            {
-                println!("Error sending result {}", err);
-            }
+        if let Err(err) = msg
+        {
+            println!("Error sending result {}", err);
         }
     }
 }

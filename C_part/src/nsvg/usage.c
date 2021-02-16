@@ -44,6 +44,11 @@ NSVGimage* dcdfill_for_nsvg(image input, vectorize_options options) {
     DEBUG("sorting boundaries\n");
     sort_boundary(map);
 
+    if(isBadError()) {
+        DEBUG("sort_boundary failed with code %d\n", getLastError());
+        return NULL;
+    }
+
     DEBUG("printing chunkmap\n");
     write_chunkmap_to_png(map, "chunkmap.png");
     

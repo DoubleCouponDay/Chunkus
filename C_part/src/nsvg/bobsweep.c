@@ -404,6 +404,11 @@ NSVGimage* sweepfill_chunkmap(chunkmap* map, float threshold)
 
     sort_boundary(map);
 
+    if(isBadError()) {
+        LOG_ERR("sort_boundary failed with code %d\n", getLastError());
+        return NULL;
+    }
+
     write_chunkmap_to_png(map, "chunkmap.png");
 
     if(isBadError()) {

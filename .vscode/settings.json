@@ -56,7 +56,10 @@
         "copy.h": "c",
         "limits.h": "c",
         "debug.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "math.h": "c",
+        "corecrt_math.h": "c",
+        "corecrt_math_defines.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }
