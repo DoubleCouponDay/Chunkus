@@ -11,41 +11,42 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
+find_shapes_speed_stuff* produce_shape_stuff(chunkmap* map, float threshold)
 {
     if (isBadError())
     {
-        LOG_WARN("A Previous error occured: %d, ignoring", getAndResetLastError());
+        LOG_WARN("A Previous error occured: %d, you should bubble these errors up", getLastError());
+        return NULL;
     }
     
     if (map->map_width < 1 || map->map_height < 1)
     {
         LOG_ERR("Can not process empty chunkmap");
         setError(BAD_ARGUMENT_ERROR);
-        return (find_shapes_speed_stuff){ 0 };
+        return NULL;
     }
 
-    find_shapes_speed_stuff output;
+    find_shapes_speed_stuff* output = calloc(1, sizeof(find_shapes_speed_stuff));
 
     LOG_INFO("Find Shapes Speedy with threshold: %.1f", threshold);
-    shape_initial_sweep(map, &output, threshold);
+    shape_initial_sweep(map, output, threshold);
 
-    shape_aggregate_sweep(map, &output, threshold);
+    shape_aggregate_sweep(map, output, threshold);
 
     if (isBadError())
     {
         LOG_ERR("Shape Aggregate Sweep failed with: %d", getLastError());
-        return (find_shapes_speed_stuff){ 0 };
+        return NULL;
     }
     
-    LOG_INFO("Num Shapes Now calculated to: %d", output.num_shapes);
+    LOG_INFO("Num Shapes Now calculated to: %d", output->num_shapes);
 
-    move_shape_indices(map, &output);
+    move_shape_indices(map, output);
     if (isBadError())
     {
         LOG_ERR("Moving Shape Indices failed with: %d");
         free_shape_stuff(output);
-        return (find_shapes_speed_stuff){ 0 };
+        return NULL;
     }
 
     {
@@ -53,16 +54,16 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
         unsigned char* checked_indices = calloc(map->map_width * map->map_height, sizeof(unsigned char));
         int did = 0;
         
-        for (int i = 0; i < output.num_shapes; ++i)
+        for (int i = 0; i < output->num_shapes; ++i)
         {
-            for (int j = 0; j < output.shape_counts[i]; ++j)
+            for (int j = 0; j < output->shape_counts[i]; ++j)
             {
-                if (checked_indices[output.chunk_index_of[j + output.shape_offsets[i]]])
+                if (checked_indices[output->chunk_index_of[j + output->shape_offsets[i]]])
                 {
-                    LOG_WARN("Shape %d has a duplicate index of: %d", i, j + output.shape_offsets[i]);
+                    LOG_WARN("Shape %d has a duplicate index of: %d", i, j + output->shape_offsets[i]);
                     did = 1;
                 }
-                checked_indices[output.chunk_index_of[j + output.shape_offsets[i]]] = 1;
+                checked_indices[output->chunk_index_of[j + output->shape_offsets[i]]] = 1;
             }
         }
         
@@ -75,7 +76,7 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
             setError(ASSUMPTION_WRONG);
             free(checked_indices);
             free_shape_stuff(output);
-            return (find_shapes_speed_stuff){ 0 };
+            return NULL;
         }
         free(checked_indices);
     }
@@ -83,19 +84,19 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
     LOG_INFO("Beginning Border Detection");
     LOG_INFO("Border Counting Sweep");
     // Border Detection
-    output.border_counts = calloc(output.num_shapes * 3, sizeof(int));
-    output.border_offsets = output.border_counts + output.num_shapes;
-    int *border_running_indices = output.border_offsets + output.num_shapes;
+    output->border_counts = calloc(output->num_shapes * 3, sizeof(int));
+    output->border_offsets = output->border_counts + output->num_shapes;
+    int *border_running_indices = output->border_offsets + output->num_shapes;
     char *border_bits = calloc(map->map_width * map->map_height, sizeof(char));
     int border_total = 0;
 
-    for (int i = 0; i < output.num_shapes; ++i)
+    for (int i = 0; i < output->num_shapes; ++i)
     {
-        for (int j = 0; j < output.shape_counts[i]; ++j)
+        for (int j = 0; j < output->shape_counts[i]; ++j)
         {
             // Look through all coordinates
             // See if any adjacents either: don't exist (edge of the image) or are a different colour
-            int current = output.chunk_index_of[j + output.shape_offsets[i]];
+            int current = output->chunk_index_of[j + output->shape_offsets[i]];
             int x = current % map->map_width;
             int y = current / map->map_width;
             int edge = (x < 1) | (y < 1) | (x + 1 >= map->map_width) | (y + 1 >= map->map_height);
@@ -105,12 +106,12 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
             {
                 for (int adj_y = (2 * edge) + (-1 * !edge); adj_y < 2; ++adj_y)
                 {
-                    border |= output.shape_ints[current] != output.shape_ints[x + adj_x + (y + adj_y) * map->map_width];
+                    border |= output->shape_ints[current] != output->shape_ints[x + adj_x + (y + adj_y) * map->map_width];
                 }
             }
 
             border_total += 1 * border;
-            output.border_counts[i] += 1 * border;
+            output->border_counts[i] += 1 * border;
             border_bits[current] = (char)border;
         }
     }
@@ -122,11 +123,11 @@ find_shapes_speed_stuff produce_shape_stuff(chunkmap* map, float threshold)
         LOG_INFO("Calculating Border Offsets");
         int running_offset = 0;
 
-        for (int i = 0; i < output.num_shapes; ++i)
+        for (int i = 0; i < output->num_shapes; ++i)
         {
-            output.border_offsets[i] = running_offset;
+            output->border_offsets[i] = running_offset;
             border_running_indices[i] = running_offset;
-            running_offset += output.border_counts[i];
+            running_offset += output->border_counts[i];
         }
     }
 
@@ -287,7 +288,7 @@ void move_shape_indices(chunkmap* map, find_shapes_speed_stuff* stuff)
             {
                 LOG_ERR("Shape Int of (%d, %d) was not properly updated in De-Duplication (has value: %d)", x, y, index);
                 setError(ASSUMPTION_WRONG);
-                return (find_shapes_speed_stuff){0};
+                return;
             }
 
             ++stuff->shape_counts[index];
@@ -306,7 +307,7 @@ void move_shape_indices(chunkmap* map, find_shapes_speed_stuff* stuff)
     {
         LOG_ERR("Total Shape Count was not %u (map w x h)! Something is wrong...", map->map_width * map->map_height);
         setError(ASSUMPTION_WRONG);
-        return (find_shapes_speed_stuff){0};
+        return;
     }
     {
         LOG_INFO("Calculating Shape Offsets");
@@ -333,45 +334,51 @@ void move_shape_indices(chunkmap* map, find_shapes_speed_stuff* stuff)
     }
 }
 
-void free_shape_stuff(find_shapes_speed_stuff stuff)
+void free_shape_stuff(find_shapes_speed_stuff* stuff)
 {
-    if (stuff.shape_ints)
-        free(stuff.shape_ints);
+    if (!stuff)
+        return;
 
-    stuff.shape_ints = 0;
+    if (stuff->shape_ints)
+        free(stuff->shape_ints);
 
-    if (stuff.border_counts)
-        free(stuff.border_counts);
+    stuff->shape_ints = 0;
+
+    if (stuff->border_counts)
+        free(stuff->border_counts);
 
 
-    stuff.border_counts = 0;
+    stuff->border_counts = 0;
 
-    if (stuff.shape_counts)
-        free(stuff.shape_counts);
+    if (stuff->shape_counts)
+        free(stuff->shape_counts);
 
-    stuff.border_counts = 0;
+    stuff->border_counts = 0;
+
+    if (stuff)
+        free(stuff);
 }
 
-NSVGimage* produce_nsvg(chunkmap* map, float threshold, find_shapes_speed_stuff stuff)
+NSVGimage* produce_nsvg(chunkmap* map, float threshold, find_shapes_speed_stuff* stuff)
 {
-    map->shape_count = stuff.num_shapes;
+    map->shape_count = stuff->num_shapes;
     // START CONVERT TO ACTUAL SHAPES
-    chunkshape* actual_shapes = calloc(stuff.num_shapes, sizeof(chunkshape));
+    chunkshape* actual_shapes = calloc(stuff->num_shapes, sizeof(chunkshape));
 
-    for (int i = 0; i < stuff.num_shapes; ++i)
+    for (int i = 0; i < stuff->num_shapes; ++i)
     {
-        actual_shapes[i].next = (i + 1 < stuff.num_shapes ? &actual_shapes[i + 1] : NULL);
-        actual_shapes[i].boundaries_length = stuff.border_counts[i];
-        actual_shapes[i].boundaries = calloc(stuff.border_counts[i], sizeof(pixelchunk_list));
-        actual_shapes[i].chunks_amount = stuff.border_counts[i];
-        int first_chunk = stuff.chunk_index_of[stuff.shape_offsets[i]];
+        actual_shapes[i].next = (i + 1 < stuff->num_shapes ? &actual_shapes[i + 1] : NULL);
+        actual_shapes[i].boundaries_length = stuff->border_counts[i];
+        actual_shapes[i].boundaries = calloc(stuff->border_counts[i], sizeof(pixelchunk_list));
+        actual_shapes[i].chunks_amount = stuff->border_counts[i];
+        int first_chunk = stuff->chunk_index_of[stuff->shape_offsets[i]];
         actual_shapes[i].colour = map->groups_array_2d[first_chunk % map->map_width][first_chunk / map->map_width].average_colour;
 
         for (int j = 0; j < actual_shapes[i].boundaries_length; ++j)
         {
-            int chunk_index = stuff.chunk_index_of[j + stuff.shape_offsets[i]];
+            int chunk_index = stuff->chunk_index_of[j + stuff->shape_offsets[i]];
             actual_shapes[i].boundaries[j].chunk_p = &map->groups_array_2d[chunk_index % map->map_width][chunk_index / map->map_width];
-            actual_shapes[i].boundaries[j].next = (j + 1 < stuff.border_counts[i] ? &actual_shapes[i].boundaries[j + 1] : NULL);
+            actual_shapes[i].boundaries[j].next = (j + 1 < stuff->border_counts[i] ? &actual_shapes[i].boundaries[j + 1] : NULL);
         }
     }
 
@@ -385,7 +392,7 @@ NSVGimage* produce_nsvg(chunkmap* map, float threshold, find_shapes_speed_stuff 
     write_chunkmap_to_png(map, "chunkmap.png");
 
     if(isBadError()) {
-        DEBUG("write_chunkmap_to_png failed with code: %d\n", getLastError());
+        LOG_ERR("write_chunkmap_to_png failed with code: %d\n", getLastError());
         map->shape_list = tmp;
         free_chunkmap(map);
         free(actual_shapes);
@@ -415,7 +422,7 @@ NSVGimage* vectorize_image_speed(image input, vectorize_options options)
     open_log("log.txt");
     chunkmap* map = generate_chunkmap(input, options);
 
-    find_shapes_speed_stuff stuff = produce_shape_stuff(map, options.shape_colour_threshhold);
+    find_shapes_speed_stuff* stuff = produce_shape_stuff(map, options.shape_colour_threshhold);
 
     NSVGimage* out = produce_nsvg(map, options.shape_colour_threshhold, stuff);
 
