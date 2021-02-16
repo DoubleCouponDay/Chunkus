@@ -13,10 +13,12 @@ void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) 
     unsigned long next = start + 1;
     for(unsigned long i = next; i < length; ++i) {
         pixelchunk* current = array[i];
-        bool xisclose = abs(subject->location.x - current->location.x) == 1;
-        bool yisclose = abs(subject->location.y - current->location.y) == 1;
+        int x_diff = abs(subject->location.x - current->location.x);
+        int y_diff = abs(subject->location.y - current->location.y);
+        bool xisclose = x_diff <= 1;
+        bool yisclose = y_diff <= 1;
 
-        if(xisclose || yisclose) {
+        if((xisclose && yisclose)) {
             pixelchunk* inbetween = array[next];
             array[next] = current;
             array[i] = inbetween;
