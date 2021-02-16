@@ -78,7 +78,7 @@ typedef struct list_holder
     chunkshape* list;
 } list_holder;
 
-void enlarge_border(chunkmap* map, pixelchunk* current, list_holder* output, chunkshape* firstshape, chunkshape* currentinshape, chunkshape* adjacentinshape, pixelchunk* adjacent) {
+void enlarge_border(chunkmap* map, pixelchunk* current, list_holder* output, chunkshape* firstshape, chunkshape* currentinshape, chunkshape* adjacentinshape) {
     chunkshape* chosenshape;
 
     if(firstshape->filled == false) { //use firstshape
@@ -199,13 +199,13 @@ void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output, chunks
                 if(map_x == 0 || map_x == (map->map_width - 1) ||
                     map_y == 0 || map_y == (map->map_height - 1)) 
                 {
-                    enlarge_border(map, current, output, firstshape, currentinshape, adjacentinshape, adjacent);
+                    enlarge_border(map, current, output, firstshape, currentinshape, adjacentinshape);
                 }
                 enlarge_shape(map, current, output, firstshape, currentinshape, adjacentinshape, adjacent);
             }
 
             else {
-                enlarge_border(map, current, output, firstshape, currentinshape, adjacentinshape, adjacent);
+                enlarge_border(map, current, output, firstshape, currentinshape, adjacentinshape);
             }
         }
     }
