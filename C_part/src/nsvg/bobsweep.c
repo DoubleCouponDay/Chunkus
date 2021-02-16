@@ -1,4 +1,4 @@
-#include "usage_speed.h"
+#include "bobsweep.h"
 
 #include "utility/logger.h"
 #include "utility/vec.h"
@@ -11,128 +11,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-find_shapes_speed_stuff* produce_shape_stuff(chunkmap* map, float threshold)
+typedef struct find_shapes_speed_stuff
 {
-    if (isBadError())
-    {
-        LOG_WARN("A Previous error occured: %d, you should bubble these errors up", getLastError());
-        return NULL;
-    }
-    
-    if (map->map_width < 1 || map->map_height < 1)
-    {
-        LOG_ERR("Can not process empty chunkmap");
-        setError(BAD_ARGUMENT_ERROR);
-        return NULL;
-    }
-
-    find_shapes_speed_stuff* output = calloc(1, sizeof(find_shapes_speed_stuff));
-
-    LOG_INFO("Find Shapes Speedy with threshold: %.1f", threshold);
-    shape_initial_sweep(map, output, threshold);
-
-    shape_aggregate_sweep(map, output, threshold);
-
-    if (isBadError())
-    {
-        LOG_ERR("Shape Aggregate Sweep failed with: %d", getLastError());
-        return NULL;
-    }
-    
-    LOG_INFO("Num Shapes Now calculated to: %d", output->num_shapes);
-
-    move_shape_indices(map, output);
-    if (isBadError())
-    {
-        LOG_ERR("Moving Shape Indices failed with: %d");
-        free_shape_stuff(output);
-        return NULL;
-    }
-
-    {
-        LOG_INFO("Checking for Duplicates");
-        unsigned char* checked_indices = calloc(map->map_width * map->map_height, sizeof(unsigned char));
-        int did = 0;
-        
-        for (int i = 0; i < output->num_shapes; ++i)
-        {
-            for (int j = 0; j < output->shape_counts[i]; ++j)
-            {
-                if (checked_indices[output->chunk_index_of[j + output->shape_offsets[i]]])
-                {
-                    LOG_WARN("Shape %d has a duplicate index of: %d", i, j + output->shape_offsets[i]);
-                    did = 1;
-                }
-                checked_indices[output->chunk_index_of[j + output->shape_offsets[i]]] = 1;
-            }
-        }
-        
-        if (!did)
-            LOG_INFO("No Duplicate indices found");
-            
-        else
-        {
-            LOG_ERR("Duplicates were found");
-            setError(ASSUMPTION_WRONG);
-            free(checked_indices);
-            free_shape_stuff(output);
-            return NULL;
-        }
-        free(checked_indices);
-    }
-    
-    LOG_INFO("Beginning Border Detection");
-    LOG_INFO("Border Counting Sweep");
-    // Border Detection
-    output->border_counts = calloc(output->num_shapes * 3, sizeof(int));
-    output->border_offsets = output->border_counts + output->num_shapes;
-    int *border_running_indices = output->border_offsets + output->num_shapes;
-    char *border_bits = calloc(map->map_width * map->map_height, sizeof(char));
-    int border_total = 0;
-
-    for (int i = 0; i < output->num_shapes; ++i)
-    {
-        for (int j = 0; j < output->shape_counts[i]; ++j)
-        {
-            // Look through all coordinates
-            // See if any adjacents either: don't exist (edge of the image) or are a different colour
-            int current = output->chunk_index_of[j + output->shape_offsets[i]];
-            int x = current % map->map_width;
-            int y = current / map->map_width;
-            int edge = (x < 1) | (y < 1) | (x + 1 >= map->map_width) | (y + 1 >= map->map_height);
-            int border = edge;
-
-            for (int adj_x = (2 * edge) + (-1 * !edge); adj_x < 2; ++adj_x)
-            {
-                for (int adj_y = (2 * edge) + (-1 * !edge); adj_y < 2; ++adj_y)
-                {
-                    border |= output->shape_ints[current] != output->shape_ints[x + adj_x + (y + adj_y) * map->map_width];
-                }
-            }
-
-            border_total += 1 * border;
-            output->border_counts[i] += 1 * border;
-            border_bits[current] = (char)border;
-        }
-    }
-    
-    LOG_INFO("Border count calculated as: %d", border_total);
-
-    // Initialize Offsets
-    {
-        LOG_INFO("Calculating Border Offsets");
-        int running_offset = 0;
-
-        for (int i = 0; i < output->num_shapes; ++i)
-        {
-            output->border_offsets[i] = running_offset;
-            border_running_indices[i] = running_offset;
-            running_offset += output->border_counts[i];
-        }
-    }
-
-    return output;
-}
+    int* shape_ints;
+    int* shape_counts;
+    int* shape_offsets;
+    int num_shapes;
+    int* chunk_index_of;
+    int* border_counts;
+    int* border_offsets;
+    int* border_chunk_indices;
+} find_shapes_speed_stuff;
 
 void shape_initial_sweep(chunkmap* map, find_shapes_speed_stuff* stuff, float threshold)
 {
@@ -359,8 +248,134 @@ void free_shape_stuff(find_shapes_speed_stuff* stuff)
         free(stuff);
 }
 
-NSVGimage* produce_nsvg(chunkmap* map, float threshold, find_shapes_speed_stuff* stuff)
+
+find_shapes_speed_stuff* produce_shape_stuff(chunkmap* map, float threshold)
 {
+    if (isBadError())
+    {
+        LOG_WARN("A Previous error occured: %d, you should bubble these errors up", getLastError());
+        return NULL;
+    }
+    
+    if (map->map_width < 1 || map->map_height < 1)
+    {
+        LOG_ERR("Can not process empty chunkmap");
+        setError(BAD_ARGUMENT_ERROR);
+        return NULL;
+    }
+
+    find_shapes_speed_stuff* output = calloc(1, sizeof(find_shapes_speed_stuff));
+
+    LOG_INFO("Find Shapes Speedy with threshold: %.1f", threshold);
+    shape_initial_sweep(map, output, threshold);
+
+    shape_aggregate_sweep(map, output, threshold);
+
+    if (isBadError())
+    {
+        LOG_ERR("Shape Aggregate Sweep failed with: %d", getLastError());
+        return NULL;
+    }
+    
+    LOG_INFO("Num Shapes Now calculated to: %d", output->num_shapes);
+
+    move_shape_indices(map, output);
+    if (isBadError())
+    {
+        LOG_ERR("Moving Shape Indices failed with: %d");
+        free_shape_stuff(output);
+        return NULL;
+    }
+
+    {
+        LOG_INFO("Checking for Duplicates");
+        unsigned char* checked_indices = calloc(map->map_width * map->map_height, sizeof(unsigned char));
+        int did = 0;
+        
+        for (int i = 0; i < output->num_shapes; ++i)
+        {
+            for (int j = 0; j < output->shape_counts[i]; ++j)
+            {
+                if (checked_indices[output->chunk_index_of[j + output->shape_offsets[i]]])
+                {
+                    LOG_WARN("Shape %d has a duplicate index of: %d", i, j + output->shape_offsets[i]);
+                    did = 1;
+                }
+                checked_indices[output->chunk_index_of[j + output->shape_offsets[i]]] = 1;
+            }
+        }
+        
+        if (!did)
+            LOG_INFO("No Duplicate indices found");
+            
+        else
+        {
+            LOG_ERR("Duplicates were found");
+            setError(ASSUMPTION_WRONG);
+            free(checked_indices);
+            free_shape_stuff(output);
+            return NULL;
+        }
+        free(checked_indices);
+    }
+    
+    LOG_INFO("Beginning Border Detection");
+    LOG_INFO("Border Counting Sweep");
+    // Border Detection
+    output->border_counts = calloc(output->num_shapes * 3, sizeof(int));
+    output->border_offsets = output->border_counts + output->num_shapes;
+    int *border_running_indices = output->border_offsets + output->num_shapes;
+    char *border_bits = calloc(map->map_width * map->map_height, sizeof(char));
+    int border_total = 0;
+
+    for (int i = 0; i < output->num_shapes; ++i)
+    {
+        for (int j = 0; j < output->shape_counts[i]; ++j)
+        {
+            // Look through all coordinates
+            // See if any adjacents either: don't exist (edge of the image) or are a different colour
+            int current = output->chunk_index_of[j + output->shape_offsets[i]];
+            int x = current % map->map_width;
+            int y = current / map->map_width;
+            int edge = (x < 1) | (y < 1) | (x + 1 >= map->map_width) | (y + 1 >= map->map_height);
+            int border = edge;
+
+            for (int adj_x = (2 * edge) + (-1 * !edge); adj_x < 2; ++adj_x)
+            {
+                for (int adj_y = (2 * edge) + (-1 * !edge); adj_y < 2; ++adj_y)
+                {
+                    border |= output->shape_ints[current] != output->shape_ints[x + adj_x + (y + adj_y) * map->map_width];
+                }
+            }
+
+            border_total += 1 * border;
+            output->border_counts[i] += 1 * border;
+            border_bits[current] = (char)border;
+        }
+    }
+    
+    LOG_INFO("Border count calculated as: %d", border_total);
+
+    // Initialize Offsets
+    {
+        LOG_INFO("Calculating Border Offsets");
+        int running_offset = 0;
+
+        for (int i = 0; i < output->num_shapes; ++i)
+        {
+            output->border_offsets[i] = running_offset;
+            border_running_indices[i] = running_offset;
+            running_offset += output->border_counts[i];
+        }
+    }
+
+    return output;
+}
+
+NSVGimage* sweepfill_chunkmap(chunkmap* map, float threshold)
+{
+    open_log("log.txt");
+    find_shapes_speed_stuff* stuff = produce_shape_stuff(map, threshold);
     map->shape_count = stuff->num_shapes;
     // START CONVERT TO ACTUAL SHAPES
     chunkshape* actual_shapes = calloc(stuff->num_shapes, sizeof(chunkshape));
@@ -395,7 +410,9 @@ NSVGimage* produce_nsvg(chunkmap* map, float threshold, find_shapes_speed_stuff*
         LOG_ERR("write_chunkmap_to_png failed with code: %d\n", getLastError());
         map->shape_list = tmp;
         free_chunkmap(map);
+        free_shape_stuff(stuff);
         free(actual_shapes);
+        close_log();
         return NULL;
     }
 
@@ -407,37 +424,16 @@ NSVGimage* produce_nsvg(chunkmap* map, float threshold, find_shapes_speed_stuff*
         LOG_ERR("Failed to iterate chunk shapes with error: %d", getLastError());
         map->shape_list = tmp;
         free_chunkmap(map);
-        free(actual_shapes);
-        return NULL;
-    }
-
-    map->shape_list = tmp;
-    free(actual_shapes);
-
-    return nsvg;
-}
-
-NSVGimage* vectorize_image_speed(image input, vectorize_options options)
-{
-    open_log("log.txt");
-    chunkmap* map = generate_chunkmap(input, options);
-
-    find_shapes_speed_stuff* stuff = produce_shape_stuff(map, options.shape_colour_threshhold);
-
-    NSVGimage* out = produce_nsvg(map, options.shape_colour_threshhold, stuff);
-
-    if (isBadError())
-    {
-        LOG_ERR("Failed to Vectorize Image (v2) error: %d", getLastError());
-        free_chunkmap(map);
         free_shape_stuff(stuff);
+        free(actual_shapes);
         close_log();
         return NULL;
     }
 
-    free_chunkmap(map);
+    map->shape_list = tmp;
     free_shape_stuff(stuff);
+    free(actual_shapes);
     close_log();
-
-    return out;
+    return nsvg;
 }
+

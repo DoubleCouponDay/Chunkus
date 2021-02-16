@@ -17,6 +17,14 @@
 
 const int NONE_FILLED = -1;
 
+typedef struct
+{
+    chunkmap* map;
+    NSVGimage* output;
+    NSVGpath* first_path;
+    NSVGpaint* shapescolour;
+} svg_hashies_iter;
+
 //assumes first path and first shape are given
 bool iterate_new_path(pixelchunk* chunk, svg_hashies_iter* udata) {
     NSVGshape* current = udata->output->shapes;

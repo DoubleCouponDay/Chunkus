@@ -17,7 +17,6 @@
 #include "../src/imagefile/bmp.h"
 #include "../src/entrypoint.h"
 #include "../src/nsvg/usage.h"
-#include "../src/nsvg/usage_speed.h"
 #include "tears.h"
 #include "../src/utility/error.h"
 #include "../src/imagefile/svg.h"
@@ -84,7 +83,7 @@ MunitResult can_vectorize_image(const MunitParameter params[], void* userdata)
   };
   
   stuff->img = convert_png_to_image(options.file_path);
-  stuff->nsvg_image = vectorize_image(stuff->img, options);
+  stuff->nsvg_image = dcdfill_for_nsvg(stuff->img, options);
 
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
   munit_assert_ptr_not_null(stuff->nsvg_image);
@@ -162,7 +161,7 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  stuff->nsvg_image = vectorize_image(stuff->img, options);
+  stuff->nsvg_image = dcdfill_for_nsvg(stuff->img, options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
   bool outcome = write_svg_file(stuff->nsvg_image);
@@ -208,7 +207,7 @@ MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdat
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  stuff->nsvg_image = vectorize_image_speed(stuff->img, options);
+  stuff->nsvg_image = bobsweep_for_nsvg(stuff->img, options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
   munit_assert(write_svg_file(stuff->nsvg_image));
@@ -258,8 +257,8 @@ int main(int argc, char** argv) {
   MunitTest peach = { "png_to_bmp", opensPngAndOutputsBmp, test5setup, test5teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest melon = { "png_to_nsvg", can_vectorize_image, test6setup, test6teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest cherry = { "chunkmap_to_png", can_write_chunkmap_shapes_to_file, test69setup, test69teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest banana = { "nsvg_to_svg", can_write_to_svgfile, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest yo_mama = { "speedy_vectorize", can_do_speedy_vectorize, speedy_vectorize_setup, speedy_vectorize_teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest banana = { "dcdfill", can_write_to_svgfile, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest yo_mama = { "bobsweep", can_do_speedy_vectorize, speedy_vectorize_setup, speedy_vectorize_teardown, MUNIT_TEST_OPTION_NONE, test_params };
 
   enum { 
     NUM_TESTS = 8 //UPDATE THIS WHEN YOU ADD NEW TESTS

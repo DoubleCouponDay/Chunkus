@@ -17,9 +17,10 @@
 #include "mapparser.h"
 #include "mapfiller.h"
 #include "imagefile/pngfile.h"
+#include "bobsweep.h"
 
 //entry point of the file
-NSVGimage* vectorize_image(image input, vectorize_options options) {
+NSVGimage* dcdfill_for_nsvg(image input, vectorize_options options) {
     DEBUG("generating chunkmap\n");
     chunkmap* map = generate_chunkmap(input, options);
     
@@ -60,15 +61,29 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     {
         DEBUG("iterate_chunk_shapes failed with code: %d\n", getLastError());
         free_chunkmap(map);
-
-        if (output)
-            free_nsvg(output);
-
+        free_nsvg(output);
         return NULL;
     }
     free_chunkmap(map);
     return output;
 }
+
+NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options)
+{
+    chunkmap* map = generate_chunkmap(input, options);
+    NSVGimage* out = sweepfill_chunkmap(map, options.shape_colour_threshhold);
+
+    if (isBadError())
+    {
+        DEBUG("Failed to Vectorize Image (v2) error: %d", getLastError());
+        free_chunkmap(map);
+        free_nsvg(out);        
+        return NULL;
+    }
+    free_chunkmap(map);
+    return out;
+}
+
 
 void free_nsvg(NSVGimage* input) {
     if(!input) {

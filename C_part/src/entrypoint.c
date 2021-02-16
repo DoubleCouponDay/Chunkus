@@ -3,7 +3,6 @@
 
 #include "entrypoint.h"
 #include "nsvg/usage.h"
-#include "nsvg/usage_speed.h"
 #include "../test/debug.h"
 #include "utility/error.h"
 #include "imagefile/pngfile.h"
@@ -14,7 +13,7 @@ const char *format2_p = "jpeg";
 
 typedef NSVGimage* (*algorithm)(image, vectorize_options);
 typedef void (*algorithm_debug)(image, vectorize_options, char*,char*);
-algorithm target_algorithm = vectorize_image;
+algorithm target_algorithm = dcdfill_for_nsvg;
 
 int execute_program(char* input_file_p, int chunk_size, float threshold, char* output_file_p) {
 	image img = convert_png_to_image(input_file_p);
@@ -117,10 +116,10 @@ int set_algorithm(int algo)
 	switch (algo)
 	{
 	case 0:
-		target_algorithm = vectorize_image;
+		target_algorithm = dcdfill_for_nsvg;
 		break;
 	case 1:
-		target_algorithm = vectorize_image_speed;
+		target_algorithm = bobsweep_for_nsvg;
 		break;
 	default:
 		return BAD_ARGUMENT_ERROR;
