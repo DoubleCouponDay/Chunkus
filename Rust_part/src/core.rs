@@ -9,7 +9,7 @@ const THRESHHOLD: &str = "400";
 
 mod ffimodule
 {
-    use libc::{c_int, c_float};
+    use libc::{c_int};
 
     #[link(name = "zlib", kind = "static")]
     #[link(name = "libpng16", kind = "static")]

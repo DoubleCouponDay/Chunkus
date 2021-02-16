@@ -109,7 +109,7 @@ pub async fn create_vec_bot(token: &str) -> Client
 pub struct DefaultHandler;
 
 #[group]
-#[commands(vectorize, debug_vectorize, set_algorithm, params, delete)]
+#[commands(vectorize, set_algorithm, params, delete)]
 struct General;
 
 #[async_trait]
@@ -353,7 +353,7 @@ async fn set_algorithm(ctx: &Context, msg: &Message, args: Args) -> CommandResul
 
 #[command]
 #[aliases("v")]
-async fn actual_vectorize(ctx: &Context, msg: &Message) -> CommandResult
+async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
 {
     println!("Joe Mama");
     
@@ -416,12 +416,12 @@ async fn actual_vectorize(ctx: &Context, msg: &Message) -> CommandResult
     
     println!("Sending {0} urls to vectoriser", embed_urls.len());
     println!("Yo Mama {:?}", embed_urls);
-    vectorize_urls(&ctx, &msg, &embed_urls, false).await;
+    vectorize_urls(&ctx, &msg, &embed_urls).await;
     
     Ok(())
 }
 
-async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>, do_debug: bool)
+async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 {  
     println!("vectorize_urls with: {:?}", urls);
     for url in urls.iter()
@@ -431,7 +431,7 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>, do_deb
 
         let client = reqwest::Client::new();
 
-        let url_clone = url.clone();
+        let _url_clone = url.clone();
 
         let response = match client.get(url).send().await
             {
@@ -472,16 +472,13 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>, do_deb
 
 
         // Get Options
-        let chunksize: i32;
-        let threshold: f32;
         let chunksize_str;
         let threshold_str;
 
         { //dont hold the entire read in memory for too long
             let data_read = ctx.data.read().await;
             let options = data_read.get::<VectorizeOptionsKey>().unwrap();
-            chunksize = options.chunk_size.try_into().unwrap_or(1);
-            threshold = options.threshold;
+            options.chunk_size.try_into().unwrap_or(1);
             chunksize_str = String::from(format!("{}", options.chunk_size));
             threshold_str = String::from(format!("{}", options.threshold));
         }
