@@ -78,6 +78,100 @@ typedef struct list_holder
     chunkshape* list;
 } list_holder;
 
+void enlarge_border(chunkmap* map, pixelchunk* current, list_holder* output, chunkshape* firstshape, chunkshape* currentinshape, chunkshape* adjacentinshape, pixelchunk* adjacent) {
+    chunkshape* chosenshape;
+
+    if(firstshape->filled == false) { //use firstshape
+        chosenshape = firstshape;
+        firstshape->filled = true;
+        ++map->shape_count;
+        DEBUG("Using first shape to add a boundary to\n");
+    }
+
+    else if(currentinshape) { //set shape for boundary manipulation
+        chosenshape = currentinshape;
+    }
+
+    else { //current is not in a shape
+        chosenshape = output->list = add_new_shape(map, output->list);
+    }
+    
+    //add to boundary
+    if(chosenshape->boundaries->chunk_p == NULL) { //use first boundary
+        chosenshape->boundaries->chunk_p = current;
+        ++chosenshape->boundaries_length;
+        current->boundary_chunk_in = chosenshape;
+    }
+
+    else { //create boundary item
+        chosenshape->boundaries = add_chunk_to_list(chosenshape, current, chosenshape->boundaries, &current->boundary_chunk_in, &chosenshape->boundaries_length);
+    }
+
+    //boundaries are part of the shape too
+    if (chosenshape->chunks->chunk_p == NULL) { 
+        chosenshape->chunks->chunk_p = current;
+        ++chosenshape->chunks_amount;
+        current->shape_chunk_in = chosenshape;
+    }
+
+    else
+    {
+        chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &current->shape_chunk_in, &chosenshape->chunks_amount);
+    }
+    chosenshape->colour = current->average_colour;
+}
+
+void enlarge_shape(chunkmap* map, pixelchunk* current, list_holder* output, chunkshape* firstshape, chunkshape* currentinshape, chunkshape* adjacentinshape, pixelchunk* adjacent) {
+    chunkshape* chosenshape;
+
+    if(currentinshape == NULL && adjacentinshape == NULL) {
+        if(firstshape->filled == false) {
+            chosenshape = firstshape;
+            firstshape->filled = true;
+            ++map->shape_count;
+            DEBUG("Using first shape as neither current nor adjacent have shapes, and first is unfilled\n");
+        }
+
+        else {
+            chosenshape = output->list = add_new_shape(map, output->list);
+            DEBUG("Creating new shape because current and adjacent aren't in shapes\n");
+        }
+
+        if (chosenshape->chunks->chunk_p == NULL) // If list hasn't been started, manually set the first one to current
+        {
+            chosenshape->chunks->chunk_p = current;
+            ++chosenshape->chunks_amount;
+            current->shape_chunk_in = chosenshape;
+        }
+        else
+        {
+            chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &current->shape_chunk_in, &chosenshape->chunks_amount);
+        }
+        chosenshape->chunks = add_chunk_to_list(chosenshape, adjacent, chosenshape->chunks, &adjacent->shape_chunk_in, &chosenshape->chunks_amount);
+    }
+
+    else if (currentinshape && adjacentinshape == NULL)
+    {
+        chosenshape = currentinshape;
+        chosenshape->chunks = add_chunk_to_list(chosenshape, adjacent, chosenshape->chunks, &adjacent->shape_chunk_in, &chosenshape->chunks_amount);
+    }
+
+    else if(currentinshape == NULL && adjacentinshape)
+    {
+        chosenshape = adjacentinshape;
+        chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &current->shape_chunk_in, &chosenshape->chunks_amount);
+    }
+
+    else if(currentinshape == adjacentinshape) {
+        chosenshape = currentinshape;
+    }
+
+    else {
+        return;
+    }
+    chosenshape->colour = current->average_colour;
+}
+
 //welcome to the meat and potatoes of the program!
 void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output, chunkshape* firstshape, int map_x, int map_y, float shape_colour_threshold) {    
     for (int adjacent_y = -1; adjacent_y < 2; ++adjacent_y)
@@ -101,99 +195,18 @@ void find_shapes(chunkmap* map, pixelchunk* current, list_holder* output, chunks
             chunkshape* currentinshape = big_chungus_already_in_shape(map, current);
             chunkshape* adjacentinshape = big_chungus_already_in_shape(map, adjacent);
 
-            chunkshape* chosenshape;
-
-            //is similar? add shape
-            if (colours_are_similar(current->average_colour, adjacent->average_colour, shape_colour_threshold)) {                
-                if(currentinshape == NULL && adjacentinshape == NULL) {
-                    if(firstshape->filled == false) {
-                        chosenshape = firstshape;
-                        firstshape->filled = true;
-                        ++map->shape_count;
-                        DEBUG("Using first shape as neither current nor adjacent have shapes, and first is unfilled\n");
-                    }
-
-                    else {
-                        chosenshape = output->list = add_new_shape(map, output->list);
-                        DEBUG("Creating new shape because current and adjacent aren't in shapes\n");
-                    }
-
-                    if (chosenshape->chunks->chunk_p == NULL) // If list hasn't been started, manually set the first one to current
-                    {
-                        chosenshape->chunks->chunk_p = current;
-                        ++chosenshape->chunks_amount;
-                        current->shape_chunk_in = chosenshape;
-                    }
-                    else
-                    {
-                        chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &current->shape_chunk_in, &chosenshape->chunks_amount);
-                    }
-                    chosenshape->chunks = add_chunk_to_list(chosenshape, adjacent, chosenshape->chunks, &adjacent->shape_chunk_in, &chosenshape->chunks_amount);
-                }
-
-                else if (currentinshape && adjacentinshape == NULL)
+            if (colours_are_similar(current->average_colour, adjacent->average_colour, shape_colour_threshold)) {
+                if(map_x == 0 || map_x == (map->map_width - 1) ||
+                    map_y == 0 || map_y == (map->map_height - 1)) 
                 {
-                    chosenshape = currentinshape;
-                    chosenshape->chunks = add_chunk_to_list(chosenshape, adjacent, chosenshape->chunks, &adjacent->shape_chunk_in, &chosenshape->chunks_amount);
+                    enlarge_border(map, current, output, firstshape, currentinshape, adjacentinshape, adjacent);
                 }
-
-                else if(currentinshape == NULL && adjacentinshape)
-                {
-                    chosenshape = adjacentinshape;
-                    chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &current->shape_chunk_in, &chosenshape->chunks_amount);
-                }
-
-                else if(currentinshape == adjacentinshape) {
-                    chosenshape = currentinshape;
-                }
-
-                else { //TODO XD
-                    continue;
-                }
-                chosenshape->colour = current->average_colour;
-                continue;
+                enlarge_shape(map, current, output, firstshape, currentinshape, adjacentinshape, adjacent);
             }
 
-            // Not similar
-            if(firstshape->filled == false) { //use firstshape
-                chosenshape = firstshape;
-                firstshape->filled = true;
-                ++map->shape_count;
-                DEBUG("Using first shape to add a boundary to\n");
+            else {
+                enlarge_border(map, current, output, firstshape, currentinshape, adjacentinshape, adjacent);
             }
-
-            else if(currentinshape) { //set shape for boundary manipulation
-                chosenshape = currentinshape;
-            }
-
-            else { //current is not in a shape
-                chosenshape = output->list = add_new_shape(map, output->list);
-                DEBUG("Creating new shape because current is a boundary (at (%d, %d)) and did not have a shape\n", map_x, map_y);
-            }
-            
-            //add to boundary
-            if(chosenshape->boundaries->chunk_p == NULL) { //use first boundary
-                chosenshape->boundaries->chunk_p = current;
-                ++chosenshape->boundaries_length;
-                current->boundary_chunk_in = chosenshape;
-            }
-
-            else { //create boundary item
-                chosenshape->boundaries = add_chunk_to_list(chosenshape, current, chosenshape->boundaries, &current->boundary_chunk_in, &chosenshape->boundaries_length);
-            }
-
-            //boundaries are part of the shape too
-            if (chosenshape->chunks->chunk_p == NULL) { 
-                chosenshape->chunks->chunk_p = current;
-                ++chosenshape->chunks_amount;
-                current->shape_chunk_in = chosenshape;
-            }
-
-            else
-            {
-                chosenshape->chunks = add_chunk_to_list(chosenshape, current, chosenshape->chunks, &current->shape_chunk_in, &chosenshape->chunks_amount);
-            }
-            chosenshape->colour = current->average_colour;
         }
     }
 }
