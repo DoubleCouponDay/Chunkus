@@ -33,9 +33,6 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     DEBUG("filling chunkmap\n");
     fill_chunkmap(map, &options);
     
-    int count = count_shapes(map->shape_list);
-    DEBUG("Filled chunkmap with %d shapes\n", count);
-
     if (isBadError())
     {
         DEBUG("fill_chunkmap failed with code %d\n", getLastError());
@@ -54,8 +51,6 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     DEBUG("printing chunkmap\n");
     write_chunkmap_to_png(map, "chunkmap.png");
     
-    count = count_shapes(map->shape_list);
-    
     if(isBadError()) {
         DEBUG("write_chunkmap_to_png failed with code: %d\n", getLastError());
         free_chunkmap(map);
@@ -66,8 +61,6 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     NSVGimage* output = create_nsvgimage(map->map_width, map->map_height);
     iterate_chunk_shapes(map, output);
     
-    count = count_shapes(map->shape_list);
-
     if (isBadError())
     {
         DEBUG("iterate_chunk_shapes failed with code: %d\n", getLastError());
