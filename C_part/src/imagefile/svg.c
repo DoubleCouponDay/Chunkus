@@ -63,10 +63,8 @@ bool write_svg_file(NSVGimage* input) {
     while(currentshape != NULL) {
         NSVGpath* currentpath = currentshape->paths;
 
-        //DEBUG("creating <path> element\n");
         fprintf(output, "<path fill=\"#");
-        unsigned int colour = currentshape->fill.color;
-        fprintf(output, "%x", colour);
+        fprintf(output, "%06X", currentshape->fill.color);
         fprintf(output, "\" d=\"");
         bool ranonce = false;
 
@@ -75,7 +73,6 @@ bool write_svg_file(NSVGimage* input) {
             int y;
 
             if(ranonce == false) {
-                //DEBUG("start with M moveto command\n");
                 fprintf(output, "M ");
                 x = currentpath->pts[0];
                 y = currentpath->pts[1];
@@ -91,9 +88,7 @@ bool write_svg_file(NSVGimage* input) {
             currentpath = currentpath->next;
             ranonce = true;
         }
-        //DEBUG("finish the d with Z\n");
         fprintf(output, " Z\"");
-        //DEBUG("close the path element\n");
         fprintf(output, "/>\n");
         currentshape = currentshape->next;
     }
