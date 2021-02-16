@@ -317,83 +317,7 @@ async fn delete(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 }
 
 #[command]
-#[aliases("v")]
-async fn vectorize(ctx: &Context, msg: &Message, _args: Args) -> CommandResult {
-    actual_vectorize(ctx, msg).await
-}
-
-#[command]
-#[aliases("debug")]
-async fn debug_vectorize(ctx: &Context, msg: &Message, _args: Args) -> CommandResult
-{
-    println!("Joe Mama");
-    
-    let mut embed_urls: Vec<String> = vec![];
-    if msg.embeds.len() < 1 && msg.attachments.len() < 1
-    {   
-        println!("No embeds; waiting for message update");
-        // No embed, lets wait for an on_update
-        match wait_for_message_update(msg.id, &ctx).await
-        {
-            Ok(update_data) =>
-                {
-                    println!("Received Ok from wait_for_message_update");
-                    if let Some(embeds) = update_data.embeds
-                    {
-                        for embed in embeds.iter()
-                        {
-                            if let Some(pp_url) = &embed.url
-                            {
-                                println!("Pushing embed url");
-                                embed_urls.push(pp_url.clone());
-                            }
-                        }
-                    }
-                    if let Some(attachments) = update_data.attachments
-                    {
-                        for attachment in attachments.iter()
-                        {
-                            println!("Pushing Attachment url");
-                            embed_urls.push(attachment.url.clone());
-                        }
-                    }
-                },
-            Err(err) =>
-
-            println!("Received Err {} from wait_for_message_update for id: {}", err, msg.id),
-        }
-    }
-    else
-    {
-            //embed_url = blah
-        // We have an embed
-        println!("vectorizing...");
-        println!("embed count {0}", msg.embeds.len());
-        println!("attachments count {0}", msg.attachments.len());
-        println!("message contents {0}", msg.content);
-        for embed in msg.embeds.iter() {
-            if let Some(url) = &embed.url
-            {
-                println!("Pushing embed url");
-                embed_urls.push(url.clone());
-            }
-        }
-        for attachment in msg.attachments.iter()
-        {
-            println!("Pushing attachment url");
-            embed_urls.push(attachment.url.clone());
-        }
-    }
-    
-    println!("Sending {0} urls to vectoriser", embed_urls.len());
-    println!("Yo Mama {:?}", embed_urls);
-    vectorize_urls(&ctx, &msg, &embed_urls, true).await;
-    
-    Ok(())
-}
-
-#[command]
-#[aliases("algo")]
+#[aliases("v a")]
 async fn set_algorithm(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 {
     println!("Setting algorithm");
@@ -427,6 +351,8 @@ async fn set_algorithm(ctx: &Context, msg: &Message, args: Args) -> CommandResul
     Ok(())
 }
 
+#[command]
+#[aliases("v")]
 async fn actual_vectorize(ctx: &Context, msg: &Message) -> CommandResult
 {
     println!("Joe Mama");
