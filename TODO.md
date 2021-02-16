@@ -5,11 +5,13 @@ Convert a raster image into a scalable vector graphic and back.
 # TASKS
 
 - fix weird picasso output
-    -fix paths not sorting properly
+    - fix paths not sorting properly
 
-- deploy to azure web apps for containers
+    - fix scanline overlap of shapes
 
-- upload the project to conan
+    - fix start of path closing to end of path diagonally across the shape
+
+- deploy to azure apps for containers
 
 <br>
 <br>
