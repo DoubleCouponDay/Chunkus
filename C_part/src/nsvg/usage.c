@@ -41,12 +41,7 @@ NSVGimage* vectorize_image(image input, vectorize_options options) {
     }
 
     DEBUG("sorting boundaries\n");
-    chunkshape* current = map->shape_list;
-    
-    while(current != NULL) {
-        sort_boundary(current);
-        current = current->next;
-    }
+    sort_boundary(map);
 
     DEBUG("printing chunkmap\n");
     write_chunkmap_to_png(map, "chunkmap.png");

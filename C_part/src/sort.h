@@ -2,4 +2,4 @@
 
 #include "chunkmap.h"
 
-void sort_boundary(chunkshape* shape);
+void sort_boundary(chunkmap* map);

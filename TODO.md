@@ -4,6 +4,8 @@ Convert a raster image into a scalable vector graphic and back.
 
 # TASKS
 
+- refactor speedy
+
 - fix weird picasso output
     - fix paths not sorting properly
 
@@ -12,6 +14,10 @@ Convert a raster image into a scalable vector graphic and back.
     - fix start of path closing to end of path diagonally across the shape
 
 - deploy to azure apps for containers
+
+- switch debug() and LOG_INFO() off if release environment variable detected
+
+- move while loop to the sort_boundary() method
 
 <br>
 <br>

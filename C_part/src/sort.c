@@ -46,9 +46,14 @@ void convert_array_to_boundary_list(pixelchunk** array, pixelchunk_list* previou
     }    
 }
 
-void sort_boundary(chunkshape* shape) {
-    pixelchunk** array = convert_boundary_list_toarray(shape->boundaries, shape->boundaries_length);
-    bubble_sort(array, 0, shape->boundaries_length);
-    convert_array_to_boundary_list(array, shape->boundaries, shape->boundaries_length);
-    free(array);
+void sort_boundary(chunkmap* map) {
+    chunkshape* shape = map->shape_list;
+    while (shape)
+    {
+        pixelchunk** array = convert_boundary_list_toarray(shape->boundaries, shape->boundaries_length);
+        bubble_sort(array, 0, shape->boundaries_length);
+        convert_array_to_boundary_list(array, shape->boundaries, shape->boundaries_length);
+        free(array);
+        shape = shape->next;
+    }
 }
