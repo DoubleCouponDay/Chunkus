@@ -2,4 +2,4 @@
 #include <nanosvg.h>
 #include "../chunkmap.h"
 
-void iterate_chunk_shapes(chunkmap* map, NSVGimage* output);
+void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output);

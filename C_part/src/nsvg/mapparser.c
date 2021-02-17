@@ -120,7 +120,7 @@ void throw_on_max(unsigned long* subject) {
     }
 }
 
-void iterate_chunk_shapes(chunkmap* map, NSVGimage* output)
+void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
 {
     DEBUG("checking if shapelist is null\n");
     //create the svg

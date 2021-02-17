@@ -18,6 +18,7 @@
 #include "dcdfiller.h"
 #include "imagefile/pngfile.h"
 #include "bobsweep.h"
+#include "../utility/logger.h"
 
 //entry point of the file
 NSVGimage* dcdfill_for_nsvg(image input, vectorize_options options) {
@@ -46,6 +47,7 @@ NSVGimage* dcdfill_for_nsvg(image input, vectorize_options options) {
 
     if(isBadError()) {
         DEBUG("sort_boundary failed with code %d\n", getLastError());
+        free_chunkmap(map);
         return NULL;
     }
 
@@ -60,11 +62,11 @@ NSVGimage* dcdfill_for_nsvg(image input, vectorize_options options) {
 
     DEBUG("iterating chunk shapes\n");
     NSVGimage* output = create_nsvgimage(map->map_width, map->map_height);
-    iterate_chunk_shapes(map, output);
+    parse_map_into_nsvgimage(map, output);
     
     if (isBadError())
     {
-        DEBUG("iterate_chunk_shapes failed with code: %d\n", getLastError());
+        DEBUG("mapparser failed with code: %d\n", getLastError());
         free_chunkmap(map);
         free_nsvg(output);
         return NULL;
@@ -73,18 +75,41 @@ NSVGimage* dcdfill_for_nsvg(image input, vectorize_options options) {
     return output;
 }
 
-NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options)
-{
+NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options) {
     chunkmap* map = generate_chunkmap(input, options);
+
+    if (isBadError()) {
+        DEBUG("generate_chunkmap failed with code: %d \n", getLastError());
+        free_chunkmap(map);
+        return NULL;
+    }
     NSVGimage* out = sweepfill_chunkmap(map, options.shape_colour_threshhold);
 
     if (isBadError())
     {
-        DEBUG("Failed to Vectorize Image (v2) error: %d", getLastError());
+        DEBUG("bobsweep failed with error: %d", getLastError());
         free_chunkmap(map);
         free_nsvg(out);        
         return NULL;
     }
+    sort_boundary(map);
+
+    if(isBadError()) {
+        DEBUG("sort_boundary failed with code %d\n", getLastError());
+        return NULL;
+    }
+    NSVGimage* nsvg = create_nsvgimage(map->map_width, map->map_height);
+    parse_map_into_nsvgimage(map, nsvg);
+
+    if (isBadError())
+    {
+        DEBUG("mapparser failed with error: %d", getLastError());
+        free_chunkmap(map);
+        free(nsvg);
+        return NULL;
+    }
+
+    
     free_chunkmap(map);
     return out;
 }
