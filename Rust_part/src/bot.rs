@@ -43,7 +43,7 @@ struct MsgUpdate;
 pub struct DefaultHandler;
 
 #[group]
-#[commands(vectorize, set_algorithm, params, delete)]
+#[commands(vectorize, vectorizeralgorithm, vectorizerparams, vectorizerdelete)]
 struct General;
 
 pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, handler: H) -> Client {    
@@ -267,8 +267,8 @@ async fn wait_for_message_update(msg_id: MessageId, ctx: &Context) -> Result<Mes
 }
 
 #[command]
-#[aliases("p")]
-async fn params(ctx: &Context, msg: &Message, args: Args) -> CommandResult
+#[aliases("vp")]
+async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 {
     let mut mutable = args;
     let possiblechunksize = mutable.single::<u32>();
@@ -291,8 +291,8 @@ async fn params(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 }
 
 #[command]
-#[aliases("d")]
-async fn delete(ctx: &Context, msg: &Message, args: Args) -> CommandResult
+#[aliases("vd")]
+async fn vectorizerdelete(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 {
     if let Ok(msg_id) = args.rest().parse::<u64>()
     {
@@ -305,8 +305,8 @@ async fn delete(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 }
 
 #[command]
-#[aliases("v a")]
-async fn set_algorithm(ctx: &Context, msg: &Message, args: Args) -> CommandResult
+#[aliases("va")]
+async fn vectorizeralgorithm(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 {
     println!("Setting algorithm");
     let potential_algo = args.rest().parse::<i32>();
@@ -343,7 +343,7 @@ async fn set_algorithm(ctx: &Context, msg: &Message, args: Args) -> CommandResul
 #[aliases("v")]
 async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
 {
-    println!("Joe Mama");
+    println!("message received");
     
     let mut embed_urls: Vec<String> = vec![];
     if msg.embeds.len() < 1 && msg.attachments.len() < 1
@@ -380,10 +380,13 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
             println!("Received Err {} from wait_for_message_update for id: {}", err, msg.id),
         }
     }
-    else
+
+    else //embed found
     {
-            //embed_url = blah
-        // We have an embed
+        let _acknowledged = msg.channel_id.send_message(&ctx.http, |m|
+        {
+            m.content("Working on it...")
+        }).await;
         println!("vectorizing...");
         println!("embed count {0}", msg.embeds.len());
         println!("attachments count {0}", msg.attachments.len());
@@ -500,7 +503,7 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
         let msg = msg.channel_id.send_files(&ctx.http, msg_files, |m|
         {
-            m.content("Here's your result")
+            m.content("Here's your result.")
         }).await;
 
         if let Err(err) = msg
