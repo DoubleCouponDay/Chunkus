@@ -9,6 +9,6 @@ mod tests
     #[tokio::test]
     async fn works_endtoend() {
         let client = create_vec_bot(gettoken()).await;
-        let shardmanager = client.shard_manager.clone();
+        let _shardmanager = client.shard_manager.clone();
     }
 }

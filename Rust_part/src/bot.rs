@@ -1,10 +1,20 @@
+use std::{
+    collections::{HashSet, HashMap},
+    fs::File,
+    fs::remove_file,
+    path::Path,
+    io::prelude::*,
+    time::{Duration, Instant}
+};
 use serenity::{
     async_trait,
     http::Http,
     model::{
         prelude::{Message, MessageId, MessageUpdateEvent}
     },
-    prelude::TypeMapKey,
+    prelude::{
+        TypeMapKey, TypeMap
+    },
     framework::standard::{
         CommandResult,
         Args,
@@ -17,19 +27,24 @@ use serenity::{
         Client, ClientBuilder, Context, EventHandler
     },
 };
-use crate::core::{do_vectorize};
-use std::{
-    collections::{HashSet, HashMap},
-    fs::File,
-    fs::remove_file,
-    path::Path,
-    io::prelude::*,
-    time::{Duration, Instant},
-    convert::TryInto,
-};
+use tokio::sync::RwLockWriteGuard;
+use crate::core::do_vectorize;
 use crate::constants;
 use crate::svg::render_svg_to_png;
+use crate::options::{
+    VectorizeOptions,
+    ParsedOptions,
+    insert_params,
+    get_params
+};
 
+struct MsgListen;
+struct MsgUpdate;
+pub struct DefaultHandler;
+
+#[group]
+#[commands(vectorize, set_algorithm, params, delete)]
+struct General;
 
 pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, handler: H) -> Client {    
     println!("creating http token...");
@@ -97,20 +112,15 @@ pub async fn create_vec_bot(token: &str) -> Client
         .expect("Error bot is running");
 
     {
-        let mut data = client.data.write().await;
+        let mut data: RwLockWriteGuard<'_, TypeMap> = client.data.write().await; //only allowed one mutable reference
         data.insert::<MsgListen>(HashSet::<MessageId>::new());
         data.insert::<MsgUpdate>(HashMap::<MessageId, MessageUpdateEvent>::new());
-        data.insert::<VectorizeOptionsKey>(VectorizeOptions { chunk_size: 4u32, threshold: 0.25f32 });
+        let params = VectorizeOptions {chunksize: 0, threshold: 0};
+        insert_params(data, params).await;
     }
 
     client
 }
-
-pub struct DefaultHandler;
-
-#[group]
-#[commands(vectorize, set_algorithm, params, delete)]
-struct General;
 
 #[async_trait]
 impl EventHandler for DefaultHandler {
@@ -140,30 +150,12 @@ impl EventHandler for DefaultHandler {
             println!("Inserted MessageUpdateEvent into hashmap");
 
         }
-        // {
-        //     let data = ctx.data.read().await;
-        //     let listen_hashset = data.get::<MsgListen>().unwrap();
-        //     contains = listen_hashset.contains(&id);
-        //     debug_output = format!("{:?}", listen_hashset);
-        // }
-        // if contains
-        // {
-            
-        // }
+
         else
         {
             println!("Msg update was not listened for ");
         }
     }
-}
-
-struct MsgListen;
-struct MsgUpdate;
-struct VectorizeOptionsKey;
-struct VectorizeOptions
-{
-    chunk_size: u32,
-    threshold: f32,
 }
 
 impl TypeMapKey for MsgListen
@@ -176,12 +168,6 @@ impl TypeMapKey for MsgUpdate
     type Value = HashMap<MessageId, MessageUpdateEvent>;
 }
 
-impl TypeMapKey for VectorizeOptionsKey
-{
-    type Value = VectorizeOptions;
-}
-
-//async fn has_data<F>(ctx: &Context, msg_id: MessageId, timeout: Duration, f: F) -> Result<(), ()> where F: Fn(&Context) -> bool
 async fn has_data(ctx: &Context, msg_id: MessageId, timeout: Duration) -> Result<(), ()>
 {
     let start_time = Instant::now();
@@ -284,20 +270,22 @@ async fn wait_for_message_update(msg_id: MessageId, ctx: &Context) -> Result<Mes
 #[aliases("p")]
 async fn params(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 {
-    let mut argss = args;
-    if let Ok(chunk_size) = argss.single::<u32>()
-    {
-        let threshold = argss.single::<f32>().unwrap_or(0.5f32);
+    let mut mutable = args;
+    let possiblechunksize = mutable.single::<u32>();
+    let possiblethreshold = mutable.single::<u32>();
 
-        let mut data_write = ctx.data.write().await;
-        let options = data_write.get_mut::<VectorizeOptionsKey>().unwrap();
-        options.chunk_size = chunk_size;
-        options.threshold = threshold;
+    if possiblechunksize.is_ok() && possiblethreshold.is_ok() {        
+        let data_write = ctx.data.write().await;
+        let params = VectorizeOptions {chunksize: possiblechunksize.unwrap(), threshold: possiblethreshold.unwrap()};
+        let parsed = insert_params(data_write, params).await;
 
-        if let Err(why) = msg.reply(&ctx.http, format!("Set Chunk Size to: {} and Threshold to: {}", options.chunk_size, options.threshold)).await
-        {
+        if let Err(why) = msg.reply(&ctx.http, format!("Set Chunk Size to: {} and Threshold to: {}", parsed.chunksize, parsed.threshold)).await {
             eprintln!("Error sending params reply: {:?}", why);
         }
+    }
+
+    else if let Err(why) = msg.reply(&ctx.http, "incorrect arguments given").await {
+        eprintln!("Error sending params reply: {:?}", why);
     }
     Ok(())
 }
@@ -471,21 +459,12 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
         let inputname = String::from(constants::INPUTFILENAME);
 
 
-        // Get Options
-        let chunksize_str;
-        let threshold_str;
-
-        { //dont hold the entire read in memory for too long
-            let data_read = ctx.data.read().await;
-            let options = data_read.get::<VectorizeOptionsKey>().unwrap();
-            options.chunk_size.try_into().unwrap_or(1);
-            chunksize_str = String::from(format!("{}", options.chunk_size));
-            threshold_str = String::from(format!("{}", options.threshold));
-        }
+        // Get Options        
+        let options: ParsedOptions = get_params(ctx).await;
 
         let outputname = String::from(constants::OUTPUT_SVG_FILE);
         println!("Vectorizing....");
-        let result = do_vectorize(&inputname, &outputname, Some(chunksize_str), Some(threshold_str));
+        let result = do_vectorize(&inputname, &outputname, options);
 
         let possibleerror: &str = result.into();
 

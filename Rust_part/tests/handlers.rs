@@ -11,7 +11,7 @@ use std::sync::{
     Mutex, Arc
 };
 
-pub static MESSAGE_CONTENT: &'static str = "testy boi";
+pub static MESSAGE_CONTENT: &'static str = "test";
 
 pub struct ReceiveEmbedMessageHandler
 {

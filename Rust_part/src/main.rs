@@ -3,11 +3,7 @@ mod constants;
 mod bot;
 mod core;
 mod svg;
-
-// #[tokio::main(flavor = "current_thread")]
-// async fn main() {
-    
-// }
+mod options;
 
 fn main()
 {
@@ -16,18 +12,17 @@ fn main()
         .build()
         .unwrap()
         .block_on(async {
-            fk_you().await;
+            run_bot().await;
         })
 }
 
-async fn fk_you()
+async fn run_bot()
 {
-    //start discord bot
     let token = secrettoken::gettoken();
     let mut client = bot::create_vec_bot(token).await;
     
     if let Err(why) = client.start().await
     {
-        println!("Client poopoo error: {:?}", why);
+        println!("Client error: {:?}", why);
     }
 }

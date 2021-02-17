@@ -4,8 +4,6 @@ Convert a raster image into a scalable vector graphic and back.
 
 # TASKS
 
-- refactor speedy
-
 - fix weird picasso output
     - fix paths not sorting properly
 
@@ -29,6 +27,8 @@ Convert a raster image into a scalable vector graphic and back.
 - switch debug() and LOG_INFO() off if release environment variable detected
 
 - move while loop to the sort_boundary() method
+
+- fix bobsweep
 
 <br>
 <br>

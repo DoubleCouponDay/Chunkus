@@ -1,9 +1,8 @@
 mod handlers;
-mod svgtests;
+mod svg;
 
 #[cfg(test)]
 mod tests {
-    use std::marker::Send;
     use vecbot::secrettoken::{
         gettoken, getchannelid
     };

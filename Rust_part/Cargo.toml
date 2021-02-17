@@ -16,7 +16,6 @@ resvg = { version = "0.13.1" }
 usvg = { version = "0.13.1" }
 tiny-skia = { version = "0.4.2" }
 
-
 [target.'cfg(unix)'.dependencies]
 openssl = "0.10"
 

@@ -3,9 +3,7 @@ use std::ptr;
 use crate::constants::{
     FfiResult
 };
-
-const CHUNK_SIZE: &str = "3";
-const THRESHHOLD: &str = "400";
+use crate::options::{ParsedOptions};
 
 mod ffimodule
 {
@@ -43,14 +41,12 @@ pub fn set_algorithm(algorithm: i32) -> FfiResult
     result
 }
 
-pub fn do_vectorize(input_file: &String, output_file: &String, chunk_size: Option<String>, threshold: Option<String>) -> FfiResult
+pub fn do_vectorize(input_file: &String, output_file: &String, options: ParsedOptions) -> FfiResult
 {
     let input_copy = input_file.clone();
     let output_copy = output_file.clone();
-    let chunk_size_copy = chunk_size.unwrap_or(String::from(CHUNK_SIZE)); //set inputs or just default
-    let threshold_copy = threshold.unwrap_or(String::from(THRESHHOLD));
     
-    println!("do_vectorize with input: {} output: {}, chunk: {}, thres: {}", input_file, output_file, chunk_size_copy, threshold_copy);
+    println!("vectorizing with input: {} output: {}, chunk: {}, threshold: {}", input_file, output_file, options.chunksize, options.threshold);
     
     let mut input_c;
     let mut output_c;
@@ -60,15 +56,18 @@ pub fn do_vectorize(input_file: &String, output_file: &String, chunk_size: Optio
     if let Ok(cc) = CString::new(input_copy)
     {
         input_c = cc;
+
         if let Ok(ccc) = CString::new(output_copy)
         {
             output_c = ccc;
-            if let Ok(cccc) = CString::new(chunk_size_copy)
+
+            if let Ok(cccc) = CString::new(options.chunksize)
             {
                 chunk_c = cccc;
-                if let Ok(ccccc) = CString::new(threshold_copy)
+
+                if let Ok(ccccc) = CString::new(options.threshold)
                 {
-                    threshold_c = ccccc;
+                    threshold_c = ccccc;                    
                     return call_vectorize(&mut input_c, &mut output_c, &mut chunk_c, &mut threshold_c)
                 }
             }
