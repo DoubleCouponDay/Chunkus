@@ -372,7 +372,7 @@ find_shapes_speed_stuff* produce_shape_stuff(chunkmap* map, float threshold)
     return output;
 }
 
-NSVGimage* sweepfill_chunkmap(chunkmap* map, float threshold)
+void sweepfill_chunkmap(chunkmap* map, float threshold)
 {
     open_log("log.txt");
     find_shapes_speed_stuff* stuff = produce_shape_stuff(map, threshold);
@@ -402,13 +402,6 @@ NSVGimage* sweepfill_chunkmap(chunkmap* map, float threshold)
     chunkshape* tmp = map->shape_list;
     map->shape_list = actual_shapes;
 
-    sort_boundary(map);
-
-    if(isBadError()) {
-        LOG_ERR("sort_boundary failed with code %d\n", getLastError());
-        return NULL;
-    }
-
     write_chunkmap_to_png(map, "chunkmap.png");
 
     if(isBadError()) {
@@ -420,25 +413,10 @@ NSVGimage* sweepfill_chunkmap(chunkmap* map, float threshold)
         close_log();
         return NULL;
     }
-
-    NSVGimage* nsvg = create_nsvgimage(map->map_width, map->map_height);
-    iterate_chunk_shapes(map, nsvg);
-
-    if (isBadError())
-    {
-        LOG_ERR("Failed to iterate chunk shapes with error: %d", getLastError());
-        map->shape_list = tmp;
-        free_chunkmap(map);
-        free_shape_stuff(stuff);
-        free(actual_shapes);
-        close_log();
-        return NULL;
-    }
-
     map->shape_list = tmp;
     free_shape_stuff(stuff);
     free(actual_shapes);
     close_log();
-    return nsvg;
+    return;
 }
 
