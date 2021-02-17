@@ -33,8 +33,9 @@ mod tests {
     
     use super::handlers::{
         MESSAGE_CONTENT,
-        ReceiveEmbedMessageHandler, ReceiveMessageHandler, ReceiveImageEmbedMessageHandler,        
+        ReceiveEmbedMessageHandler, ReceiveMessageHandler, ReceiveImageEmbedMessageHandler,
     };
+    use super::svg::TEST_IMAGE;
 
     struct RunningBot {
         client: Client,
@@ -221,7 +222,7 @@ mod tests {
                 e.title("Epic Embed");
                 e.description("Epic Embed but in smaller font");
                 e.fields(vec![("wtf is this", "like wtf is this", true)]);
-                e.image(super::svgtests::TEST_IMAGE);
+                e.image(TEST_IMAGE);
                 e
             });
             m
