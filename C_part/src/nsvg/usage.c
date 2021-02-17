@@ -15,7 +15,7 @@
 #include "mapping.h"
 #include "../sort.h"
 #include "mapparser.h"
-#include "mapfiller.h"
+#include "dcdfiller.h"
 #include "imagefile/pngfile.h"
 #include "bobsweep.h"
 

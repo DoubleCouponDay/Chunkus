@@ -4,10 +4,7 @@ Convert a raster image into a scalable vector graphic and back.
 
 # TASKS
 
-- fix weird picasso output
-    - fix overlap of shapes
-
-    - fix start of path closing to end of path diagonally across the shape
+- fix shapes with shapes inside have borders on each side merged
 
 - BUGS
     hangs if no image given to !vectorize command
