@@ -1,5 +1,6 @@
 mod handlers;
-mod svg;
+mod botrunner;
+mod consts;
 
 #[cfg(test)]
 mod tests {
@@ -7,27 +8,20 @@ mod tests {
         gettoken, getchannelid
     };
     use vecbot::bot::{
-        create_vec_bot,
-        create_bot_with_handle,
-        DefaultHandler,
-
+        create_vec_bot
     };
     use std::result::Result;
     use std::io::Error;
     use tokio;
-    use tokio::runtime::Runtime;
     use serenity;
     use serenity::{
-        client::bridge::gateway::ShardManager,
-        Client,
         http::Http,
         model::{
             id::{ChannelId},
         },
         utils::MessageBuilder,
     };
-    use std::{thread, thread::JoinHandle, time::{Duration}};
-    use serenity::client::{EventHandler};
+    use std::{thread, time::{Duration}};
     
     use std::sync::{Mutex, Arc};
     
@@ -35,13 +29,11 @@ mod tests {
         MESSAGE_CONTENT,
         ReceiveEmbedMessageHandler, ReceiveMessageHandler, ReceiveImageEmbedMessageHandler,
     };
-    use super::svg::TEST_IMAGE;
-
-    struct RunningBot {
-        client: Client,
-        shard_manager: Arc<tokio::sync::Mutex<ShardManager>>,
-        thread: JoinHandle<()>
-    }
+    use super::consts::TEST_IMAGE;
+    use super::botrunner::{
+        start_running_bot,
+        RunningBot
+    };
     
     #[test]
     fn token_obtainable() -> Result<(), Error> {
@@ -68,42 +60,6 @@ mod tests {
         Ok(())
     }
 
-    async fn start_running_bot<H: EventHandler + 'static>(handler: H) -> RunningBot {
-        let token1 = gettoken();
-        let mut client = create_bot_with_handle(token1, DefaultHandler).await;
-
-        // Used to shutdown
-        let shard_manager = client.shard_manager.clone();
-
-        // Start bot 1 (Vectorizer)
-        let _ = client.start();
-        
-        // Start bot 2  in another thread
-        let thread = thread::spawn(move || {
-            let runtime = Runtime::new().expect("Unable to create the runtime");
-    
-            println!("Runtime created");
-                
-            // Continue running until notified to shutdown
-            runtime.block_on(async {
-                println!("inside async block");
-
-                let token2 = gettoken();
-
-                let mut client2 = create_bot_with_handle(token2, handler).await;
-                
-                client2.start().await.expect(" big pp");
-            });
-        
-            println!("Runtime finished");
-        });
-        
-        RunningBot {
-            client,
-            shard_manager,
-            thread
-        }
-    }
 
     #[tokio::test]
     async fn can_send_and_receive_a_message() -> Result<(), Error> {
@@ -166,7 +122,7 @@ mod tests {
 
         thread::sleep(Duration::from_secs(5));
         
-        if let Err(message_sent) = channelid.send_message(&http, |m| 
+        if let Err(_message_sent) = channelid.send_message(&http, |m| 
         {
             m.content(MESSAGE_CONTENT);
             m.embed(|e|
@@ -214,7 +170,7 @@ mod tests {
         
         println!("Emptying Indicator");
         
-        if let Err(message_sent) = channelid.send_message(&http, |m| 
+        if let Err(_message_sent) = channelid.send_message(&http, |m| 
         {
             m.content(MESSAGE_CONTENT);
             m.embed(|e|
