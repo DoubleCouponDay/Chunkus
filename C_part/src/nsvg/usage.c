@@ -83,13 +83,12 @@ NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options) {
         free_chunkmap(map);
         return NULL;
     }
-    NSVGimage* out = sweepfill_chunkmap(map, options.shape_colour_threshhold);
+    sweepfill_chunkmap(map, options.shape_colour_threshhold);
 
     if (isBadError())
     {
         DEBUG("bobsweep failed with error: %d", getLastError());
         free_chunkmap(map);
-        free_nsvg(out);        
         return NULL;
     }
     sort_boundary(map);
@@ -111,7 +110,7 @@ NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options) {
 
     
     free_chunkmap(map);
-    return out;
+    return nsvg;
 }
 
 
