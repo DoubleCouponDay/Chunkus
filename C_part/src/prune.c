@@ -21,6 +21,10 @@ void prune_boundary(pixelchunk_list* boundary) {
         if(previous != NULL &&
             chunk_is_adjacent(current->chunk_p, previous->chunk_p) == false) {
             previous->next = current->next;
+            pixelchunk_list* tmp = current;
+            current = current->next;
+            free(tmp); //memory leak averted
+            continue;
         }
 
         else {
