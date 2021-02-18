@@ -10,6 +10,7 @@
 #include "../test/debug.h"
 #include "utility/error.h"
 #include "utility/vec.h"
+#include "prune.h"
 
 enum {
     ADJACENT_COUNT = 9
@@ -85,12 +86,8 @@ void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) 
 
         for(unsigned long i = next; i < length; ++i) {
             pixelchunk* current = array[i];
-            int abs_x_diff = abs(subject->location.x - current->location.x);
-            int abs_y_diff = abs(subject->location.y - current->location.y);
-            bool xisclose = abs_x_diff <= 1;
-            bool yisclose = abs_y_diff <= 1;
 
-            if((xisclose && yisclose)) {
+            if(chunk_is_adjacent(current, subject)) {
                 if(previous == NULL) {
                     sort_item(array, current, i, next, length);
                     break;
@@ -125,8 +122,8 @@ pixelchunk** convert_boundary_list_toarray(pixelchunk_list* list, unsigned long 
     return output;
 }
 
-void convert_array_to_boundary_list(pixelchunk** array, pixelchunk_list* previous_list, unsigned long length) {
-    pixelchunk_list* current = previous_list;
+void convert_array_to_boundary_list(pixelchunk** array, pixelchunk_list* output, unsigned long length) {
+    pixelchunk_list* current = output;
 
     for(unsigned long i = 0; i < length; ++i) {
         current->chunk_p = array[i];
@@ -136,6 +133,7 @@ void convert_array_to_boundary_list(pixelchunk** array, pixelchunk_list* previou
 
 void sort_boundary(chunkmap* map) {
     chunkshape* shape = map->shape_list;
+
     while (shape)
     {
         pixelchunk** array = convert_boundary_list_toarray(shape->boundaries, shape->boundaries_length);
@@ -146,7 +144,8 @@ void sort_boundary(chunkmap* map) {
             return;
         }
         convert_array_to_boundary_list(array, shape->boundaries, shape->boundaries_length);
-        free(array);
+        prune_boundary(shape->boundaries);        
         shape = shape->next;
+        free(array);
     }
 }
