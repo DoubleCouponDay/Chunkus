@@ -10,6 +10,7 @@
 
 const char *format1_p = "png";
 const char *format2_p = "jpeg";
+const int DEFAULT_THRESHOLD = 100;
 
 typedef NSVGimage* (*algorithm)(image, vectorize_options);
 typedef void (*algorithm_debug)(image, vectorize_options, char*,char*);
@@ -97,7 +98,7 @@ int entrypoint(int argc, char* argv[]) {
 	printf("atof-ed threshold=%f", threshold);
 	
 	if (threshold < 0.f)
-		threshold = 0.f;
+		threshold = DEFAULT_THRESHOLD;
 
 	// Halt execution if either path is bad
 	if (input_file_p == NULL || output_file_p == NULL)
