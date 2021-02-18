@@ -81,11 +81,22 @@ typedef struct list_holder
 
 chunkshape* merge_shapes(chunkmap* map, list_holder* holder, chunkshape* first, chunkshape* second) {
     // Find smallest shape
+    DEBUG("Merging shapes\n");
     chunkshape* smaller = (first->chunks_amount < second->chunks_amount ? first : second);
     chunkshape* larger = (smaller == first ? second : first);
 
-    pixelchunk_list* larger_first_chunk = larger->chunks;
-    pixelchunk_list* larger_first_boundary = larger->boundaries;
+    pixelchunk_list* larger_first_chunk = larger->chunks->firstitem;
+    pixelchunk_list* larger_first_boundary = larger->boundaries->firstitem;
+
+
+    pixelchunk_list* smaller_first_chunk = smaller->chunks->firstitem;
+    pixelchunk_list* smaller_first_boundary = smaller->boundaries->firstitem;
+
+    int smaller_s_count = count_list(smaller->chunks->firstitem);
+    int smaller_b_count = count_list(smaller->boundaries->firstitem);
+
+    int larger_s_count = count_list(larger->chunks->firstitem);
+    int larger_b_count = count_list(larger->boundaries->firstitem);
 
     // Replace every chunk's shape_chunk_in in second's shape holder to point to first
     if(smaller->chunks != NULL) {
@@ -108,8 +119,14 @@ chunkshape* merge_shapes(chunkmap* map, list_holder* holder, chunkshape* first, 
     while (larger_end->next)
         larger_end = larger_end->next;
     
-    larger_end->next = smaller->chunks;
+    larger_end->next = smaller_first_chunk;
+    larger->chunks = smaller->chunks;
+    int sum = larger_s_count + smaller_s_count;
+    DEBUG("Larger Count: %d, Counted: %d\n", larger->chunks_amount, larger_s_count);
+    DEBUG("Smaller Count: %d, Counted: %d\n", smaller->chunks_amount, smaller_s_count);
     larger->chunks_amount += smaller->chunks_amount;
+    DEBUG("Sum of chunk counts: %d, larger's incremented count: %d\n", sum, larger->chunks_amount);
+    DEBUG("New shape count: %d\n", count_list(larger->chunks->firstitem));
     smaller->chunks = NULL;
     smaller->chunks_amount = 0;
     
@@ -119,8 +136,14 @@ chunkshape* merge_shapes(chunkmap* map, list_holder* holder, chunkshape* first, 
     while (larger_end->next)
         larger_end = larger_end->next;
     
-    larger_end->next = smaller->boundaries;
+    larger_end->next = smaller_first_boundary;
+    larger->boundaries = smaller->boundaries;
+    sum = larger_b_count + smaller_b_count;
+    DEBUG("Larger Boundaries Count: %d, Counted: %d\n", larger->boundaries_length, larger_b_count);
+    DEBUG("Smaller Boundaries Count: %d, Counted: %d\n", smaller->boundaries_length, smaller_b_count);
     larger->boundaries_length += smaller->boundaries_length;
+    DEBUG("Sum of boundary counts: %d, larger's incremented count: %d\n", sum, larger->boundaries_length);
+    DEBUG("New boundary count: %d\n", count_list(larger->boundaries->firstitem));
     smaller->boundaries = NULL;
     smaller->boundaries_length = 0;
     smaller->filled = false;
@@ -178,6 +201,8 @@ void enlarge_border(chunkmap* map, pixelchunk* current, list_holder* holder, chu
     //boundaries are part of the shape too
     if (chosenshape->chunks->chunk_p == NULL) { 
         chosenshape->chunks->chunk_p = current;
+        if (chosenshape->chunks_amount)
+            DEBUG("A shape's chunk_p was null but chunks_amount was not\n");
         ++chosenshape->chunks_amount;
         current->shape_chunk_in = chosenshape;
     }
@@ -208,6 +233,8 @@ void enlarge_shape(chunkmap* map, pixelchunk* current, list_holder* holder, chun
         if (chosenshape->chunks->chunk_p == NULL) // If list hasn't been started, manually set the first one to current
         {
             chosenshape->chunks->chunk_p = current;
+            if (chosenshape->chunks_amount)
+                DEBUG("A shape's chunk_p was null but chunks_amount was not\n");
             ++chosenshape->chunks_amount;
             current->shape_chunk_in = chosenshape;
         }
