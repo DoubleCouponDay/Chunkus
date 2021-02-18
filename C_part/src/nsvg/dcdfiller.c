@@ -122,11 +122,7 @@ chunkshape* merge_shapes(chunkmap* map, list_holder* holder, chunkshape* first, 
     larger_end->next = smaller_first_chunk;
     larger->chunks = smaller->chunks;
     int sum = larger_s_count + smaller_s_count;
-    DEBUG("Larger Count: %d, Counted: %d\n", larger->chunks_amount, larger_s_count);
-    DEBUG("Smaller Count: %d, Counted: %d\n", smaller->chunks_amount, smaller_s_count);
     larger->chunks_amount += smaller->chunks_amount;
-    DEBUG("Sum of chunk counts: %d, larger's incremented count: %d\n", sum, larger->chunks_amount);
-    DEBUG("New shape count: %d\n", count_list(larger->chunks->firstitem));
     smaller->chunks = NULL;
     smaller->chunks_amount = 0;
     
@@ -139,11 +135,7 @@ chunkshape* merge_shapes(chunkmap* map, list_holder* holder, chunkshape* first, 
     larger_end->next = smaller_first_boundary;
     larger->boundaries = smaller->boundaries;
     sum = larger_b_count + smaller_b_count;
-    DEBUG("Larger Boundaries Count: %d, Counted: %d\n", larger->boundaries_length, larger_b_count);
-    DEBUG("Smaller Boundaries Count: %d, Counted: %d\n", smaller->boundaries_length, smaller_b_count);
     larger->boundaries_length += smaller->boundaries_length;
-    DEBUG("Sum of boundary counts: %d, larger's incremented count: %d\n", sum, larger->boundaries_length);
-    DEBUG("New boundary count: %d\n", count_list(larger->boundaries->firstitem));
     smaller->boundaries = NULL;
     smaller->boundaries_length = 0;
     smaller->filled = false;
