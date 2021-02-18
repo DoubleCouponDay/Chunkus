@@ -21,6 +21,8 @@ Convert a raster image into a scalable vector graphic and back.
 
 - fix bobsweep
 
+- fix chunkmap_to_png not drawing all of a chunk's pixels
+
 <br>
 <br>
 

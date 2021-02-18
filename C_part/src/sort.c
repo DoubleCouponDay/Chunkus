@@ -84,7 +84,7 @@ void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) 
         unsigned long eligible_count = 0;
         pixelchunk* previous = (start ? array[start - 1] : NULL);
 
-        for(unsigned long i = next; i < length; ++i) {
+        for(unsigned long i = start; i < length; ++i) {
             pixelchunk* current = array[i];
 
             if(chunk_is_adjacent(current, subject)) {
@@ -100,6 +100,10 @@ void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) 
                 }
                 eligiblesubjects[eligible_count] = i;
                 ++eligible_count;            
+            }
+
+            else {
+
             }
 
             if(i == length - 1) 
@@ -144,7 +148,7 @@ void sort_boundary(chunkmap* map) {
             return;
         }
         convert_array_to_boundary_list(array, shape->boundaries, shape->boundaries_length);
-        prune_boundary(shape->boundaries);        
+        //prune_boundary(shape->boundaries);       
         shape = shape->next;
         free(array);
     }

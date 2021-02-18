@@ -5,13 +5,6 @@
 #include "chunkmap.h"
 #include "image.h"
 
-/**
- * 
- * 
- * we need to take all the sorted boundaries and remove the ones after jumping to a non adjacent coordinate
-this means torus shapes will become fully filled and the inner shape will partially cover it
-**/
-
 bool chunk_is_adjacent(pixelchunk* current, pixelchunk* subject) {
     int abs_x_diff = abs(subject->location.x - current->location.x);
     int abs_y_diff = abs(subject->location.y - current->location.y);
