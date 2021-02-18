@@ -114,6 +114,7 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
 
     chunkshape* shape_list = calloc(1, sizeof(chunkshape));
     shape_list->next = NULL;
+    shape_list->previous = NULL;
 
     DEBUG("allocating boundaries list\n");
     pixelchunk_list* boundaries = calloc(1, sizeof(pixelchunk_list));

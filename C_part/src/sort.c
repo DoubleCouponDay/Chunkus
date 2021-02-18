@@ -115,9 +115,9 @@ void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) 
     }
 }
 
-pixelchunk** convert_boundary_list_toarray(pixelchunk_list* list, unsigned long length) {
+pixelchunk** convert_boundary_list_toarray(pixelchunk_list* holder, unsigned long length) {
     pixelchunk** output = calloc(1, sizeof(pixelchunk*) * length);
-    pixelchunk_list* current = list;
+    pixelchunk_list* current = holder;
 
     for(unsigned long i = 0; i < length; ++i) {
         output[i] = current->chunk_p;
@@ -148,7 +148,7 @@ void sort_boundary(chunkmap* map) {
             return;
         }
         convert_array_to_boundary_list(array, shape->boundaries, shape->boundaries_length);
-        //prune_boundary(shape->boundaries);       
+        prune_boundary(shape->boundaries);       
         shape = shape->next;
         free(array);
     }

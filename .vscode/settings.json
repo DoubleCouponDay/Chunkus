@@ -60,7 +60,8 @@
         "math.h": "c",
         "corecrt_math.h": "c",
         "corecrt_math_defines.h": "c",
-        "logger.h": "c"
+        "logger.h": "c",
+        "string.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

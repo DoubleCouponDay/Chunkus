@@ -24,12 +24,13 @@ typedef struct pixelchunk_list
 
 typedef struct chunkshape {
     bool filled;
-    int chunks_amount;
+    int chunks_amount; //chunks_amount also includes boundaries_length
     pixelchunk_list* chunks;
     int boundaries_length;
     pixelchunk_list* boundaries;
     int pathcount;
     pixel colour;
+    struct chunkshape* previous;
     struct chunkshape* next;
 } chunkshape;
 
