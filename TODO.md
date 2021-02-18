@@ -17,6 +17,8 @@ Convert a raster image into a scalable vector graphic and back.
 
 - fix bottom edges not being added to boundary
 
+- fix heap corruption in dcdfiller when threshold: 1
+
 - restrict chunk_size to 0 and smallest of the two area variables
 
 - restrict threshold to between 0 and 440
