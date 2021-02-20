@@ -9,15 +9,14 @@ Convert a raster image into a scalable vector graphic and back.
 
 # TASKS
 
-- fix aggressive pruning
-
-- fix duplicate shapes for same colour
+- select the next sorted border chunk based on which is closed to the outer edge
 
 - fix chunkmap_to_png not drawing all of a chunk's pixels
 
 - fix bottom edges not being added to boundary
 
 - fix heap corruption in dcdfiller when threshold: 1
+    //doesnt happen when you run the same image, same params without the bot??????????????
 
 - restrict chunk_size to 0 and smallest of the two area variables
 
