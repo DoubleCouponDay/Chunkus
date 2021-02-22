@@ -51,10 +51,6 @@ typedef struct
     int width;
     int height;
     pixel** pixels_array_2d;
-    pixel* topleftcorner_p;
-    pixel* toprightcorner_p; 
-    pixel* bottomleftcorner_p; 
-    pixel* bottomrightcorner_p; 
 } image;
 
 
@@ -66,17 +62,6 @@ colour convert_pixelf_to_colour(pixelF input);
 pixelF convert_colour_to_pixelf(colour input);
 
 bool pixelf_equal(pixelF a, pixelF b);
-
-inline colour lerp_colours(colour a, colour b, float t)
-{
-    pixelF a_f = convert_colour_to_pixelf(a);
-    pixelF b_f = convert_colour_to_pixelf(b);
-    pixelF diff = { a_f.r - b_f.r, a_f.g - b_f.g, a_f.b - b_f.b };
-
-    pixelF output = { a_f.r - diff.r * t, a_f.g - diff.g * t, a_f.b - diff.b * t };
-    return convert_pixelf_to_colour(output);
-}
-
 int calculate_int_units(int subject);
 bool colours_are_similar(pixel color_a, pixel color_b, float max_distance);
 char* rgb_to_string(pixel* input);

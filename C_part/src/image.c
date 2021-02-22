@@ -104,12 +104,6 @@ image create_image(int width, int height)
     {
         output.pixels_array_2d[i] = calloc(1, sizeof(pixel) * height);
     }
-
-    // Begin Changes
-    output.topleftcorner_p     = &output.pixels_array_2d[0][0];
-    output.toprightcorner_p    = &output.pixels_array_2d[output.width-1][0];
-    output.bottomleftcorner_p  = &output.pixels_array_2d[0][output.height-1];
-    output.bottomrightcorner_p = &output.pixels_array_2d[output.width-1][output.height-1];
     return output;
 }
 
