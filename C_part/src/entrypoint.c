@@ -7,10 +7,12 @@
 #include "utility/error.h"
 #include "imagefile/pngfile.h"
 #include "imagefile/svg.h"
+#include "simplify.h"
 
 const char *format1_p = "png";
 const char *format2_p = "jpeg";
 const int DEFAULT_THRESHOLD = 100;
+const int NUM_COLOURS = 10;
 
 typedef NSVGimage* (*algorithm)(image, vectorize_options);
 typedef void (*algorithm_debug)(image, vectorize_options, char*,char*);
@@ -24,11 +26,11 @@ int execute_program(char* input_file_p, int chunk_size, float threshold, char* o
 		DEBUG("convert_png_to_image failed with: %d\n", getLastError());
 		return getAndResetErrorCode();
 	}
-
 	vectorize_options options = {
 		input_file_p,
 		chunk_size,
-		threshold
+		threshold,
+		NUM_COLOURS
 	};
 
 	NSVGimage* nsvg = target_algorithm(img, options);

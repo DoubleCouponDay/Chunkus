@@ -1,5 +1,7 @@
 #pragma once
 
+extern const int NUM_COLOURS;
+
 int entrypoint(int argc, char* argv[]);
 int set_algorithm(int algo);
 

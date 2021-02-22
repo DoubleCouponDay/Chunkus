@@ -22,6 +22,13 @@
 
 //entry point of the file
 NSVGimage* dcdfill_for_nsvg(image input, vectorize_options options) {
+	quantize_image(&input, options.num_colours);
+
+	if(isBadError()) {
+		DEBUG("quantize_image failed with %d\n", getLastError());
+		return getAndResetErrorCode();
+	}
+
     DEBUG("generating chunkmap\n");
     chunkmap* map = generate_chunkmap(input, options);
     
@@ -76,6 +83,13 @@ NSVGimage* dcdfill_for_nsvg(image input, vectorize_options options) {
 }
 
 NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options) {
+    quantize_image(&input, options.num_colours);
+
+	if(isBadError()) {
+		DEBUG("quantize_image failed with %d\n", getLastError());
+		return getAndResetErrorCode();
+	}
+
     chunkmap* map = generate_chunkmap(input, options);
 
     if (isBadError()) {

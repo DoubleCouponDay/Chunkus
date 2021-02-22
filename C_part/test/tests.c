@@ -37,11 +37,13 @@ MunitResult can_read_png(const MunitParameter params[], void* userdata) {
 
 MunitResult can_convert_png_to_chunkmap(const MunitParameter params[], void* userdata) {
   test4stuff* stuff = userdata;
+  int num_colours = atoi(params[4].value);
   
   vectorize_options options = {
     params[0].value,
     atoi(params[1].value),
-    atof(params[2].value)
+    atof(params[2].value),
+    num_colours
   };
   stuff->img = convert_png_to_image(options.file_path);
   chunkmap* map = generate_chunkmap(stuff->img, options);
@@ -75,11 +77,13 @@ MunitResult opensPngAndOutputsBmp(const MunitParameter params[], void* userdata)
 MunitResult can_vectorize_image(const MunitParameter params[], void* userdata)
 {
   test6stuff* stuff = userdata;
+  int num_colours = atoi(params[4].value);
 
   vectorize_options options = {
     params[0].value,
     atoi(params[1].value),
-    atof(params[2].value)
+    atof(params[2].value),
+    num_colours
   };
   
   stuff->img = convert_png_to_image(options.file_path);
@@ -104,11 +108,13 @@ MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], voi
   float threshold = atof(threshold_str);
   
   char* out_fileaddress = params[3].value;
+  int num_colours = atoi(params[4].value);
 
   vectorize_options options = {
     fileaddress,
     chunk_size,
     threshold,
+    num_colours
   };
 
   stuff->img = convert_png_to_image(fileaddress);
@@ -149,11 +155,13 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   float threshold = atof(threshold_str);
   
   char* out_fileaddress = params[3].value;
+  int num_colours = atoi(params[4].value);
 
   vectorize_options options = {
     fileaddress,
     chunk_size,
     threshold,
+    num_colours
   };
 
   stuff->img = convert_png_to_image(fileaddress);
@@ -196,11 +204,13 @@ MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdat
   float threshold = atof(threshold_str);
   
   char* out_fileaddress = params[3].value;
+  int num_colours = atoi(params[4].value);
 
   vectorize_options options = {
     fileaddress,
     chunk_size,
     threshold,
+    num_colours
   };
 
   stuff->img = convert_png_to_image(fileaddress);
@@ -231,8 +241,9 @@ int main(int argc, char** argv) {
 
   char* param1[] = { "../../../../test/test.png", NULL };
   char* param2[] = { "1", NULL };
-  char* param3[] = { "100", NULL }; //max threshhold 440
+  char* param3[] = { "1", NULL }; //max threshhold 440
   char* param4[] = { "./chunkmap.png", NULL };
+  char* param5[] = { "3", NULL };
   char* testname = argv[1];
 
   MunitParameterEnum test_params[] = { 
@@ -247,6 +258,9 @@ int main(int argc, char** argv) {
     },
     { 
       "output_filename", param4 
+    },
+    {
+      "num_colours", param5
     },
     { NULL, NULL} 
   };
