@@ -21,7 +21,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}\\C_part\\build\\windows\\x64\\debug\\tests.exe",
-            "args": ["dcdfill"],
+            "args": ["bobsweep"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}\\C_part\\build\\windows\\x64\\debug",
             "environment": [],

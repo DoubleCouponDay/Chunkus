@@ -107,8 +107,6 @@ NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options) {
         free(nsvg);
         return NULL;
     }
-
-    
     free_chunkmap(map);
     return nsvg;
 }

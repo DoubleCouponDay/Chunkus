@@ -369,6 +369,17 @@ find_shapes_speed_stuff* produce_shape_stuff(chunkmap* map, float threshold)
         }
     }
 
+    LOG_INFO("Adding unsorted boundary indices");
+    output->border_chunk_indices = calloc(border_total, sizeof(int));
+
+    for (int shape_i = 0; shape_i < output->num_shapes; ++shape_i)
+    {
+        for (int border_i = 0; border_i < output->border_counts[shape_i]; ++border_i)
+        {
+            output->border_chunk_indices[border_running_indices[shape_i]++] = output->chunk_index_of[border_i + output->shape_offsets[shape_i]];
+        }
+    }
+
     return output;
 }
 
@@ -378,44 +389,65 @@ void sweepfill_chunkmap(chunkmap* map, float threshold)
     find_shapes_speed_stuff* stuff = produce_shape_stuff(map, threshold);
     map->shape_count = stuff->num_shapes;
     // START CONVERT TO ACTUAL SHAPES
-    chunkshape* actual_shapes = calloc(stuff->num_shapes, sizeof(chunkshape));
+    chunkshape* actual_shapes = calloc(1, sizeof(chunkshape));
+    chunkshape* current = actual_shapes;
 
     for (int i = 0; i < stuff->num_shapes; ++i)
     {
-        actual_shapes[i].next = (i + 1 < stuff->num_shapes ? &actual_shapes[i + 1] : NULL);
-        actual_shapes[i].boundaries_length = stuff->border_counts[i];
-        actual_shapes[i].boundaries = calloc(stuff->border_counts[i], sizeof(pixelchunk_list));
-        actual_shapes[i].chunks_amount = stuff->border_counts[i];
+        current->next = (i + 1 < stuff->num_shapes ? calloc(1, sizeof(chunkshape)) : NULL);
+        current->boundaries_length = stuff->border_counts[i];
+        current->boundaries = calloc(1, sizeof(pixelchunk_list));
+        current->chunks_amount = stuff->border_counts[i];
+        current->chunks = calloc(1, sizeof(pixelchunk_list));
         int first_chunk = stuff->chunk_index_of[stuff->shape_offsets[i]];
-        actual_shapes[i].colour = map->groups_array_2d[first_chunk % map->map_width][first_chunk / map->map_width].average_colour;
+        int first_chunk_x = first_chunk % map->map_width;
+        int first_chunk_y = first_chunk / map->map_width;
+        current->colour = map->groups_array_2d[first_chunk_x][first_chunk_y].average_colour;
 
-        for (int j = 0; j < actual_shapes[i].boundaries_length; ++j)
+        pixelchunk_list *current_border = current->boundaries;
+        for (int j = 0; j < current->boundaries_length; ++j)
+        {
+            int chunk_index = stuff->border_chunk_indices[j + stuff->border_offsets[i]];
+            int chunk_x = chunk_index % map->map_width;
+            int chunk_y = chunk_index / map->map_width;
+            current_border->chunk_p = &map->groups_array_2d[chunk_x][chunk_y];
+            current_border->next = (j + 1 < current->boundaries_length ? calloc(1, sizeof(pixelchunk_list)) : NULL);
+            current_border->firstitem = current->boundaries;
+
+            current_border = current_border->next;
+        }
+
+        pixelchunk_list *current_chunk = current->chunks;
+        for (int j = 0; j < current->chunks_amount; ++j)
         {
             int chunk_index = stuff->chunk_index_of[j + stuff->shape_offsets[i]];
-            actual_shapes[i].boundaries[j].chunk_p = &map->groups_array_2d[chunk_index % map->map_width][chunk_index / map->map_width];
-            actual_shapes[i].boundaries[j].next = (j + 1 < stuff->border_counts[i] ? &actual_shapes[i].boundaries[j + 1] : NULL);
+            int chunk_x = chunk_index % map->map_width;
+            int chunk_y = chunk_index / map->map_width;
+            current_chunk->chunk_p = &map->groups_array_2d[chunk_x][chunk_y];
+            current_chunk->next = (j + 1 < current->chunks_amount ? calloc(1, sizeof(pixelchunk_list)) : NULL);
+            current_chunk->firstitem = current->chunks;
+
+            current_chunk = current_chunk->next;
         }
+
+        current = current->next;
     }
 
     // END CONVERT TO ACTUAL SHAPES
 
-    chunkshape* tmp = map->shape_list;
+    free(map->shape_list);
     map->shape_list = actual_shapes;
 
     write_chunkmap_to_png(map, "chunkmap.png");
 
     if(isBadError()) {
         LOG_ERR("write_chunkmap_to_png failed with code: %d\n", getLastError());
-        map->shape_list = tmp;
         free_chunkmap(map);
         free_shape_stuff(stuff);
-        free(actual_shapes);
         close_log();
         return NULL;
     }
-    map->shape_list = tmp;
     free_shape_stuff(stuff);
-    free(actual_shapes);
     close_log();
     return;
 }
