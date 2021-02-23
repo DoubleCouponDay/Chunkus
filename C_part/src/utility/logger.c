@@ -4,7 +4,10 @@
 #include <time.h>
 #include <stdarg.h>
 
+#include "../../test/debug.h"
+
 FILE* logfile = 0;
+const char* LOG_PATH = "log.txt";
 
 void open_log(char* filename)
 {
@@ -24,9 +27,10 @@ void close_log()
 void logger(const char* tag, const char* message, ...) {
     if (!logfile)
     {
-        printf("Make sure open_log is called at the beginning of the program!!!\n");
+        open_log(LOG_PATH);
         return;
     }
+    //DEBUG(message, ...);
 
     va_list args;
     va_start(args, message);
@@ -40,37 +44,9 @@ void logger(const char* tag, const char* message, ...) {
     strftime(time_buffer, 100, "%b %e %T", timeinfo);
 
     fprintf(logfile, "%s [%s]: ", time_buffer, tag);
-    printf("%s [%s]: ", time_buffer, tag);
     vfprintf(logfile, message, args);
-    vprintf(message, args);
     fprintf(logfile, "\n");
-    printf("\n");
     fflush(logfile);
-
-    va_end(args);
-}
-
-void logger_noline(const char* msg, ...)
-{
-    if (!logfile)
-    {
-        printf("Make sure open_log is called at the beginning of the program!!!\n");
-        return;
-    }
-
-    va_list args;
-    va_start(args, msg);
-
-    time_t now;
-    struct tm * timeinfo;
-    char time_buffer[100];
-
-    time(&now);
-    timeinfo = localtime(&now);
-    strftime(time_buffer, 100, "%b %e %T", timeinfo);
-
-    vfprintf(logfile, msg, args);
-    vprintf(msg, args);
 
     va_end(args);
 }

@@ -7,7 +7,7 @@
 #include <math.h>
 
 #include "chunkmap.h"
-#include "../test/debug.h"
+#include "utility/logger.h"
 #include "utility/error.h"
 #include "utility/vec.h"
 #include "prune.h"
@@ -77,7 +77,7 @@ void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) 
                 }
 
                 else if(eligible_count == ADJACENT_COUNT) {
-                    DEBUG("adjacent chunks are larger than known size!\n");
+                    LOG_ERR("adjacent chunks are larger than known size!");
                     setError(ASSUMPTION_WRONG);
                     return;
                 }
@@ -127,7 +127,7 @@ void sort_boundary(chunkmap* map) {
         bubble_sort(array, 0, shape->boundaries_length);
 
         if(isBadError()) {
-            DEBUG("bubble_sort failed with code: %d\n", getLastError());
+            LOG_ERR("bubble_sort failed with code: %d", getLastError());
             return;
         }
         convert_array_to_boundary_list(array, shape->boundaries, shape->boundaries_length);

@@ -3,13 +3,13 @@
 
 #include "mapping.h"
 #include "../utility/error.h"
-#include "../../test/debug.h"
+#include "utility/logger.h"
 #include "../image.h"
 #include "../chunkmap.h"
 
 void fill_float_array(float* tobefilled, float* fill, int array_length, int max_length) {
     if(array_length > max_length) {
-        DEBUG("arrays length must be less than: %d\n", max_length);
+        LOG_ERR("arrays length must be less than: %d", max_length);
         setError(ARRAY_DIFF_SIZE_ERROR);
         return;
     }
@@ -20,18 +20,18 @@ void fill_float_array(float* tobefilled, float* fill, int array_length, int max_
 }
 
 void fill_strokedash_array(float* strokedash, float* fill, int array_length) {
-    DEBUG("filling strokedash array\n");
+    LOG_INFO("filling strokedash array");
     fill_float_array(strokedash, fill, array_length, STROKEDASH_LENGTH);
 
     if(isBadError()) {
-        DEBUG("fill_float_array failed with code: %d\n", getLastError());
+        LOG_ERR("fill_float_array failed with code: %d", getLastError());
         return;
     }
 }
 
 void fill_id(char* id, char* fill, int array_length) {
     if(array_length > ID_LENGTH) {
-        DEBUG("new id length must be less than: %d\n", BOUNDS_LENGTH);
+        LOG_ERR("new id length must be less than: %d", BOUNDS_LENGTH);
         setError(ARRAY_DIFF_SIZE_ERROR);
         return;
     }
@@ -48,7 +48,7 @@ void fill_bounds(float* bounds, float* fill, int array_length) {
     int code = getLastError();
     
     if(isBadError()) {
-        DEBUG("fill_float_array failed with code: %d\n", code);
+        LOG_ERR("fill_float_array failed with code: %d", code);
         return;
     }
 }
@@ -61,13 +61,13 @@ void fill_beziercurve(float* beziercurve,
     float control_x2, float control_y2) {
 
     if(beziercurve == NULL) {
-        DEBUG("array is null\n");
+        LOG_ERR("array is null");
         setError(NULL_ARGUMENT_ERROR);
         return;
     }
 
     if(array_length != BEZIERCURVE_LENGTH) {
-        DEBUG("beziercurve array must be 8 long.\n");
+        LOG_ERR("beziercurve array must be 8 long.");
         setError(ARRAY_DIFF_SIZE_ERROR);
         return;
     }
@@ -92,7 +92,7 @@ NSVGpath* create_path(image input, vector2 start, vector2 end) {
     int code = getLastError();
 
     if(isBadError()) {
-        DEBUG("fill_bounds failed with code: %d\n", code);
+        LOG_ERR("fill_bounds failed with code: %d", code);
         free(output);
         free(points);        
         return NULL;
@@ -111,7 +111,7 @@ NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {
     if (isBadError())
     {
         free(output);
-        DEBUG("fill_id failed with code: %d\n", getLastError());
+        LOG_ERR("fill_id failed with code: %d", getLastError());
         return NULL;
     }
 
@@ -130,7 +130,7 @@ NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {
     output->strokeWidth = 0.0;
     output->strokeDashOffset = 0.0;
 
-    DEBUG("giving shape strokedash\n");
+    LOG_INFO("giving shape strokedash");
     float strokedash[1] = {0};
     char strokeDashCount = 1;
     fill_strokedash_array(output->strokeDashArray, strokedash, strokeDashCount); //idk if we need this
@@ -138,7 +138,7 @@ NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {
 
     if(isBadError()) {
         free(output);
-        DEBUG("fill_strokedash_array failed with code: %d\n", code);
+        LOG_ERR("fill_strokedash_array failed with code: %d", code);
         return NULL;
     }
     output->strokeDashCount = strokeDashCount;
@@ -148,7 +148,7 @@ NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {
     output->fillRule = NSVG_FILLRULE_NONZERO;
     output->flags = NSVG_FLAGS_VISIBLE;
 
-    DEBUG("filling shape bounds\n");    
+    LOG_INFO("filling shape bounds");    
     float newbounds[BOUNDS_LENGTH] = {
         0, 0, 
         map->input.width, 
@@ -158,7 +158,7 @@ NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {
 
     if (isBadError()) {
         free(output);
-        DEBUG("fill_bounds failed with: %d\n", getLastError());
+        LOG_ERR("fill_bounds failed with: %d", getLastError());
         return NULL;
     }
     

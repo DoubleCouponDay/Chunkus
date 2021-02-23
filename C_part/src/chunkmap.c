@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "chunkmap.h"
-#include "../test/debug.h"
+#include "utility/logger.h"
 #include "utility/error.h"
 
 void iterateImagePixels(int x, int y, image input, vectorize_options options, chunkmap* output) {
@@ -88,14 +88,14 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
 {
     if (!input.pixels_array_2d)
     {
-        DEBUG("Invalid image input \n");
+        LOG_ERR("Invalid image input");
         setError(ASSUMPTION_WRONG);
         return NULL;
     }
 
     if (input.width < 1 || input.height < 1 || !input.pixels_array_2d)
     {
-        DEBUG("Invalid dimensions or bad image\n");
+        LOG_ERR("Invalid dimensions or bad image");
         setError(ASSUMPTION_WRONG);
         return NULL;
     }    
@@ -104,23 +104,23 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
     output->map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
     output->map_height = (int)ceilf((float)input.height / (float)options.chunk_size);
     
-    DEBUG("creating pixelchunk\n");
+    LOG_INFO("creating pixelchunk");
     pixelchunk** newarray = calloc(1, sizeof(pixelchunk*) * output->map_width);
     output->groups_array_2d = newarray;
-    DEBUG("creating chunkshape\n");
+    LOG_INFO("creating chunkshape");
 
     chunkshape* shape_list = calloc(1, sizeof(chunkshape));
     shape_list->next = NULL;
     shape_list->previous = NULL;
 
-    DEBUG("allocating boundaries list\n");
+    LOG_INFO("allocating boundaries list");
     pixelchunk_list* boundaries = calloc(1, sizeof(pixelchunk_list));
     boundaries->firstitem = boundaries;
     boundaries->chunk_p = NULL;
     boundaries->next = NULL;
     shape_list->boundaries = boundaries;
         
-    DEBUG("allocating chunks list\n");
+    LOG_INFO("allocating chunks list");
     pixelchunk_list* chunks = calloc(1, sizeof(pixelchunk_list));
     chunks->firstitem = chunks;
     chunks->chunk_p = NULL;
@@ -129,13 +129,13 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
 
     output->shape_list = shape_list;
 
-    DEBUG("allocating row pointers\n");
+    LOG_INFO("allocating row pointers");
 
     for (int i = 0; i < output->map_width; ++i)
     {
         output->groups_array_2d[i] = calloc(1, sizeof(pixelchunk) * output->map_height);
     }    
-    DEBUG("iterating chunkmap pixels\n");
+    LOG_INFO("iterating chunkmap pixels");
     
     for (int x = 0; x < output->map_width; ++x)
     {
@@ -193,7 +193,7 @@ void free_chunkmap(chunkmap* map_p)
     if(map_p) {
         free(map_p);
     }
-    DEBUG("freed chunkmap\n");
+    LOG_INFO("freed chunkmap");
 }
 
 int count_list(pixelchunk_list* first)

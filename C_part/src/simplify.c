@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 #include "image.h"
-#include "../test/debug.h"
+#include "utility/logger.h"
 #include "utility/error.h"
 
 const int TOTAL_COLOURS = 256;
@@ -32,11 +32,11 @@ byte quantize_int(int subject, int divisions) {
 void quantize_image(image* subject, int num_colours) {
     if(num_colours < 0 ||
         num_colours > TOTAL_COLOURS) {
-        DEBUG("num colours out of bounds!\n");
+        LOG_ERR("num colours out of bounds!");
         setError(BAD_ARGUMENT_ERROR);
         return;
     }
-    DEBUG("simplifying colour scheme to %d colours\n", num_colours);
+    LOG_INFO("simplifying colour scheme to %d colours", num_colours);
     int divisions = TOTAL_COLOURS / num_colours;
 
     for(int x = 0; x < subject->width; ++x) {

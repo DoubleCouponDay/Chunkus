@@ -6,7 +6,7 @@
 
 #include "../utility/error.h"
 #include "../nsvg/copy.h"
-#include "../../test/debug.h"
+#include "utility/logger.h"
 #include "../chunkmap.h"
 
 const char* OUTPUT_PATH = "output.svg";
@@ -27,37 +27,37 @@ const int NEW_LINE_LENGTH = 0;
 void finish_file(FILE* output, char* template) {
     fprintf(output, "</svg>");
 
-    DEBUG("freeing template\n");
+    LOG_INFO("freeing template");
     free_template(template);
 
-    DEBUG("closing file\n");
+    LOG_INFO("closing file");
     fclose(output);
 }
 
 bool write_svg_file(NSVGimage* input) {
-    DEBUG("create a file for read/write and destroy contents if already exists\n");
+    LOG_INFO("create a file for read/write and destroy contents if already exists");
     FILE* output = fopen(OUTPUT_PATH, "w+"); 
 
-    DEBUG("open the template as a string\n");
+    LOG_INFO("open the template as a string");
     char* template = gettemplate(input->width, input->height);
     int code = getLastError();
 
     if(isBadError()) {
-        DEBUG("gettemplate failed with code: %d\n", code);
+        LOG_ERR("gettemplate failed with code: %d", code);
         return false;
     }
 
-    DEBUG("copy the template into the output string\n");
+    LOG_INFO("copy the template into the output string");
     fprintf(output, template);
     fprintf(output, NEW_LINE);
 
     if(input->shapes == NULL) {
-        DEBUG("no shapes found in nsvg!\n");
+        LOG_ERR("no shapes found in nsvg!");
         finish_file(output, template);
         return false;
     }
 
-    DEBUG("iterating nsvgshapes\n");
+    LOG_INFO("iterating nsvgshapes");
     NSVGshape* currentshape = input->shapes;
 
     while(currentshape != NULL) {

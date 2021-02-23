@@ -9,7 +9,7 @@
 #include "usage.h"
 #include "../image.h"
 #include "../chunkmap.h"
-#include "../../test/debug.h"
+#include "utility/logger.h"
 #include "../utility/error.h"
 #include "copy.h"
 #include "mapping.h"
@@ -103,7 +103,7 @@ void close_path(chunkmap* map, NSVGimage* output, NSVGpath* firstpath) {
     int code = getLastError();
     
     if(isBadError()) {
-        DEBUG("create_path failed with code: %d\n", code);
+        LOG_ERR("create_path failed with code: %d", code);
         return;
     }
     output->shapes->paths->next = path;
@@ -111,41 +111,41 @@ void close_path(chunkmap* map, NSVGimage* output, NSVGpath* firstpath) {
 
 void throw_on_max(unsigned long* subject) {
     if(subject == (unsigned long*)0xffffffff) {
-        DEBUG("long is way too big!\n");
+        LOG_INFO("long is way too big!");
         setError(OVERFLOW_ERROR);
     }
 }
 
 void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
 {
-    DEBUG("checking if shapelist is null\n");
+    LOG_INFO("checking if shapelist is null");
     //create the svg
     if(map->shape_list == NULL) {
-        DEBUG("no shapes given to mapparser\n");
+        LOG_ERR("no shapes given to mapparser");
         setError(ASSUMPTION_WRONG);
         return;
     }
     int low_boundary_shapes = 0;
-    DEBUG("creating first shape\n");
+    LOG_INFO("creating first shape");
     char* firstid = "firstshape";
     long firstidlength = 10;
     chunkshape* firstchunkshape = map->shape_list;
     NSVGshape* firstshape = create_shape(map, firstid, firstidlength);
     unsigned long i = 0;
-    DEBUG("iterating shapes list\n");
+    LOG_INFO("iterating shapes list");
 
     //iterate shapes
     while(map->shape_list != NULL) {        
         int chunkcount = map->shape_list->chunks_amount;
 
         if(low_boundary_shapes >= map->shape_count) {
-            DEBUG("MOST BOUNDARIES NOT BIG ENOUGH\n");
+            LOG_ERR("MOST BOUNDARIES NOT BIG ENOUGH");
             setError(LOW_BOUNDARIES_CREATED);
             return;
         }
 
         else if(map->shape_list->boundaries_length < 2) {
-            DEBUG("skipping shape with too small boundary\n");
+            LOG_INFO("skipping shape with too small boundary");
             ++i;
             ++low_boundary_shapes;
             map->shape_list = map->shape_list->next;
@@ -153,18 +153,18 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         }
 
         else if(map->shape_list->boundaries->chunk_p == NULL) {
-            DEBUG("boundary creation broken!\n");
+            LOG_ERR("boundary creation broken!");
             setError(LOW_BOUNDARIES_CREATED);
             return;
         }
 
         if(output->shapes == NULL) {
-            DEBUG("using first shape\n");
+            LOG_INFO("using first shape");
             output->shapes = firstshape;
         }
 
         else {
-            DEBUG("creating new shape\n");
+            LOG_INFO("creating new shape");
             char longaschar = i;
             NSVGshape* newshape = create_shape(map, &longaschar, 1);
             output->shapes->next = newshape;
@@ -175,7 +175,7 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         int code = getLastError();
 
         if(isBadError()) {
-            DEBUG("create_path failed with code: %d\n", code);
+            LOG_ERR("create_path failed with code: %d", code);
             return;
         }
         output->shapes->paths = firstpath; //first shapes path
@@ -184,7 +184,7 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
             map, output, firstpath, NULL
         };        
 
-        DEBUG("iterating boundaries, count: %d \n", map->shape_list->boundaries_length);
+        LOG_INFO("iterating boundaries, count: %d ", map->shape_list->boundaries_length);
 
         for (pixelchunk_list* iter = map->shape_list->boundaries; iter; iter = iter->next)
         {
@@ -193,16 +193,16 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         code = getLastError();
 
         if(isBadError()) {
-            DEBUG("iterate_new_path failed with code: %d\n", code);
+            LOG_ERR("iterate_new_path failed with code: %d", code);
             return;
         }
 
         else if(firstpath->pts[2] == NONE_FILLED) { //didnt form at least one path between two coordinates
-            DEBUG("NO PATHS FOUND\n");
+            LOG_ERR("NO PATHS FOUND");
             setError(ASSUMPTION_WRONG);
             return;
         }
-        DEBUG("closing path\n");
+        LOG_INFO("closing path");
         close_path(map, output, firstpath);
         output->shapes->paths = firstpath; //wind back the paths
         
@@ -224,20 +224,20 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         code = getLastError();
 
         if(isBadError()) {
-            DEBUG("throw_on_max failed with code: %d\n", code);
+            LOG_ERR("throw_on_max failed with code: %d", code);
             return;
         }
         ++i;
         map->shape_list = map->shape_list->next; //go to next shape
     }
     map->shape_list = firstchunkshape;
-    DEBUG("Iterated %d shapes\n", count_shapes(map->shape_list));
+    LOG_INFO("Iterated %d shapes", count_shapes(map->shape_list));
 
     if(firstshape->paths != NULL) {
         output->shapes = firstshape;
     }
 
     else {
-        DEBUG("not giving any paths to nsvgimage since no paths found\n");
+        LOG_INFO("not giving any paths to nsvgimage since no paths found");
     }    
 }

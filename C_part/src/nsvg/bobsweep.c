@@ -385,7 +385,6 @@ find_shapes_speed_stuff* produce_shape_stuff(chunkmap* map, float threshold)
 
 void sweepfill_chunkmap(chunkmap* map, float threshold)
 {
-    open_log("log.txt");
     find_shapes_speed_stuff* stuff = produce_shape_stuff(map, threshold);
     map->shape_count = stuff->num_shapes;
     // START CONVERT TO ACTUAL SHAPES
@@ -444,11 +443,9 @@ void sweepfill_chunkmap(chunkmap* map, float threshold)
         LOG_ERR("write_chunkmap_to_png failed with code: %d\n", getLastError());
         free_chunkmap(map);
         free_shape_stuff(stuff);
-        close_log();
         return NULL;
     }
     free_shape_stuff(stuff);
-    close_log();
     return;
 }
 

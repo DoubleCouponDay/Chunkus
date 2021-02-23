@@ -9,7 +9,6 @@
 #include "usage.h"
 #include "../image.h"
 #include "../chunkmap.h"
-#include "../../test/debug.h"
 #include "../utility/error.h"
 #include "copy.h"
 #include "mapping.h"
@@ -18,62 +17,62 @@
 #include "dcdfiller.h"
 #include "imagefile/pngfile.h"
 #include "bobsweep.h"
-#include "../utility/logger.h"
+#include "utility/logger.h"
 
 //entry point of the file
 NSVGimage* dcdfill_for_nsvg(image input, vectorize_options options) {
 	quantize_image(&input, options.num_colours);
 
 	if(isBadError()) {
-		DEBUG("quantize_image failed with %d\n", getLastError());
+		LOG_ERR("quantize_image failed with %d", getLastError());
 		return getAndResetErrorCode();
 	}
 
-    DEBUG("generating chunkmap\n");
+    LOG_INFO("generating chunkmap");
     chunkmap* map = generate_chunkmap(input, options);
     
     if (isBadError())
     {
-        DEBUG("generate_chunkmap failed with code: %d \n", getLastError());
+        LOG_ERR("generate_chunkmap failed with code: %d", getLastError());
         free_chunkmap(map);
         return NULL;
     }
 
-    DEBUG("filling chunkmap\n");
+    LOG_INFO("filling chunkmap");
     fill_chunkmap(map, &options);
     
     if (isBadError())
     {
-        DEBUG("fill_chunkmap failed with code %d\n", getLastError());
+        LOG_ERR("fill_chunkmap failed with code %d", getLastError());
         free_chunkmap(map);
         return NULL;
     }
 
-    DEBUG("sorting boundaries\n");
+    LOG_INFO("sorting boundaries");
     sort_boundary(map);
 
     if(isBadError()) {
-        DEBUG("sort_boundary failed with code %d\n", getLastError());
+        LOG_ERR("sort_boundary failed with code %d", getLastError());
         free_chunkmap(map);
         return NULL;
     }
 
-    DEBUG("printing chunkmap\n");
+    LOG_INFO("printing chunkmap");
     write_chunkmap_to_png(map, "chunkmap.png");
     
     if(isBadError()) {
-        DEBUG("write_chunkmap_to_png failed with code: %d\n", getLastError());
+        LOG_INFO("write_chunkmap_to_png failed with code: %d", getLastError());
         free_chunkmap(map);
         return NULL;
     }
 
-    DEBUG("iterating chunk shapes\n");
+    LOG_INFO("iterating chunk shapes");
     NSVGimage* output = create_nsvgimage(map->map_width, map->map_height);
     parse_map_into_nsvgimage(map, output);
     
     if (isBadError())
     {
-        DEBUG("mapparser failed with code: %d\n", getLastError());
+        LOG_ERR("mapparser failed with code: %d", getLastError());
         free_chunkmap(map);
         free_nsvg(output);
         return NULL;
@@ -86,14 +85,14 @@ NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options) {
     quantize_image(&input, options.num_colours);
 
 	if(isBadError()) {
-		DEBUG("quantize_image failed with %d\n", getLastError());
+		LOG_ERR("quantize_image failed with %d", getLastError());
 		return getAndResetErrorCode();
 	}
 
     chunkmap* map = generate_chunkmap(input, options);
 
     if (isBadError()) {
-        DEBUG("generate_chunkmap failed with code: %d \n", getLastError());
+        LOG_ERR("generate_chunkmap failed with code: %d ", getLastError());
         free_chunkmap(map);
         return NULL;
     }
@@ -101,14 +100,14 @@ NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options) {
 
     if (isBadError())
     {
-        DEBUG("bobsweep failed with error: %d", getLastError());
+        LOG_ERR("bobsweep failed with error: %d", getLastError());
         free_chunkmap(map);
         return NULL;
     }
     sort_boundary(map);
 
     if(isBadError()) {
-        DEBUG("sort_boundary failed with code %d\n", getLastError());
+        LOG_ERR("sort_boundary failed with code %d", getLastError());
         return NULL;
     }
     NSVGimage* nsvg = create_nsvgimage(map->map_width, map->map_height);
@@ -116,7 +115,7 @@ NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options) {
 
     if (isBadError())
     {
-        DEBUG("mapparser failed with error: %d", getLastError());
+        LOG_ERR("mapparser failed with error: %d", getLastError());
         free_chunkmap(map);
         free(nsvg);
         return NULL;
@@ -128,7 +127,7 @@ NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options) {
 
 void free_nsvg(NSVGimage* input) {
     if(!input) {
-        DEBUG("input is null\n");
+        LOG_INFO("input is null");
         return;
     }
 

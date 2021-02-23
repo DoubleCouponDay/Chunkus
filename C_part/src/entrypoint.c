@@ -3,7 +3,7 @@
 
 #include "entrypoint.h"
 #include "nsvg/usage.h"
-#include "../test/debug.h"
+#include "utility/logger.h"
 #include "utility/error.h"
 #include "imagefile/pngfile.h"
 #include "imagefile/svg.h"
@@ -24,7 +24,7 @@ int execute_program(vectorize_options options) {
 
 	if (isBadError())
 	{
-		DEBUG("convert_png_to_image failed with: %d\n", getLastError());
+		LOG_ERR("convert_png_to_image failed with: %d", getLastError());
 		return getAndResetErrorCode();
 	}
 
@@ -34,7 +34,7 @@ int execute_program(vectorize_options options) {
 	if(isBadError() || nsvg == NULL) {
 		free_image_contents(img);
 		free_nsvg(nsvg);
-		DEBUG("vectorize_image failed with code: %d\n", code);
+		LOG_ERR("vectorize_image failed with code: %d", code);
 		return getAndResetErrorCode();
 	}
 	bool result = write_svg_file(nsvg);
@@ -43,7 +43,7 @@ int execute_program(vectorize_options options) {
 	if(result == false || isBadError()) {
 		free_image_contents(img);
 		free_nsvg(nsvg);
-		DEBUG("write_svg_file failed with code: %d\n", code);
+		LOG_ERR("write_svg_file failed with code: %d", code);
 		return getAndResetErrorCode();
 	}
 

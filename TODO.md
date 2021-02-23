@@ -10,8 +10,6 @@ Convert a raster image into a scalable vector graphic and back.
 # TASKS
 
 - BEFORE SCHOOL STARTS
-    - fix bottom edges not being added to boundary
-        add 0.5 x, y towards outer edge
 
     - switch debug() and LOG_INFO() off if release environment variable detected
 
@@ -40,6 +38,8 @@ Convert a raster image into a scalable vector graphic and back.
 - restrict threshold to between 0 and 440
 
 - fix bobsweep
+
+- remove logs from free null checks
 
 <br>
 <br>

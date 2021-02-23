@@ -7,7 +7,7 @@
 #include <nanosvg.h>
 #include <stdbool.h>
 
-#include "../test/debug.h"
+#include "utility/logger.h"
 #include "utility/error.h"
 
 pixel convert_colorf_to_pixel(pixelF input)
@@ -96,7 +96,7 @@ image create_image(int width, int height)
         width, height
     };
 
-    DEBUG("Creating Image with %d x %d Dimensions \n", width, height);
+    LOG_INFO("Creating Image with %d x %d Dimensions", width, height);
 
     output.pixels_array_2d = calloc(1, sizeof(pixel*) * width);
 
@@ -110,7 +110,7 @@ image create_image(int width, int height)
 void free_image_contents(image img)
 {
     if (!img.pixels_array_2d) {
-        DEBUG("image has null pointers \n");
+        LOG_ERR("image has null pointers");
         return;
     }
     
@@ -123,7 +123,7 @@ void free_image_contents(image img)
         }
 
         else
-            DEBUG("pixel is null \n");
+            LOG_ERR("pixel is null");
     }
 
     if(img.pixels_array_2d) {
@@ -131,6 +131,6 @@ void free_image_contents(image img)
     }
 
     else {
-        DEBUG("pixel collection is null \n");
+        LOG_ERR("pixel collection is null");
     }
 }
