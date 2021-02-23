@@ -2,4 +2,4 @@
 
 #include "../image.h"
 
-void write_image_to_bmp(image img, char* fileaddress);
+void write_image_to_bmp(const image& img, char* fileaddress);

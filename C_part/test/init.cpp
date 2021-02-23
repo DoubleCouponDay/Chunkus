@@ -1,20 +1,22 @@
+#include "init.h"
+
 #include <stdlib.h>
 #include <stdbool.h>
 
 #include "munit.h"
 #include "init.h"
-#include "debug.h"
 #include "../src/utility/error.h"
+#include "utility/logger.h"
 
 const int ONE_TEST_SIZE = 2;
 
 MunitTest* filtertests(namedtest* tests_array, int arraylength, char* testname) {
-  DEBUG("filtering tests for '%s'\n", testname);
+  LOG_INFO("filtering tests for '%s'", testname);
   MunitTest* output;
   MunitTest endofarray = { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL };
 
   if(testname != NULL) {
-    output = calloc(1, sizeof(MunitTest) * ONE_TEST_SIZE);
+    output = reinterpret_cast<MunitTest*>(calloc(1, sizeof(MunitTest) * ONE_TEST_SIZE));
     output[1] = endofarray;
     
     for(int i = 0; i < arraylength; ++i) {
@@ -26,14 +28,14 @@ MunitTest* filtertests(namedtest* tests_array, int arraylength, char* testname) 
         }
 
         else if(i == arraylength - 1) {
-            DEBUG("test with name not found\n");
+            LOG_INFO("test with name not found\n");
             exit(BAD_ARGUMENT_ERROR); //the test binary is allowed to fail
         }
     }
   }
 
   else {
-    output = calloc(1, sizeof(MunitTest) * (arraylength + 1));
+    output = reinterpret_cast<MunitTest*>(calloc(1, sizeof(MunitTest) * (arraylength + 1)));
 
     for(int i = 0; i < arraylength; ++i) {
         output[i] = tests_array[i].test;

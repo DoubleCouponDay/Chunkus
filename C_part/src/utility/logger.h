@@ -1,9 +1,6 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-void open_log(char* filename);
-void close_log();
-
 void logger(const char* tag, const char* message, ...);
 void logger_noline(const char* msg, ...);
 

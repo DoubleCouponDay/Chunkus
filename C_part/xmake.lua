@@ -21,8 +21,8 @@ target("tests")
     -- set kind
     set_kind("binary")
     -- add files
-    add_files("./src/**.c|main.c")
-    add_files("./test/**.c")
+    add_files("./src/**.cpp")
+    add_files("./test/munit.c", "./test/**.cpp")
     add_includedirs("./src/")
     add_packages("libpng", "libjpeg", "nanosvg", "sort")
 
@@ -31,6 +31,6 @@ target("vec")
         add_syslinks("m")
     end
     set_kind("static")
-    add_files("./src/**.c|main.c")
+    add_files("./src/**.cpp")
     add_includedirs("./src/")
     add_packages("libpng", "libjpeg", "nanosvg", "sort")

@@ -25,6 +25,6 @@ void fill_beziercurve(float* beziercurve,
     float control_x1, float control_y1, 
     float control_x2, float control_y2);
 
-NSVGpath* create_path(image input, coordinate start, coordinate end);
-NSVGshape* create_shape(chunkmap* map, char* id, long id_length);
+NSVGpath* create_path(float width, float height, coordinate start, coordinate end);
+NSVGshape* create_shape(float width, float height, pixel color);
 NSVGimage* create_nsvgimage(float width, float height);

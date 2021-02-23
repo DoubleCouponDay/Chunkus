@@ -8,61 +8,64 @@
 #include "../src/chunkmap.h"
 #include "../src/nsvg/usage.h"
 
-typedef struct {
+struct test2stuff {
   image img;
-} test2stuff;
+};
 
-void test2setup(const MunitParameter params[], void* userdata);
+void* test2setup(const MunitParameter params[], void* userdata);
 void test2teardown(void* fixture);
 
-typedef struct {
+struct test4stuff {
     image img;
-    chunkmap* map;
-} test4stuff;
+    chunkmap map;
+};
 void* test4setup(const MunitParameter params[], void* userdata);
 void test4teardown(void* fixture);
 
-typedef struct {
+struct test5stuff {
     image img;
     FILE* fp;
-} test5stuff;
+};
 void* test5setup(const MunitParameter params[], void* userdata);
 void test5teardown(void* fixture);
 
-typedef struct
+struct test6stuff
 {
+    test6stuff() : img(), nsvg_image(nullptr, free_nsvg) {}
     image img;
-    NSVGimage* nsvg_image;
-} test6stuff;
+    nsvg_ptr nsvg_image;
+};
 
 
 void* test6setup(const MunitParameter params[], void* userdata);
 void test6teardown(void* fixture);
 
 
-typedef struct
+struct test69stuff
 {
     image img;
-    chunkmap* map;
-} test69stuff;
+    chunkmap map;
+};
 
 void* test69setup(const MunitParameter params[], void* userdata);
 void test69teardown(void* fixture);
 
-typedef struct
+struct test8stuff
 {
+    test8stuff() : img(), nsvg_image(nullptr, free_nsvg) {}
     image img;
-    NSVGimage* nsvg_image;
-} test8stuff;
+    nsvg_ptr nsvg_image;
+};
 
 void* test8setup(const MunitParameter params[], void* userdata);
 void test8teardown(void* fixture);
 
-typedef struct
+struct speedy_vectorize_stuff
 {
+    speedy_vectorize_stuff() : img(), nsvg_image(nullptr, free_nsvg) {}
     image img;
-    NSVGimage* nsvg_image;
-} speedy_vectorize_stuff;
+    nsvg_ptr nsvg_image;
+};
 
 void* speedy_vectorize_setup(const MunitParameter params[], void* userdata);
 void speedy_vectorize_teardown(void* fixture);

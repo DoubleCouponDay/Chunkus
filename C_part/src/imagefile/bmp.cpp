@@ -89,21 +89,23 @@ void generateBitmapImage(unsigned char* image, int height, int width, char* imag
 
 
 
-void write_image_to_bmp(image img, char* fileaddress_p) {
-    if (!img.pixels_array_2d || !fileaddress_p)
+void write_image_to_bmp(const image& img, char* fileaddress_p) {
+    if (img.pixels.empty() || !fileaddress_p)
         return;
 
-    unsigned char *as_bytes = calloc(1, BYTES_PER_PIXEL * img.height * img.width);
+    unsigned char *as_bytes = new unsigned char[BYTES_PER_PIXEL * img.height() * img.width()];
 
-    for (int x = 0; x < img.width; ++x)
+    for (int x = 0; x < img.width(); ++x)
     {
-        for (int y = 0; y < img.height; ++y)
+        for (int y = 0; y < img.height(); ++y)
         {
-            int index = x * 3 + 0 + y * BYTES_PER_PIXEL * img.width;
-            as_bytes[index]     = img.pixels_array_2d[x][y].b;
-            as_bytes[index + 1] = img.pixels_array_2d[x][y].g;
-            as_bytes[index + 2] = img.pixels_array_2d[x][y].r;
+            int index = x * 3 + 0 + y * BYTES_PER_PIXEL * img.width();
+            as_bytes[index]     = img.get(x, y).B;
+            as_bytes[index + 1] = img.get(x, y).G;
+            as_bytes[index + 2] = img.get(x, y).R;
         }
     }
-    generateBitmapImage(as_bytes, img.height, img.width, fileaddress_p);
+    generateBitmapImage(as_bytes, img.height(), img.width(), fileaddress_p);
+
+    delete[] as_bytes;
 }

@@ -1,48 +1,69 @@
 #pragma once
 
-#include <stdlib.h>
+#include <vector>
+#include <list>
+#include <memory>
+
 #include "image.h"
-#include <stdbool.h>
+
 
 struct chunkshape; //allows circular reference
 
-typedef struct 
+struct coordinate
 {
+    int x;
+    int y;
+};
+
+struct pixelchunk
+{
+    pixelchunk() = default;
+    pixelchunk(coordinate coord) : location(coord) {}
+    pixelchunk(pixel average_colour, coordinate location) : average_colour(average_colour), location(location) {}
+
+
     pixel average_colour;
-    pixel** pixels_array_2d;
     coordinate location;
-    struct chunkshape* shape_chunk_in;
-    struct chunkshape* boundary_chunk_in;
-} pixelchunk;
+    std::shared_ptr<chunkshape> shape_in;
+    std::shared_ptr<chunkshape> boundary_in;
+};
 
-typedef struct pixelchunk_list
-{    
-    pixelchunk* chunk_p;
-    struct pixelchunk_list* firstitem;
-    struct pixelchunk_list* next;
-} pixelchunk_list;
-
-typedef struct chunkshape {
-    bool filled;
-    int chunks_amount; //chunks_amount also includes boundaries_length
-    pixelchunk_list* chunks;
-    int boundaries_length;
-    pixelchunk_list* boundaries;
-    int pathcount;
+struct chunkshape {
+    std::list<std::shared_ptr<pixelchunk>> chunks;
+    std::list<std::list<std::shared_ptr<pixelchunk>>> boundaries;
     pixel colour;
-    struct chunkshape* previous;
-    struct chunkshape* next;
-} chunkshape;
+};
 
-typedef struct 
+struct chunkmap
 {
-    pixelchunk** groups_array_2d;
-    chunkshape* shape_list;
-    int shape_count;
-    int map_width; 
-    int map_height;
-    image input;
-} chunkmap;
+    chunkmap();
+    chunkmap(const image& image, int chunk_size);
+    chunkmap(chunkmap &&other) : groups(std::move(other.groups)), shape_list(std::move(other.shape_list)) { other.groups.clear(); other.shape_list.clear(); }
+
+    chunkmap(const chunkmap& other) = delete;
+
+    inline chunkmap& operator=(const chunkmap& other) = delete;
+    chunkmap& operator=(chunkmap &&other);
+
+    std::vector<std::vector<std::shared_ptr<pixelchunk>>> groups;
+    std::list<std::shared_ptr<chunkshape>> shape_list;
+
+    inline size_t width() const { return groups.size(); }
+    inline size_t height() const { return (groups.empty() ? 0 : groups.front().size()); }
+
+    const std::shared_ptr<pixelchunk>& get(int x, int y) const { return groups[x][y]; }
+    std::shared_ptr<pixelchunk>& get(int x, int y) { return groups[x][y]; }
+
+    const std::shared_ptr<pixelchunk>& get1D(int i) const { return groups[i % width()][i / width()]; }
+    std::shared_ptr<pixelchunk>& get1D(int i) { return groups[i % width()][i / width()]; }
+
+    bool chunks_to_file(char* file) const;
+    bool shapes_to_file(char* file) const;
+    bool borders_to_file(char* file) const;
+
+private:
+    void iterate_pixels(const image& other, int chunk_size);
+};
 
 typedef struct
 {
@@ -50,9 +71,3 @@ typedef struct
     int chunk_size;
     float shape_colour_threshhold;
 } vectorize_options;
-
-chunkmap* generate_chunkmap(image inputimage_p, vectorize_options options);
-void free_chunkmap(chunkmap* map_p);
-
-int count_list(pixelchunk_list* first);
-int count_shapes(chunkshape* first);

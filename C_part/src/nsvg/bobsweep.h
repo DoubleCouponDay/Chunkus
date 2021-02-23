@@ -6,4 +6,4 @@
 #include "image.h"
 #include "chunkmap.h"
 
-void sweepfill_chunkmap(chunkmap* map, float threshold);
+void sweepfill_chunkmap(chunkmap& map, float threshold);

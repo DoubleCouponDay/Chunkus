@@ -4,25 +4,18 @@
 #include <time.h>
 #include <stdarg.h>
 
-FILE* logfile = 0;
-
-void open_log(char* filename)
+struct loggy_boi
 {
-    if (logfile)
-        fclose(logfile);
-    
-    logfile = fopen(filename, "w");
-}
+    loggy_boi(char* file) : logfile(fopen(file, "w")) {}
+    ~loggy_boi() { if (logfile) fclose(logfile); }
 
-void close_log()
-{
-    if (logfile)
-        fclose(logfile);
-    logfile = 0;
-}
+    FILE* logfile;
+};
+
+loggy_boi boi = loggy_boi("log.txt");
 
 void logger(const char* tag, const char* message, ...) {
-    if (!logfile)
+    if (!boi.logfile)
     {
         printf("Make sure open_log is called at the beginning of the program!!!\n");
         return;
@@ -39,20 +32,20 @@ void logger(const char* tag, const char* message, ...) {
     timeinfo = localtime(&now);
     strftime(time_buffer, 100, "%b %e %T", timeinfo);
 
-    fprintf(logfile, "%s [%s]: ", time_buffer, tag);
+    fprintf(boi.logfile, "%s [%s]: ", time_buffer, tag);
     printf("%s [%s]: ", time_buffer, tag);
-    vfprintf(logfile, message, args);
+    vfprintf(boi.logfile, message, args);
     vprintf(message, args);
-    fprintf(logfile, "\n");
+    fprintf(boi.logfile, "\n");
     printf("\n");
-    fflush(logfile);
+    fflush(boi.logfile);
 
     va_end(args);
 }
 
 void logger_noline(const char* msg, ...)
 {
-    if (!logfile)
+    if (!boi.logfile)
     {
         printf("Make sure open_log is called at the beginning of the program!!!\n");
         return;
@@ -69,7 +62,7 @@ void logger_noline(const char* msg, ...)
     timeinfo = localtime(&now);
     strftime(time_buffer, 100, "%b %e %T", timeinfo);
 
-    vfprintf(logfile, msg, args);
+    vfprintf(boi.logfile, msg, args);
     vprintf(msg, args);
 
     va_end(args);

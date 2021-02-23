@@ -11,7 +11,6 @@
 #include "init.h"
 #include "../src/utility/defines.h"
 #include "munit.h"
-#include "debug.h"
 #include "../src/chunkmap.h"
 #include "../src/imagefile/pngfile.h"
 #include "../src/imagefile/bmp.h"
@@ -20,23 +19,26 @@
 #include "tears.h"
 #include "../src/utility/error.h"
 #include "../src/imagefile/svg.h"
+#include "../src/nsvg/dcdfiller.h"
+#include "utility/logger.h"
+
 
 MunitResult aTestCanPass(const MunitParameter params[], void* data) {
-  DEBUG("test 1 passed\n");
+  LOG_INFO("test 1 passed");
   return MUNIT_OK;
 }
 
 MunitResult can_read_png(const MunitParameter params[], void* userdata) {
-  test2stuff* stuff = userdata;
+  test2stuff* stuff = reinterpret_cast<test2stuff*>(userdata);
   char* filepath = params[0].value;
   image subject = convert_png_to_image(filepath);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
-  stuff->img = subject;
+  stuff->img = std::move(subject);
   return MUNIT_OK;
 }
 
 MunitResult can_convert_png_to_chunkmap(const MunitParameter params[], void* userdata) {
-  test4stuff* stuff = userdata;
+  test4stuff* stuff = reinterpret_cast<test4stuff*>(userdata);
   
   vectorize_options options = {
     params[0].value,
@@ -44,14 +46,14 @@ MunitResult can_convert_png_to_chunkmap(const MunitParameter params[], void* use
     atof(params[2].value)
   };
   stuff->img = convert_png_to_image(options.file_path);
-  chunkmap* map = generate_chunkmap(stuff->img, options);
+  chunkmap map = chunkmap(stuff->img, options.chunk_size);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
-  stuff->map = map;
+  stuff->map = std::move(map);
   return MUNIT_OK;
 }
 
 MunitResult opensPngAndOutputsBmp(const MunitParameter params[], void* userdata) {
-  test5stuff* stuff = userdata;
+  test5stuff* stuff = reinterpret_cast<test5stuff*>(userdata);
   // Use constant input/output path
   char* in_file = params[0].value;
   char* out_file = "peach.bmp";
@@ -61,7 +63,7 @@ MunitResult opensPngAndOutputsBmp(const MunitParameter params[], void* userdata)
 
   stuff->img = convert_png_to_image(in_file);
 
-  munit_assert_ptr_not_null(stuff->img.pixels_array_2d); // FAILED TO CONVERT IMAGE
+  munit_assert_false(stuff->img.pixels.empty()); // FAILED TO CONVERT IMAGE
 
   write_image_to_bmp(stuff->img, out_file);
 
@@ -74,7 +76,7 @@ MunitResult opensPngAndOutputsBmp(const MunitParameter params[], void* userdata)
 
 MunitResult can_vectorize_image(const MunitParameter params[], void* userdata)
 {
-  test6stuff* stuff = userdata;
+  test6stuff* stuff = reinterpret_cast<test6stuff*>(userdata);
 
   vectorize_options options = {
     params[0].value,
@@ -86,14 +88,14 @@ MunitResult can_vectorize_image(const MunitParameter params[], void* userdata)
   stuff->nsvg_image = dcdfill_for_nsvg(stuff->img, options);
 
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
-  munit_assert_ptr_not_null(stuff->nsvg_image);
+  munit_assert((bool)stuff->nsvg_image);
 
   return MUNIT_OK;
 }
 
 MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], void* userdata)
 {
-  test69stuff* stuff = userdata;
+  test69stuff* stuff = reinterpret_cast<test69stuff*>(userdata);
 
   char* fileaddress = params[0].value;
 
@@ -112,20 +114,20 @@ MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], voi
   };
 
   stuff->img = convert_png_to_image(fileaddress);
-  DEBUG("asserting pixels_array_2d not null\n");
-  munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
-  DEBUG("generating chunkmap\n");
-  chunkmap* map = generate_chunkmap(stuff->img, options);
+  LOG_INFO("asserting pixels_array_2d not null");
+  munit_assert_false(stuff->img.pixels.empty());
+  LOG_INFO("generating chunkmap");
+  chunkmap map = chunkmap(stuff->img, options.chunk_size);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
-  stuff->map = map;
+  stuff->map = std::move(map);
 
-  DEBUG("asserting groups_array_2d not null\n");
-  munit_assert_ptr_not_null(map->groups_array_2d);
-  DEBUG("filling chunkmap\n");
-  fill_chunkmap(stuff->map, &options);
+  LOG_INFO("asserting groups_array_2d not null");
+  munit_assert_false(stuff->map.groups.empty());
+  LOG_INFO("filling chunkmap");
+  fill_chunkmap(stuff->map, options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  DEBUG("writing chunkmap to file\n");
+  LOG_INFO("writing chunkmap to file");
   write_chunkmap_to_png(stuff->map, out_fileaddress);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
@@ -138,7 +140,7 @@ MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], voi
 }
 
 MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) {
-  test8stuff* stuff = userdata;
+  test8stuff* stuff = reinterpret_cast<test8stuff*>(userdata);
 
   char* fileaddress = params[0].value;
 
@@ -157,20 +159,13 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   };
 
   stuff->img = convert_png_to_image(fileaddress);
-  DEBUG("asserting pixels_array_2d not null\n");
-  munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
+  munit_assert_false(stuff->img.pixels.empty());
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
   stuff->nsvg_image = dcdfill_for_nsvg(stuff->img, options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  bool outcome = write_svg_file(stuff->nsvg_image);
-  
-  if(outcome)
-    DEBUG("svg writing outcome: %s\n", "succeeded");
-
-  else 
-    DEBUG("svg writing outcome: %s\n", "failed");
+  munit_assert(write_svg_file(stuff->nsvg_image));
     
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
@@ -185,7 +180,7 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
 
 MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdata)
 {
-  speedy_vectorize_stuff* stuff = userdata;
+  speedy_vectorize_stuff* stuff = reinterpret_cast<speedy_vectorize_stuff*>(userdata);
 
   char* fileaddress = params[0].value;
 
@@ -204,7 +199,7 @@ MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdat
   };
 
   stuff->img = convert_png_to_image(fileaddress);
-  munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
+  munit_assert_false(stuff->img.pixels.empty());
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
   stuff->nsvg_image = bobsweep_for_nsvg(stuff->img, options);
@@ -223,11 +218,12 @@ MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdat
 }
 
 int main(int argc, char** argv) {
-  DEBUG("test runner initializing... \n");
-  DEBUG("args: ");
+  LOG_INFO("test runner initializing...");
+  LOG_INFO("args: ");
+  printf("\t");
   for (int i = 0; i < argc; ++i)
     printf("%s, ", argv[i]);
-  DEBUG("\n");
+  printf("\n");
 
   char* param1[] = { "../../../../test/test.png", NULL };
   char* param2[] = { "1", NULL };

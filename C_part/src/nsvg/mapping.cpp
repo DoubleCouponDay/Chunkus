@@ -1,15 +1,18 @@
+#include "mapping.h"
+
 #include <stdlib.h>
 #include <nanosvg.h>
 
 #include "mapping.h"
-#include "../utility/error.h"
-#include "../../test/debug.h"
-#include "../image.h"
-#include "../chunkmap.h"
+#include "utility/error.h"
+#include "utility/logger.h"
+#include "image.h"
+#include "chunkmap.h"
+#include "copy.h"
 
 void fill_float_array(float* tobefilled, float* fill, int array_length, int max_length) {
     if(array_length > max_length) {
-        DEBUG("arrays length must be less than: %d\n", max_length);
+        LOG_INFO("arrays length must be less than: %d", max_length);
         setError(ARRAY_DIFF_SIZE_ERROR);
         return;
     }
@@ -20,18 +23,17 @@ void fill_float_array(float* tobefilled, float* fill, int array_length, int max_
 }
 
 void fill_strokedash_array(float* strokedash, float* fill, int array_length) {
-    DEBUG("filling strokedash array\n");
     fill_float_array(strokedash, fill, array_length, STROKEDASH_LENGTH);
 
     if(isBadError()) {
-        DEBUG("fill_float_array failed with code: %d\n", getLastError());
+        LOG_INFO("fill_float_array failed with code: %d", getLastError());
         return;
     }
 }
 
 void fill_id(char* id, char* fill, int array_length) {
     if(array_length > ID_LENGTH) {
-        DEBUG("new id length must be less than: %d\n", BOUNDS_LENGTH);
+        LOG_INFO("new id length must be less than: %d", BOUNDS_LENGTH);
         setError(ARRAY_DIFF_SIZE_ERROR);
         return;
     }
@@ -48,7 +50,7 @@ void fill_bounds(float* bounds, float* fill, int array_length) {
     int code = getLastError();
     
     if(isBadError()) {
-        DEBUG("fill_float_array failed with code: %d\n", code);
+        LOG_INFO("fill_float_array failed with code: %d", code);
         return;
     }
 }
@@ -61,13 +63,13 @@ void fill_beziercurve(float* beziercurve,
     float control_x2, float control_y2) {
 
     if(beziercurve == NULL) {
-        DEBUG("array is null\n");
+        LOG_INFO("array is null");
         setError(NULL_ARGUMENT_ERROR);
         return;
     }
 
     if(array_length != BEZIERCURVE_LENGTH) {
-        DEBUG("beziercurve array must be 8 long.\n");
+        LOG_INFO("beziercurve array must be 8 long.");
         setError(ARRAY_DIFF_SIZE_ERROR);
         return;
     }
@@ -81,18 +83,18 @@ void fill_beziercurve(float* beziercurve,
     beziercurve[7] = control_y2;
 }
 
-NSVGpath* create_path(image input, coordinate start, coordinate end) {
-    NSVGpath* output = calloc(1, sizeof(NSVGpath));
-    float* points = calloc(1, sizeof(float) * BEZIERCURVE_LENGTH);
+NSVGpath* create_path(float width, float height, coordinate start, coordinate end) {
+    NSVGpath* output = reinterpret_cast<NSVGpath*>(calloc(1, sizeof(NSVGpath)));
+    float* points = reinterpret_cast<float*>(calloc(1, sizeof(float) * BEZIERCURVE_LENGTH));
     output->pts = points;
-    float boundingbox[4] = { 0, 0, input.width, input.height };
+    float boundingbox[4] = { 0, 0, width, height };
 
     fill_beziercurve(output->pts, BEZIERCURVE_LENGTH, start.x, start.y, end.x, end.y, 0, 0, 1, 1); //draw the top side of a box
     fill_bounds(output->bounds, boundingbox, BOUNDS_LENGTH);
     int code = getLastError();
 
     if(isBadError()) {
-        DEBUG("fill_bounds failed with code: %d\n", code);
+        LOG_INFO("fill_bounds failed with code: %d", code);
         free(output);
         free(points);        
         return NULL;
@@ -104,33 +106,24 @@ NSVGpath* create_path(image input, coordinate start, coordinate end) {
     return output;
 }
 
-NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {    
-    NSVGshape* output = calloc(1, sizeof(NSVGshape));
-    fill_id(output->id, id, ID_LENGTH);
-
-    if (isBadError())
-    {
-        free(output);
-        DEBUG("fill_id failed with code: %d\n", getLastError());
-        return NULL;
-    }
+NSVGshape* create_shape(float width, float height, pixel color) {    
+    NSVGshape* output = reinterpret_cast<NSVGshape*>(calloc(1, sizeof(NSVGshape)));
 
     NSVGpaint fill = {
         NSVG_PAINT_COLOR,
-        NSVG_RGB(0, 0, 0)
+        NSVG_RGB(color.R, color.G, color.B)
     };
     output->fill = fill;
 
     NSVGpaint stroke = {
         NSVG_PAINT_NONE,
-        NSVG_RGB(0, 0, 0)
+        NSVG_RGB(color.R, color.G, color.B)
     };
     output->stroke = stroke;
     output->opacity = 1.0;
     output->strokeWidth = 0.0;
     output->strokeDashOffset = 0.0;
 
-    DEBUG("giving shape strokedash\n");
     float strokedash[1] = {0};
     char strokeDashCount = 1;
     fill_strokedash_array(output->strokeDashArray, strokedash, strokeDashCount); //idk if we need this
@@ -138,8 +131,8 @@ NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {
 
     if(isBadError()) {
         free(output);
-        DEBUG("fill_strokedash_array failed with code: %d\n", code);
-        return NULL;
+        LOG_INFO("fill_strokedash_array failed with code: %d", code);
+        return nullptr;
     }
     output->strokeDashCount = strokeDashCount;
     output->strokeLineJoin = NSVG_JOIN_MITER;
@@ -148,18 +141,17 @@ NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {
     output->fillRule = NSVG_FILLRULE_NONZERO;
     output->flags = NSVG_FLAGS_VISIBLE;
 
-    DEBUG("filling shape bounds\n");    
     float newbounds[BOUNDS_LENGTH] = {
         0, 0, 
-        map->input.width, 
-        map->input.height
+        width, 
+        height
     };
     fill_bounds(output->bounds, newbounds, BOUNDS_LENGTH);
 
     if (isBadError()) {
         free(output);
-        DEBUG("fill_bounds failed with: %d\n", getLastError());
-        return NULL;
+        LOG_INFO("fill_bounds failed with: %d", getLastError());
+        return nullptr;
     }
     
     output->paths = NULL;
@@ -168,7 +160,7 @@ NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {
 }
 
 NSVGimage* create_nsvgimage(float width, float height) {
-    NSVGimage* output = calloc(1, sizeof(NSVGimage));
+    NSVGimage* output = reinterpret_cast<NSVGimage*>(calloc(1, sizeof(NSVGimage)));
     output->width = width;
     output->height = height;
     output->shapes = NULL;

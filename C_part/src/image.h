@@ -1,84 +1,97 @@
 #pragma once
 
-#include <stdbool.h>
-
-typedef struct colour
-{
-    unsigned char r, g, b;
-} colour;
-
-typedef struct {
-    int x;    
-    int y;
-    int x_unit_length;
-    int y_unit_length;
-} coordinate;
+#include <vector>
 
 typedef unsigned char byte;
 
-typedef struct
+struct pixel
 {
-    double r;
-    double g;
-    double b;
-    coordinate location;
-} pixelD;
+    pixel() : R(0), G(0), B(0) {}
+    pixel(byte R, byte G, byte B) : R(R), G(G), B(B) {}
+    pixel(const pixel& other) : R(other.R), G(other.G), B(other.B) {}
+
+    inline pixel &operator=(const pixel& other) { R = other.R; G = other.G; B = other.B; return *this; }
+
+    byte R, G, B;
+
+    bool is_similar_to(const pixel& other, float threshold);
+};
+
+struct pixelInt
+{
+    pixelInt() : R(0), G(0), B(0) {}
+    pixelInt(int r, int g, int b) : R(r), G(g), B(b) {}
+    pixelInt(const pixel& other) : R(other.R), G(other.G), B(other.B) {}
+
+    int R, G, B;
+
+    inline pixelInt& operator=(const pixelInt& other) { R = other.R; G = other.G; B = other.B; return *this; }
+    inline pixelInt& operator+=(const pixel& p) { R += p.R; G += p.G; B += p.B; return *this; }
+
+    bool is_similar_to(const pixelInt& other, float threshold);
+};
+
+struct pixelD
+{
+    pixelD() : R(0.0), G(0.0), B(0.0) {}
+    pixelD(float R, float G, float B) : R(R), G(G), B(B) {}
+    pixelD(const pixelD& p) : R(p.R), G(p.G), B(p.B) {}
+    pixelD(const pixel& p) : R((double)p.R / 255.0), G((double)p.G / 255.0), B((double)p.B / 255.0) {}
+
+    float R, G, B;
+
+    inline operator pixel() { return { (byte)(R * 255.0), (byte)(G * 255.0), (byte)(B * 255.0) }; }
+
+    static pixelD lerp(pixelD a, pixelD b, float t);
+};
 
 // RGB floating point color struct
 // Values to be stored as normalized values (0-1)
-typedef struct
+struct pixelF
 {
-    float r;
-    float g;
-    float b;
-    coordinate location;
-} pixelF;
+    pixelF() : R(0.f), G(0.f), B(0.f) {}
+    pixelF(float R, float G, float B) : R(R), G(G), B(B) {}
+    pixelF(const pixelF& other) : R(other.R), G(other.G), B(other.G) {}
+    pixelF(const pixel& p) : R((float)p.R / 255.f), G((float)p.G / 255.f), B((float)p.B / 255.f) {}
+    pixelF(const pixelD& p) : R(p.R), G(p.G), B(p.B) {}
 
-// RGB 8-bit color struct
-// Values stored as values between 0-255
-typedef struct
+    float R, G, B;
+
+    inline operator pixel() { return { (byte)(R * 255.f), (byte)(G * 255.f), (byte)(B * 255.f) }; }
+    inline operator pixelD() { return { R, G, B }; }
+
+    inline pixelF& operator+=(const pixel& p) { R += p.R; G += p.G; B += p.B; return *this; }
+
+    static pixelF lerp(pixelF a, pixelF b, float t);
+};
+
+struct image
 {
-    byte r;
-    byte g;
-    byte b;
-    coordinate location;
-} pixel;
+    image() : pixels() {}
+    image(size_t width, size_t height) : pixels(width, std::vector<pixel>(height)) {}
+    image(image&& other) : pixels(std::move(other.pixels)) {}
 
-typedef pixel* pixelp;
+    image(const image& other) = delete;
 
-typedef struct
-{
-    int width;
-    int height;
-    pixel** pixels_array_2d;
-    pixel* topleftcorner_p;
-    pixel* toprightcorner_p; 
-    pixel* bottomleftcorner_p; 
-    pixel* bottomrightcorner_p; 
-} image;
+    inline image& operator=(const image& other) = delete;
+    inline image& operator=(image &&other) { pixels = std::move(other.pixels); other.pixels.clear(); return *this; }
 
+    std::vector<std::vector<pixel>> pixels;
 
-pixel convert_colorf_to_pixel(pixelF input);
+    inline int width() const noexcept { return pixels.size(); }
+    inline int height() const noexcept { return (pixels.empty() ? 0 : pixels.front().size()); }
 
-pixelF convert_pixel_to_colorf(pixel input);
-colour convert_pixel_to_colour(pixel input);
-colour convert_pixelf_to_colour(pixelF input);
-pixelF convert_colour_to_pixelf(colour input);
+    const pixel& get(int x, int y) const
+    {
+        return pixels[x][y];
+    }
 
-bool pixelf_equal(pixelF a, pixelF b);
+    pixel& get(int x, int y)
+    {
+        return pixels[x][y];
+    }
 
-inline colour lerp_colours(colour a, colour b, float t)
-{
-    pixelF a_f = convert_colour_to_pixelf(a);
-    pixelF b_f = convert_colour_to_pixelf(b);
-    pixelF diff = { a_f.r - b_f.r, a_f.g - b_f.g, a_f.b - b_f.b };
+    inline void set(int x, int y, pixel pix) { pixels[x][y] = pix; }
 
-    pixelF output = { a_f.r - diff.r * t, a_f.g - diff.g * t, a_f.b - diff.b * t };
-    return convert_pixelf_to_colour(output);
-}
-
-int calculate_int_units(int subject);
-bool colours_are_similar(pixel color_a, pixel color_b, float max_distance);
-char* rgb_to_string(pixel* input);
-image create_image(int width, int height);
-void free_image_contents(image img);
+    bool to_png(char *file) const;
+};

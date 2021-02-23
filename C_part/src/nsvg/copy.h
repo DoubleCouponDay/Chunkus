@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nanosvg.h>
+#include <memory>
 
 int NSVG_RGB(int r, int g, int b);
 

@@ -1,10 +1,8 @@
 #include "error.h"
 
-#include "../../test/debug.h"
-
 int error_code = SUCCESS_CODE;
 
-int isBadError() {
+bool isBadError() {
     return error_code != SUCCESS_CODE;
 }
 
@@ -13,7 +11,6 @@ int getLastError() {
 }
 
 void setError(int error) {
-    DEBUG("setting status code: %d\n", error);
     error_code = error;
 }
 

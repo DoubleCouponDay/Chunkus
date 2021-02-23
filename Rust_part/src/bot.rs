@@ -43,7 +43,7 @@ struct MsgUpdate;
 pub struct DefaultHandler;
 
 #[group]
-#[commands(vectorize, vectorizeralgorithm, vectorizerparams, vectorizerdelete)]
+#[commands(vectorize, vectorizeralgorithm, vectorizerparams, vectorizerdelete, stop)]
 struct General;
 
 pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, handler: H) -> Client {    

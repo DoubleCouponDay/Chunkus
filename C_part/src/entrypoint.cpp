@@ -3,16 +3,15 @@
 
 #include "entrypoint.h"
 #include "nsvg/usage.h"
-#include "../test/debug.h"
 #include "utility/error.h"
+#include "utility/logger.h"
 #include "imagefile/pngfile.h"
 #include "imagefile/svg.h"
 
 const char *format1_p = "png";
 const char *format2_p = "jpeg";
 
-typedef NSVGimage* (*algorithm)(image, vectorize_options);
-typedef void (*algorithm_debug)(image, vectorize_options, char*,char*);
+typedef nsvg_ptr (*algorithm)(const image&, vectorize_options);
 algorithm target_algorithm = dcdfill_for_nsvg;
 
 int execute_program(char* input_file_p, int chunk_size, float threshold, char* output_file_p) {
@@ -20,7 +19,7 @@ int execute_program(char* input_file_p, int chunk_size, float threshold, char* o
 
 	if (isBadError())
 	{
-		DEBUG("convert_png_to_image failed with: %d\n", getLastError());
+		LOG_ERR("convert_png_to_image failed with: %d", getLastError());
 		return getAndResetErrorCode();
 	}
 
@@ -30,27 +29,21 @@ int execute_program(char* input_file_p, int chunk_size, float threshold, char* o
 		threshold
 	};
 
-	NSVGimage* nsvg = target_algorithm(img, options);
+	auto nsvg = target_algorithm(img, options);
 	int code = getLastError();
 
 	if(isBadError() || nsvg == NULL) {
-		free_image_contents(img);
-		free_nsvg(nsvg);
-		DEBUG("vectorize_image failed with code: %d\n", code);
+		LOG_INFO("vectorize_image failed with code: %d", code);
 		return getAndResetErrorCode();
 	}
 	bool result = write_svg_file(nsvg);
 	code = getLastError();
 
 	if(result == false || isBadError()) {
-		free_image_contents(img);
-		free_nsvg(nsvg);
-		DEBUG("write_svg_file failed with code: %d\n", code);
+		LOG_INFO("write_svg_file failed with code: %d", code);
 		return getAndResetErrorCode();
 	}
 
-	free_image_contents(img);
-	free_nsvg(nsvg);
 	return getAndResetErrorCode();
 }
 
@@ -108,7 +101,7 @@ int entrypoint(int argc, char* argv[]) {
 
 	printf("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f' \n", input_file_p, output_file_p, chunk_size, threshold);
 
-	return execute_program(input_file_p, chunk_size, threshold, output_file_p, 0);
+	return execute_program(input_file_p, chunk_size, threshold, output_file_p);
 }
 
 int set_algorithm(int algo)
