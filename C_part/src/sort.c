@@ -16,27 +16,10 @@ enum {
     ADJACENT_COUNT = 9
 };
 
-vector2 calculate_2d_diff(pixelchunk* subject, pixelchunk* previous) {
-    int x_diff = subject->location.x - previous->location.x;
-    int y_diff = subject->location.y - previous->location.y;
-    vector2 diff = { x_diff, y_diff };
-    return diff;
-}
-
-float calculate_angle_between(pixelchunk* eligible, pixelchunk* subject, pixelchunk* previous) {
-    int eligible_x_diff = eligible->location.x - subject->location.x;
-    int eligible_y_diff = eligible->location.y - subject->location.y;
-    vector2 subject_to_eligible = { eligible_x_diff, eligible_y_diff };
-    vector2 diff = calculate_2d_diff(subject, previous);
-    float angle = vec_angle_between(diff, subject_to_eligible);
-    return angle;
-}
-
 void sort_item(pixelchunk** array, pixelchunk* current, unsigned long i, unsigned long next, unsigned long length) {
     pixelchunk* inbetween = array[next];
     array[next] = current;
     array[i] = inbetween;
-    //bubble_sort(array, next, length);
 }
 
 void dont_skip_corners(pixelchunk** array, unsigned long eligiblesubjects[ADJACENT_COUNT], pixelchunk* subject, pixelchunk* previous, 

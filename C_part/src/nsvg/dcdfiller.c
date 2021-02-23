@@ -14,6 +14,25 @@
 #include "copy.h"
 #include "mapping.h"
 #include "../sort.h"
+#include "../utility/vec.h"
+
+const float ZIP_DISTANCE = 0.5;
+
+float get_offset(float dimension) {
+    if (dimension > 0.f)
+        return ZIP_DISTANCE;
+        
+    else if (dimension < 0.f)
+        return -ZIP_DISTANCE;
+    
+    return 0.f;
+}
+
+void zip_border_seam(pixelchunk* current, pixelchunk* alien) {
+    vector2 diff = create_vector_between_chunks(current, alien);
+    current->border_location.x = current->location.x + get_offset(diff.x);
+    current->border_location.y = current->location.y + get_offset(diff.y);
+}
 
 void windback_lists(chunkshape* firstshape) {
     chunkshape* current = firstshape;
@@ -161,8 +180,14 @@ chunkshape* merge_shapes(chunkmap* map, list_holder* holder, chunkshape* first, 
     return larger;
 }
 
-void enlarge_border(chunkmap* map, pixelchunk* current, list_holder* holder, chunkshape* currentinshape, chunkshape* adjacentinshape) {
+void enlarge_border(chunkmap* map, pixelchunk* current, list_holder* holder, chunkshape* currentinshape, chunkshape* adjacentinshape, pixelchunk* adjacent) {
     chunkshape* chosenshape;
+    zip_border_seam(current, adjacent);
+
+    if(isBadError()) {
+        DEBUG("zip_border failed with code: %d\n", getLastError());
+        return;
+    }
 
     if(map->shape_list->filled == false) { //use firstshape
         chosenshape = map->shape_list;
@@ -287,13 +312,23 @@ void find_shapes(chunkmap* map, pixelchunk* current, list_holder* holder, int ma
                 if(map_x == 0 || map_x == (map->map_width - 1) ||
                     map_y == 0 || map_y == (map->map_height - 1)) 
                 {
-                    enlarge_border(map, current, holder, currentinshape, adjacentinshape);
+                    enlarge_border(map, current, holder, currentinshape, adjacentinshape, adjacent);
+
+                    if(isBadError()) {
+                        DEBUG("enlarge_border failed with code: %d\n", getLastError());
+                        return;
+                    }
                 }
                 enlarge_shape(map, current, holder, currentinshape, adjacentinshape, adjacent);
             }
 
             else {
-                enlarge_border(map, current, holder, currentinshape, adjacentinshape);
+                enlarge_border(map, current, holder, currentinshape, adjacentinshape, adjacent);
+
+                if(isBadError()) {
+                    DEBUG("enlarge_border failed with code: %d\n", getLastError());
+                    return;
+                }
             }
         }
     }

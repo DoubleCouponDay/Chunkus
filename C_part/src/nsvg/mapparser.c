@@ -33,10 +33,10 @@ bool iterate_new_path(pixelchunk* chunk, svg_hashies_iter* udata) {
 
     //add chunk to path if its a boundary
     if(currentpath->pts[0] == NONE_FILLED) { //first point not supplied
-        currentpath->pts[0] = chunk->location.x; //x1
-        currentpath->pts[1] = chunk->location.y; //y1
+        currentpath->pts[0] = chunk->border_location.x; //x1
+        currentpath->pts[1] = chunk->border_location.y; //y1
 
-        udata->shapescolour = calloc(1, sizeof(NSVGpaint));    
+        udata->shapescolour = calloc(1, sizeof(NSVGpaint));
         NSVGpaint* fill = udata->shapescolour;
         fill->type = NSVG_PAINT_COLOR;
 
@@ -49,19 +49,18 @@ bool iterate_new_path(pixelchunk* chunk, svg_hashies_iter* udata) {
     }
 
     else if(currentpath->pts[2] == NONE_FILLED) { //first point supplied but not first path
-        currentpath->pts[2] = chunk->location.x; //x2
-        currentpath->pts[3] = chunk->location.y; //y2
+        currentpath->pts[2] = chunk->border_location.x; //x2
+        currentpath->pts[3] = chunk->border_location.y; //y2
 
-        coordinate previous_coord = {
+        vector2 previous_coord = {
             currentpath->pts[0],
             currentpath->pts[1],
-            1, 1
         };
-        
+
         nextsegment = create_path(
             udata->map->input, 
             previous_coord,
-            chunk->location
+            chunk->border_location
         );
     }
 
@@ -69,16 +68,15 @@ bool iterate_new_path(pixelchunk* chunk, svg_hashies_iter* udata) {
         int x = chunk->location.x;
         int y = chunk->location.y;
         
-        coordinate previous_coord = {
+        vector2 previous_coord = {
             currentpath->pts[2],
             currentpath->pts[3],
-            1, 1
         };
 
         nextsegment = create_path(
             udata->map->input, 
             previous_coord,
-            chunk->location
+            chunk->border_location
         );
     }
     int code = getLastError();
@@ -92,17 +90,15 @@ bool iterate_new_path(pixelchunk* chunk, svg_hashies_iter* udata) {
 }
 
 void close_path(chunkmap* map, NSVGimage* output, NSVGpath* firstpath) {
-    coordinate realstart = {
+    vector2 realstart = {
         output->shapes->paths->pts[2],
         output->shapes->paths->pts[3],
-        1, 1
     };
 
-    coordinate realend = {
+    vector2 realend = {
         firstpath->pts[0],
         firstpath->pts[1],
-        1, 1
-    };        
+    };
     NSVGpath* path = create_path(map->input, realstart, realend);
     int code = getLastError();
     
@@ -174,7 +170,7 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
             output->shapes->next = newshape;
             output->shapes = newshape;
         }
-        coordinate empty = {NONE_FILLED, NONE_FILLED, 1, 1};
+        vector2 empty = {NONE_FILLED, NONE_FILLED};
         NSVGpath* firstpath = create_path(map->input, empty, empty); //lets us wind back the path list
         int code = getLastError();
 

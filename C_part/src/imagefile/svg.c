@@ -69,8 +69,8 @@ bool write_svg_file(NSVGimage* input) {
         bool ranonce = false;
 
         while(currentpath != NULL) {
-            int x;
-            int y;
+            float x;
+            float y;
 
             if(ranonce == false) {
                 fprintf(output, "M ");
@@ -83,8 +83,8 @@ bool write_svg_file(NSVGimage* input) {
                 x = currentpath->pts[2];
                 y = currentpath->pts[3];
             }
-            fprintf(output, "%d ", x);
-            fprintf(output, "%d", y);
+            fprintf(output, "%f ", x);
+            fprintf(output, "%f", y);
             currentpath = currentpath->next;
             ranonce = true;
         }

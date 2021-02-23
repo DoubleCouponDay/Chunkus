@@ -14,14 +14,11 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
     // Grab the pixelchunk
     pixelchunk* chunk = &output->groups_array_2d[x][y];
     
-    int x_units = calculate_int_units(x);
-    int y_units = calculate_int_units(y);
-
     coordinate location = {
         x, y,
-        x_units, y_units
     };
     chunk->location = location;
+    chunk->border_location = (vector2){ 0.f, 0.f };
     
     // Assigned the edge case pixelchunk dimensions
     int node_width = input.width - x * options.chunk_size;
@@ -108,7 +105,7 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
     output->map_height = (int)ceilf((float)input.height / (float)options.chunk_size);
     
     DEBUG("creating pixelchunk\n");
-    pixelchunk* newarray = calloc(1, sizeof(pixelchunk*) * output->map_width);
+    pixelchunk** newarray = calloc(1, sizeof(pixelchunk*) * output->map_width);
     output->groups_array_2d = newarray;
     DEBUG("creating chunkshape\n");
 
@@ -216,4 +213,20 @@ int count_shapes(chunkshape* first)
     for (; first; first = first->next)
         ++count;
     return count;
+}
+
+
+vector2 create_vector_between_chunks(pixelchunk* initial, pixelchunk* final) {
+    int x_diff = final->location.x - initial->location.x;
+    int y_diff = final->location.y - initial->location.y;
+    vector2 diff = { x_diff, y_diff };
+    return diff;
+}
+
+float calculate_angle_between(pixelchunk* eligible, pixelchunk* subject, pixelchunk* previous) {
+    int eligible_x_diff = eligible->location.x - subject->location.x;
+    int eligible_y_diff = eligible->location.y - subject->location.y;
+    vector2 subject_to_eligible = { eligible_x_diff, eligible_y_diff };
+    vector2 previous_to_subject = create_vector_between_chunks(previous, subject);
+    return vec_angle_between(previous_to_subject, subject_to_eligible);
 }

@@ -6,6 +6,7 @@
 
 #include "../image.h"
 #include "../chunkmap.h"
+#include "utility/vec.h"
 
 enum mapping_consts {
     BEZIERCURVE_LENGTH = 8,
@@ -25,6 +26,6 @@ void fill_beziercurve(float* beziercurve,
     float control_x1, float control_y1, 
     float control_x2, float control_y2);
 
-NSVGpath* create_path(image input, coordinate start, coordinate end);
+NSVGpath* create_path(image input, vector2 start, vector2 end);
 NSVGshape* create_shape(chunkmap* map, char* id, long id_length);
 NSVGimage* create_nsvgimage(float width, float height);

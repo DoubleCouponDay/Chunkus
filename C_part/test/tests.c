@@ -243,7 +243,7 @@ int main(int argc, char** argv) {
   char* param2[] = { "1", NULL };
   char* param3[] = { "1", NULL }; //max threshhold 440
   char* param4[] = { "./chunkmap.png", NULL };
-  char* param5[] = { "5", NULL }; //max colours 256
+  char* param5[] = { "256", NULL }; //max colours 256
   char* testname = argv[1];
 
   MunitParameterEnum test_params[] = { 

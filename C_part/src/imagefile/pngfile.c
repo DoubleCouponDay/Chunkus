@@ -165,7 +165,6 @@ image convert_png_to_image(char* fileaddress) {
 
                 output.pixels_array_2d[x][y].location = (coordinate){
                     x, y,
-                    1, 1
                 };
             }
         }
@@ -391,7 +390,8 @@ void iterate_through_shape(pixelchunk_list* list, png_hashies_iter* udata)
 
         else {
             colour avg = convert_pixel_to_colour(chunk->average_colour);
-            map->colours[chunk->location.x + map->width * chunk->location.y] = avg;
+            int index = (int)chunk->location.x + map->width * (int)chunk->location.y;
+            map->colours[index] = avg;
         }
         current = current->next;
     }    

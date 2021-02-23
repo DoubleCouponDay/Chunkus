@@ -81,7 +81,7 @@ void fill_beziercurve(float* beziercurve,
     beziercurve[7] = control_y2;
 }
 
-NSVGpath* create_path(image input, coordinate start, coordinate end) {
+NSVGpath* create_path(image input, vector2 start, vector2 end) {
     NSVGpath* output = calloc(1, sizeof(NSVGpath));
     float* points = calloc(1, sizeof(float) * BEZIERCURVE_LENGTH);
     output->pts = points;
