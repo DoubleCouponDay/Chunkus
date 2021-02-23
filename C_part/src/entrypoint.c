@@ -11,27 +11,22 @@
 
 const char *format1_p = "png";
 const char *format2_p = "jpeg";
-const int DEFAULT_THRESHOLD = 100;
-const int NUM_COLOURS = 10;
+const int DEFAULT_CHUNKSIZE = 1;
+const int DEFAULT_THRESHOLD = 1;
+const int DEFAULT_COLOURS = 5;
 
 typedef NSVGimage* (*algorithm)(image, vectorize_options);
 typedef void (*algorithm_debug)(image, vectorize_options, char*,char*);
 algorithm target_algorithm = dcdfill_for_nsvg;
 
-int execute_program(char* input_file_p, int chunk_size, float threshold, char* output_file_p) {
-	image img = convert_png_to_image(input_file_p);
+int execute_program(vectorize_options options) {
+	image img = convert_png_to_image(options.file_path);
 
 	if (isBadError())
 	{
 		DEBUG("convert_png_to_image failed with: %d\n", getLastError());
 		return getAndResetErrorCode();
 	}
-	vectorize_options options = {
-		input_file_p,
-		chunk_size,
-		threshold,
-		NUM_COLOURS
-	};
 
 	NSVGimage* nsvg = target_algorithm(img, options);
 	int code = getLastError();
@@ -75,7 +70,7 @@ int entrypoint(int argc, char* argv[]) {
     char* firstargument_p = argv[1];
 
 	// Grab input file path
-	char* input_file_p = firstargument_p;
+	char* input_file_path = firstargument_p;
 
 	// Grag output file path
 	char* output_file_p;
@@ -87,31 +82,46 @@ int entrypoint(int argc, char* argv[]) {
 		output_file_p = argv[2];
 
 	int chunk_size = 0;
+
 	if (argc > 3)
 		chunk_size = atoi(argv[3]);
 
 	if (chunk_size < 1)
-		chunk_size = 4;
+		chunk_size = DEFAULT_CHUNKSIZE;
 
-	float threshold = 0.f;
+	float threshold = DEFAULT_THRESHOLD;
+
 	if (argc > 4)
-		threshold = (float)atof(argv[4]);
-	
-	printf("atof-ed threshold=%f", threshold);
-	
+		threshold = (float)atof(argv[4]);	
+		
 	if (threshold < 0.f)
 		threshold = DEFAULT_THRESHOLD;
 
+	int num_colours = DEFAULT_COLOURS;
+
+	if(argc > 5)
+		num_colours = (int)atoi(argv[5]);
+
+	if (num_colours < 1)
+		num_colours = DEFAULT_COLOURS;
+
 	// Halt execution if either path is bad
-	if (input_file_p == NULL || output_file_p == NULL)
+	if (input_file_path == NULL || output_file_p == NULL)
 	{
 		printf("Empty input or output file");
 		return SUCCESS_CODE;
 	}
 
-	printf("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f' \n", input_file_p, output_file_p, chunk_size, threshold);
+	printf("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f' \n", input_file_path, output_file_p, chunk_size, threshold);
 
-	return execute_program(input_file_p, chunk_size, threshold, output_file_p, 0);
+	vectorize_options options = {
+		input_file_path,
+		chunk_size,
+		threshold,
+		num_colours
+	};
+
+	return execute_program(options);
 }
 
 int set_algorithm(int algo)
