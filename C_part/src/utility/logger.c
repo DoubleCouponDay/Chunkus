@@ -9,6 +9,7 @@
 FILE* logfile = 0;
 const char* LOG_PATH = "log.txt";
 
+
 void open_log(char* filename)
 {
     if (logfile)
@@ -22,6 +23,13 @@ void close_log()
     if (logfile)
         fclose(logfile);
     logfile = 0;
+}
+
+void clear_logfile() {
+    if(logfile) {
+        close_log();
+    }
+    open_log(LOG_PATH);
 }
 
 void logger(const char* tag, const char* message, ...) {

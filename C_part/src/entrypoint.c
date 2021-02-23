@@ -54,16 +54,17 @@ int execute_program(vectorize_options options) {
 
 
 int entrypoint(int argc, char* argv[]) {
-	printf("entrypoint with: ");
+	clear_logfile();
+	LOG_INFO("entrypoint with: ");
+
 	for (int i = 1; i < argc; ++i)
 	{
-		printf("%s, ", argv[i]);
+		LOG_INFO("%s, ", argv[i]);
 	}
-	printf("\n");
 
 	if (argc <= 1)
 	{
-		printf("error: No Arguments given");
+		LOG_ERR("error: argc indicates no arguments given");
 		return SUCCESS_CODE;
 	}
 
@@ -108,11 +109,11 @@ int entrypoint(int argc, char* argv[]) {
 	// Halt execution if either path is bad
 	if (input_file_path == NULL || output_file_p == NULL)
 	{
-		printf("Empty input or output file");
+		LOG_ERR("Empty input or output file");
 		return SUCCESS_CODE;
 	}
 
-	printf("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f' \n", input_file_path, output_file_p, chunk_size, threshold);
+	LOG_INFO("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f'", input_file_path, output_file_p, chunk_size, threshold);
 
 	vectorize_options options = {
 		input_file_path,
