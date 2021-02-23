@@ -11,7 +11,7 @@ Convert a raster image into a scalable vector graphic and back.
 
 - BEFORE SCHOOL STARTS
 
-    - clear log file after an invocation
+    - fix algorithm switching
 
     - override panic::set_hook and write error to log file
 
@@ -36,6 +36,8 @@ Convert a raster image into a scalable vector graphic and back.
 - fix bobsweep
 
 - remove logs from free null checks
+
+- fix corner shaving still happening
 
 <br>
 <br>
