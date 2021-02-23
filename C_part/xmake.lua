@@ -6,10 +6,6 @@ add_requires("CONAN::libpng/1.6.37", {alias = "libpng"})
 add_requires("CONAN::libjpeg/9d", {alias = "libjpeg"})
 add_requires("CONAN::nanosvg/20190405", {alias = "nanosvg"})
 
-if is_mode("debug") then
-    add_defines("DEBUG")
-end
-
 rule("copytemplate")
     after_build(function (target)
         print("Target Dir: %s", target:targetdir())
@@ -22,6 +18,10 @@ target("tests")
     end
     -- set rule
     add_rules("copytemplate")
+
+    if is_mode("debug") then
+        add_defines("XMAKE_DEBUG")
+    end
     -- set kind
     set_kind("binary")
     -- add files
@@ -33,6 +33,10 @@ target("tests")
 target("vec")
     if is_plat("linux") then
         add_syslinks("m")
+    end
+
+    if is_mode("debug") then
+        add_defines("XMAKE_DEBUG")
     end
     set_kind("static")
     add_files("./src/**.c|main.c")

@@ -47,7 +47,7 @@ void logger(const char* tag, const char* message, ...) {
     fprintf(logfile, "\n");
     fflush(logfile);
 
-#if defined(_DEBUG) || defined(DEBUG)
+#if defined(XMAKE_DEBUG)
     printf("%s [%s]: ", time_buffer, tag);
     vprintf(message, args);
     printf("\n");

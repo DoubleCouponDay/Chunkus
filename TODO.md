@@ -11,10 +11,6 @@ Convert a raster image into a scalable vector graphic and back.
 
 - BEFORE SCHOOL STARTS
 
-    - switch debug() and LOG_INFO() off if release environment variable detected
-
-    - merge DEBUG into LOG_INFO
-
     - clear log file after an invocation
 
     - override panic::set_hook and write error to log file
