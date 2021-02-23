@@ -57,7 +57,7 @@ char* gettemplate(int width, int height) {
 		setError(READ_FILE_ERROR);
         return NULL;
     };
-	LOG_ERR("null terminating the data");
+	LOG_INFO("null terminating the data");
 	data[size] = '\0';	// Must be null terminated.
 	fclose(fp);
 	char* formatted = format_template(data, width, height);

@@ -9,7 +9,7 @@
 const int ONE_TEST_SIZE = 2;
 
 MunitTest* filtertests(namedtest* tests_array, int arraylength, char* testname) {
-  DEBUG("filtering tests for '%s'\n", testname);
+  DEBUG_OUT("filtering tests for '%s'", testname);
   MunitTest* output;
   MunitTest endofarray = { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL };
 
@@ -26,7 +26,7 @@ MunitTest* filtertests(namedtest* tests_array, int arraylength, char* testname) 
         }
 
         else if(i == arraylength - 1) {
-            DEBUG("test with name not found\n");
+            DEBUG_OUT("test with name not found");
             exit(BAD_ARGUMENT_ERROR); //the test binary is allowed to fail
         }
     }

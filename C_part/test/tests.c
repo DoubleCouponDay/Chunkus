@@ -22,7 +22,7 @@
 #include "../src/imagefile/svg.h"
 
 MunitResult aTestCanPass(const MunitParameter params[], void* data) {
-  DEBUG("test 1 passed");
+  DEBUG_OUT("test 1 passed");
   return MUNIT_OK;
 }
 
@@ -118,20 +118,20 @@ MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], voi
   };
 
   stuff->img = convert_png_to_image(fileaddress);
-  DEBUG("asserting pixels_array_2d not null");
+  DEBUG_OUT("asserting pixels_array_2d not null");
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
-  DEBUG("generating chunkmap");
+  DEBUG_OUT("generating chunkmap");
   chunkmap* map = generate_chunkmap(stuff->img, options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
   stuff->map = map;
 
-  DEBUG("asserting groups_array_2d not null");
+  DEBUG_OUT("asserting groups_array_2d not null");
   munit_assert_ptr_not_null(map->groups_array_2d);
-  DEBUG("filling chunkmap");
+  DEBUG_OUT("filling chunkmap");
   fill_chunkmap(stuff->map, &options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  DEBUG("writing chunkmap to file");
+  DEBUG_OUT("writing chunkmap to file");
   write_chunkmap_to_png(stuff->map, out_fileaddress);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
@@ -165,7 +165,7 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   };
 
   stuff->img = convert_png_to_image(fileaddress);
-  DEBUG("asserting pixels_array_2d not null");
+  DEBUG_OUT("asserting pixels_array_2d not null");
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
@@ -175,10 +175,10 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   bool outcome = write_svg_file(stuff->nsvg_image);
   
   if(outcome)
-    DEBUG("svg writing outcome: %s", "succeeded");
+    DEBUG_OUT("svg writing outcome: %s", "succeeded");
 
   else 
-    DEBUG("svg writing outcome: %s", "failed");
+    DEBUG_OUT("svg writing outcome: %s", "failed");
     
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
@@ -233,11 +233,11 @@ MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdat
 }
 
 int main(int argc, char** argv) {
-  DEBUG("test runner initializing... ");
-  DEBUG("args: ");
+  DEBUG_OUT("test runner initializing... ");
+  DEBUG_OUT("args: ");
   for (int i = 0; i < argc; ++i)
     printf("%s, ", argv[i]);
-  DEBUG("");
+  DEBUG_OUT("");
 
   char* param1[] = { "../../../../test/test.png", NULL };
   char* param2[] = { "1", NULL };

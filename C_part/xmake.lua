@@ -6,6 +6,10 @@ add_requires("CONAN::libpng/1.6.37", {alias = "libpng"})
 add_requires("CONAN::libjpeg/9d", {alias = "libjpeg"})
 add_requires("CONAN::nanosvg/20190405", {alias = "nanosvg"})
 
+if is_mode("debug") then
+    add_defines("DEBUG")
+end
+
 rule("copytemplate")
     after_build(function (target)
         print("Target Dir: %s", target:targetdir())

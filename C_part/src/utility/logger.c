@@ -30,7 +30,6 @@ void logger(const char* tag, const char* message, ...) {
         open_log(LOG_PATH);
         return;
     }
-    //DEBUG(message, ...);
 
     va_list args;
     va_start(args, message);
@@ -47,6 +46,12 @@ void logger(const char* tag, const char* message, ...) {
     vfprintf(logfile, message, args);
     fprintf(logfile, "\n");
     fflush(logfile);
+
+#if defined(_DEBUG) || defined(DEBUG)
+    printf("%s [%s]: ", time_buffer, tag);
+    vprintf(message, args);
+    printf("\n");
+#endif
 
     va_end(args);
 }
