@@ -15,8 +15,12 @@ use std::{
 use serenity::
 {
     async_trait,
-    model::{prelude::Message, gateway::Ready, id::ChannelId},
-    prelude::TypeMapKey,
+    model::{prelude::Message, id::ChannelId},
+    prelude::{
+        TypeMapKey,
+        RwLock,
+        TypeMap
+    },
     framework::standard::{
         CommandResult,
         StandardFramework,
@@ -28,6 +32,7 @@ use serenity::
 };
 use tokio::time::sleep;
 use error_show::error_string;
+use std::sync::Arc;
 
 pub struct TrampolineProcessKey;
 
@@ -69,9 +74,9 @@ impl fmt::Display for VectorizerStatus
     }
 }
 
-async fn get_vectorizer_status(ctx: &Context) -> Result<VectorizerStatus, std::io::Error>
+async fn get_vectorizer_status(data: &Arc<RwLock<TypeMap>>) -> Result<VectorizerStatus, std::io::Error>
 {
-    let mut data_mut_read = ctx.data.write().await;
+    let mut data_mut_read = data.write().await;
     let potential_child = data_mut_read.get_mut::<TrampolineProcessKey>().unwrap();
 
     if let Some(ref mut child) = potential_child
@@ -112,10 +117,10 @@ async fn get_vectorizer_status(ctx: &Context) -> Result<VectorizerStatus, std::i
     }
 }
 
-async fn insert_new_bot(ctx: &Context)
+async fn start_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
 {   
     // Check if bot already running
-    if let Ok(status) = get_vectorizer_status(&ctx).await
+    if let Ok(status) = get_vectorizer_status(data).await
     {
         if status == VectorizerStatus::Running
         {
@@ -123,12 +128,13 @@ async fn insert_new_bot(ctx: &Context)
             return;
         }
     }
+    write_initial_data(data).await;
+}
 
-
-    let mut data_write = ctx.data.write().await;
-
-    let created_process = create_vectorize_process();
-
+async fn write_initial_data(data: &Arc<RwLock<TypeMap>>) {
+    let mut data_write = data.write().await;
+    println!("starting vectorizer...");
+    let created_process = std::process::Command::new("cargo.exe").arg("run").arg("--bin").arg("bot").spawn().unwrap();
     data_write.insert::<TrampolineProcessKey>(Some(created_process));
 }
 
@@ -162,7 +168,7 @@ fn get_last_line_of_log() -> String
 #[command]
 async fn trampolinestatus(ctx: &Context, msg: &Message) -> CommandResult
 {
-    if let Ok(status) = get_vectorizer_status(&ctx).await
+    if let Ok(status) = get_vectorizer_status(&ctx.data).await
     {
         if let Err(why) = msg.reply(&ctx.http, format!("Status of vectorize bot: {}", status)).await
         {
@@ -189,74 +195,70 @@ async fn trampolinerestart(ctx: &Context, msg: &Message) -> CommandResult
         eprintln!("Error responding to restart request: {}", why);
     }
 
-    insert_new_bot(&ctx).await;
+    start_vectorizer_bot(&ctx.data).await;
 
     Ok(())
 }
 
-async fn inform_channel_of(ctx: &Context, message: String)
+async fn inform_channel_of(ctx: &Context, channel: &ChannelId, message: String)
 {
-    let channel = ChannelId(secrettoken::getchannelid());
     if let Err(why) = channel.say(&ctx.http, message).await
     {
         eprintln!("Error informing channel: {}", why);
     }
 }
 
-fn create_vectorize_process() -> Child
-{
-    std::process::Command::new("cargo.exe").arg("run").arg("--bin").arg("bot").spawn().unwrap()
-}
-
 #[async_trait]
-impl EventHandler for TrampolineHandler
-{
-    async fn ready(&self, ctx: Context, _data_about_bot: Ready) {
-        loop
-        {
-            if let Ok(status) = get_vectorizer_status(&ctx).await
-            {
-                match status
+impl EventHandler for TrampolineHandler {
+    async fn message(&self, ctx: Context, new_message: Message) {
+        if new_message.author.name == "Vectorizer" && new_message.content.contains("working on it") {
+            loop {
+                if let Ok(status) = get_vectorizer_status(&ctx.data).await
                 {
-                    VectorizerStatus::Running => (),
-                    VectorizerStatus::NotStarted => insert_new_bot(&ctx).await,
-                    VectorizerStatus::DeadButSuccessfully => insert_new_bot(&ctx).await,
-                    VectorizerStatus::Crashed(_) => { 
-                        let lastline = get_last_line_of_log();
-                        inform_channel_of(&ctx, format!("Vectorizer crashed with status: {}", status)).await;
-                        inform_channel_of(&ctx, format!("last line of log: `{}`", lastline)).await;
-                        insert_new_bot(&ctx).await; 
+                    match status
+                    {
+                        VectorizerStatus::Running => (),
+                        VectorizerStatus::NotStarted => start_vectorizer_bot(&ctx.data).await,
+                        VectorizerStatus::DeadButSuccessfully => start_vectorizer_bot(&ctx.data).await,
+                        VectorizerStatus::Crashed(_) => { 
+                            let lastline = get_last_line_of_log();
+                            inform_channel_of(&ctx, &new_message.channel_id, format!("Vectorizer crashed with status: {}", status)).await;
+                            inform_channel_of(&ctx, &new_message.channel_id, format!("last line of log: `{}`", lastline)).await;
+                            start_vectorizer_bot(&ctx.data).await; 
+                        }
+                        VectorizerStatus::FailedWithoutCode => { 
+                            inform_channel_of(&ctx, &new_message.channel_id, format!("Vectorizer has been detected with bad status of: {}", status)).await; 
+                            start_vectorizer_bot(&ctx.data).await; 
+                        }
                     }
-                    VectorizerStatus::FailedWithoutCode => { 
-                        inform_channel_of(&ctx, format!("Vectorizer has been detected with bad status of: {}", status)).await; 
-                        insert_new_bot(&ctx).await; 
-                    }
+                    return;
                 }
+                sleep(Duration::from_secs(1)).await;
             }
-
-            // Wait a bit for next check
-            sleep(Duration::from_secs(15)).await;
         }
+        ()
     }
 }
 
 pub async fn create_trampoline_bot(token: &str) -> Client
 {    
-    println!("creating framework...");
+    println!("starting trampoline...");
 
     let framework = StandardFramework::new().configure(|c| c
         .prefix("!")
         .with_whitespace(true))
         .group(&TRAMPOLINE_GROUP);
         
-    println!("bot is running...");
+    
 
     // Login with a bot token from the environment
     let client = ClientBuilder::new(&token)
         .event_handler(TrampolineHandler)
         .framework(framework)
         .await
-        .expect("Error bot is running");
+        .expect("Error running bot");
+
+    println!("trampoline is running...");
 
     {
         let mut data_write = client.data.write().await;
@@ -272,6 +274,7 @@ async fn main() -> CommandResult
     let watcher_token = secrettoken::getwatchertoken();
 
     let mut watcher_client = create_trampoline_bot(watcher_token).await;
+    start_vectorizer_bot(&watcher_client.data).await;
 
     if let Err(why) = watcher_client.start().await
     {

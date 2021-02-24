@@ -11,16 +11,11 @@ Convert a raster image into a scalable vector graphic and back.
 
 - BEFORE SCHOOL STARTS
 
-    - convert the hexadecimal value to 
+    - dont wait for timeout to post a crash
 
-    - write another bot that posts error message from log
-        if success chat message not detected after timeout
-
-    - write last 3 lines in log to trampolines chat message
+    - post messages in the channel that message came from
 
     - store num_colours in context data
-
-    - make other bot restart the bot
 
     - deploy to azure apps for containers
 
@@ -40,6 +35,8 @@ Convert a raster image into a scalable vector graphic and back.
 - remove logs from free null checks
 
 - fix corner shaving still happening
+
+- add status code conversion for unix
 
 <br>
 <br>

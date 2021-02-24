@@ -78,6 +78,11 @@ fn error_string_wininet(errno: i32) -> String {
     }
 }
 
+#[cfg(target_os = "unix")]
+pub fn error_string(errno:i32) -> String {
+    errno.to_string()
+}
+
 #[cfg(target_os = "windows")]
 pub fn error_string(errno: i32) -> String {
     let rtstatus: u32 = unsafe {
