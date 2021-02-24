@@ -122,6 +122,11 @@ pub async fn create_vec_bot(token: &str) -> Client
     client
 }
 
+// pub async fn create_watcher_bot(token: &str) -> Client // wip
+// {
+
+// }
+
 #[async_trait]
 impl EventHandler for DefaultHandler {
     async fn message(&self, _ctx: Context, msg: Message) {
@@ -306,10 +311,10 @@ async fn vectorizerdelete(ctx: &Context, msg: &Message, args: Args) -> CommandRe
 
 #[command]
 #[aliases("va")]
-async fn vectorizeralgorithm(ctx: &Context, msg: &Message, args: Args) -> CommandResult
+pub async fn vectorizeralgorithm(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 {
     println!("Setting algorithm");
-    let potential_algo = args.rest().parse::<i32>();
+    let potential_algo = args.rest().parse::<String>();
     if potential_algo.is_err()
     {
         if let Err(why) = msg.reply(&ctx.http, "Invalid input given!").await
@@ -318,7 +323,8 @@ async fn vectorizeralgorithm(ctx: &Context, msg: &Message, args: Args) -> Comman
             return Ok(());
         }
     }
-    let algorithm: i32 = potential_algo.unwrap();
+    let betweenstep = potential_algo.unwrap();
+    let algorithm: &str = betweenstep.as_str();
 
     let c_error = super::core::set_algorithm(algorithm);
 

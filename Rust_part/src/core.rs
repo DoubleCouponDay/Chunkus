@@ -7,18 +7,18 @@ use crate::options::{ParsedOptions};
 
 mod ffimodule
 {
-    use libc::{c_int};
+    use libc::{c_int, c_char};
 
     #[link(name = "zlib", kind = "static")]
     #[link(name = "libpng16", kind = "static")]
     #[link(name = "vec", kind = "static")]
     extern {        
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
-        pub fn set_algorithm(algo: c_int) -> c_int;
+        pub fn set_algorithm(algo: *mut c_char) -> c_int;
     }
 }
 
-pub fn call_vectorize(input: &mut CString, output: &mut CString, chunk: &mut CString, threshold: &mut CString) -> FfiResult
+fn call_vectorize(input: &mut CString, output: &mut CString, chunk: &mut CString, threshold: &mut CString) -> FfiResult
 {
     let result: FfiResult;
 
@@ -31,12 +31,14 @@ pub fn call_vectorize(input: &mut CString, output: &mut CString, chunk: &mut CSt
     result
 }
 
-pub fn set_algorithm(algorithm: i32) -> FfiResult
+pub fn set_algorithm(algorithm: &str) -> FfiResult
 {
     let result: FfiResult;
     unsafe
     {
-        result = FfiResult::from(ffimodule::set_algorithm(algorithm));
+        let formatted = algorithm.as_ptr() as *mut i8;
+        let output = ffimodule::set_algorithm(formatted);
+        result = FfiResult::from(output);
     }
     result
 }

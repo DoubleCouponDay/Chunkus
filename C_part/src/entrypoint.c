@@ -125,18 +125,16 @@ int entrypoint(int argc, char* argv[]) {
 	return execute_program(options);
 }
 
-int set_algorithm(int algo)
+int set_algorithm(char* algo)
 {
-	switch (algo)
-	{
-	case 0:
+	if(algo == "dcdfill")
 		target_algorithm = dcdfill_for_nsvg;
-		break;
-	case 1:
+
+	else if(algo == "bobsweep")
 		target_algorithm = bobsweep_for_nsvg;
-		break;
-	default:
+
+	else
 		return BAD_ARGUMENT_ERROR;
-	}
-	return 0;
+
+	return SUCCESS_CODE;
 }
