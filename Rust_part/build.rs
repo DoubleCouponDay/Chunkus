@@ -27,6 +27,9 @@ fn main() {
     //copy the template svg    
     let _ = std::fs::copy("../template.svg", std::env::var("OUT_DIR").unwrap());
 
+    // copy a test image
+    let _ = std::fs::copy("test.png", std::env::var("OUT_DIR").unwrap());
+
     if let Some(currentdir) = path.as_path().to_str() {
         println!("current directory: {}", currentdir);
         println!("unwrapped_var: {}", unwrapped_var);

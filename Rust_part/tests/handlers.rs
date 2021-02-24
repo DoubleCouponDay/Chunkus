@@ -26,6 +26,11 @@ pub struct ReceiveImageEmbedMessageHandler
     pub message_received_mutex: Arc<Mutex<bool>>,
 }
 
+pub struct StartOtherBotHandler
+{
+
+}
+
 #[async_trait]
 impl EventHandler for ReceiveEmbedMessageHandler
 {

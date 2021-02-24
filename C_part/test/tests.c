@@ -232,6 +232,10 @@ MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdat
   return MUNIT_OK;
 }
 
+MunitResult just_run(const MunitParameter params[], void* userdata) {
+  entrypoint(0, NULL);
+}
+
 int main(int argc, char** argv) {
   DEBUG_OUT("test runner initializing... ");
   DEBUG_OUT("args: ");
@@ -273,9 +277,10 @@ int main(int argc, char** argv) {
   MunitTest cherry = { "chunkmap_to_png", can_write_chunkmap_shapes_to_file, test69setup, test69teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest banana = { "dcdfill", can_write_to_svgfile, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest yo_mama = { "bobsweep", can_do_speedy_vectorize, speedy_vectorize_setup, speedy_vectorize_teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest run = { "run", just_run, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
 
   enum { 
-    NUM_TESTS = 8 //UPDATE THIS WHEN YOU ADD NEW TESTS
+    NUM_TESTS = 9 //UPDATE THIS WHEN YOU ADD NEW TESTS
   }; 
 
   namedtest tests[NUM_TESTS] = {
@@ -287,6 +292,7 @@ int main(int argc, char** argv) {
     {cherry.name, cherry},
     {banana.name, banana},
     {yo_mama.name, yo_mama},
+    {run.name, run},
   };
   MunitTest* filteredtests = filtertests(tests, NUM_TESTS, testname);
   MunitSuite suite = { "tests.", filteredtests };

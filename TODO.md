@@ -11,12 +11,14 @@ Convert a raster image into a scalable vector graphic and back.
 
 - BEFORE SCHOOL STARTS
 
-    - fix algorithm switching
-
-    - override panic::set_hook and write error to log file
+    - convert the hexadecimal value to 
 
     - write another bot that posts error message from log
         if success chat message not detected after timeout
+
+    - write last 3 lines in log to trampolines chat message
+
+    - store num_colours in context data
 
     - make other bot restart the bot
 

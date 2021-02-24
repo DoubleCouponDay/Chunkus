@@ -1,3 +1,6 @@
+Rust_part/log.txt
+Rust_part/test.png
+
 # Discord token
 *.discord_token
 **/Cargo.lock

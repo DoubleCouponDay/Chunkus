@@ -4,6 +4,7 @@ mod bot;
 mod core;
 mod svg;
 mod options;
+mod error_show;
 
 fn main()
 {

@@ -7,10 +7,6 @@ it has a Rust component and a C component.
 
 # Getting started
 
-You can use this program as a discord bot by clicking the link below. Fill in the last request parameter with your discord guild id.
-
-    https://discord.com/api/oauth2/authorize?client_id=690684027019067393&scope=bot&permissions=51200&guild_id=
-
 You will need to create a file in the `discord-v` folder called `secrettoken.rs`. A template is given in the wiki. 
 <br>
 

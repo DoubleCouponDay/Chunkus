@@ -4,7 +4,8 @@ use std::{
     fs::remove_file,
     path::Path,
     io::prelude::*,
-    time::{Duration, Instant}
+    time::{Duration, Instant},
+    process::{Child, Command},
 };
 use serenity::{
     async_trait,
@@ -81,20 +82,6 @@ pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, hand
 
 pub async fn create_vec_bot(token: &str) -> Client
 {
-    println!("creating http token...");
-    let http = Http::new_with_token(&token);
-    
-    println!("fetching owner id, bot id...");
-
-    let (_, _bot_id) = match http.get_current_application_info().await {
-        Ok(info) => {
-            let mut owners = HashSet::new();
-            owners.insert(info.owner.id);
-
-            (owners, info.id)
-        },
-        Err(why) => panic!("Could not access application info: {:?}", why),
-    };
     println!("creating framework...");
 
     let framework = StandardFramework::new().configure(|c| c
@@ -121,11 +108,6 @@ pub async fn create_vec_bot(token: &str) -> Client
 
     client
 }
-
-// pub async fn create_watcher_bot(token: &str) -> Client // wip
-// {
-
-// }
 
 #[async_trait]
 impl EventHandler for DefaultHandler {
@@ -456,14 +438,6 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
             }
         }
 
-        println!("Removing existing file");
-        if let Err(err) = remove_file(Path::new(constants::OUTPUTFILENAME))
-        {
-            println!("Remove file Err: {:?} probably not important", err);
-        }
-
-
-
         // Execute Algorithm
         let inputname = String::from(constants::INPUTFILENAME);
 
@@ -517,4 +491,20 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
             println!("Error sending result {}", err);
         }
     }
+}
+
+#[command]
+async fn status(ctx: &Context, msg: &Message) -> CommandResult
+{
+
+
+    Ok(())
+}
+
+#[command]
+async fn restart_vec(ctx: &Context, msg: &Message) -> CommandResult
+{
+
+
+    Ok(())
 }

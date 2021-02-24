@@ -62,12 +62,16 @@ int entrypoint(int argc, char* argv[]) {
 		LOG_INFO("%s, ", argv[i]);
 	}
 
+	LOG_INFO("crashing this plane");
+	image* crash = NULL;
+	byte crash3 = crash->pixels_array_2d[1]->r;
+	LOG_INFO("with no survivors");
+
 	if (argc <= 1)
 	{
 		LOG_ERR("error: argc indicates no arguments given");
 		return SUCCESS_CODE;
 	}
-
     char* firstargument_p = argv[1];
 
 	// Grab input file path

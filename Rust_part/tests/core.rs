@@ -2,7 +2,8 @@
 #[cfg(test)]
 mod tests {
     use vecbot::{
-        core::set_algorithm,
+        core::{set_algorithm, do_vectorize},
+        options::ParsedOptions,
         constants::FfiResult
     };
     use tokio;
@@ -18,5 +19,20 @@ mod tests {
             _ => panic!("{}", tripstep) 
         };
         ()
+    }
+
+    #[tokio::test]
+    async fn invoke() {
+        let input_file = String::from("test.png");
+        let output_file = String::from("output.png");
+
+        let algo_result = do_vectorize(&input_file, &output_file, ParsedOptions{chunksize: String::from("1"), threshold: String::from("5")});
+
+        if algo_result != FfiResult::SuccessCode
+        {
+            panic!("Algorithm failed");
+        }
+
+
     }
 }
