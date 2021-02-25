@@ -92,7 +92,7 @@ pub async fn create_vec_bot(token: &str) -> Client
         .with_whitespace(true))
             .group(&GENERAL_GROUP);
         
-    println!("bot is running...");
+    println!("vectorizer running...");
 
     // Login with a bot token from the environment
     let client = ClientBuilder::new(&token)
@@ -105,7 +105,7 @@ pub async fn create_vec_bot(token: &str) -> Client
         let mut data: RwLockWriteGuard<'_, TypeMap> = client.data.write().await; //only allowed one mutable reference
         data.insert::<MsgListen>(HashSet::<MessageId>::new());
         data.insert::<MsgUpdate>(HashMap::<MessageId, MessageUpdateEvent>::new());
-        let params = VectorizeOptions {chunksize: 0, threshold: 0};
+        let params = VectorizeOptions {chunksize: 0, threshold: 0, numcolours: 0};
         insert_params(data, params).await;
     }
 
@@ -263,15 +263,26 @@ async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandRe
     let mut mutable = args;
     let possiblechunksize = mutable.single::<u32>();
     let possiblethreshold = mutable.single::<u32>();
+    let possiblecolours = mutable.single::<u32>();
 
-    if possiblechunksize.is_ok() && possiblethreshold.is_ok() {        
+    if possiblechunksize.is_ok() && possiblethreshold.is_ok() && possiblecolours.is_ok() {        
         let data_write = ctx.data.write().await;
-        let params = VectorizeOptions {chunksize: possiblechunksize.unwrap(), threshold: possiblethreshold.unwrap()};
+        let params = VectorizeOptions {
+            chunksize: possiblechunksize.unwrap(), 
+            threshold: possiblethreshold.unwrap(),
+            numcolours: possiblecolours.unwrap()
+        };
         let parsed = insert_params(data_write, params).await;
-
-        if let Err(why) = msg.reply(&ctx.http, format!("Set Chunk Size to: {} and Threshold to: {}", parsed.chunksize, parsed.threshold)).await {
+        
+        let result = msg.reply(
+            &ctx.http, 
+            format!("Set Chunk Size to: {}, Threshold to: {}, Num Colours to: {}", 
+            parsed.chunksize, parsed.threshold, parsed.numcolours))
+            .await;
+        
+        if let Err(why) = result {
             eprintln!("Error sending params reply: {:?}", why);
-        }
+        }   
     }
 
     else if let Err(why) = msg.reply(&ctx.http, "incorrect arguments given").await {

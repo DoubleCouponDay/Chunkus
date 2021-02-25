@@ -18,12 +18,19 @@ mod ffimodule
     }
 }
 
-fn call_vectorize(input: &mut CString, output: &mut CString, chunk: &mut CString, threshold: &mut CString) -> FfiResult
+fn call_vectorize(input: &mut CString, output: &mut CString, chunk: &mut CString, threshold: &mut CString, numcolours: &mut CString) -> FfiResult
 {
     let result: FfiResult;
 
     unsafe { 
-        let mut argv: [*mut u8; 5] = [ptr::null_mut(), input.as_ptr() as *mut u8, output.as_ptr() as *mut u8, chunk.as_ptr() as *mut u8, threshold.as_ptr() as *mut u8];
+        let mut argv: [*mut u8; 6] = [
+            ptr::null_mut(), 
+            input.as_ptr() as *mut u8, 
+            output.as_ptr() as *mut u8, 
+            chunk.as_ptr() as *mut u8, 
+            threshold.as_ptr() as *mut u8,
+            numcolours.as_ptr() as *mut u8    
+        ];
         let cint = ffimodule::entrypoint(5, argv.as_mut_ptr()); 
         let between: i32 = cint;
         result = FfiResult::from(between);
@@ -48,32 +55,13 @@ pub fn do_vectorize(input_file: &String, output_file: &String, options: ParsedOp
     let input_copy = input_file.clone();
     let output_copy = output_file.clone();
     
-    println!("vectorizing with input: {} output: {}, chunk: {}, threshold: {}", input_file, output_file, options.chunksize, options.threshold);
+    println!("vectorizing with input: {} output: {}, chunk: {}, threshold: {}, numcolours: {}", input_file, output_file, options.chunksize, options.threshold, options.numcolours);
     
-    let mut input_c;
-    let mut output_c;
-    let mut chunk_c;
-    let mut threshold_c;
+    let mut input_c = CString::new(input_copy).unwrap();
+    let mut output_c = CString::new(output_copy).unwrap();
+    let mut chunk_c = CString::new(options.chunksize).unwrap();
+    let mut threshold_c = CString::new(options.threshold).unwrap();
+    let mut colours_c = CString::new(options.numcolours).unwrap();
 
-    if let Ok(cc) = CString::new(input_copy)
-    {
-        input_c = cc;
-
-        if let Ok(ccc) = CString::new(output_copy)
-        {
-            output_c = ccc;
-
-            if let Ok(cccc) = CString::new(options.chunksize)
-            {
-                chunk_c = cccc;
-
-                if let Ok(ccccc) = CString::new(options.threshold)
-                {
-                    threshold_c = ccccc;                    
-                    return call_vectorize(&mut input_c, &mut output_c, &mut chunk_c, &mut threshold_c)
-                }
-            }
-        }
-    }
-    FfiResult::AssumptionWrong
+    return call_vectorize(&mut input_c, &mut output_c, &mut chunk_c, &mut threshold_c, &mut colours_c);
 }

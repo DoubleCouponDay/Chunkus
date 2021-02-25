@@ -13,7 +13,7 @@ const char *format1_p = "png";
 const char *format2_p = "jpeg";
 const int DEFAULT_CHUNKSIZE = 1;
 const int DEFAULT_THRESHOLD = 1;
-const int DEFAULT_COLOURS = 5;
+const int DEFAULT_COLOURS = 256;
 
 typedef NSVGimage* (*algorithm)(image, vectorize_options);
 typedef void (*algorithm_debug)(image, vectorize_options, char*,char*);
@@ -112,7 +112,7 @@ int entrypoint(int argc, char* argv[]) {
 		return SUCCESS_CODE;
 	}
 
-	LOG_INFO("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f'", input_file_path, output_file_p, chunk_size, threshold);
+	LOG_INFO("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f', colours: %f", input_file_path, output_file_p, chunk_size, threshold, num_colours);
 
 	vectorize_options options = {
 		input_file_path,
