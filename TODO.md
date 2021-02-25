@@ -11,12 +11,6 @@ Convert a raster image into a scalable vector graphic and back.
 
 - BEFORE SCHOOL STARTS
 
-    - dont wait for timeout to post a crash
-
-    - post messages in the channel that message came from
-
-    - store num_colours in context data
-
     - deploy to azure apps for containers
 
 - select the next sorted border chunk based on which is closed to the outer edge
