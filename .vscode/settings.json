@@ -47,7 +47,23 @@
         "vector": "cpp",
         "xstring": "cpp",
         "svg.h": "c",
-        "tears.h": "c"
+        "tears.h": "c",
+        "pngfile.h": "c",
+        "chunkmap.h": "c",
+        "image.h": "c",
+        "mapping.h": "c",
+        "stdlib.h": "c",
+        "copy.h": "c",
+        "limits.h": "c",
+        "debug.h": "c",
+        "stdbool.h": "c",
+        "math.h": "c",
+        "corecrt_math.h": "c",
+        "corecrt_math_defines.h": "c",
+        "logger.h": "c",
+        "string.h": "c",
+        "stdio.h": "c",
+        "vec.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

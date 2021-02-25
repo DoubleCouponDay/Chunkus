@@ -8,34 +8,50 @@
             "name": "(Windows) Launch Tests",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\build\\windows\\x64\\debug\\tests.exe",
+            "program": "${workspaceFolder}\\C_part\\build\\windows\\x64\\debug\\tests.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}\\build\\windows\\x64\\debug",
+            "cwd": "${workspaceFolder}\\C_part\\build\\windows\\x64\\debug",
             "environment": [],
-            "console": "internalConsole"
+            "console": "internalConsole",
+            "requireExactSource": false,
         },
         {
-            "name": "(Windows) Launch Test 7",
+            "name": "(Windows) Launch one test",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\build\\windows\\x64\\debug\\tests.exe",
-            "args": ["test7"],
+            "program": "${workspaceFolder}\\C_part\\build\\windows\\x64\\debug\\tests.exe",
+            "args": ["dcdfill"],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}\\build\\windows\\x64\\debug",
+            "cwd": "${workspaceFolder}\\C_part\\build\\windows\\x64\\debug",
             "environment": [],
-            "console": "internalConsole"
+            "console": "internalConsole",
+            "requireExactSource": false
         },
         {
             "name": "(Windows) Launch Vectorizer against input.png",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\build\\windows\\x64\\debug\\vectorizer.exe",
+            "program": "${workspaceFolder}\\C_part\\build\\windows\\x64\\debug\\vectorizer.exe",
             "args": ["../../../../discord-v/input.png", "output.png", "4", "0"],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}\\build\\windows\\x64\\debug",
+            "cwd": "${workspaceFolder}\\C_part\\build\\windows\\x64\\debug",
             "environment": [],
-            "console": "internalConsole"
+            "console": "internalConsole",
+            "requireExactSource": false
         },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Launch trampoline",
+            "args": [],
+            "program": "${workspaceFolder}/Rust_part/target/debug/trampoline.exe",
+            "windows": {
+                "program": "${workspaceFolder}/Rust_part/target/debug/trampoline.exe"
+            },
+            "cwd": "${workspaceFolder}/Rust_part",
+            "stopOnEntry": false,
+            "sourceLanguages": ["rust"]            
+          },
     ]
 }

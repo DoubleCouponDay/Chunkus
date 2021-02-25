@@ -1,0 +1,39 @@
+[package]
+name = "vecbot"
+version = "1.0.0"
+authors = ["dcdgo <mail@samueljenks.me>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+libc = "0.2.76"
+http = "0.2.1"
+#tokio = { git = "https://github.com/tokio-rs/tokio", features = ["full"] }
+tokio = {version="1", features = ["full"]}
+reqwest = { version = "0.11" }
+resvg = { version = "0.13.1" }
+usvg = { version = "0.13.1" }
+tiny-skia = { version = "0.4.2" }
+structopt = { version = "0.3.21" }
+
+[target.'cfg(unix)'.dependencies]
+openssl = "0.10"
+
+[target.'cfg(windows)'.dependencies]
+ntapi = "0.3"
+winapi = {version = "0.3", features = ["winbase", "winnt", "minwindef", "libloaderapi", "winerror"]}
+
+[dependencies.serenity]
+git = "https://github.com/serenity-rs/serenity"
+branch = "current"
+features = ["framework", "standard_framework"]
+# version = "8a3361c"
+
+[[bin]]
+name = "bot"
+path = "src/main.rs"
+
+[[bin]]
+name = "trampoline"
+path = "src/trampoline.rs"
