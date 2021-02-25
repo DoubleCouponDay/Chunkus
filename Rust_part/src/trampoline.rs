@@ -210,8 +210,15 @@ async fn inform_channel_of(ctx: &Context, channel: &ChannelId, message: String)
 
 #[async_trait]
 impl EventHandler for TrampolineHandler {
-    async fn message(&self, ctx: Context, new_message: Message) {
-        if new_message.author.name == "Vectorizer" && new_message.content.contains("working on it") {
+    async fn message(&self, ctx: Context, mut new_message: Message) {
+        println!("name of author: {}", new_message.author.name);
+        new_message.content.make_ascii_lowercase();
+        let contentcontainstart = new_message.content.contains("working on it");
+        println!("message content: {}", contentcontainstart);
+
+        if new_message.author.name == "Vectorizer" && contentcontainstart {
+            println!("vectorizer is running. starting checks");
+
             loop {
                 if let Ok(status) = get_vectorizer_status(&ctx.data).await
                 {
@@ -221,17 +228,18 @@ impl EventHandler for TrampolineHandler {
                         VectorizerStatus::NotStarted => start_vectorizer_bot(&ctx.data).await,
                         VectorizerStatus::DeadButSuccessfully => start_vectorizer_bot(&ctx.data).await,
                         VectorizerStatus::Crashed(_) => { 
+                            println!("vectorizer crashed!");
                             let lastline = get_last_line_of_log();
                             inform_channel_of(&ctx, &new_message.channel_id, format!("Vectorizer crashed with status: {}", status)).await;
                             inform_channel_of(&ctx, &new_message.channel_id, format!("last line of log: `{}`", lastline)).await;
-                            start_vectorizer_bot(&ctx.data).await; 
+                            start_vectorizer_bot(&ctx.data).await;
+                            return;
                         }
                         VectorizerStatus::FailedWithoutCode => { 
                             inform_channel_of(&ctx, &new_message.channel_id, format!("Vectorizer has been detected with bad status of: {}", status)).await; 
                             start_vectorizer_bot(&ctx.data).await; 
                         }
-                    }
-                    return;
+                    }                    
                 }
                 sleep(Duration::from_secs(1)).await;
             }

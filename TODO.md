@@ -38,6 +38,8 @@ Convert a raster image into a scalable vector graphic and back.
 
 - add status code conversion for unix
 
+- make trampoline effective using only a single bot token
+
 <br>
 <br>
 
