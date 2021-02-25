@@ -7,10 +7,8 @@ mod options;
 mod error_show;
 
 use std::{
-    fmt,
-    process::{Child},
-    time::Duration,
-    io::prelude::*,
+    io::Error,
+    fmt, io::prelude::*, process::{Child}, time::Duration
 };
 use serenity::
 {
@@ -78,40 +76,46 @@ impl fmt::Display for VectorizerStatus
     }
 }
 
-async fn get_vectorizer_status(data: &Arc<RwLock<TypeMap>>) -> Result<VectorizerStatus, std::io::Error>
+async fn get_vectorizer_status(data: &Arc<RwLock<TypeMap>>) -> Result<VectorizerStatus, Error>
 {
+    println!("locking 1");
     let mut data_mut_read = data.write().await;
     let potentialdata = data_mut_read.get_mut::<TrampolineProcessKey>().unwrap();
+    let thing2 = potentialdata.vectorizer.try_wait();
 
-    match potentialdata.vectorizer.try_wait() { // Tries to get the exit status 
-        Err(why) => return Err(why),
-        Ok(exit_opt) =>
-        {
-            if let Some(exit_status) = exit_opt
+    let output = match thing2 {
+        Err(why) => Err(why),
+
+        Ok(possible_exit) => {
+            if let Some(exit_status) = possible_exit
             {
                 if exit_status.success()
                 {
-                    return Ok(VectorizerStatus::DeadButSuccessfully);
+                    Ok(VectorizerStatus::DeadButSuccessfully)
                 }
+
                 else
                 {
                     if let Some(exit_code) = exit_status.code()
                     {
-                        return Ok(VectorizerStatus::Crashed(exit_code));
+                        Ok(VectorizerStatus::Crashed(exit_code))
                     }
+
                     else
                     {
-                        return Ok(VectorizerStatus::FailedWithoutCode);
+                        Ok(VectorizerStatus::FailedWithoutCode)
                     }
                 }
             }
 
             else
             {
-                return Ok(VectorizerStatus::Running);
+                Ok(VectorizerStatus::Running)
             }
         }
-    }
+    };
+    println!("unlocking 1");
+    output
 }
 
 async fn start_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
@@ -129,15 +133,29 @@ async fn start_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
 }
 
 async fn initialize_child(data: &Arc<RwLock<TypeMap>>) {
-    let mut data_write = data.write().await;
     println!("starting vectorizer...");
     let created_process = std::process::Command::new("cargo.exe").arg("run").arg("--bin").arg("bot").spawn().unwrap();
+    initialize_data_insert(data, created_process).await;
+}
+
+async fn initialize_data_insert(data: &Arc<RwLock<TypeMap>>, created_process: Child) {
+    println!("locking 2");
+    let mut data_write = data.write().await;
 
     let datatoinsert = TrampolineData {
         vectorizer: created_process,
         vectorizer_finished: false
     };
     data_write.insert::<TrampolineProcessKey>(datatoinsert);
+    println!("unlocking 2");
+}
+
+async fn set_state(data: &Arc<RwLock<TypeMap>>, vectorizer_finished: bool) {
+    println!("locking 3");
+    let mut lock = data.write().await;
+    let writeentry = lock.get_mut::<TrampolineProcessKey>().unwrap();
+    writeentry.vectorizer_finished = vectorizer_finished;
+    println!("unlocking 3");
 }
 
 fn get_last_line_of_log() -> String
@@ -219,10 +237,8 @@ impl EventHandler for TrampolineHandler {
 
         if new_message.author.name == "Vectorizer" {
             if(contentcontainsstart) {
-                println!("vectorizer was commanded.");
-                let lock = ctx.data.read().await;
-                let option = lock.get::<TrampolineProcessKey>();
-                let readentry = option.unwrap(); //assumes trampolinedata was initialized
+                set_state(&ctx.data, false).await;
+                println!("vectorizer was commanded.");                
 
                 loop {
                     println!("looping...");
@@ -248,20 +264,27 @@ impl EventHandler for TrampolineHandler {
                             }
                         }                    
                     }
+                    {
+                        println!("locking 5");
+                        let lock = ctx.data.read().await;
+                        let option = lock.get::<TrampolineProcessKey>();
+                        let readentry = option.unwrap(); //assumes trampolinedata was initialized    
 
-                    else if readentry.vectorizer_finished {
-                        println!("bot finished. No need to loop.");
-                        return;
+                        if readentry.vectorizer_finished {
+                            println!("No need to loop.");
+                            println!("unlocking 5");
+                            return;
+                        }
+                        println!("unlocking 5");
+
                     }
                     sleep(Duration::from_secs(1)).await;
                 }
             }
 
             else if content_contains_end {            
-                println!("vectorizer finished task. ending loop.");
-                let mut lock = ctx.data.write().await;
-                let writeentry = lock.get_mut::<TrampolineProcessKey>().unwrap();
-                writeentry.vectorizer_finished = true;
+                println!("vectorizer finished task.");
+                set_state(&ctx.data, true).await;
             }
 
             else {

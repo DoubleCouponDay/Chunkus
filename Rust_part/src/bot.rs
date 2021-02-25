@@ -416,7 +416,6 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
 
 async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 {  
-    println!("vectorize_urls with: {:?}", urls);
     for url in urls.iter()
     {
         println!("vectorizing url {:?}", url);
