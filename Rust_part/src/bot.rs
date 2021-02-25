@@ -39,6 +39,9 @@ use crate::options::{
     get_params
 };
 
+pub const START_MESSAGE: &'static str = "Working on it...";
+pub const END_MESSAGE: &'static str = "Here's your result.";
+
 struct MsgListen;
 struct MsgUpdate;
 pub struct DefaultHandler;
@@ -334,7 +337,7 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
     println!("message received");
 
     let _acknowledged = msg.channel_id.send_message(&ctx.http, |m| {
-        m.content("Working on it...")
+        m.content(START_MESSAGE)
     }).await;
     
     let mut embed_urls: Vec<String> = vec![];
@@ -483,7 +486,7 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
         let msg = msg.channel_id.send_files(&ctx.http, msg_files, |m|
         {
-            m.content("Here's your result.")
+            m.content(END_MESSAGE)
         }).await;
 
         if let Err(err) = msg

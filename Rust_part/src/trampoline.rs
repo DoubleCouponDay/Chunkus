@@ -33,6 +33,10 @@ use serenity::
 use tokio::time::sleep;
 use error_show::error_string;
 use std::sync::Arc;
+use vecbot::bot::{
+    START_MESSAGE,
+    END_MESSAGE
+};
 
 pub struct TrampolineProcessKey;
 
@@ -214,9 +218,9 @@ impl EventHandler for TrampolineHandler {
     async fn message(&self, ctx: Context, mut new_message: Message) {
         println!("name of author: {}", new_message.author.name);
         new_message.content.make_ascii_lowercase();
-        let contentcontainsstart = new_message.content.contains("working on it");
+        let contentcontainsstart = new_message.content.contains(START_MESSAGE);
         println!("message content: {}", contentcontainsstart);
-        let contentcontainsend = new_message.content.contains("heres your result");
+        let contentcontainsend = new_message.content.contains(END_MESSAGE);
 
         if new_message.author.name == "Vectorizer" {
             if(contentcontainsstart) {
