@@ -5,6 +5,8 @@ use winapi::{
         ntdef::ULONG
     },
 };
+
+#[cfg(target_os = "windows")]
 use ntapi::ntrtl::RtlNtStatusToDosError;
 
 #[cfg(target_os = "windows")]
@@ -78,7 +80,7 @@ fn error_string_wininet(errno: i32) -> String {
     }
 }
 
-#[cfg(target_os = "unix")]
+#[cfg(target_os = "linux")]
 pub fn error_string(errno:i32) -> String {
     errno.to_string()
 }
