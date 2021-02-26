@@ -79,9 +79,18 @@ Now in the `discord-v` folder, run:
     cargo build
 
 To link against the release build define the environment variable `releasebuild` as true
-In powershell:
 
-    $env:releasebuild = "true"
+in windows:
+
+    $env:releasebuild = "true" //powershell
+
+    set releasebuild=true //cmd
+
+    then log back in
+
+in linux:
+
+    you need to update your `~/.pam_environment` file to have this persist
 
 This sets the environment variable for this single terminal instance (the variable is lost with the terminal)
 
