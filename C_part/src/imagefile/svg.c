@@ -17,7 +17,7 @@ const SMALLEST_PATH_SIZE = 4;
 const char* NEW_LINE = "\r\n";
 const int NEW_LINE_LENGTH = 4;
 #elif __linux__
-const NEW_LINE = "\n";
+const char* NEW_LINE = "\n";
 const int NEW_LINE_LENGTH = 2;
 #elif __unix__
 const NEW_LINE = "This repo is not for you, Macintosh";
