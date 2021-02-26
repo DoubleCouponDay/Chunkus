@@ -21,6 +21,7 @@ typedef struct find_shapes_speed_stuff
     int* border_counts;
     int* border_offsets;
     int* border_chunk_indices;
+    vector2* border_chunk_offsets;
 } find_shapes_speed_stuff;
 
 void shape_initial_sweep(chunkmap* map, find_shapes_speed_stuff* stuff, float threshold)
@@ -244,6 +245,11 @@ void free_shape_stuff(find_shapes_speed_stuff* stuff)
 
     stuff->border_counts = 0;
 
+    if (stuff->border_chunk_offsets)
+        free(stuff->border_chunk_offsets);
+
+    stuff->border_chunk_offsets = 0;
+
     if (stuff)
         free(stuff);
 }
@@ -371,14 +377,88 @@ find_shapes_speed_stuff* produce_shape_stuff(chunkmap* map, float threshold)
 
     LOG_INFO("Adding unsorted boundary indices");
     output->border_chunk_indices = calloc(border_total, sizeof(int));
+    output->border_chunk_offsets = calloc(border_total, sizeof(vector2));
 
-    for (int shape_i = 0; shape_i < output->num_shapes; ++shape_i)
+    int iterations = 0;
+    for (int i = 0; i < output->num_shapes; ++i)
     {
-        for (int border_i = 0; border_i < output->border_counts[shape_i]; ++border_i)
+        int first_chunk = output->chunk_index_of[output->shape_offsets[i]];
+        int current_chunk = first_chunk;
+        int x = current_chunk % map->map_width;
+        int y = current_chunk / map->map_width;
+        vector2 last = (vector2){(float)x, (float)y};
+        int pp = border_running_indices[i];
+        output->border_chunk_indices[pp] = current_chunk;
+        for (int j = 0; j < output->border_counts[i]; ++j)
         {
-            output->border_chunk_indices[border_running_indices[shape_i]++] = output->chunk_index_of[border_i + output->shape_offsets[shape_i]];
+            float last_angle = 3.1415926535897982384626433f * 2.f;
+            vector2 current_vec;
+            current_vec.x = x;
+            current_vec.y = y;
+            vector2 towards_boundary = { 0 };
+            int num_boundaries = 0;
+            for (int adj_x = -1; adj_x < 2; ++adj_x)
+            {
+                for (int adj_y = -1; adj_y < 2; ++adj_y)
+                {
+                    int is_boundary = (x + adj_x < 0) | (x + adj_x >= map->map_width) | (y + adj_y < 0) | (y + adj_y >= map->map_height);     
+                    int corrected_index = current_chunk + adj_x * !is_boundary + (adj_y * !is_boundary) * map->map_width;
+                    is_boundary |= output->shape_ints[corrected_index] != output->shape_ints[current_chunk]; // Different shape borders
+                    num_boundaries += is_boundary;
+                    towards_boundary.x += adj_x * is_boundary;
+                    towards_boundary.y += adj_y * is_boundary;
+                }
+            }
+            towards_boundary.x /= (float)(num_boundaries + 1 * !num_boundaries);
+            towards_boundary.y /= (float)(num_boundaries + 1 * !num_boundaries);
+            vector2 away_from_boundary = vec_negate(towards_boundary);
+            vector2 from_last_to_me = vec_sub(current_vec, last);
+            vector2 sum = vec_normalize(vec_add(from_last_to_me, away_from_boundary));
+            int next_boundary_index = 0;
+
+            
+            int x_in_range = (x + 1 < map->map_width);
+            int y_in_range = (y + 1 < map->map_height);
+            int capped_x = (x_in_range * 2 + (!x_in_range) * 1);
+            int capped_y = (y_in_range * 2 + (!y_in_range) * 1);
+            for (int adj_x = -1 * (x > 0); adj_x < capped_x; ++adj_x)
+            {
+                for (int adj_y = -1 * (y > 0); adj_y < capped_y; ++adj_y)
+                {
+                    int adjacent = x + adj_x + (y + adj_y) * map->map_width;
+                    //if (adjacent < 0 || adjacent >= total_found)
+                        //LOG_ERR("Border detection Out-Of-Bounds error in adjacent block");//DEBUG
+                    vector2 my_vec = vec_normalize((vector2){adj_x, adj_y});
+                    float angle = vec_angle_between(sum, my_vec);
+                    int angle_is_better = (angle < last_angle);
+                    int adjacent_in_same_shape = (output->shape_ints[adjacent] == output->shape_ints[current_chunk]);
+                    int is_border = border_bits[adjacent];
+                    int not_center = (adj_x || adj_y);
+
+                    int suitable_adjacent = angle_is_better * adjacent_in_same_shape * not_center * is_border;
+                    
+                    next_boundary_index = (adjacent) * suitable_adjacent + next_boundary_index * (!suitable_adjacent);
+                    last_angle = (suitable_adjacent * angle) + last_angle * (!suitable_adjacent);
+                }
+            }
+
+            // Assign next x, y, current_chunk
+            //if (border_running_indices[i] < 0 || border_running_indices[i] >= border_total)// DEBUG
+                //LOG_ERR("Border detection Out-Of-Bounds problem");// DEBUG
+            output->border_chunk_indices[border_running_indices[i]] = next_boundary_index;
+            border_running_indices[i] += 1 * (next_boundary_index != 0);
+
+            //LOG_INFO("Border progress of shape %d at location (%d, %d) (iteration: %d, last: (%.2f, %.2f), sum: (%.2f, %.2f), from_last_to_me: (%.2f, %.2f), away_from_boundary: (%.2f, %.2f), # of boundaries: %d)", i, x, y, iterations, last.x, last.y, sum.x, sum.y, from_last_to_me.x, from_last_to_me.y, away_from_boundary.x, away_from_boundary.y, num_boundaries);
+            current_chunk = current_chunk * (!next_boundary_index) + next_boundary_index;
+            last.x = x;
+            last.y = y;
+            x = current_chunk % map->map_width;
+            y = current_chunk / map->map_width;
+            ++iterations;
         }
     }
+
+
 
     return output;
 }
@@ -390,13 +470,15 @@ void sweepfill_chunkmap(chunkmap* map, float threshold)
     // START CONVERT TO ACTUAL SHAPES
     chunkshape* actual_shapes = calloc(1, sizeof(chunkshape));
     chunkshape* current = actual_shapes;
+    chunkshape* previous = NULL;
 
     for (int i = 0; i < stuff->num_shapes; ++i)
     {
+        current->previous = previous;
         current->next = (i + 1 < stuff->num_shapes ? calloc(1, sizeof(chunkshape)) : NULL);
         current->boundaries_length = stuff->border_counts[i];
         current->boundaries = calloc(1, sizeof(pixelchunk_list));
-        current->chunks_amount = stuff->border_counts[i];
+        current->chunks_amount = stuff->shape_counts[i];
         current->chunks = calloc(1, sizeof(pixelchunk_list));
         int first_chunk = stuff->chunk_index_of[stuff->shape_offsets[i]];
         int first_chunk_x = first_chunk % map->map_width;
@@ -410,6 +492,8 @@ void sweepfill_chunkmap(chunkmap* map, float threshold)
             int chunk_x = chunk_index % map->map_width;
             int chunk_y = chunk_index / map->map_width;
             current_border->chunk_p = &map->groups_array_2d[chunk_x][chunk_y];
+            vector2 offset = stuff->border_chunk_offsets[j + stuff->border_offsets[i]];
+            current_border->chunk_p->border_location = (vector2){ (float)chunk_x + offset.x, (float)chunk_y + offset.y };
             current_border->next = (j + 1 < current->boundaries_length ? calloc(1, sizeof(pixelchunk_list)) : NULL);
             current_border->firstitem = current->boundaries;
 
@@ -429,6 +513,7 @@ void sweepfill_chunkmap(chunkmap* map, float threshold)
             current_chunk = current_chunk->next;
         }
 
+        previous = current;
         current = current->next;
     }
 

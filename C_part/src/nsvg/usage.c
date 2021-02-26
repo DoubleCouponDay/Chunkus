@@ -104,12 +104,22 @@ NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options) {
         free_chunkmap(map);
         return NULL;
     }
-    sort_boundary(map);
+    //sort_boundary(map);
 
     if(isBadError()) {
         LOG_ERR("sort_boundary failed with code %d", getLastError());
+        free_chunkmap(map);
         return NULL;
     }
+
+    write_chunkmap_to_png(map, "chunkmap.png");
+    if (isBadError())
+    {
+        LOG_ERR("Writing Chunkmap to png failed %d", getLastError());
+        free_chunkmap(map);
+        return NULL;
+    }
+
     NSVGimage* nsvg = create_nsvgimage(map->map_width, map->map_height);
     parse_map_into_nsvgimage(map, nsvg);
 
@@ -117,7 +127,7 @@ NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options) {
     {
         LOG_ERR("mapparser failed with error: %d", getLastError());
         free_chunkmap(map);
-        free(nsvg);
+        free_nsvg(nsvg);
         return NULL;
     }
     free_chunkmap(map);
