@@ -9,9 +9,10 @@ mod ffimodule
 {
     use libc::{c_int, c_char};
 
+    //if no kind given, defaults to dynamic
     #[link(name = "zlib", kind = "static")]
-    #[link(name = "libpng16", kind = "static")]
-    #[link(name = "vec", kind = "static")] //if no kind given, defaults to dynamic
+    #[link(name = "png16", kind = "static")]
+    #[link(name = "vec", kind = "static")] 
     extern {        
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
         pub fn set_algorithm(algo: *mut c_char) -> c_int;
