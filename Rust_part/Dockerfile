@@ -7,10 +7,11 @@ RUN apt-get update && \
     apt-get install -y musl-tools && \
     rustup target add x86_64-unknown-linux-musl
 
+COPY ./targ/release ./
 RUN cargo install --target x86_64-unknown-linux-musl --path .
 
 FROM alpine
 COPY --from=deployment /src/target/release/ /usr/vectorizer/
-EXPOSE 443/TCP
-EXPOSE 80/TCP
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ # think this was needed for discord rust bot for some reason
+
 RUN "./trampoline"

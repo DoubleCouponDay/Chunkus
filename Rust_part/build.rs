@@ -1,11 +1,14 @@
 #![allow(unused_imports)]
+
+use std::ops::Add;
 fn main() {
+    println!("cargo:rustc-link-search=./");
     let path = std::env::current_dir().unwrap();
-    let release_env_var = std::env::var("releasebuild");
+    let release_env_var = std::env::var(RELEASEBUILDKEY);
     
     let unwrapped_var: bool = match release_env_var {
         Err(_) => {
-            let message = "'releasebuild' environment variable not found.";
+            let message = RELEASEBUILDKEY.to_string().add("environment variable not found.");
             println!("{}", message);
             panic!(message);
         },
@@ -30,38 +33,58 @@ fn main() {
     // copy a test image
     let _ = std::fs::copy("test.png", std::env::var("OUT_DIR").unwrap());
 
-    if let Some(currentdir) = path.as_path().to_str() {
-        println!("current directory: {}", currentdir);
-        println!("unwrapped_var: {}", unwrapped_var);
-
+    if let Some(_currentdir) = path.as_path().to_str() {
         //detect the C part
         let linuxfound_shared;
         let windows_found_static;
+        let new_windows_lib = String::from(WINDOWSCORE).add(LIB_EXT);
+        let new_linux_lib = String::from(LINUXCORE).add(A_EXT);
 
         if unwrapped_var //release build
         {
             println!("release C build detected");
+
+            let lin_path = String::from(LIN_COMMON_PATH)
+                .add(RELEASENAME)
+                .add(LINUXCORE)
+                .add(A_EXT);
+
+            let win_path = String::from(WIN_COMMON_PATH)
+                .add(RELEASENAME)
+                .add(WINDOWSCORE)
+                .add(LIB_EXT);
+
             linuxfound_shared = std::fs::copy(
-                std::path::Path::new("../C_part/build/linux/x86_64/release/libvec.a"),
-                std::path::Path::new("vec.so"),
+                std::path::Path::new(&lin_path),
+                std::path::Path::new(&new_linux_lib),
             );
             windows_found_static = std::fs::copy(
-                std::path::Path::new("../C_part/build/windows/x64/release/vec.lib"),
-                std::path::Path::new("vec.lib")
+                std::path::Path::new(&win_path),
+                std::path::Path::new(&new_windows_lib)
             );
         }
 
         else //debug build
         {
             println!("debug C build detected");
-            linuxfound_shared = std::fs::copy(
-                std::path::Path::new("../C_part/build/linux/x86_64/debug/libvec.a"),
-                std::path::Path::new("vec.so"),
-            );
 
+            let lin_path = String::from(LIN_COMMON_PATH)
+                .add(DEBUGNAME)
+                .add(LINUXCORE)
+                .add(A_EXT);
+
+            let win_path = String::from(WIN_COMMON_PATH)
+                .add(DEBUGNAME)
+                .add(WINDOWSCORE)
+                .add(LIB_EXT);
+
+            linuxfound_shared = std::fs::copy(
+                std::path::Path::new(&lin_path),
+                std::path::Path::new(&new_linux_lib),
+            );
             windows_found_static = std::fs::copy(
-                std::path::Path::new("../C_part/build/windows/x64/debug/vec.lib"),
-                std::path::Path::new("vec.lib")
+                std::path::Path::new(&win_path),
+                std::path::Path::new(&new_windows_lib)
             );
         }
 
@@ -70,30 +93,67 @@ fn main() {
             println!("C part not found on either OS. error: {}", copy_err);
             panic!("copy_err: {}", copy_err);
         }
-        println!("cargo:rustc-link-search=./");
 
-        //detect the conan libraries
-        
-        if let Ok(conanpathstr) = std::env::var("conanpath") {
+        else if linuxfound_shared.is_ok() && windows_found_static.is_err() {
+            println!("linux build found.");
+            println!("cargo:rustc-link-lib=static={}", LINUXCORE);
+        }
+
+        else if linuxfound_shared.is_err() && windows_found_static.is_ok() {
+            println!("windows build found.");
+            println!("cargo:rustc-link-lib=static={}", WINDOWSCORE);
+        }
+
+        else {
+            panic!("build script said 'wtf'");
+        }
+
+        if let Ok(conanpathstr) = std::env::var(CONANPATHKEY) { //detect the conan libraries
             let conanpath = std::path::Path::new(&conanpathstr);
             link_c_libs(conanpath);
         }
 
         else {
-            println!("could not find the 'conanpath' environment variable.");
+            let message = String::from("could not find the ")
+                .add(CONANPATHKEY)
+                .add("environment variable.");
+
+            println!("{}", message);
         }
 
         // Rerun if any library file was deleted
-        println!("cargo:rerun-if-changed=vec.lib");
-        println!("cargo:rerun-if-changed=vec.dll");
-        println!("cargo:rerun-if-changed=vec.a");
-        println!("cargo:rerun-if-changed=vec.so");
+        #[cfg(target_os = "windows")] 
+        {
+            println!("cargo:rerun-if-changed={}.lib", WINDOWSCORE);
+            println!("cargo:rerun-if-changed={}.dll", WINDOWSCORE);
+        }
+
+        #[cfg(target_os = "linux")]
+        {
+            let linux_bin = String::from(LINUXCORE).add(A_EXT);
+            println!("cargo:rerun-if-changed={}", linux_bin);
+        }
     } 
     
     else {
         eprintln!("could not get the current directory.");
     }
 }
+
+const WINDOWSCORE: &'static str = "vec";
+const WIN_COMMON_PATH: &'static str = "../C_part/build/windows/x64/";
+
+const LINUXCORE: &'static str = "libvec";
+const LIN_COMMON_PATH: &'static str = "../C_part/build/linux/x86_64/";
+
+const DEBUGNAME: &'static str = "debug/";
+const RELEASENAME: &'static str = "release/";
+
+const RELEASEBUILDKEY: &'static str = "releasebuild";
+const CONANPATHKEY: &'static str = "conanpath";
+
+const LIB_EXT: &'static str = ".lib";
+const A_EXT: &'static str = ".a";
 
 fn link_c_libs(directory: &std::path::Path) {
     match directory.read_dir()
@@ -129,19 +189,26 @@ fn check_file_type(real_item: &std::fs::DirEntry, directory: &std::path::Path) {
         {
             if let Some(real_file_name) = real_item.file_name().to_str()
             {
-                if real_file_name.ends_with(".lib")
+                let dir_name = directory.to_str().unwrap();
+
+                if real_file_name.ends_with(LIB_EXT)
                 {
-                    if let Some(dir_name) = directory.to_str()
-                    {
-                        add_directory_to_linker(dir_name, real_file_name);
-                    }
+                    
+                    add_directory_to_linker(dir_name, real_file_name, LIB_EXT);
+                }
+
+                else if real_file_name.ends_with(A_EXT) {
+                    add_directory_to_linker(dir_name, real_file_name, A_EXT)
                 }
             }
         }
     }
 }
 
-fn add_directory_to_linker(dir_name: &str, real_file_name: &str) {
+fn add_directory_to_linker(dir_name: &str, real_file_name: &str, filetype: &'static str) {
     println!("cargo:rustc-link-search={}", dir_name);
-    println!("cargo:rustc-link-lib=static={}", real_file_name.strip_suffix(".lib").expect("Build script failed to remove '.lib' from a filename"));
+    let stripped = real_file_name.strip_suffix(filetype)
+        .expect("Build script failed to remove '.lib' from a filename");
+
+    println!("cargo:rustc-link-lib=static={}", stripped);
 }
