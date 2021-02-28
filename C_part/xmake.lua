@@ -3,7 +3,6 @@
 add_rules("mode.debug")
 add_rules("mode.release")
 add_requires("CONAN::libpng/1.6.37", {alias = "libpng"})
-add_requires("CONAN::libjpeg/9d", {alias = "libjpeg"})
 add_requires("CONAN::nanosvg/20190405", {alias = "nanosvg"})
 
 rule("copytemplate")
@@ -28,7 +27,7 @@ target("tests")
     add_files("./src/**.c|main.c")
     add_files("./test/**.c")
     add_includedirs("./src/")
-    add_packages("libpng", "libjpeg", "nanosvg")
+    add_packages("libpng", "nanosvg")
 
 target("vec")
     if is_plat("linux") then
@@ -41,4 +40,4 @@ target("vec")
     set_kind("static")
     add_files("./src/**.c|main.c")
     add_includedirs("./src/")
-    add_packages("libpng", "libjpeg", "nanosvg")
+    add_packages("libpng", "nanosvg")
