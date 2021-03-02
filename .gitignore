@@ -81,3 +81,5 @@ conan.lock
 .xmake/linux/x86_64/xmake.conf
 
 *.lock
+
+Rust_part/vec

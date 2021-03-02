@@ -18,7 +18,7 @@ use std::env::var;
 const WINDOWSCORE: &'static str = "vec";
 const WIN_COMMON_PATH: &'static str = "../C_part/build/windows/x64/";
 
-const LINUXCORE: &'static str = "libvec";
+const LINUXCORE: &'static str = "libvec"; //linux requires lib prepended to library filenames
 const LIN_COMMON_PATH: &'static str = "../C_part/build/linux/x86_64/";
 
 const DEBUGNAME: &'static str = "debug/";
@@ -33,7 +33,7 @@ const A_EXT: &'static str = ".a";
 const BAD_ZLIB: &'static str = "libz";
 const GOOD_ZLIB: &'static str = "zlib";
 const LIB_PNG: &'static str = "libpng16";
-
+const LIB: &'static str = "lib";
 const NUM_LIBS: usize = 3;
 
 static LIB_NAMES: [&'static str; NUM_LIBS] = [
@@ -41,22 +41,27 @@ static LIB_NAMES: [&'static str; NUM_LIBS] = [
 ];
 
 fn main() {
-    println!("cargo:rustc-link-search=./");
-
+    
     //copy the template svg    
     let _ = std::fs::copy("../template.svg", std::env::var("OUT_DIR").unwrap());
 
     let previous_lib_path: String;
-    let new_lib_path: String;
+    let mut new_lib_path: String;
+    let new_lib_name: String;
 
     #[cfg(target_os = "linux")] {
         println!("Linux detected");
-        new_lib_path = String::from(LINUXCORE).add(A_EXT);            
+        new_lib_path = String::from(LINUXCORE);
+        new_lib_name = new_lib_path.clone();
+        new_lib_path = new_lib_path.add(A_EXT);
     }
 
     #[cfg(target_os = "windows")] {
         println!("Windows detected");
-        new_lib_path = String::from(WINDOWSCORE).add(LIB_EXT);
+        new_lib_path = String::from(WINDOWSCORE);
+        new_lib_name = new_lib_path.clone();
+        new_lib_path = new_lib_path.add(LIB_EXT);
+
     }
     stop_if_unknown_os();
 
@@ -97,9 +102,9 @@ fn main() {
                 .add(LIB_EXT);
         }
     }   
-    copy_core_totarget(&previous_lib_path, &new_lib_path);
+    copy_core_totarget(&previous_lib_path, &new_lib_path, &new_lib_name);
     verify_conan_environment();
-    rerun_after_copying(&new_lib_path);
+    rerun_after_copying(&new_lib_name);
 }
 
 fn is_release_build() -> bool {
@@ -135,12 +140,13 @@ fn stop_if_unknown_os() {
     }
 }
 
-fn copy_core_totarget(previous_lib_path: &String, new_lib_name: &String) {
+fn copy_core_totarget(previous_lib_path: &String, new_lib_path: &String, new_name: &String) {
     let frompath = Path::new(previous_lib_path);
-    let topath = Path::new(new_lib_name);
-    println!("copying file: {}, to: {}", previous_lib_path, new_lib_name);
-    copy(previous_lib_path, new_lib_name).unwrap();
-    println!("cargo:rustc-link-lib=static={}", new_lib_name);
+    let topath = Path::new(new_lib_path);
+    println!("copying file: {}, to: {}", previous_lib_path, new_lib_path);
+    copy(frompath, topath).unwrap();
+    println!("cargo:rustc-link-search=./");
+    println!("cargo:rustc-link-lib=static={}", new_name);
 }
 
 fn verify_conan_environment() {
@@ -220,12 +226,12 @@ fn check_filename_for_needed(dir_name: &str, entry: &DirEntry, real_file_name: &
         let filepath = &entry.path();
 
         #[cfg(target_os = "windows")]
-        let fixedbug = String::from(real_file_name);
+        let processedname = String::from(real_file_name);
 
         #[cfg(target_os = "linux")]
-        let fixedbug: String = rename_libz_to_zlib(filepath, real_file_name);
+        let processedname: String = rename_libz_to_zlib(filepath, real_file_name);
 
-        link_file(dir_name, filepath, fixedbug.as_str());
+        link_file(dir_name, filepath, processedname.as_str());
     }
 }
 
@@ -284,7 +290,7 @@ fn prepend_lib_filename(filepath: &Path, real_file_name: &str) -> String {
         return String::from(real_file_name);
     }
     let mut newpathbuf = filepath.clone().to_path_buf();
-    let newfilename = String::from(LIB_EXT).add(real_file_name);
+    let newfilename = String::from(LIB).add(real_file_name);
     newpathbuf.pop();
     newpathbuf.push(&newfilename);
     println!("renaming file: {}, to: {}", real_file_name, newfilename);
