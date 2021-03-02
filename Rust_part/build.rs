@@ -146,8 +146,10 @@ fn copy_core_totarget(previous_lib_path: &String, new_lib_path: &String, new_nam
     let topath = Path::new(new_lib_path);
     println!("copying file: {}, to: {}", previous_lib_path, new_lib_path);
     copy(frompath, topath).unwrap();
+    println!("=========================");
     println!("cargo:rustc-link-search=./");
     println!("cargo:rustc-link-lib=static={}", new_name);
+    println!("=========================");
 }
 
 fn verify_conan_environment() {
@@ -168,12 +170,17 @@ fn verify_conan_environment() {
 fn rerun_after_copying(new_lib_name: &String) {
     // Rerun if any library file was deleted
     #[cfg(target_os = "windows")] {
+        println!("=========================");
         println!("cargo:rerun-if-changed={}", new_lib_name);
         println!("cargo:rerun-if-changed={}", new_lib_name);
+        println!("=========================");
     }
 
-    #[cfg(target_os = "linux")]
-    println!("cargo:rerun-if-changed={}", new_lib_name);    
+    #[cfg(target_os = "linux")] {
+        println!("=========================");
+        println!("cargo:rerun-if-changed={}", new_lib_name);    
+        println!("=========================");
+    }
 }
 
 fn link_c_libs(directory: &std::path::Path) {
@@ -223,8 +230,8 @@ fn check_filename_for_needed(dir_name: &str, entry: &DirEntry, real_file_name: &
             println!("{} not match for: {}", real_file_name, current);
             continue;
         }
-        println!("{} found match: {}", real_file_name, current);
-        let filepath = &entry.path();
+        println!("{} found match: {}", current, real_file_name);
+        let filepath: &PathBuf = &entry.path();
 
         #[cfg(target_os = "windows")]
         let processedname = String::from(real_file_name);
@@ -240,13 +247,13 @@ fn rename_libz_to_zlib(filepath: &PathBuf, real_file_name: &str) -> String { //c
     if real_file_name.starts_with(BAD_ZLIB) == false {
         return String::from(real_file_name);
     }
-    println!("found the libz bug. creating a zlib.a copy...");
+    println!("found the libz bug. creating a zlib.a copy.");
     let mut newpathbuf = filepath.clone().to_path_buf();
     let newfilename = String::from(GOOD_ZLIB).add(A_EXT);
     newpathbuf.pop();
     newpathbuf.push(&newfilename);
-    println!("copying file: {}, to: {}", real_file_name, newfilename);
-    copy_file(filepath, &newpathbuf);
+    println!("renaming file: {}, to: {}", real_file_name, newfilename);
+    copy(filepath, &newpathbuf).unwrap();
     return newfilename;
 }
 
@@ -271,22 +278,36 @@ fn link_file(dir_name: &str, filepath: &Path, real_file_name: &str) {
         }
     };
 
+    println!("=========================");    
     println!("cargo:rustc-link-search={}", dir_name);
+    println!("=========================");
+
     let processedname = prepend_lib_filename(filepath, real_file_name);
 
-    let stripped = processedname.strip_suffix(extension)
-        .expect("Build script failed to remove '.lib' from a filename");
+    let mut stripped = String::from(
+        processedname.strip_suffix(extension).unwrap()
+    );
 
+    #[cfg(target_os = "linux")] {
+        if stripped.starts_with(LIB) {
+            stripped.replace_range(0..=2, "");
+        }
+    }
+
+    println!("=========================");
     println!("cargo:rustc-link-lib=static={}", stripped);
+    println!("=========================");
+
 }
 
 fn prepend_lib_filename(filepath: &Path, real_file_name: &str) -> String {
+    println!("PREPEND_LIB_FILENAME: filepath: {}, real_file_name: {}", filepath.display(), real_file_name);
     if cfg!(target_os = "windows") 
         && real_file_name.contains(LIB_PNG) {
         return remove_lib_filename(filepath, real_file_name);
     }
 
-    else if real_file_name.starts_with("lib") {
+    else if real_file_name.starts_with(LIB) {
         println!("file already begins with lib: {}", real_file_name);
         return String::from(real_file_name);
     }
@@ -294,7 +315,12 @@ fn prepend_lib_filename(filepath: &Path, real_file_name: &str) -> String {
     let newfilename = String::from(LIB).add(real_file_name);
     newpathbuf.pop();
     newpathbuf.push(&newfilename);
-    println!("renaming file: {}, to: {}", real_file_name, newfilename);
+
+    if filepath.eq(&newpathbuf) {
+        println!("build script tried to copy to the same filename");
+        return String::from(real_file_name);
+    }
+    println!("renaming file: {}, to: {}", filepath.display(), newpathbuf.display());
     copy_file(filepath, &newpathbuf);
     return newfilename;
 }
