@@ -11,7 +11,8 @@ use std::fs::{
     ReadDir,
     DirEntry,
     OpenOptions,
-    copy
+    copy,
+    rename
 };
 use std::env::var;
 
@@ -52,7 +53,7 @@ fn main() {
     #[cfg(target_os = "linux")] {
         println!("Linux detected");
         new_lib_path = String::from(LINUXCORE);
-        new_lib_name = new_lib_path.clone();
+        new_lib_name = String::from(WINDOWSCORE); //NOT A BUG. I need the non lib part of the file name
         new_lib_path = new_lib_path.add(A_EXT);
     }
 
