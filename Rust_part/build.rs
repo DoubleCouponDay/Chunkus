@@ -30,13 +30,14 @@ const CONANPATHKEY: &'static str = "conanpath";
 const LIB_EXT: &'static str = ".lib";
 const A_EXT: &'static str = ".a";
 
-const BAD_LIBNAME: &'static str = "libz";
-const GOOD_LIBNAME: &'static str = "zlib";
+const BAD_ZLIB: &'static str = "libz";
+const GOOD_ZLIB: &'static str = "zlib";
+const LIB_PNG: &'static str = "libpng16";
 
-const NUM_LIBS: usize = 4;
+const NUM_LIBS: usize = 3;
 
 static LIB_NAMES: [&'static str; NUM_LIBS] = [
-    BAD_LIBNAME, GOOD_LIBNAME, "png16", "nanosvg"
+    BAD_ZLIB, GOOD_ZLIB, LIB_PNG
 ];
 
 fn main() {
@@ -160,8 +161,8 @@ fn verify_conan_environment() {
 fn rerun_after_copying(new_lib_name: &String) {
     // Rerun if any library file was deleted
     #[cfg(target_os = "windows")] {
-        println!("cargo:rerun-if-changed={}.lib", new_lib_name);
-        println!("cargo:rerun-if-changed={} .dll", new_lib_name);
+        println!("cargo:rerun-if-changed={}", new_lib_name);
+        println!("cargo:rerun-if-changed={}", new_lib_name);
     }
 
     #[cfg(target_os = "linux")]
@@ -185,14 +186,20 @@ fn find_lib(entry: &DirEntry, directory: &Path) {
 
     if real_file_type.is_dir()
     {
+        println!("{}", &entry.path().display());
         link_c_libs(&entry.path());
     }
 
     else if real_file_type.is_file()
     {
+        println!("{}", &entry.path().display());
         if let Some(real_file_name) = entry.file_name().to_str() {            
             let dir_name = directory.to_str().unwrap();                
             check_filename_for_needed(dir_name, entry, real_file_name);
+        }
+        
+        else {
+            panic!("problem getting filename");
         }
     }
 
@@ -206,8 +213,10 @@ fn check_filename_for_needed(dir_name: &str, entry: &DirEntry, real_file_name: &
         let current = LIB_NAMES[i];
         
         if real_file_name.starts_with(current) == false {
+            println!("{} not match for: {}", real_file_name, current);
             continue;
         }
+        println!("{} found match: {}", real_file_name, current);
         let filepath = &entry.path();
 
         #[cfg(target_os = "windows")]
@@ -221,12 +230,12 @@ fn check_filename_for_needed(dir_name: &str, entry: &DirEntry, real_file_name: &
 }
 
 fn rename_libz_to_zlib(filepath: &PathBuf, real_file_name: &str) -> String { //conan on Linux downloads a zlib library with a different filename than windows
-    if real_file_name.starts_with(BAD_LIBNAME) == false {
+    if real_file_name.starts_with(BAD_ZLIB) == false {
         return String::from(real_file_name);
     }
     println!("found the libz bug. creating a zlib.a copy...");
     let mut newpathbuf = filepath.clone().to_path_buf();
-    let newfilename = String::from(GOOD_LIBNAME).add(A_EXT);
+    let newfilename = String::from(GOOD_ZLIB).add(A_EXT);
     newpathbuf.pop();
     newpathbuf.push(&newfilename);
     println!("copying file: {}, to: {}", real_file_name, newfilename);
@@ -236,7 +245,8 @@ fn rename_libz_to_zlib(filepath: &PathBuf, real_file_name: &str) -> String { //c
 
 fn link_file(dir_name: &str, filepath: &Path, real_file_name: &str) {
     if real_file_name.ends_with(LIB_EXT) == false 
-        || real_file_name.ends_with(A_EXT) == false {
+        && real_file_name.ends_with(A_EXT) == false {
+            println!("file extension not valid");
         return;
     }
 
@@ -264,14 +274,31 @@ fn link_file(dir_name: &str, filepath: &Path, real_file_name: &str) {
 }
 
 fn prepend_lib_filename(filepath: &Path, real_file_name: &str) -> String {
-    if real_file_name.starts_with(LIB_EXT) {
-        return real_file_name.to_owned();
+    if cfg!(target_os = "windows") 
+        && real_file_name.contains(LIB_PNG) {
+        return remove_lib_filename(filepath, real_file_name);
+    }
+
+    else if real_file_name.starts_with("lib") {
+        println!("file already begins with lib: {}", real_file_name);
+        return String::from(real_file_name);
     }
     let mut newpathbuf = filepath.clone().to_path_buf();
     let newfilename = String::from(LIB_EXT).add(real_file_name);
     newpathbuf.pop();
     newpathbuf.push(&newfilename);
     println!("renaming file: {}, to: {}", real_file_name, newfilename);
+    copy_file(filepath, &newpathbuf);
+    return newfilename;
+}
+
+fn remove_lib_filename(filepath: &Path, realfilename: &str) -> String {
+    let mut newpathbuf = filepath.clone().to_path_buf();
+    let mut newfilename = String::from(realfilename);
+    newfilename.replace_range(0..=2, "");
+    println!("removing lib from filename. result: {}", &newfilename);
+    newpathbuf.pop();
+    newpathbuf.push(&newfilename);
     copy_file(filepath, &newpathbuf);
     return newfilename;
 }
