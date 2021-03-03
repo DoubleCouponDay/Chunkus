@@ -134,7 +134,7 @@ async fn start_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
 
 async fn initialize_child(data: &Arc<RwLock<TypeMap>>) {
     println!("starting vectorizer...");
-    let created_process = std::process::Command::new("cargo.exe").arg("run").arg("--bin").arg("bot").spawn().unwrap();
+    let created_process = std::process::Command::new("cargo").arg("run").arg("--bin").arg("bot").spawn().unwrap();
     initialize_data_insert(data, created_process).await;
 }
 

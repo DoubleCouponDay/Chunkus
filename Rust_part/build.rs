@@ -218,7 +218,7 @@ fn find_lib(entry: &DirEntry, directory: &Path) {
     }
 
     else {
-        panic!("it's neither directory nor file");
+        println!("it's neither directory nor file");
     }
 }
 
