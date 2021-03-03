@@ -3,6 +3,8 @@ the project objective
 
 convert jpg, png files to svg files!
 
+Currently, only png is supported.
+
 it has a Rust component and a C component.
 
 # Getting started
