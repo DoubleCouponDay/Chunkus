@@ -37,7 +37,7 @@ use serenity::
 use tokio::time::sleep;
 use error_show::error_string;
 use std::sync::Arc;
-use vecbot::bot::{END_MESSAGE, START_MESSAGE};
+use vecbot::bot::{END_MESSAGE, START_MESSAGE, ERR_MESSAGE};
 
 struct TrampolineData {
     pub vectorizer: Child,
@@ -192,6 +192,7 @@ fn get_last_line_of_log() -> String
 }
 
 #[command]
+#[aliases("ts")]
 async fn trampolinestatus(ctx: &Context, msg: &Message) -> CommandResult
 {
     if let Ok(status) = get_vectorizer_status(&ctx.data).await
@@ -239,6 +240,7 @@ impl EventHandler for TrampolineHandler {
     async fn message(&self, ctx: Context, new_message: Message) {
         println!("name of author: {}", new_message.author.name);
         let contentcontainsstart = new_message.content.contains(START_MESSAGE);
+        let contentcontains_err = new_message.content.contains(ERR_MESSAGE);
         let content_contains_end = new_message.content.contains(END_MESSAGE);
 
         if new_message.author.name == "Vectorizer" {
@@ -286,6 +288,11 @@ impl EventHandler for TrampolineHandler {
                     }
                     sleep(Duration::from_secs(1)).await;
                 }
+            }
+
+            else if contentcontains_err {
+                println!("vectorizer found error but didnt crash.");
+                set_state(&ctx.data, true).await;
             }
 
             else if content_contains_end {            

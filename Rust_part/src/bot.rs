@@ -1,12 +1,4 @@
-use std::{
-    collections::{HashSet, HashMap},
-    fs::File,
-    fs::remove_file,
-    path::Path,
-    io::prelude::*,
-    time::{Duration, Instant},
-    process::{Child, Command},
-};
+use std::{collections::{HashSet, HashMap}, fs::File, fs::remove_file, io::prelude::*, ops::Add, path::Path, process::{Child, Command}, time::{Duration, Instant}};
 use serenity::{
     async_trait,
     http::Http,
@@ -41,6 +33,7 @@ use crate::options::{
 
 pub const START_MESSAGE: &'static str = "Working on it...";
 pub const END_MESSAGE: &'static str = "Here's your result.";
+pub const ERR_MESSAGE: &'static str = "error: ";
 
 struct MsgListen;
 struct MsgUpdate;
@@ -465,7 +458,9 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
         let possibleerror: &str = result.into();
 
         if possibleerror != "SuccessCode" {
-            if let Err(why) = msg.reply(&ctx.http, possibleerror)
+            let mut errmessage: String = format!("{}", ERR_MESSAGE);
+            errmessage = errmessage.add(possibleerror);
+            if let Err(why) = msg.reply(&ctx.http, errmessage)
             .await { 
                 println!("Error replying: {}", why);
             };
