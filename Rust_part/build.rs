@@ -37,14 +37,22 @@ const LIB_PNG: &'static str = "libpng16";
 const LIB: &'static str = "lib";
 const NUM_LIBS: usize = 3;
 
+const TEMPLATE_NAME: &'static str = "template.svg";
+
 static LIB_NAMES: [&'static str; NUM_LIBS] = [
     BAD_ZLIB, GOOD_ZLIB, LIB_PNG
 ];
 
 fn main() {
     
-    //copy the template svg    
-    let _ = std::fs::copy("../template.svg", std::env::var("OUT_DIR").unwrap());
+    //copy the template svg   
+    
+    let oldtemplate = String::from("../").add(TEMPLATE_NAME);
+    let mut newtemplate = var("OUT_DIR").unwrap();
+    newtemplate = newtemplate.add("/../../../"); //fixes wtf OUT_DIR useless af
+    newtemplate = newtemplate.add(TEMPLATE_NAME);
+    println!("copying template from: {}, to: {}", &oldtemplate, &newtemplate);
+    let _ = copy(oldtemplate, newtemplate);
 
     let previous_lib_path: String;
     let mut new_lib_path: String;

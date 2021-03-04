@@ -3,7 +3,9 @@ FROM rust
 WORKDIR /usr/vectorizer/
 
 COPY ./Cargo.toml /usr/vectorizer/Cargo.toml
-COPY ./target/release/ /usr/vectorizer
+COPY ./target/release/trampoline /usr/vectorizer/trampoline
+COPY ./target/release/bot /usr/vectorizer/bot
+COPY ./target/release/template.svg /usr/vectorizer/template.svg
 
 RUN apt-get update && \
     apt-get dist-upgrade -y && \
