@@ -1,7 +1,0 @@
-az container create \
-    --resource-group fun \
-    --name vectorizer \
-    --image sjsui/dcd-bobscorn-vectorizer \
-    --log-analytics-workspace caaf7cef-bdaa-4274-bf19-4101e2e02a64 \
-    --log-analytics-workspace-key 1o6MyiRc/1ZodDu+Ei0MFcxn9djJVeQBFUfjqefFDO4xaY+J4gRiL2k349zItAFSC6Ff8hXGtWvzEgqWST/QJg== \
-	--location australiaeast
