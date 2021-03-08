@@ -1,5 +1,17 @@
-Rust_part/log.txt
-Rust_part/test.png
+**/*.a
+**/*.so
+**/*.lib
+/C_part/lib/
+/C_part/bin/
+conaninfo.txt
+graph_info.json
+conanbuildinfo.cmake
+CMakeFiles/
+**/CMakeCache.txt
+**/Makefile
+cmake_install.cmake
+**/log.txt
+**/conanbuildinfo.txt
 
 # Discord token
 *.discord_token
@@ -15,7 +27,7 @@ Rust_part/test.png
 Rust_part/target
 
 C_part/.xmake/
-C_part/build
+C_part/build/
 
 # Prerequisites
 *.d

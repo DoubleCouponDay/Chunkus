@@ -17,13 +17,9 @@ use std::fs::{
 use std::env::var;
 
 const WINDOWSCORE: &'static str = "vec";
-const WIN_COMMON_PATH: &'static str = "../C_part/build/windows/x64/";
+const COMMON_PATH: &'static str = "../C_part/build/lib/";
 
 const LINUXCORE: &'static str = "libvec"; //linux requires lib prepended to library filenames
-const LIN_COMMON_PATH: &'static str = "../C_part/build/linux/x86_64/";
-
-const DEBUGNAME: &'static str = "debug/";
-const RELEASENAME: &'static str = "release/";
 
 const RELEASEBUILDKEY: &'static str = "releasebuild";
 const CONANPATHKEY: &'static str = "conanpath";
@@ -78,16 +74,14 @@ fn main() {
         println!("release C build detected");
 
         #[cfg(target_os = "linux")] {
-            previous_lib_path = String::from(LIN_COMMON_PATH)
-                .add(RELEASENAME)
+            previous_lib_path = String::from(COMMON_PATH)
                 .add(LINUXCORE)
                 .add(A_EXT);
             
         }
 
         #[cfg(target_os = "windows")] {
-            previous_lib_path = String::from(WIN_COMMON_PATH)
-                .add(RELEASENAME)
+            previous_lib_path = String::from(COMMON_PATH)
                 .add(WINDOWSCORE)
                 .add(LIB_EXT);
         }
@@ -97,16 +91,14 @@ fn main() {
         println!("debug C build detected");
 
         #[cfg(target_os = "linux")] {
-            previous_lib_path = String::from(LIN_COMMON_PATH)
-                .add(DEBUGNAME)
+            previous_lib_path = String::from(COMMON_PATH)
                 .add(LINUXCORE)
                 .add(A_EXT);
             
         }
 
         #[cfg(target_os = "windows")] {
-            previous_lib_path = String::from(WIN_COMMON_PATH)
-                .add(DEBUGNAME)
+            previous_lib_path = String::from(COMMON_PATH)
                 .add(WINDOWSCORE)
                 .add(LIB_EXT);
         }

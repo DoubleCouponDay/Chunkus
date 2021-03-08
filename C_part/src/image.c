@@ -81,15 +81,6 @@ bool colours_are_similar(pixel color_a, pixel color_b, float max_distance)
     return abc <= max_distance; // If difference less than the threshold
 }
 
-char* rgb_to_string(pixel* input) {
-    char* output = input->r;
-    output += ',';
-    output += input->g;
-    output += ',';
-    output += input->b;
-    return output;
-}
-
 image create_image(int width, int height)
 {
     image output = {

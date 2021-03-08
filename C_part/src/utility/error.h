@@ -14,6 +14,7 @@ enum vectorizing_opcodes {
     LOW_BOUNDARIES_CREATED
 };
 
+int isBadError();
 int getLastError();
 void setError(int error);
 int getAndResetErrorCode();

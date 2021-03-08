@@ -86,7 +86,7 @@ NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options) {
 
 	if(isBadError()) {
 		LOG_ERR("quantize_image failed with %d", getLastError());
-		return getAndResetErrorCode();
+		return NULL;
 	}
 
     chunkmap* map = generate_chunkmap(input, options);
