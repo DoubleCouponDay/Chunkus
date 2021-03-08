@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "utility/logger.h"
+#include "../utility/logger.h"
 #include "../utility/error.h";
 
 const char* TEMPLATE_PATH = "template.svg";

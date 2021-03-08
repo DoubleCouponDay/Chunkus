@@ -5,7 +5,7 @@
 #include "pngfile.h"
 #include "../image.h"
 #include "../utility/error.h"
-#include "utility/logger.h"
+#include "../utility/logger.h"
 
 /// Takes a filename (assumed to be a png file), and creates an image struct full of the png's pixels
 /// 

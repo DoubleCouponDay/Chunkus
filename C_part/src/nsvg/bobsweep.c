@@ -1,12 +1,12 @@
 #include "bobsweep.h"
 
-#include "utility/logger.h"
-#include "utility/vec.h"
-#include "imagefile/pngfile.h"
+#include "../utility/logger.h"
+#include "../utility/vec.h"
+#include "../imagefile/pngfile.h"
 #include "mapping.h"
 #include "mapparser.h"
-#include "utility/error.h"
-#include "sort.h"
+#include "../utility/error.h"
+#include "../sort.h"
 
 #include <stdlib.h>
 #include <stdio.h>

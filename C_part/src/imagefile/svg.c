@@ -6,7 +6,7 @@
 
 #include "../utility/error.h"
 #include "../nsvg/copy.h"
-#include "utility/logger.h"
+#include "../utility/logger.h"
 #include "../chunkmap.h"
 
 const char* OUTPUT_PATH = "output.svg";

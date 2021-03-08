@@ -6,7 +6,7 @@
 
 #include "../image.h"
 #include "../chunkmap.h"
-#include "utility/vec.h"
+#include "../utility/vec.h"
 
 enum mapping_consts {
     BEZIERCURVE_LENGTH = 8,
