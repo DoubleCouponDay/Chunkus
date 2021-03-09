@@ -10,8 +10,8 @@ enum vectorizing_opcodes {
     NULL_ARGUMENT_ERROR,
     OVERFLOW_ERROR,
     BAD_ARGUMENT_ERROR,
-    NOT_PNG,
-    LOW_BOUNDARIES_CREATED
+    NOT_PNG_OR_JPEG,
+    LOW_BOUNDARIES_CREATED,
 };
 
 int isBadError();

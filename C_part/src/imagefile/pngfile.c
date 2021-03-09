@@ -19,33 +19,33 @@ image convert_png_to_image(char* fileaddress) {
     LOG_INFO("converting png to image struct...");
     LOG_INFO("opening image file...");
 
-    if (fileaddress == NULL) {
-        LOG_ERR("fileaddress not given");
-        setError(NULL_ARGUMENT_ERROR);
-        return (image){NULL, 0, 0};
-    }
+    // if (fileaddress == NULL) {
+    //     LOG_ERR("fileaddress not given");
+    //     setError(NULL_ARGUMENT_ERROR);
+    //     return (image){NULL, 0, 0};
+    // }
 
-    /// Open File
-    FILE* file_p = fopen(fileaddress, "rb");
+    // /// Open File
+    // FILE* file_p = fopen(fileaddress, "rb");
 
-    if (!file_p)
-    {
-        LOG_ERR("Could not open file '%s' for reading", fileaddress);
-        setError(ASSUMPTION_WRONG);
-        return (image){NULL, 0, 0};
-    }
+    // if (!file_p)
+    // {
+    //     LOG_ERR("Could not open file '%s' for reading", fileaddress);
+    //     setError(ASSUMPTION_WRONG);
+    //     return (image){NULL, 0, 0};
+    // }
 
     /// Verify File
-    LOG_INFO("Checking if file is PNG type");
+    // LOG_INFO("Checking if file is PNG type");
 
-    unsigned char header[8];
-    fread(header, 1, 8, file_p);
-    if (png_sig_cmp(header, 0, 8))
-    {
-        LOG_ERR("File \'%s\' was not recognised as a PNG file", fileaddress);
-        setError(NOT_PNG);
-        return (image){NULL, 0, 0};
-    }
+    // unsigned char header[8];
+    // fread(header, 1, 8, file_p);
+    // if (png_sig_cmp(header, 0, 8))
+    // {
+    //     LOG_ERR("File \'%s\' was not recognised as a PNG file", fileaddress);
+    //     setError(NOT_PNG_OR_JPEG);
+    //     return (image){NULL, 0, 0};
+    // }
     
     /// Prepare and read structs
     LOG_INFO("Creating png_image struct");

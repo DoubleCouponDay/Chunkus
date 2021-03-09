@@ -25,8 +25,7 @@
     "gtest-adapter.supportLocation": false,
     "telemetry.enableTelemetry": false,
     "C_Cpp.default.includePath": [
-        "${workspaceFolder}/**", 
-        "~/.conan/data/**"
+        "${workspaceFolder}/**"        
     ],
     "C_Cpp.default.compilerPath": "/usr/bin/gcc",
     "files.associations": {
@@ -64,7 +63,10 @@
         "string.h": "c",
         "stdio.h": "c",
         "vec.h": "c",
-        "error.h": "c"
+        "error.h": "c",
+        "jpeg.h": "c",
+        "png.h": "c",
+        "jpeglib.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

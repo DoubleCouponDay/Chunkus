@@ -19,7 +19,8 @@
             "name": "linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${default}"
+                "${default}",
+                "~/.conan/data/**"
             ],
             "defines": [
                 "_DEBUG",
