@@ -20,7 +20,7 @@ COPY ./ /home/sjsui/vectorizer/
 # set environment variables
 ENV conanpath /root/.conan/data/
 ENV releasebuild true
-ENV PATH $PATH:/home/sjsui/vectorizer/Rust_part/target/release/bot
+ENV PATH $PATH:/home/sjsui/vectorizer/Rust_part/target/release
 
 # initialize build tools
 WORKDIR /home/sjsui/vectorizer/C_part/build/
@@ -34,4 +34,5 @@ WORKDIR /home/sjsui/vectorizer/Rust_part/
 RUN cargo build -vv --release
 
 #create entrypoint of container
-CMD ["./target/release/trampoline"]
+WORKDIR /home/sjsui/vectorizer/Rust_part/target/release/
+CMD ["./trampoline"]

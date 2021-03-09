@@ -401,7 +401,6 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
     }
     
     println!("Sending {0} urls to vectoriser", embed_urls.len());
-    println!("Yo Mama {:?}", embed_urls);
     vectorize_urls(&ctx, &msg, &embed_urls).await;
     
     Ok(())

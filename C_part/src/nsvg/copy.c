@@ -2,9 +2,11 @@
 #include <nanosvg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 
 #include "../utility/logger.h"
-#include "../utility/error.h";
+#include "../utility/error.h"
 
 const char* TEMPLATE_PATH = "template.svg";
 
@@ -32,12 +34,17 @@ char* gettemplate(int width, int height) {
 	size_t size;
 	char* data = NULL;
 	fp = fopen(TEMPLATE_PATH, "rb");
+	
+	if(fp == NULL && chdir("./target/release/") == 0) { //couldnt find template here and alternative location DOES exist
+		fp = fopen(TEMPLATE_PATH, "rb");
+	}
 
-	if (!fp) {
+	if(fp == NULL) { //still null after trying fix
         LOG_ERR("could not find svg template file.");
         setError(TEMPLATE_FILE_NOT_FOUND);
 		return NULL;
     };
+
 	fseek(fp, 0, SEEK_END);
 	size = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
