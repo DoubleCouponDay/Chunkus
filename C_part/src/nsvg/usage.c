@@ -15,9 +15,9 @@
 #include "../sort.h"
 #include "mapparser.h"
 #include "dcdfiller.h"
-#include "imagefile/pngfile.h"
+#include "../imagefile/pngfile.h"
 #include "bobsweep.h"
-#include "utility/logger.h"
+#include "../utility/logger.h"
 
 //entry point of the file
 NSVGimage* dcdfill_for_nsvg(image input, vectorize_options options) {
@@ -86,7 +86,7 @@ NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options) {
 
 	if(isBadError()) {
 		LOG_ERR("quantize_image failed with %d", getLastError());
-		return getAndResetErrorCode();
+		return NULL;
 	}
 
     chunkmap* map = generate_chunkmap(input, options);

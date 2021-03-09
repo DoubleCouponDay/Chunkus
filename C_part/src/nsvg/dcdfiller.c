@@ -6,15 +6,14 @@
 #include <math.h>
 #include <nanosvg.h>
 
-#include "usage.h"
 #include "../image.h"
 #include "../chunkmap.h"
-#include "utility/logger.h"
-#include "utility/error.h"
+#include "../utility/logger.h"
+#include "../utility/error.h"
 #include "copy.h"
 #include "mapping.h"
 #include "../sort.h"
-#include "utility/vec.h"
+#include "../utility/vec.h"
 
 const float ZIP_DISTANCE = 0.5;
 

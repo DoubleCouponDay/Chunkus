@@ -4,8 +4,6 @@
 #include <time.h>
 #include <stdarg.h>
 
-#include "../../test/debug.h"
-
 FILE* logfile = 0;
 const char* LOG_PATH = "log.txt";
 

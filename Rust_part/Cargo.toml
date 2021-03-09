@@ -1,7 +1,7 @@
 [package]
 name = "vecbot"
 version = "1.0.0"
-authors = ["dcdgo <mail@samueljenks.me>"]
+authors = ["dcdgo <mail@samueljenks.me>", "bobscorn <qwertster0@gmail.com>" ]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

@@ -20,13 +20,13 @@ mod tests {
         };
         ()
     }
-
+    
     #[tokio::test]
     async fn invoke() {
         let input_file = String::from("test.png");
         let output_file = String::from("output.png");
-
-        let algo_result = do_vectorize(&input_file, &output_file, ParsedOptions{chunksize: String::from("1"), threshold: String::from("5")});
+        let input = ParsedOptions{chunksize: String::from("1"), threshold: String::from("5"), numcolours: String::from("256")};
+        let algo_result = do_vectorize(&input_file, &output_file, input);
 
         if algo_result != FfiResult::SuccessCode
         {

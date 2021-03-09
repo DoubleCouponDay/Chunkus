@@ -3,6 +3,8 @@ the project objective
 
 convert jpg, png files to svg files!
 
+Currently, only png is supported.
+
 it has a Rust component and a C component.
 
 # Getting started
@@ -104,7 +106,7 @@ The rust part builds to `/discord-v/target/debug/`.
 
 Commands to use the bot:
 ### Vectorize: Goes through all attachments of the command message, executes the algorithm on them and returns the output  
-`!v/!vectorize` with an attachment or url eg.  
+`!v or !vectorize` with an attachment or url eg.  
 
     !v https://cdn.discordapp.com/attachments/787470274261549056/807847299752394773/ginormous.png  
 
@@ -117,7 +119,7 @@ Threshold is a number between 0 and 441.67 (The square root of 255^2 * 3 (vector
 - A Threshold of 0 means any color that is not EXACTLY the same will be considered separate  
 - A threshold of 441.67 means the only color values considered different are rgb(0,0,0) and rgb(255,255,255) (white and black)  
 
-`!p/!params [chunksize] [threshold]` eg. 
+`!vp or !vectorizerparams [chunksize] [threshold]` eg. 
 
     !params 2 50  
 You should receive a confirmation message telling you what you set the parameters to  
@@ -127,9 +129,10 @@ Currently only values of 0 and 1 are supported
 - Value 0 means linked-list aggregation algorithm  
 - Value 1 means image-sweep algorithm  
 
-`!algo/!set_algorithm [algorithm_num]` eg.  
+`!va or !vectorizeralgorithm [algorithm_num]` eg.  
     
-    !algo 0  
+    !algo 0
+
 You should receive a confirmation message telling you which algorithm number you set it to  
 
 # Package manager
@@ -160,3 +163,8 @@ Run the Xmake tool with target **tests** to easily run the executable
 Note:  
     The test executable may require undocumented arguments, such as relative paths to images, and as such may be harder to run from Xmake directly  
     The test executable can be found in the Xmake build folder (eg. **./build/windows/x64/debug** on windows) and can be run manually from there  
+
+# Deployment
+    build C code, then Rust code, then run `sudo docker build` on a Linux machine.
+
+    one the image is built, deploy it to your docker hub registration.

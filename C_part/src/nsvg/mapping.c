@@ -3,7 +3,7 @@
 
 #include "mapping.h"
 #include "../utility/error.h"
-#include "utility/logger.h"
+#include "../utility/logger.h"
 #include "../image.h"
 #include "../chunkmap.h"
 

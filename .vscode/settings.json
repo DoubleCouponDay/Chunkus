@@ -63,7 +63,8 @@
         "logger.h": "c",
         "string.h": "c",
         "stdio.h": "c",
-        "vec.h": "c"
+        "vec.h": "c",
+        "error.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

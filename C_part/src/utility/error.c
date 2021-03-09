@@ -1,6 +1,6 @@
 #include "error.h"
 
-#include "utility/logger.h"
+#include "logger.h"
 
 int error_code = SUCCESS_CODE;
 
