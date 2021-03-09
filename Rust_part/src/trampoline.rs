@@ -38,7 +38,6 @@ use tokio::time::sleep;
 use error_show::error_string;
 use std::sync::Arc;
 use vecbot::bot::{END_MESSAGE, START_MESSAGE, ERR_MESSAGE};
-
 struct TrampolineData {
     pub vectorizer: Child,
     pub vectorizer_finished: bool
@@ -140,7 +139,7 @@ async fn start_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
 
 async fn initialize_child(data: &Arc<RwLock<TypeMap>>) {
     println!("starting vectorizer...");
-    let created_process = Command::new("./bot").spawn().unwrap();
+    let created_process = Command::new("./target/release/bot").spawn().unwrap(); //if path is not absolute, path variable is searched
     initialize_data_insert(data, created_process).await;
 }
 

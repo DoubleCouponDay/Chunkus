@@ -18,9 +18,9 @@ RUN apt-get update && \
 COPY ./ /home/sjsui/vectorizer/
 
 # set environment variables
-ENV conanpath /usr/.conan/data/
+ENV conanpath /root/.conan/data/
 ENV releasebuild true
-ENV PATH /home/sjsui/.local/bin/:$PATH
+ENV PATH $PATH:/home/sjsui/vectorizer/Rust_part/target/release/bot
 
 # initialize build tools
 WORKDIR /home/sjsui/vectorizer/C_part/build/
@@ -31,7 +31,7 @@ RUN conan install ../ && \
 
 #build Rust code
 WORKDIR /home/sjsui/vectorizer/Rust_part/
-RUN cargo build --release
+RUN cargo build -vv --release
 
 #create entrypoint of container
 CMD ["./target/release/trampoline"]
