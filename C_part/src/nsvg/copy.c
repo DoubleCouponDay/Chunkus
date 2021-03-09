@@ -34,10 +34,6 @@ char* gettemplate(int width, int height) {
 	size_t size;
 	char* data = NULL;
 	fp = fopen(TEMPLATE_PATH, "rb");
-	
-	if(fp == NULL && chdir("./target/release/") == 0) { //couldnt find template here and alternative location DOES exist
-		fp = fopen(TEMPLATE_PATH, "rb");
-	}
 
 	if(fp == NULL) { //still null after trying fix
         LOG_ERR("could not find svg template file.");

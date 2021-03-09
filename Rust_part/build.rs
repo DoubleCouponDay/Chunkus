@@ -44,9 +44,7 @@ fn main() {
     //copy the template svg   
     
     let oldtemplate = String::from("../").add(TEMPLATE_NAME);
-    let mut newtemplate = var("OUT_DIR").unwrap();
-    newtemplate = newtemplate.add("/../../../"); //fixes wtf OUT_DIR useless af
-    newtemplate = newtemplate.add(TEMPLATE_NAME);
+    let newtemplate = String::from(TEMPLATE_NAME);
     println!("copying template from: {}, to: {}", &oldtemplate, &newtemplate);
     let _ = copy(oldtemplate, newtemplate);
 
