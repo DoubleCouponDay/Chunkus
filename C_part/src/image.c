@@ -25,9 +25,9 @@ FILE* openfile(char* fileaddress) {
 pixel convert_colorf_to_pixel(pixelF input)
 {
     pixel out;
-    out.r = rintf(input.r * 255.f);
-    out.g = rintf(input.g * 255.f);
-    out.b = rintf(input.b * 255.f);
+    out.r = (byte)(input.r * 255.f);
+    out.g = (byte)(input.g * 255.f);
+    out.b = (byte)(input.b * 255.f);
     out.location = input.location;
     return out;
 }
@@ -54,9 +54,9 @@ colour convert_pixel_to_colour(pixel input)
 colour convert_pixelf_to_colour(pixelF input)
 {
     colour out;
-    out.r = rintf(input.r * 255.f);
-    out.g = rintf(input.g * 255.f);
-    out.b = rintf(input.b * 255.f);
+    out.r = (byte)(input.r * 255.f);
+    out.g = (byte)(input.g * 255.f);
+    out.b = (byte)(input.b * 255.f);
     return out;
 }
 
