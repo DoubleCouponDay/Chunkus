@@ -375,8 +375,7 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
                     }
                 },
             Err(err) =>
-
-            println!("Received Err {} from wait_for_message_update for id: {}", err, msg.id),
+                println!("Received Err {} from wait_for_message_update for id: {}", err, msg.id),
         }
     }
 

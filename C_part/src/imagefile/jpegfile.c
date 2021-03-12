@@ -45,9 +45,10 @@ bool file_is_jpeg(char* fileaddress) {
 	char* thirdlast = fileaddress[index - 2];
 	char* fourthlast = fileaddress[index - 3];
 	char* fifthlast = fileaddress[index - 3];
+	//LOG_INFO("%s %s %s %s", fifthlast, fourthlast, thirdlast, secondlast);
 
 	if(fifthlast == 'j' && fourthlast == 'p' && thirdlast == 'e' && secondlast == 'p' ||
-		fourthlast == 'j' && thirdlast == 'p' && secondlast == 'p')
+		fourthlast == 'j' && thirdlast == 'p' && secondlast == 'g')
 		return true;
 
 	return false;
@@ -58,7 +59,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 
 	if(isBadError()) {
 		LOG_ERR("openfile failed");
-		return (image){NULL, 0, 0};
+		return (image){0, 0, NULL};
 	}
 
     // Allocate and initialize a JPEG decompression object
@@ -76,7 +77,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 	if(result != JPEG_HEADER_OK) {
 		LOG_ERR("jpeg_read_header failed with code: %d", result);
 		setError(NOT_PNG_OR_JPEG);
-		return (image){NULL, 0, 0};
+		return (image){0, 0, NULL};
 	}
 
 	// Set parameters for decompression
@@ -88,13 +89,13 @@ image convert_jpeg_to_image(char* fileaddress) {
 	if(startedfine == FALSE) {
 		LOG_ERR("jpeg_start_decompress failed");
 		setError(ASSUMPTION_WRONG);
-		return (image){NULL, 0, 0};
+		return (image){0, 0, NULL};
 	}
 
 	if(cinfo.output_components == 1) {
 		LOG_ERR("did not expect libjpeg to be quantizing!");
 		setError(ASSUMPTION_WRONG);
-		return (image){NULL, 0, 0};
+		return (image){0, 0, NULL};
 	}
 	image output = create_image(cinfo.output_width, cinfo.output_height);
 
@@ -132,7 +133,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 	if(finishedfine == FALSE) {
 		LOG_ERR("jpeg_finish_decompress failed");
 		setError(ASSUMPTION_WRONG);
-		return (image){NULL, 0, 0};
+		return (image){0, 0, NULL};
 	}
 
 	// Release the JPEG decompression object	

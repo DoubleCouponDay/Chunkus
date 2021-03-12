@@ -11,7 +11,7 @@
 #include "init.h"
 #include "../src/utility/defines.h"
 #include "munit.h"
-#include "debug.h"
+
 #include "../src/chunkmap.h"
 #include "../src/imagefile/pngfile.h"
 #include "../src/imagefile/bmp.h"
@@ -22,9 +22,10 @@
 #include "../src/imagefile/svg.h"
 #include "../src/imagefile/converter.h"
 #include "../src/nsvg/dcdfiller.h"
+#include "../src/utility/logger.h"
 
 MunitResult aTestCanPass(const MunitParameter params[], void* data) {
-  DEBUG_OUT("test 1 passed");
+  LOG_INFO("test 1 passed");
   return MUNIT_OK;
 }
 
@@ -120,20 +121,20 @@ MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], voi
   };
 
   stuff->img = convert_png_to_image(fileaddress);
-  DEBUG_OUT("asserting pixels_array_2d not null");
+  LOG_INFO("asserting pixels_array_2d not null");
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
-  DEBUG_OUT("generating chunkmap");
+  LOG_INFO("generating chunkmap");
   chunkmap* map = generate_chunkmap(stuff->img, options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
   stuff->map = map;
 
-  DEBUG_OUT("asserting groups_array_2d not null");
+  LOG_INFO("asserting groups_array_2d not null");
   munit_assert_ptr_not_null(map->groups_array_2d);
-  DEBUG_OUT("filling chunkmap");
+  LOG_INFO("filling chunkmap");
   fill_chunkmap(stuff->map, &options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  DEBUG_OUT("writing chunkmap to file");
+  LOG_INFO("writing chunkmap to file");
   write_chunkmap_to_png(stuff->map, out_fileaddress);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
@@ -167,7 +168,7 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   };
 
   stuff->img = convert_png_to_image(fileaddress);
-  DEBUG_OUT("asserting pixels_array_2d not null");
+  LOG_INFO("asserting pixels_array_2d not null");
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
@@ -177,10 +178,10 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   bool outcome = write_svg_file(stuff->nsvg_image);
   
   if(outcome)
-    DEBUG_OUT("svg writing outcome: %s", "succeeded");
+    LOG_INFO("svg writing outcome: %s", "succeeded");
 
   else 
-    DEBUG_OUT("svg writing outcome: %s", "failed");
+    LOG_INFO("svg writing outcome: %s", "failed");
     
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 

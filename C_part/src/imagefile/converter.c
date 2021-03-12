@@ -13,7 +13,7 @@ image convert_file_to_image(char* fileaddress) {
     if (fileaddress == NULL) {
         LOG_ERR("fileaddress not given");
         setError(NULL_ARGUMENT_ERROR);
-        return (image){NULL, 0, 0};
+        return (image){0, 0, NULL};
     }
 
     LOG_INFO("Checking if file is PNG type");
@@ -21,7 +21,7 @@ image convert_file_to_image(char* fileaddress) {
 
     if(isBadError()) {
         LOG_ERR("file_is_png failed");
-        return (image){NULL, 0, 0};
+        return (image){0, 0, NULL};
     }
 
     if(ispng) {
@@ -33,7 +33,7 @@ image convert_file_to_image(char* fileaddress) {
 
     if(isBadError()) {
         LOG_ERR("file_is_jpeg failed");
-        return (image){NULL, 0, 0};
+        return (image){0, 0, NULL};
     }
 
     if(isjpg) {
@@ -42,10 +42,10 @@ image convert_file_to_image(char* fileaddress) {
 
     if(isBadError()) {
         LOG_ERR("convert_jpeg_to_image failed");
-        return (image){NULL, 0, 0};
+        return (image){0, 0, NULL};
     }
 
-    LOG_INFO("File \'%s\' was not recognised as a PNG file", fileaddress);
+    LOG_ERR("File \'%s\' was not recognised as PNG or JPEG file", fileaddress);
     setError(NOT_PNG_OR_JPEG);
-    return (image){NULL, 0, 0};
+    return (image){0, 0, NULL};
 }

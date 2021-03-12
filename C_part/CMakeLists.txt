@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.13.4)
 project(vec)
+enable_testing()
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()

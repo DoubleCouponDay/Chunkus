@@ -13,7 +13,7 @@
 #include "init.h"
 #include "../src/utility/defines.h"
 #include "munit.h"
-#include "debug.h"
+
 #include "../src/chunkmap.h"
 #include "../src/imagefile/pngfile.h"
 #include "../src/imagefile/bmp.h"

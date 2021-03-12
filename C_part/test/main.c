@@ -11,7 +11,7 @@
 #include "init.h"
 #include "../src/utility/defines.h"
 #include "munit.h"
-#include "debug.h"
+
 #include "../src/chunkmap.h"
 #include "../src/imagefile/pngfile.h"
 #include "../src/imagefile/bmp.h"
@@ -22,20 +22,22 @@
 #include "../src/imagefile/svg.h"
 #include "../src/imagefile/converter.h"
 #include "tests.h"
+#include "../src/utility/logger.h"
 
 int main(int argc, char** argv) {
-  DEBUG_OUT("test runner initializing... ");
-  DEBUG_OUT("args: ");
-  for (int i = 0; i < argc; ++i)
-    printf("%s, ", argv[i]);
-  DEBUG_OUT("");
+  LOG_INFO("test runner initializing... ");
+  LOG_INFO("args: ");
 
-  char* param1[] = { "../../test/test.png", NULL };
+  for (int i = 0; i < argc; ++i) {
+    LOG_INFO("%s, ", argv[i]);
+  }
+
+  char* param1[] = { "../test/test.png", NULL };
   char* param2[] = { "1", NULL };
   char* param3[] = { "1", NULL }; //max threshhold 440
   char* param4[] = { "./chunkmap.png", NULL };
   char* param5[] = { "256", NULL }; //max colours 256
-  char* param6[] = { "../../../../test/test.jpeg", NULL };
+  char* param6[] = { "../test/test.jpeg", NULL };
   char* testname = argv[1];
 
   MunitParameterEnum test_params[] = { 

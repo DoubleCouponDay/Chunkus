@@ -41,6 +41,21 @@
             "requireExactSource": false
         },
         {
+            "name": "(Linux) Launch test",
+            "MIMode": "gdb",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\C_part\\build\\bin\\tests",
+            "args": ["jpeg_to_image"],
+            "cwd": "${workspaceFolder}\\C_part\\build",
+            "externalConsole": false,
+            "internalConsoleOptions": "neverOpen",
+            "symbolLoadInfo": {
+                "loadAll": false,
+                "exceptionList": ""
+            }
+        },
+        {
             "type": "lldb",
             "request": "launch",
             "name": "Launch trampoline",

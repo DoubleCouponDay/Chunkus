@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include "munit.h"
 #include "tears.h"
-#include "debug.h"
+
 #include "../src/nsvg/usage.h"
+#include "../src/utility/logger.h"
 
 void* test2setup(const MunitParameter params[], void* userdata) {
   return calloc(1, sizeof(test2stuff));
@@ -19,7 +20,7 @@ void* test4setup(const MunitParameter params[], void* userdata) {
 };
 
 void test4teardown(void* fixture) {
-  DEBUG_OUT("freeing test 4");
+  LOG_INFO("freeing test 4");
   test4stuff* stuff = fixture;
   free_image_contents(stuff->img);
   free_chunkmap(stuff->map);
@@ -31,7 +32,7 @@ void* test5setup(const MunitParameter params[], void* userdata) {
 };
 
 void test5teardown(void* fixture) {
-  DEBUG_OUT("freeing test 5");
+  LOG_INFO("freeing test 5");
   test5stuff* stuff = fixture;
   fclose(stuff->fp);
   free_image_contents(stuff->img);
@@ -46,11 +47,11 @@ void* test6setup(const MunitParameter params[], void* userdata)
 void test6teardown(void* fixture)
 {
   test6stuff* stuff = fixture;
-  DEBUG_OUT("freeing image contents");
+  LOG_INFO("freeing image contents");
   free_image_contents(stuff->img);
-  DEBUG_OUT("freeing image");
+  LOG_INFO("freeing image");
   free_nsvg(stuff->nsvg_image);  
-  DEBUG_OUT("freeing test6stuff");
+  LOG_INFO("freeing test6stuff");
   free(stuff);
 }
 

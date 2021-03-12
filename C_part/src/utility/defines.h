@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef _WIN32
 #include <dirent.h>
 #endif
@@ -13,3 +15,5 @@
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES 1
 #endif
+
+float getpi();
