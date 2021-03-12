@@ -20,6 +20,7 @@
 #include "tears.h"
 #include "../src/utility/error.h"
 #include "../src/imagefile/svg.h"
+#include "../src/imagefile/converter.h"
 
 MunitResult aTestCanPass(const MunitParameter params[], void* data) {
   DEBUG_OUT("test 1 passed");
@@ -236,6 +237,16 @@ MunitResult just_run(const MunitParameter params[], void* userdata) {
   entrypoint(0, NULL);
 }
 
+MunitResult JPEG_to_image(const MunitParameter params[], void* userdata) {
+  char* inputjpeg = params[5].value;
+  image result = convert_file_to_image(inputjpeg);
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
+  munit_assert(result.width != 0);
+  munit_assert(result.height != 0);
+  munit_assert_ptr_not_null(result.pixels_array_2d);
+  free_image_contents(result);
+}
+
 int main(int argc, char** argv) {
   DEBUG_OUT("test runner initializing... ");
   DEBUG_OUT("args: ");
@@ -248,6 +259,7 @@ int main(int argc, char** argv) {
   char* param3[] = { "1", NULL }; //max threshhold 440
   char* param4[] = { "./chunkmap.png", NULL };
   char* param5[] = { "256", NULL }; //max colours 256
+  char* param6[] = { "../../../../test/test.jpeg", NULL };
   char* testname = argv[1];
 
   MunitParameterEnum test_params[] = { 
@@ -266,6 +278,9 @@ int main(int argc, char** argv) {
     {
       "num_colours", param5
     },
+    {
+      "jpeg", param6
+    },
     { NULL, NULL} 
   };
 
@@ -278,9 +293,10 @@ int main(int argc, char** argv) {
   MunitTest banana = { "dcdfill", can_write_to_svgfile, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest yo_mama = { "bobsweep", can_do_speedy_vectorize, speedy_vectorize_setup, speedy_vectorize_teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest run = { "run", just_run, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest pineapple = { "jpeg_to_image", JPEG_to_image, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
 
   enum { 
-    NUM_TESTS = 9 //UPDATE THIS WHEN YOU ADD NEW TESTS
+    NUM_TESTS = 10 //UPDATE THIS WHEN YOU ADD NEW TESTS
   }; 
 
   namedtest tests[NUM_TESTS] = {
@@ -293,6 +309,7 @@ int main(int argc, char** argv) {
     {banana.name, banana},
     {yo_mama.name, yo_mama},
     {run.name, run},
+    {pineapple.name, pineapple}
   };
   MunitTest* filteredtests = filtertests(tests, NUM_TESTS, testname);
   MunitSuite suite = { "tests.", filteredtests };

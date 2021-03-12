@@ -1,11 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <png.h>
-#include <jpeglib.h>
 
 #include "../image.h"
 #include "../utility/logger.h"
 #include "../utility/error.h"
+#include "pngfile.h"
+#include "jpegfile.h"
 
 image convert_file_to_image(char* fileaddress) {
     LOG_INFO("picking image converter...");
@@ -16,26 +16,36 @@ image convert_file_to_image(char* fileaddress) {
         return (image){NULL, 0, 0};
     }
 
-    /// Open File
-    FILE* file_p = fopen(fileaddress, "rb");
-
-    if (!file_p)
-    {
-        LOG_ERR("Could not open file '%s' for reading", fileaddress);
-        setError(ASSUMPTION_WRONG);
-        return (image){NULL, 0, 0};
-    }
-
     LOG_INFO("Checking if file is PNG type");
+    bool ispng = file_is_png(fileaddress);
 
-    unsigned char header[8];
-    fread(header, 1, 8, file_p);
-    if (png_sig_cmp(header, 0, 8))
-    {
-        LOG_INFO("File \'%s\' was not recognised as a PNG file", fileaddress);
-        setError(NOT_PNG_OR_JPEG);
+    if(isBadError()) {
+        LOG_ERR("file_is_png failed");
         return (image){NULL, 0, 0};
     }
 
-    else if()
+    if(ispng) {
+        return convert_png_to_image(fileaddress);
+    }
+
+    LOG_INFO("checking if file is JPEG type");
+    bool isjpg = file_is_jpeg(fileaddress);
+
+    if(isBadError()) {
+        LOG_ERR("file_is_jpeg failed");
+        return (image){NULL, 0, 0};
+    }
+
+    if(isjpg) {
+        return convert_jpeg_to_image(fileaddress);
+    }
+
+    if(isBadError()) {
+        LOG_ERR("convert_jpeg_to_image failed");
+        return (image){NULL, 0, 0};
+    }
+
+    LOG_INFO("File \'%s\' was not recognised as a PNG file", fileaddress);
+    setError(NOT_PNG_OR_JPEG);
+    return (image){NULL, 0, 0};
 }

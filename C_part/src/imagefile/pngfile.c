@@ -1,11 +1,24 @@
 #include <png.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "pngfile.h"
 #include "../image.h"
 #include "../utility/error.h"
 #include "../utility/logger.h"
+
+bool file_is_png(char* fileaddress) {
+    unsigned char header[8];
+    FILE* file_p = openfile(fileaddress);
+
+    if(isBadError()) {
+        LOG_ERR("openfile failed");
+        return false;
+    }
+    fread(header, 1, 8, file_p);
+    return (bool)png_sig_cmp(header, 0, 8) == 0;
+}
 
 /// Takes a filename (assumed to be a png file), and creates an image struct full of the png's pixels
 /// 
@@ -16,43 +29,20 @@
 /// Read the image into the memory
 /// Convert the obtained memory into a contiguous format (convert the row pointers from a 2 dimensional array into a single array)
 image convert_png_to_image(char* fileaddress) {
-    LOG_INFO("converting png to image struct...");
-    LOG_INFO("opening image file...");
+    LOG_INFO("opening png file...");
 
-    // if (fileaddress == NULL) {
-    //     LOG_ERR("fileaddress not given");
-    //     setError(NULL_ARGUMENT_ERROR);
-    //     return (image){NULL, 0, 0};
-    // }
+    FILE* file_p = openfile(fileaddress);
 
-    // /// Open File
-    // FILE* file_p = fopen(fileaddress, "rb");
-
-    // if (!file_p)
-    // {
-    //     LOG_ERR("Could not open file '%s' for reading", fileaddress);
-    //     setError(ASSUMPTION_WRONG);
-    //     return (image){NULL, 0, 0};
-    // }
-
-    /// Verify File
-    // LOG_INFO("Checking if file is PNG type");
-
-    // unsigned char header[8];
-    // fread(header, 1, 8, file_p);
-    // if (png_sig_cmp(header, 0, 8))
-    // {
-    //     LOG_ERR("File \'%s\' was not recognised as a PNG file", fileaddress);
-    //     setError(NOT_PNG_OR_JPEG);
-    //     return (image){NULL, 0, 0};
-    // }
+    if(isBadError()) {
+		LOG_ERR("openfile failed");
+		return (image){NULL, 0, 0};
+	}
     
     /// Prepare and read structs
     LOG_INFO("Creating png_image struct");
 
     png_byte color_type, bit_depth;
 
-    // Return struct
     png_image image_struct;
     image_struct.opaque = NULL; 
     image_struct.version = PNG_IMAGE_VERSION;
@@ -67,6 +57,7 @@ image convert_png_to_image(char* fileaddress) {
     {
         LOG_ERR("Failed to create png read struct");
         setError(READ_FILE_ERROR);
+        fclose(file_p);
         return (image){NULL, 0, 0};
     }
     
@@ -77,6 +68,7 @@ image convert_png_to_image(char* fileaddress) {
     {
         LOG_ERR("Error: png_create_info_struct failed");
         setError(READ_FILE_ERROR);
+        fclose(file_p);
         return (image) { NULL, 0, 0 };
     }
 
@@ -84,6 +76,7 @@ image convert_png_to_image(char* fileaddress) {
     {
         LOG_ERR("Error during init_io");
         png_destroy_read_struct(read_struct, info, NULL);
+        fclose(file_p);
         return (image) { NULL, 0, 0 };
     }
 
@@ -102,23 +95,25 @@ image convert_png_to_image(char* fileaddress) {
     if (color_type != PNG_COLOR_TYPE_RGB && color_type != PNG_COLOR_TYPE_RGBA)
     {
         LOG_ERR("Only RGB/A PNGs are supported for import, format: %d", color_type);
-        setError(NOT_PNG);
+        setError(BAD_ARGUMENT_ERROR);
+        fclose(file_p);
         return (image){NULL, 0, 0};
     }
     bit_depth = png_get_bit_depth(read_struct, info);
     if (bit_depth != 8) {
-        LOG_ERR("Only 24bpp PNGs are supported, depth: %d", bit_depth * 3);
-        setError(NOT_PNG);
+        LOG_ERR("Only 24bit PNGs are supported, depth: %d", bit_depth * 3);
+        setError(BAD_ARGUMENT_ERROR);
+        fclose(file_p);
         return (image){NULL, 0, 0};
     }
 
     png_read_update_info(read_struct, info);
 
-    if (setjmp(png_jmpbuf(read_struct)))
-    {
+    if (setjmp(png_jmpbuf(read_struct))) {
         LOG_ERR("Error during early PNG reading");
         setError(READ_FILE_ERROR);
         png_destroy_read_struct(read_struct, info, NULL);
+        fclose(file_p);
         return (image){NULL, 0, 0};
     }
 
@@ -170,6 +165,7 @@ image convert_png_to_image(char* fileaddress) {
             }
         }
     }
+
     else if (color_type == PNG_COLOR_TYPE_RGBA)
     {
         LOG_INFO("Type is RGBA");

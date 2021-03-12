@@ -10,6 +10,18 @@
 #include "utility/logger.h"
 #include "utility/error.h"
 
+FILE* openfile(char* fileaddress) {
+    FILE* file_p = fopen(fileaddress, "rb");
+
+    if (!file_p) {
+        LOG_ERR("Could not open file '%s' for reading", fileaddress);
+        setError(ASSUMPTION_WRONG);
+        fclose(file_p);
+        return NULL;
+    }
+    return file_p;
+}
+
 pixel convert_colorf_to_pixel(pixelF input)
 {
     pixel out;
@@ -86,6 +98,7 @@ image create_image(int width, int height)
     image output = {
         width, height
     };
+    output.is_greyscale = false;
 
     LOG_INFO("Creating Image with %d x %d Dimensions", width, height);
 
