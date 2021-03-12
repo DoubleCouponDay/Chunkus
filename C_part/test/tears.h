@@ -12,7 +12,7 @@ typedef struct {
   image img;
 } test2stuff;
 
-void test2setup(const MunitParameter params[], void* userdata);
+void* test2setup(const MunitParameter params[], void* userdata);
 void test2teardown(void* fixture);
 
 typedef struct {

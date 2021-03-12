@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     printf("%s, ", argv[i]);
   DEBUG_OUT("");
 
-  char* param1[] = { "../../../../test/test.png", NULL };
+  char* param1[] = { "../../test/test.png", NULL };
   char* param2[] = { "1", NULL };
   char* param3[] = { "1", NULL }; //max threshhold 440
   char* param4[] = { "./chunkmap.png", NULL };

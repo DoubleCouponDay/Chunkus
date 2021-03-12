@@ -5,6 +5,7 @@
 
 #include "../image.h"
 #include "../utility/error.h"
+#include "../utility/logger.h"
 
 free_jsamparray(int width, int height, JSAMPARRAY input) {
 	if(!input) {

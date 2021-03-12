@@ -22,5 +22,7 @@ target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS})
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "./src/entrypoint.h")
 
 add_executable(tests ${testglob})
+target_link_libraries(tests ${CONAN_LIBS})
+
 
 file(COPY "../template.svg" DESTINATION "./bin")

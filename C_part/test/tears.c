@@ -4,7 +4,7 @@
 #include "debug.h"
 #include "../src/nsvg/usage.h"
 
-void test2setup(const MunitParameter params[], void* userdata) {
+void* test2setup(const MunitParameter params[], void* userdata) {
   return calloc(1, sizeof(test2stuff));
 };
 

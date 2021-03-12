@@ -67,7 +67,8 @@
         "jpeg.h": "c",
         "png.h": "c",
         "jpeglib.h": "c",
-        "tests.h": "c"
+        "tests.h": "c",
+        "dcdfiller.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

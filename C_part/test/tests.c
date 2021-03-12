@@ -21,6 +21,7 @@
 #include "../src/utility/error.h"
 #include "../src/imagefile/svg.h"
 #include "../src/imagefile/converter.h"
+#include "../src/nsvg/dcdfiller.h"
 
 MunitResult aTestCanPass(const MunitParameter params[], void* data) {
   DEBUG_OUT("test 1 passed");
