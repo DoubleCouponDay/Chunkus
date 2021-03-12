@@ -35,7 +35,7 @@ image convert_png_to_image(char* fileaddress) {
 
     if(isBadError()) {
 		LOG_ERR("openfile failed");
-		return (image){NULL, 0, 0};
+		return (image){0, 0, NULL};
 	}
     
     /// Prepare and read structs
@@ -58,13 +58,13 @@ image convert_png_to_image(char* fileaddress) {
         LOG_ERR("Failed to create png read struct");
         setError(READ_FILE_ERROR);
         fclose(file_p);
-        return (image){NULL, 0, 0};
+        return (image){0, 0, NULL};
     }
     
     LOG_INFO("Creating pnglib info struct...");
-    png_infop info = png_create_info_struct(read_struct);
+    png_infop info_p = png_create_info_struct(read_struct);
 
-    if (!info)
+    if (!info_p)
     {
         LOG_ERR("Error: png_create_info_struct failed");
         setError(READ_FILE_ERROR);
@@ -75,7 +75,7 @@ image convert_png_to_image(char* fileaddress) {
     if (setjmp(png_jmpbuf(read_struct)))
     {
         LOG_ERR("Error during init_io");
-        png_destroy_read_struct(read_struct, info, NULL);
+        png_destroy_read_struct(read_struct, info_p, NULL);
         fclose(file_p);
         return (image) { NULL, 0, 0 };
     }
@@ -86,35 +86,35 @@ image convert_png_to_image(char* fileaddress) {
     png_init_io(read_struct, file_p);
     png_set_sig_bytes(read_struct, 8);
 
-    png_read_info(read_struct, info);
+    png_read_info(read_struct, info_p);
 
     LOG_INFO("Reading image width/height and allocating image space");
-    image output = create_image(png_get_image_width(read_struct, info), png_get_image_height(read_struct, info));
+    image output = create_image(png_get_image_width(read_struct, info_p), png_get_image_height(read_struct, info_p));
 
-    color_type = png_get_color_type(read_struct, info);
+    color_type = png_get_color_type(read_struct, info_p);
     if (color_type != PNG_COLOR_TYPE_RGB && color_type != PNG_COLOR_TYPE_RGBA)
     {
         LOG_ERR("Only RGB/A PNGs are supported for import, format: %d", color_type);
         setError(BAD_ARGUMENT_ERROR);
         fclose(file_p);
-        return (image){NULL, 0, 0};
+        return (image){0, 0, NULL};
     }
-    bit_depth = png_get_bit_depth(read_struct, info);
+    bit_depth = png_get_bit_depth(read_struct, info_p);
     if (bit_depth != 8) {
         LOG_ERR("Only 24bit PNGs are supported, depth: %d", bit_depth * 3);
         setError(BAD_ARGUMENT_ERROR);
         fclose(file_p);
-        return (image){NULL, 0, 0};
+        return (image){0, 0, NULL};
     }
 
-    png_read_update_info(read_struct, info);
+    png_read_update_info(read_struct, info_p);
 
     if (setjmp(png_jmpbuf(read_struct))) {
         LOG_ERR("Error during early PNG reading");
         setError(READ_FILE_ERROR);
-        png_destroy_read_struct(read_struct, info, NULL);
+        png_destroy_read_struct(read_struct, info_p, NULL);
         fclose(file_p);
-        return (image){NULL, 0, 0};
+        return (image){0, 0, NULL};
     }
 
     LOG_INFO("Allocating row pointers...");
@@ -126,7 +126,7 @@ image convert_png_to_image(char* fileaddress) {
 
     for (int y = 0; y < output.height; ++y)
     {
-        row_pointers_p[y] = calloc(1, png_get_rowbytes(read_struct, info));
+        row_pointers_p[y] = calloc(1, png_get_rowbytes(read_struct, info_p));
     }
 
     LOG_INFO("reading the image...");
@@ -139,7 +139,7 @@ image convert_png_to_image(char* fileaddress) {
 
     // Clean up the file
     fclose(file_p);
-    png_destroy_read_struct(&read_struct, &info, NULL);
+    png_destroy_read_struct(&read_struct, &info_p, NULL);
     
     LOG_INFO("putting dereferenced row pointers in custom struct...");
 
