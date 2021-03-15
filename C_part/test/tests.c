@@ -237,6 +237,7 @@ MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdat
 
 MunitResult just_run(const MunitParameter params[], void* userdata) {
   entrypoint(0, NULL);
+  return MUNIT_OK;
 }
 
 MunitResult JPEG_to_image(const MunitParameter params[], void* userdata) {
@@ -247,4 +248,5 @@ MunitResult JPEG_to_image(const MunitParameter params[], void* userdata) {
   munit_assert(result.height != 0);
   munit_assert_ptr_not_null(result.pixels_array_2d);
   free_image_contents(result);
+  return MUNIT_OK;
 }

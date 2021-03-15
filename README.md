@@ -37,6 +37,15 @@ Install Conan.io. it can only be run from cmd, not powershell. Windows defender 
   
 ---
 
+# Libraries used
+
+Libraries the C code depends on:
+- libpng
+- zlib
+- libjpeg  
+- nanosvg
+
+
 ## Building the C code
 <br>
 
@@ -106,18 +115,6 @@ Currently only values of 0 and 1 are supported
     !algo 0
 
 You should receive a confirmation message telling you which algorithm number you set it to  
-
-# Package manager
-
-conan.io
-
-# Libraries used
-
-Libraries the C code depends on:
-- libpng
-- zlib
-- libjpeg  
-- nanosvg
 
 ## C Tests
 
