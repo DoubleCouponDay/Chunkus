@@ -40,35 +40,7 @@ Install Conan.io. it can only be run from cmd, not powershell. Windows defender 
 ## Building the C code
 <br>
 
-The C building uses a lua based build tool called Xmake, https://xmake.io/  
-First configure the xmake build tool with:  
-    
-    xmake f -m debug -y
-
-This gets xmake to find the correct compiler and linker, and allows conan to download the dependencies  
-It also configures xmake for debug building
-You can configure it to produce release builds with:
-
-    xmake f -m release
-
-You must add an environment variable called `conanpath` and make its value the absolute path to your `.conan` folder. Usually this is found in your user folder.
-
-Now you should be able to run xmake and successfully build the C binaries  
-Simply call:
-    
-    xmake
-
-
-Xmake will build 2 executables, and a static library.
-They can most likely be found in xmake's default debug build folder
-- Xmake's default build folder on Windows: `Vectorizer/build/x64/windows/debug/`
-- Xmake's default build folder on Linux: `Vectorizer/build/x86_64/linux/debug/`  
-
-The static library (either **staticvectorizer.lib** or **libstaticvectorizer.a**) is required for the rust component, however if the static library does in fact lie in the default build directory, the rust build script should copy it automatically.
-
-The C code builds to `/build/windows/x64/`.
-  
----
+UNDER RENOVATION
   
 ## Building the Rust code
 
@@ -143,13 +115,9 @@ conan.io
 
 Libraries the C code depends on:
 - libpng
-    - zlib
-
-Ex-dependencies:
-- libjpg  
-- nanosvg  
-
-# Tests
+- zlib
+- libjpeg  
+- nanosvg
 
 ## C Tests
 
@@ -164,7 +132,11 @@ Note:
     The test executable may require undocumented arguments, such as relative paths to images, and as such may be harder to run from Xmake directly  
     The test executable can be found in the Xmake build folder (eg. **./build/windows/x64/debug** on windows) and can be run manually from there  
 
-# Deployment
-    build C code, then Rust code, then run `sudo docker build` on a Linux machine.
+## Rust Tests
 
-    one the image is built, deploy it to your docker hub registration.
+TODO
+
+# Deployment
+    Run `sudo docker build` in the root directory. 
+
+    Once the image is built, tag it with your hub tag and then deploy it to your docker hub registration.
