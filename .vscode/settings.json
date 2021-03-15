@@ -71,5 +71,8 @@
         "dcdfiller.h": "c",
         "typeinfo": "c"
     },
-    "C_Cpp.intelliSenseEngineFallback": "Enabled"
+    "C_Cpp.intelliSenseEngineFallback": "Enabled",
+    "cmake.autoSelectActiveFolder": false,
+    "cmake.sourceDirectory": "${workspaceFolder}/C_part",
+    "cmake.buildDirectory": "${workspaceFolder}/C_Part/build"
 }

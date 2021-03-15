@@ -96,3 +96,5 @@ conan.lock
 *.lock
 
 Rust_part/vec
+
+build/.cmake/api/v1/query/client-vscode/
