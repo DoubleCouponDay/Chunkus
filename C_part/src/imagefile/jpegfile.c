@@ -104,40 +104,32 @@ image convert_jpeg_to_image(char* fileaddress) {
 		output.is_greyscale = true;
 	}
 	JSAMPARRAY array = allocate_jsamparray(cinfo.output_width, cinfo.output_height, cinfo.output_components);
-	jpeg_read_scanlines(&cinfo, array, cinfo.output_height);
-
+	
 	//map JSAMPARRAY to image
-	int increment = (output.is_greyscale) ? 1 : 3;
+	int increment = cinfo.output_components;
 
-	for(int x = 0; x < cinfo.output_width; ++x) {
-		for(int y = 0; y < cinfo.output_height; y += increment) {
-			JSAMPLE current = array[x][y];
-			output.pixels_array_2d[x][y].r = current;
+	for(int y = 0; y < cinfo.output_height; ++y) {
+		jpeg_read_scanlines(&cinfo, array, 1);
+
+		for(int x = 0; x < cinfo.output_height; x += increment) {
+			JSAMPLE current = array[y][x];
+			output.pixels_array_2d[y][x].r = current;
 
 			if(output.is_greyscale) {
-				output.pixels_array_2d[x][y].g = array[x][y + 1];
-				output.pixels_array_2d[x][y].b = array[x][y + 2];
+				output.pixels_array_2d[y][x].g = array[x][y + 1];
+				output.pixels_array_2d[y][x].b = array[x][y + 2];
 			}
 
 			else {
-				output.pixels_array_2d[x][y].g = current;
-				output.pixels_array_2d[x][y].b = current;
+				output.pixels_array_2d[y][x].g = current;
+				output.pixels_array_2d[y][x].b = current;
 			}	
 		}
 	}
 
-	free_jsamparray(cinfo.output_width, cinfo.output_height, array);
-	bool finishedfine = jpeg_finish_decompress(&cinfo);
-	fclose(file_p);
-
-	if(finishedfine == FALSE) {
-		LOG_ERR("jpeg_finish_decompress failed");
-		setError(ASSUMPTION_WRONG);
-		return (image){0, 0, NULL};
-	}
-
 	// Release the JPEG decompression object	
+	free_jsamparray(cinfo.output_width, cinfo.output_height, array);
 	jpeg_destroy(&cinfo);
-
+	fclose(file_p);
 	return output;
 }
