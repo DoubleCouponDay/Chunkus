@@ -72,9 +72,10 @@ int main(int argc, char** argv) {
   MunitTest yo_mama = { "bobsweep", can_do_speedy_vectorize, speedy_vectorize_setup, speedy_vectorize_teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest run = { "run", just_run, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest pineapple = { "jpeg_to_image", JPEG_to_image, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest apricot = { "jpeg_to_bmp", can_convert_jpeg_to_bmp, jpeg_to_bmp_setup, jpeg_to_bmp_teardown, MUNIT_TEST_OPTION_NONE, test_params };
 
   enum { 
-    NUM_TESTS = 10 //UPDATE THIS WHEN YOU ADD NEW TESTS
+    NUM_TESTS = 11 //UPDATE THIS WHEN YOU ADD NEW TESTS
   }; 
 
   namedtest tests[NUM_TESTS] = {
@@ -87,7 +88,8 @@ int main(int argc, char** argv) {
     {banana.name, banana},
     {yo_mama.name, yo_mama},
     {run.name, run},
-    {pineapple.name, pineapple}
+    {pineapple.name, pineapple},
+    {apricot.name, apricot}
   };
   MunitTest* filteredtests = filtertests(tests, NUM_TESTS, testname);
   MunitSuite suite = { "tests.", filteredtests };

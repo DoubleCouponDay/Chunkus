@@ -21,7 +21,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}\\C_part\\build\\bin\\tests.exe",
-            "args": ["jpeg_to_image"],
+            "args": ["jpeg_to_bmp"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}\\C_part\\build",
             "environment": [],

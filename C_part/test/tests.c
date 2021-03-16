@@ -250,3 +250,25 @@ MunitResult JPEG_to_image(const MunitParameter params[], void* userdata) {
   free_image_contents(result);
   return MUNIT_OK;
 }
+
+MunitResult can_convert_jpeg_to_bmp(const MunitParameter params[], void* userdata){
+  jpeg_bmp_stuff* stuff = userdata;
+  // Use constant input/output path
+  char* in_file = params[5].value;
+  char* out_file = "peach.bmp";
+
+  // Delete output file
+  remove(out_file);
+
+  stuff->img = convert_file_to_image(in_file);
+
+  munit_assert_ptr_not_null(stuff->img.pixels_array_2d); // FAILED TO CONVERT IMAGE
+
+  write_image_to_bmp(stuff->img, out_file);
+
+  FILE* fp = fopen(out_file, "r");
+  stuff->fp = fp;
+  munit_assert_ptr_not_null(fp); // OUTPUT FILE NOT FOUND
+
+  return MUNIT_OK;
+}

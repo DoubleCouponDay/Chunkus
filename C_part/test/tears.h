@@ -66,3 +66,10 @@ typedef struct
 
 void* speedy_vectorize_setup(const MunitParameter params[], void* userdata);
 void speedy_vectorize_teardown(void* fixture);
+
+typedef struct {
+    image img;
+    FILE* fp;
+} jpeg_bmp_stuff;
+void* jpeg_to_bmp_setup(const MunitParameter params[], void* userdata);
+void jpeg_to_bmp_teardown(void* fixture);

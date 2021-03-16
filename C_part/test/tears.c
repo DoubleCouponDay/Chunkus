@@ -91,3 +91,14 @@ void speedy_vectorize_teardown(void* fixture)
   free_nsvg(stuff->nsvg_image);
   free(fixture);
 }
+
+void* jpeg_to_bmp_setup(const MunitParameter params[], void* userdata) {
+  return calloc(1, sizeof(jpeg_bmp_stuff));
+}
+
+void jpeg_to_bmp_teardown(void* fixture) {
+  jpeg_bmp_stuff* stuff = fixture;
+  free_image_contents(stuff->img);
+  free(stuff->fp);
+  free(stuff);
+}
