@@ -8,32 +8,6 @@
 #include "../utility/error.h"
 #include "../utility/logger.h"
 
-free_jsamparray(int width, int height, JSAMPARRAY input) {
-	if(!input) {
-		return;
-	}
-
-	for(int x = 0; x < width; ++x) {
-		JSAMPROW current = input[x];
-
-		if(!current) {
-			continue;
-		}
-		free(current);
-	}
-	free(input);
-}
-
-JSAMPARRAY allocate_jsamparray(int output_width, int output_height, int colour_components) {
-	JSAMPARRAY array = calloc(output_width, sizeof(JSAMPROW*));
-	
-	for(int i = 0; i < output_width; ++i) {
-		int heightamount = output_height * colour_components; 
-		array[i] = calloc(heightamount, sizeof(JSAMPROW)); //unsigned chars 1d
-	}
-	return array;
-}
-
 bool file_is_jpeg(char* fileaddress) {
 	char current = fileaddress[0];
 	int index = 0;
@@ -54,6 +28,20 @@ bool file_is_jpeg(char* fileaddress) {
 	return false;
 }
 
+void add_scanline_to_image(image output, JSAMPROW* row, int input_y, int row_length, int column_height) {
+	//place a [y][x] array inside an [x][y] array
+	for(int row_i = 0; row_i < row_length; row_i += 3) {
+		byte r = (byte)row[row_i];
+		byte g = (byte)row[row_i + 1];
+		byte b = (byte)row[row_i + 2];
+		int actual_x = row_i / 3;
+		pixel current_pixel = output.pixels_array_2d[actual_x][input_y];
+		current_pixel.r = r;
+		current_pixel.g = g;
+		current_pixel.b = b;
+	}
+}
+
 image convert_jpeg_to_image(char* fileaddress) {
     FILE* file_p = openfile(fileaddress);
 
@@ -64,8 +52,8 @@ image convert_jpeg_to_image(char* fileaddress) {
 
     // Allocate and initialize a JPEG decompression object
     struct jpeg_decompress_struct cinfo;
-	struct jpeg_error_mgr jerr;	
-	cinfo.err = jpeg_std_error(&jerr);
+	struct jpeg_error_mgr err; //the error handler
+    cinfo.err = jpeg_std_error( &err ); 
 	jpeg_create_decompress(&cinfo);
 
 	// Specify the source of the compressed data (eg, a file)
@@ -80,8 +68,20 @@ image convert_jpeg_to_image(char* fileaddress) {
 		return (image){0, 0, NULL};
 	}
 
+	if(cinfo.num_components == 4) {
+		LOG_ERR("RGBA jpeg's not supported!");
+		setError(RGBA_UNSUPPORTED);
+		return (image){0, 0, NULL};
+	}
+
+	else if(cinfo.num_components == 1) {
+		LOG_ERR("greyscale jpeg's not supported!");
+		setError(GREYSCALE_UNSUPPORTED);
+		return (image){0, 0, NULL};
+	}
+
 	// Set parameters for decompression
-	// ¯\_(ツ)_/¯
+	// ¯\_(ツ)_/¯ dont need to
 
 	//start decompression
 	bool startedfine = jpeg_start_decompress(&cinfo);
@@ -91,45 +91,37 @@ image convert_jpeg_to_image(char* fileaddress) {
 		setError(ASSUMPTION_WRONG);
 		return (image){0, 0, NULL};
 	}
-
-	if(cinfo.output_components == 1) {
-		LOG_ERR("did not expect libjpeg to be quantizing!");
-		setError(ASSUMPTION_WRONG);
-		return (image){0, 0, NULL};
-	}
-	image output = create_image(cinfo.output_width, cinfo.output_height);
+	int row_stride = cinfo.output_width * cinfo.output_components;
+	image output = create_image(row_stride, cinfo.output_height);
 
 	if(cinfo.out_color_space == JCS_GRAYSCALE) {
 		LOG_INFO("INPUT IMAGE IS GRAYSCALE");
 		output.is_greyscale = true;
 	}
-	JSAMPARRAY array = allocate_jsamparray(cinfo.output_width, cinfo.output_height, cinfo.output_components);
-	
+
 	//map JSAMPARRAY to image
-	int increment = cinfo.output_components;
+	
+	/* Make a one-row-high sample array that will go away when done with image */
+	JSAMPARRAY buffer = (*cinfo.mem->alloc_sarray)
+		((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
 
-	for(int y = 0; y < cinfo.output_height; ++y) {
-		jpeg_read_scanlines(&cinfo, array, 1);
-
-		for(int x = 0; x < cinfo.output_height; x += increment) {
-			JSAMPLE current = array[y][x];
-			output.pixels_array_2d[y][x].r = current;
-
-			if(output.is_greyscale) {
-				output.pixels_array_2d[y][x].g = array[x][y + 1];
-				output.pixels_array_2d[y][x].b = array[x][y + 2];
-			}
-
-			else {
-				output.pixels_array_2d[y][x].g = current;
-				output.pixels_array_2d[y][x].b = current;
-			}	
-		}
+	/* Here we use the library's state variable cinfo.output_scanline as the
+	* loop counter, so that we don't have to keep track ourselves.
+	*/
+	while (cinfo.output_scanline < cinfo.output_height) {
+		/* jpeg_read_scanlines expects an array of pointers to scanlines.
+		* Here the array is only one element long, but you could ask for
+		* more than one scanline at a time if that's more convenient.
+		*/
+		jpeg_read_scanlines(&cinfo, buffer, 1);
+		/* Assume put_scanline_someplace wants a pointer and sample count. */
+		add_scanline_to_image(output, buffer[0], cinfo.output_scanline, row_stride, cinfo.output_height);
 	}
 
-	// Release the JPEG decompression object	
-	free_jsamparray(cinfo.output_width, cinfo.output_height, array);
-	jpeg_destroy(&cinfo);
-	fclose(file_p);
+	// Release the jpeg decompression object	
+	free(buffer);
+	jpeg_finish_decompress(&cinfo);   //finish decompressing
+	jpeg_destroy_decompress(&cinfo);
+	fclose(file_p);                    //close the file
 	return output;
 }
