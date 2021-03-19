@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}\\C_part\\build\\bin\\tests.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}\\C_part\\buildg",
+            "cwd": "${workspaceFolder}\\C_part\\build",
             "environment": [],
             "console": "internalConsole",
             "requireExactSource": false,
