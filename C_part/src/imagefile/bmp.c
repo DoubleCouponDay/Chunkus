@@ -78,8 +78,7 @@ void generateBitmapImage(unsigned char* image, int height, int width, char* imag
     unsigned char* infoHeader = createBitmapInfoHeader(height, width);
     fwrite(infoHeader, 1, INFO_HEADER_SIZE, imageFile);
 
-    int i;
-    for (i = 0; i < height; i++) {
+    for (int i = 0; i < height; i++) {
         fwrite(image + (i*widthInBytes), BYTES_PER_PIXEL, width, imageFile);
         fwrite(padding, 1, paddingSize, imageFile);
     }
@@ -99,7 +98,7 @@ void write_image_to_bmp(image img, char* fileaddress_p) {
     {
         for (int y = 0; y < img.height; ++y)
         {
-            int index = x * 3 + 0 + y * BYTES_PER_PIXEL * img.width;
+            int index = x * 3 + y * BYTES_PER_PIXEL * img.width;
             as_bytes[index]     = img.pixels_array_2d[x][y].b;
             as_bytes[index + 1] = img.pixels_array_2d[x][y].g;
             as_bytes[index + 2] = img.pixels_array_2d[x][y].r;

@@ -73,6 +73,7 @@ int main(int argc, char** argv) {
   MunitTest run = { "run", just_run, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest pineapple = { "jpeg_to_image", JPEG_to_image, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest apricot = { "jpeg_to_bmp", can_convert_jpeg_to_bmp, jpeg_to_bmp_setup, jpeg_to_bmp_teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest apricot = { "jpeg_to_svg", NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
 
   enum { 
     NUM_TESTS = 11 //UPDATE THIS WHEN YOU ADD NEW TESTS

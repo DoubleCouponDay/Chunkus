@@ -31,14 +31,13 @@ bool file_is_jpeg(char* fileaddress) {
 void add_scanline_to_image(image output, JSAMPROW* row, int input_y, int row_length, int column_height) {
 	//place a [y][x] array inside an [x][y] array
 	for(int row_i = 0; row_i < row_length; row_i += 3) {
-		byte r = (byte)row[row_i];
-		byte g = (byte)row[row_i + 1];
-		byte b = (byte)row[row_i + 2];
+		int r = (int)row[row_i];
+		int g = (int)row[row_i + 1];
+		int b = (int)row[row_i + 2];
 		int actual_x = row_i / 3;
-		pixel current_pixel = output.pixels_array_2d[actual_x][input_y];
-		current_pixel.r = r;
-		current_pixel.g = g;
-		current_pixel.b = b;
+		output.pixels_array_2d[actual_x][input_y].r = r;
+		output.pixels_array_2d[actual_x][input_y].g = g;
+		output.pixels_array_2d[actual_x][input_y].b = b;
 	}
 }
 
@@ -114,9 +113,9 @@ image convert_jpeg_to_image(char* fileaddress) {
 		* Here the array is only one element long, but you could ask for
 		* more than one scanline at a time if that's more convenient.
 		*/
+		int current_y = cinfo.output_scanline;
 		jpeg_read_scanlines(&cinfo, buffer, 1);
 		/* Assume put_scanline_someplace wants a pointer and sample count. */
-		int current_y = cinfo.output_scanline - 1;
 		add_scanline_to_image(output, buffer[0], current_y, row_stride, cinfo.output_height);
 	}
 
