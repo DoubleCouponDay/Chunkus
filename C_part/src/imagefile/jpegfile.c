@@ -92,7 +92,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 		return (image){0, 0, NULL};
 	}
 	int row_stride = cinfo.output_width * cinfo.output_components;
-	image output = create_image(row_stride, cinfo.output_height);
+	image output = create_image(cinfo.output_width, cinfo.output_height);
 
 	if(cinfo.out_color_space == JCS_GRAYSCALE) {
 		LOG_INFO("INPUT IMAGE IS GRAYSCALE");
@@ -102,8 +102,9 @@ image convert_jpeg_to_image(char* fileaddress) {
 	//map JSAMPARRAY to image
 	
 	/* Make a one-row-high sample array that will go away when done with image */
-	JSAMPARRAY buffer = (*cinfo.mem->alloc_sarray)
-		((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
+	//JSAMPARRAY buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
+	JSAMPARRAY buffer = calloc(1, sizeof(JSAMPROW*));
+	buffer[0] = calloc(1, sizeof(JSAMPROW) * row_stride);
 
 	/* Here we use the library's state variable cinfo.output_scanline as the
 	* loop counter, so that we don't have to keep track ourselves.
@@ -115,10 +116,12 @@ image convert_jpeg_to_image(char* fileaddress) {
 		*/
 		jpeg_read_scanlines(&cinfo, buffer, 1);
 		/* Assume put_scanline_someplace wants a pointer and sample count. */
-		add_scanline_to_image(output, buffer[0], cinfo.output_scanline, row_stride, cinfo.output_height);
+		int current_y = cinfo.output_scanline - 1;
+		add_scanline_to_image(output, buffer[0], current_y, row_stride, cinfo.output_height);
 	}
 
 	// Release the jpeg decompression object	
+	free(buffer[0]);
 	free(buffer);
 	jpeg_finish_decompress(&cinfo);   //finish decompressing
 	jpeg_destroy_decompress(&cinfo);
