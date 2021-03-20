@@ -23,6 +23,7 @@
 #include "../src/imagefile/converter.h"
 #include "../src/nsvg/dcdfiller.h"
 #include "../src/utility/logger.h"
+#include "../src/imagefile/jpegfile.h"
 
 MunitResult aTestCanPass(const MunitParameter params[], void* data) {
   LOG_INFO("test 1 passed");
@@ -73,7 +74,7 @@ MunitResult opensPngAndOutputsBmp(const MunitParameter params[], void* userdata)
   FILE* fp = fopen(out_file, "r");
   stuff->fp = fp;
   munit_assert_ptr_not_null(fp); // OUTPUT FILE NOT FOUND
-
+  fclose(fp);
   return MUNIT_OK;
 }
 
@@ -139,9 +140,7 @@ MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], voi
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
   FILE* fp = fopen(out_fileaddress, "r");
-
   munit_assert_ptr_not_null(fp);
-
   fclose(fp);
   return MUNIT_OK;
 }
@@ -186,9 +185,7 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
   FILE* fp = fopen(OUTPUT_PATH, "r"); //check it at least creates a file every time
-
   munit_assert_ptr_not_null(fp);
-
   fclose(fp);
 
   return MUNIT_OK;
@@ -227,9 +224,7 @@ MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdat
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
   
   FILE* fp = fopen(OUTPUT_PATH, "r");
-
   munit_assert_ptr_not_null(fp);
-
   fclose(fp);
 
   return MUNIT_OK;
@@ -269,6 +264,52 @@ MunitResult can_convert_jpeg_to_bmp(const MunitParameter params[], void* userdat
   FILE* fp = fopen(out_file, "r");
   stuff->fp = fp;
   munit_assert_ptr_not_null(fp); // OUTPUT FILE NOT FOUND
+  fclose(fp);
+  return MUNIT_OK;
+}
+
+MunitResult jpeg_dcd(const MunitParameter params[], void* userdata) {
+    test8stuff* stuff = userdata;
+
+  char* inputjpeg = params[5].value;
+
+  char* chunk_size_str = params[1].value;
+  int chunk_size = atoi(chunk_size_str);
+
+  char* threshold_str = params[2].value;
+  float threshold = atof(threshold_str);
+  
+  char* out_fileaddress = params[3].value;
+  int num_colours = atoi(params[4].value);
+
+  vectorize_options options = {
+    inputjpeg,
+    chunk_size,
+    threshold,
+    num_colours
+  };
+
+  stuff->img = convert_jpeg_to_image(inputjpeg);
+  LOG_INFO("asserting pixels_array_2d not null");
+  munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
+
+  stuff->nsvg_image = dcdfill_for_nsvg(stuff->img, options);
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
+
+  bool outcome = write_svg_file(stuff->nsvg_image);
+  
+  if(outcome)
+    LOG_INFO("svg writing outcome: %s", "succeeded");
+
+  else 
+    LOG_INFO("svg writing outcome: %s", "failed");
+    
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
+
+  FILE* fp = fopen(OUTPUT_PATH, "r"); //check it at least creates a file every time
+  munit_assert_ptr_not_null(fp);
+  fclose(fp);
 
   return MUNIT_OK;
 }

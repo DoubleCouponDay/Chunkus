@@ -35,4 +35,5 @@ MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdat
 MunitResult just_run(const MunitParameter params[], void* userdata);
 MunitResult JPEG_to_image(const MunitParameter params[], void* userdata);
 MunitResult can_convert_jpeg_to_bmp(const MunitParameter params[], void* userdata);
+MunitResult jpeg_dcd(const MunitParameter params[], void* userdata);
 
