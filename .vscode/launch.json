@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}\\C_part\\build\\bin\\tests.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}\\C_part\\build",
+            "cwd": "${workspaceFolder}\\C_part\\build\\bin",
             "environment": [],
             "console": "internalConsole",
             "requireExactSource": false,
@@ -23,19 +23,7 @@
             "program": "${workspaceFolder}\\C_part\\build\\bin\\tests.exe",
             "args": ["jpeg_dcd"],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}\\C_part\\build",
-            "environment": [],
-            "console": "internalConsole",
-            "requireExactSource": false
-        },
-        {
-            "name": "(Windows) Launch Vectorizer against input.png",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}\\C_part\\build\\windows\\x64\\debug\\vectorizer.exe",
-            "args": ["../../../../discord-v/input.png", "output.png", "4", "0"],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}\\C_part\\build\\windows\\x64\\debug",
+            "cwd": "${workspaceFolder}\\C_part\\build\\bin",
             "environment": [],
             "console": "internalConsole",
             "requireExactSource": false
@@ -47,7 +35,7 @@
             "request": "launch",
             "program": "${workspaceFolder}\\C_part\\build\\bin\\tests",
             "args": ["jpeg_to_image"],
-            "cwd": "${workspaceFolder}\\C_part\\build",
+            "cwd": "${workspaceFolder}\\C_part\\build\\bin",
             "externalConsole": false,
             "internalConsoleOptions": "neverOpen",
             "symbolLoadInfo": {
