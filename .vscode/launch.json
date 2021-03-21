@@ -34,12 +34,12 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}\\C_part\\build\\bin\\tests",
-            "args": ["jpeg_to_image"],
+            "args": ["jpeg_dcd"],
             "cwd": "${workspaceFolder}\\C_part\\build\\bin",
             "externalConsole": false,
             "internalConsoleOptions": "neverOpen",
             "symbolLoadInfo": {
-                "loadAll": false,
+                "loadAll": true,
                 "exceptionList": ""
             }
         },

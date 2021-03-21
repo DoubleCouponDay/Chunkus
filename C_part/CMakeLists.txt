@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13.4)
 project(vec)
 enable_testing()
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+include("build/conanbuildinfo.cmake")
 conan_basic_setup()
 
 file(GLOB sourceglob 
