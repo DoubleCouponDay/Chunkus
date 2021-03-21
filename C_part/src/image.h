@@ -52,7 +52,6 @@ typedef struct
     int width;
     int height;
     pixel** pixels_array_2d;
-    bool is_greyscale;
 } image;
 
 pixel convert_colorf_to_pixel(pixelF input);

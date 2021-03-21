@@ -28,7 +28,7 @@ bool file_is_jpeg(char* fileaddress) {
 	return false;
 }
 
-void add_scanline_to_image(image output, JSAMPROW* row, int input_y, int row_length, int column_height) {
+void add_scanline_to_image(image output, JSAMPROW* row, int input_y, int row_length) {
 	//place a [y][x] array inside an [x][y] array
 	for(int row_i = 0; row_i < row_length; row_i += 3) {
 		int r = (int)row[row_i];
@@ -51,7 +51,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 
     // Allocate and initialize a JPEG decompression object
     struct jpeg_decompress_struct cinfo;
-	struct jpeg_error_mgr err; //the error handler
+	struct jpeg_error_mgr err;
     cinfo.err = jpeg_std_error( &err ); 
 	jpeg_create_decompress(&cinfo);
 
@@ -84,6 +84,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 	//cinfo.scale_denom = 1;
 	//cinfo.block_size = 1;
 	//cinfo.do_fancy_upsampling = FALSE;
+	//cinfo.raw_data_out = TRUE;
 
 	//start decompression
 	bool startedfine = jpeg_start_decompress(&cinfo);
@@ -95,31 +96,13 @@ image convert_jpeg_to_image(char* fileaddress) {
 	}
 	int row_stride = cinfo.output_width * cinfo.output_components;
 	image output = create_image(cinfo.output_width, cinfo.output_height);
-
-	if(cinfo.out_color_space == JCS_GRAYSCALE) {
-		LOG_INFO("INPUT IMAGE IS GRAYSCALE");
-		output.is_greyscale = true;
-	}
-
-	//map JSAMPARRAY to image
-	
-	/* Make a one-row-high sample array that will go away when done with image */
-	//JSAMPARRAY buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
 	JSAMPARRAY buffer = calloc(1, sizeof(JSAMPROW*));
 	buffer[0] = calloc(1, sizeof(JSAMPROW) * row_stride);
 
-	/* Here we use the library's state variable cinfo.output_scanline as the
-	* loop counter, so that we don't have to keep track ourselves.
-	*/
 	while (cinfo.output_scanline < cinfo.output_height) {
-		/* jpeg_read_scanlines expects an array of pointers to scanlines.
-		* Here the array is only one element long, but you could ask for
-		* more than one scanline at a time if that's more convenient.
-		*/
 		int current_y = cinfo.output_scanline;
 		jpeg_read_scanlines(&cinfo, buffer, 1);
-		/* Assume put_scanline_someplace wants a pointer and sample count. */
-		add_scanline_to_image(output, buffer[0], current_y, row_stride, cinfo.output_height);
+		add_scanline_to_image(output, buffer[0], current_y, row_stride);
 	}
 
 	// Release the jpeg decompression object	

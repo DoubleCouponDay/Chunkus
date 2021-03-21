@@ -98,7 +98,6 @@ image create_image(int width, int height)
     image output = {
         width, height
     };
-    output.is_greyscale = false;
 
     LOG_INFO("Creating Image with %d x %d Dimensions", width, height);
 
