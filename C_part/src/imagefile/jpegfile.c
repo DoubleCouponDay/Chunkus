@@ -83,6 +83,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 	//cinfo.scale_num = 1;
 	//cinfo.scale_denom = 1;
 	//cinfo.block_size = 1;
+	//cinfo.do_fancy_upsampling = FALSE;
 
 	//start decompression
 	bool startedfine = jpeg_start_decompress(&cinfo);
