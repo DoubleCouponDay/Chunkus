@@ -19,7 +19,7 @@
 #include "bobsweep.h"
 #include "../utility/logger.h"
 
-//entry point of the file
+
 NSVGimage* dcdfill_for_nsvg(image input, vectorize_options options) {
 	quantize_image(&input, options.num_colours);
 

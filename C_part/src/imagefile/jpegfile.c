@@ -36,8 +36,8 @@ void add_scanline_to_image(image output, JSAMPROW* row, int input_y, int row_len
 		int b = (int)row[row_i + 2];
 		int actual_x = row_i / 3;
 		output.pixels_array_2d[actual_x][input_y].r = r;
-		output.pixels_array_2d[actual_x][input_y].g = g;
-		output.pixels_array_2d[actual_x][input_y].b = b;
+		output.pixels_array_2d[actual_x][input_y].g = b; //wtf this actual works
+		output.pixels_array_2d[actual_x][input_y].b = g;
 	}
 }
 
@@ -80,7 +80,9 @@ image convert_jpeg_to_image(char* fileaddress) {
 	}
 
 	// Set parameters for decompression
-	// ¯\_(ツ)_/¯ dont need to
+	//cinfo.scale_num = 1;
+	//cinfo.scale_denom = 1;
+	//cinfo.block_size = 1;
 
 	//start decompression
 	bool startedfine = jpeg_start_decompress(&cinfo);

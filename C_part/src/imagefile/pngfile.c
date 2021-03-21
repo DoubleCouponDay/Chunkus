@@ -383,7 +383,7 @@ void iterate_through_shape(pixelchunk_list* list, png_hashies_iter* udata)
         
         if (chunk->location.x < 0 || chunk->location.y < 0 || chunk->location.x >= map->width || chunk->location.y >= map->height)
         {
-            LOG_INFO("Error: chunk has waaaaay off coordinate");
+            LOG_INFO("chunk is waaaaay off coordinate");
         }
 
         else {
