@@ -74,5 +74,5 @@
     "C_Cpp.intelliSenseEngineFallback": "Enabled",
     "cmake.autoSelectActiveFolder": false,
     "cmake.sourceDirectory": "${workspaceFolder}/C_part",
-    "cmake.buildDirectory": "${workspaceFolder}/C_Part/build"
+    "cmake.buildDirectory": "${workspaceFolder}/C_part/build"
 }
