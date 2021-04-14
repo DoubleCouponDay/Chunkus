@@ -19,6 +19,7 @@ structopt = { version = "0.3.21" }
 
 [target.'cfg(unix)'.dependencies]
 openssl = "0.10"
+sysexit = "0.2.0"
 
 [target.'cfg(windows)'.dependencies]
 ntapi = "0.3"

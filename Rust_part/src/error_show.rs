@@ -12,6 +12,9 @@ use ntapi::ntrtl::RtlNtStatusToDosError;
 #[cfg(target_os = "windows")]
 use winapi::um::{libloaderapi, winbase, winnt};
 
+#[cfg(target_os = "linux")]
+use sysexit;
+
 #[cfg(target_os = "windows")]
 fn to_wstring(value: &str) -> Vec<u16> {
     use std::os::windows::ffi::OsStrExt;
@@ -82,7 +85,7 @@ fn error_string_wininet(errno: i32) -> String {
 
 #[cfg(target_os = "linux")]
 pub fn error_string(errno:i32) -> String {
-    errno.to_string()
+    sysexit::from_status(errno)
 }
 
 #[cfg(target_os = "windows")]
