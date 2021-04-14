@@ -1,9 +1,9 @@
-use std::env;
+use std::env::var;
 
-pub fn gettoken() -> &'static str {
-    env!("VECTORIZER")
+pub fn gettoken() -> String {
+    var("VECTORIZER").unwrap()
 }
 
-pub fn getwatchertoken() -> &'static str {
-    env!("TRAMPOLINE")
+pub fn getwatchertoken() -> String {
+    var("TRAMPOLINE").unwrap()
 }

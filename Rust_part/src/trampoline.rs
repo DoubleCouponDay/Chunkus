@@ -329,7 +329,8 @@ pub async fn create_trampoline_bot(token: &str) -> Client {
 #[tokio::main]
 async fn main() -> CommandResult
 {
-    let watcher_token = secrettoken::getwatchertoken();
+    let watcher_token_obj = secrettoken::getwatchertoken();
+    let watcher_token = watcher_token_obj.as_str();
 
     let mut watcher_client = create_trampoline_bot(watcher_token).await;
     initialize_child(&watcher_client.data).await;

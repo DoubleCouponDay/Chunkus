@@ -3,6 +3,8 @@
 #include "vec.h"
 #include "defines.h"
 
+float M_PI = 3.1415926535897932;
+
 vector2 vec_sub(vector2 a, vector2 b)
 {
     return (vector2) { a.x - b.x, a.y - b.y };
