@@ -12,6 +12,8 @@
 #include "prune.h"
 #include "utility/defines.h"
 
+float M_POG = 3.1415926535897932;
+
 enum {
     ADJACENT_COUNT = 9
 };

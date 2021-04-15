@@ -20,7 +20,8 @@ fn main()
 
 async fn run_bot()
 {
-    let token = secrettoken::gettoken();
+    let tokenobj = secrettoken::gettoken();
+    let token = tokenobj.as_str();
     let mut client = bot::create_vec_bot(token).await;
     
     if let Err(why) = client.start().await
