@@ -12,6 +12,8 @@
 #include "utility/vec.h"
 #include "prune.h"
 
+float M_POG = 3.1415926535897932;
+
 enum {
     ADJACENT_COUNT = 9
 };
@@ -25,7 +27,7 @@ void sort_item(pixelchunk** array, pixelchunk* current, unsigned long i, unsigne
 void dont_skip_corners(pixelchunk** array, unsigned long eligiblesubjects[ADJACENT_COUNT], pixelchunk* subject, pixelchunk* previous, 
                         unsigned long eligible_count, unsigned long next, unsigned long length) {
 
-    float smallest_angle = M_PI * 2.f; // set to largest possible radian to begin with
+    float smallest_angle = M_POG * 2.f; // set to largest possible radian to begin with
     pixelchunk* most_eligible = NULL;
     unsigned long most_eligible_index = 0;
 

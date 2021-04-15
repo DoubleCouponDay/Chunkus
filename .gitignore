@@ -1,3 +1,4 @@
+**/dockercompose.yml
 Rust_part/template.svg
 **/*.a
 **/*.so
@@ -24,7 +25,6 @@ cmake_install.cmake
 **/output.svg
 **/chunkmap.png
 
-**/secrettoken.rs
 Rust_part/target
 
 C_part/.xmake/
