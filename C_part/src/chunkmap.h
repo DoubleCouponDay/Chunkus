@@ -70,4 +70,5 @@ typedef struct
     char* file_path;
     int chunk_size;
     float shape_colour_threshhold;
+    int num_colours;
 } vectorize_options;

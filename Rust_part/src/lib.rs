@@ -5,3 +5,4 @@ pub mod bot;
 pub mod core;
 pub mod svg;
 pub mod options;
+pub mod error_show;

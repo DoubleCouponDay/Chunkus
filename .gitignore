@@ -1,3 +1,19 @@
+Rust_part/template.svg
+**/*.a
+**/*.so
+**/*.lib
+/C_part/lib/
+/C_part/bin/
+conaninfo.txt
+graph_info.json
+conanbuildinfo.cmake
+CMakeFiles/
+**/CMakeCache.txt
+**/Makefile
+cmake_install.cmake
+**/log.txt
+**/conanbuildinfo.txt
+
 # Discord token
 *.discord_token
 **/Cargo.lock
@@ -12,7 +28,7 @@
 Rust_part/target
 
 C_part/.xmake/
-C_part/build
+C_part/build/
 
 # Prerequisites
 *.d
@@ -78,3 +94,5 @@ conan.lock
 .xmake/linux/x86_64/xmake.conf
 
 *.lock
+
+Rust_part/vec

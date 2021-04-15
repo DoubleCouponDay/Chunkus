@@ -43,18 +43,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Launch",
+            "name": "Launch trampoline",
             "args": [],
-            "program": "${workspaceFolder}/Rust_part/target/debug/bot.exe",
+            "program": "${workspaceFolder}/Rust_part/target/debug/trampoline.exe",
             "windows": {
-                "program": "${workspaceFolder}/Rust_part/target/debug/bot.exe"
+                "program": "${workspaceFolder}/Rust_part/target/debug/trampoline.exe"
             },
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/Rust_part",
             "stopOnEntry": false,
-            "sourceLanguages": ["rust"],
-            "sourceMap": {
-              "/rustc/*": "${env:HOME}/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust"
-            }
+            "sourceLanguages": ["rust"]            
           },
     ]
 }

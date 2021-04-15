@@ -4,7 +4,9 @@ mod bot;
 mod core;
 mod svg;
 mod options;
+mod error_show;
 
+extern crate libc;
 fn main()
 {
     tokio::runtime::Builder::new_current_thread()

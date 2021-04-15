@@ -10,7 +10,8 @@ use serenity::{
 use tokio::sync::RwLockWriteGuard;
 
 const DEFAULT_CHUNK_SIZE: u32 = 1;
-const DEFAULT_THRESHOLD: u32 = 100;
+const DEFAULT_THRESHOLD: u32 = 1;
+const DEFAULT_COLOURS: u32 = 256;
 
 pub struct VectorizeOptionsKey;
 
@@ -18,11 +19,13 @@ pub struct VectorizeOptions
 {
     pub chunksize: u32,
     pub threshold: u32,
+    pub numcolours: u32
 }
 
 pub struct ParsedOptions {
     pub chunksize: String,
-    pub threshold: String
+    pub threshold: String,
+    pub numcolours: String
 }
 
 impl TypeMapKey for VectorizeOptionsKey
@@ -34,7 +37,8 @@ impl Clone for ParsedOptions {
     fn clone(&self) -> ParsedOptions {
         ParsedOptions {
             chunksize: self.chunksize.clone(),
-            threshold: self.threshold.clone()
+            threshold: self.threshold.clone(),
+            numcolours: self.numcolours.clone()
         }
     }
 }
@@ -50,7 +54,8 @@ pub async fn insert_params(mut data: RwLockWriteGuard<'_, TypeMap>, input: Vecto
 
     let options = ParsedOptions {
         chunksize: place_default_if_needed(input.chunksize, DEFAULT_CHUNK_SIZE),
-        threshold: place_default_if_needed(input.threshold, DEFAULT_THRESHOLD)
+        threshold: place_default_if_needed(input.threshold, DEFAULT_THRESHOLD),
+        numcolours: place_default_if_needed(input.numcolours, DEFAULT_COLOURS)
     };
     data.insert::<VectorizeOptionsKey>(options.clone());
     options

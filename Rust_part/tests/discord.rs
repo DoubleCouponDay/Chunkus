@@ -27,7 +27,10 @@ mod tests {
     
     use super::handlers::{
         MESSAGE_CONTENT,
-        ReceiveEmbedMessageHandler, ReceiveMessageHandler, ReceiveImageEmbedMessageHandler,
+        ReceiveEmbedMessageHandler, 
+        ReceiveMessageHandler, 
+        ReceiveImageEmbedMessageHandler,
+        StartOtherBotHandler,
     };
     use super::consts::TEST_IMAGE;
     use super::botrunner::{
@@ -198,6 +201,29 @@ mod tests {
 
         // Shutdown bot 1
         running_bot.shard_manager.lock().await.shutdown_all().await;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn second_bot_starts_first_bot_when_dead() -> Result<(), Error>
+    {
+        // something like
+        // make sure 1st bot not running
+        // start 2nd bot
+        // wait a bit
+        // check if 1st bot running
+
+        let token = gettoken();
+        let handler = StartOtherBotHandler{};
+
+        thread::sleep(Duration::from_secs(10));
+
+
+        // Check if other bot is running
+        // Either use the bot's http to check the bot UserId's status
+        // Or ask the bot whether it thinks the bot is online
+        
+
         Ok(())
     }
 }

@@ -1,0 +1,14 @@
+
+/C_part/lib/
+/Rust_part/target/
+/Rust_part/tests/
+/Rust_part/libvec.a
+/Rust_part/Cargo.lock
+C_part/.xmake/
+C_part/build/
+C_part/test/
+README.md
+LICENSE
+.gitignore
+/.vscode/
+Dockerfile

@@ -1,11 +1,4 @@
-use std::{
-    collections::{HashSet, HashMap},
-    fs::File,
-    fs::remove_file,
-    path::Path,
-    io::prelude::*,
-    time::{Duration, Instant}
-};
+use std::{collections::{HashSet, HashMap}, fs::File, fs::remove_file, io::prelude::*, ops::Add, path::Path, process::{Child, Command}, time::{Duration, Instant}};
 use serenity::{
     async_trait,
     http::Http,
@@ -37,6 +30,10 @@ use crate::options::{
     insert_params,
     get_params
 };
+
+pub const START_MESSAGE: &'static str = "Working on it...";
+pub const END_MESSAGE: &'static str = "Here's your result.";
+pub const ERR_MESSAGE: &'static str = "error: ";
 
 struct MsgListen;
 struct MsgUpdate;
@@ -81,20 +78,6 @@ pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, hand
 
 pub async fn create_vec_bot(token: &str) -> Client
 {
-    println!("creating http token...");
-    let http = Http::new_with_token(&token);
-    
-    println!("fetching owner id, bot id...");
-
-    let (_, _bot_id) = match http.get_current_application_info().await {
-        Ok(info) => {
-            let mut owners = HashSet::new();
-            owners.insert(info.owner.id);
-
-            (owners, info.id)
-        },
-        Err(why) => panic!("Could not access application info: {:?}", why),
-    };
     println!("creating framework...");
 
     let framework = StandardFramework::new().configure(|c| c
@@ -102,7 +85,7 @@ pub async fn create_vec_bot(token: &str) -> Client
         .with_whitespace(true))
             .group(&GENERAL_GROUP);
         
-    println!("bot is running...");
+    println!("vectorizer running...");
 
     // Login with a bot token from the environment
     let client = ClientBuilder::new(&token)
@@ -115,7 +98,7 @@ pub async fn create_vec_bot(token: &str) -> Client
         let mut data: RwLockWriteGuard<'_, TypeMap> = client.data.write().await; //only allowed one mutable reference
         data.insert::<MsgListen>(HashSet::<MessageId>::new());
         data.insert::<MsgUpdate>(HashMap::<MessageId, MessageUpdateEvent>::new());
-        let params = VectorizeOptions {chunksize: 0, threshold: 0};
+        let params = VectorizeOptions {chunksize: 0, threshold: 0, numcolours: 0};
         insert_params(data, params).await;
     }
 
@@ -273,15 +256,26 @@ async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandRe
     let mut mutable = args;
     let possiblechunksize = mutable.single::<u32>();
     let possiblethreshold = mutable.single::<u32>();
+    let possiblecolours = mutable.single::<u32>();
 
-    if possiblechunksize.is_ok() && possiblethreshold.is_ok() {        
+    if possiblechunksize.is_ok() && possiblethreshold.is_ok() && possiblecolours.is_ok() {        
         let data_write = ctx.data.write().await;
-        let params = VectorizeOptions {chunksize: possiblechunksize.unwrap(), threshold: possiblethreshold.unwrap()};
+        let params = VectorizeOptions {
+            chunksize: possiblechunksize.unwrap(), 
+            threshold: possiblethreshold.unwrap(),
+            numcolours: possiblecolours.unwrap()
+        };
         let parsed = insert_params(data_write, params).await;
-
-        if let Err(why) = msg.reply(&ctx.http, format!("Set Chunk Size to: {} and Threshold to: {}", parsed.chunksize, parsed.threshold)).await {
+        
+        let result = msg.reply(
+            &ctx.http, 
+            format!("Set Chunk Size to: {}, Threshold to: {}, Num Colours to: {}", 
+            parsed.chunksize, parsed.threshold, parsed.numcolours))
+            .await;
+        
+        if let Err(why) = result {
             eprintln!("Error sending params reply: {:?}", why);
-        }
+        }   
     }
 
     else if let Err(why) = msg.reply(&ctx.http, "incorrect arguments given").await {
@@ -306,10 +300,10 @@ async fn vectorizerdelete(ctx: &Context, msg: &Message, args: Args) -> CommandRe
 
 #[command]
 #[aliases("va")]
-async fn vectorizeralgorithm(ctx: &Context, msg: &Message, args: Args) -> CommandResult
+pub async fn vectorizeralgorithm(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 {
     println!("Setting algorithm");
-    let potential_algo = args.rest().parse::<i32>();
+    let potential_algo = args.rest().parse::<String>();
     if potential_algo.is_err()
     {
         if let Err(why) = msg.reply(&ctx.http, "Invalid input given!").await
@@ -318,7 +312,8 @@ async fn vectorizeralgorithm(ctx: &Context, msg: &Message, args: Args) -> Comman
             return Ok(());
         }
     }
-    let algorithm: i32 = potential_algo.unwrap();
+    let betweenstep = potential_algo.unwrap();
+    let algorithm: &str = betweenstep.as_str();
 
     let c_error = super::core::set_algorithm(algorithm);
 
@@ -344,6 +339,10 @@ async fn vectorizeralgorithm(ctx: &Context, msg: &Message, args: Args) -> Comman
 async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
 {
     println!("message received");
+
+    let _acknowledged = msg.channel_id.send_message(&ctx.http, |m| {
+        m.content(START_MESSAGE)
+    }).await;
     
     let mut embed_urls: Vec<String> = vec![];
     if msg.embeds.len() < 1 && msg.attachments.len() < 1
@@ -382,11 +381,7 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
     }
 
     else //embed found
-    {
-        let _acknowledged = msg.channel_id.send_message(&ctx.http, |m|
-        {
-            m.content("Working on it...")
-        }).await;
+    {        
         println!("vectorizing...");
         println!("embed count {0}", msg.embeds.len());
         println!("attachments count {0}", msg.attachments.len());
@@ -406,7 +401,6 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
     }
     
     println!("Sending {0} urls to vectoriser", embed_urls.len());
-    println!("Yo Mama {:?}", embed_urls);
     vectorize_urls(&ctx, &msg, &embed_urls).await;
     
     Ok(())
@@ -414,7 +408,6 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
 
 async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 {  
-    println!("vectorize_urls with: {:?}", urls);
     for url in urls.iter()
     {
         println!("vectorizing url {:?}", url);
@@ -450,14 +443,6 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
             }
         }
 
-        println!("Removing existing file");
-        if let Err(err) = remove_file(Path::new(constants::OUTPUTFILENAME))
-        {
-            println!("Remove file Err: {:?} probably not important", err);
-        }
-
-
-
         // Execute Algorithm
         let inputname = String::from(constants::INPUTFILENAME);
 
@@ -472,7 +457,9 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
         let possibleerror: &str = result.into();
 
         if possibleerror != "SuccessCode" {
-            if let Err(why) = msg.reply(&ctx.http, possibleerror)
+            let mut errmessage: String = format!("{}", ERR_MESSAGE);
+            errmessage = errmessage.add(possibleerror);
+            if let Err(why) = msg.reply(&ctx.http, errmessage)
             .await { 
                 println!("Error replying: {}", why);
             };
@@ -503,7 +490,7 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
         let msg = msg.channel_id.send_files(&ctx.http, msg_files, |m|
         {
-            m.content("Here's your result.")
+            m.content(END_MESSAGE)
         }).await;
 
         if let Err(err) = msg
@@ -511,4 +498,20 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
             println!("Error sending result {}", err);
         }
     }
+}
+
+#[command]
+async fn status(ctx: &Context, msg: &Message) -> CommandResult
+{
+
+
+    Ok(())
+}
+
+#[command]
+async fn restart_vec(ctx: &Context, msg: &Message) -> CommandResult
+{
+
+
+    Ok(())
 }
