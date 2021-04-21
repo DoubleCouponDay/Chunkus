@@ -1,7 +1,9 @@
+#include "bmp.h"
+
 #include <stdlib.h>
 #include <stdio.h>
+#include <string>
 
-#include "bmp.h"
 #include "../image.h"
 
 const int BYTES_PER_PIXEL = 3; /// red, green, & blue
@@ -61,16 +63,18 @@ unsigned char* createBitmapInfoHeader (int height, int width)
     return infoHeader;
 }
 
-void generateBitmapImage(unsigned char* image, int height, int width, char* imageFileName)
+bool generateBitmapImage(unsigned char* image, int height, int width, char* imageFileName)
 {
-    int widthInBytes = width * BYTES_PER_PIXEL;
+    size_t widthInBytes = width * BYTES_PER_PIXEL;
 
     unsigned char padding[3] = {0, 0, 0};
     int paddingSize = (4 - (widthInBytes) % 4) % 4;
 
     int stride = (widthInBytes) + paddingSize;
 
-    FILE* imageFile = fopen(imageFileName, "wb");
+    FILE* imageFile;
+    if (fopen_s(&imageFile, imageFileName, "wb") || !imageFile)
+        throw std::exception((std::string("Could not open file: ") + imageFileName).c_str());
 
     unsigned char* fileHeader = createBitmapFileHeader(height, stride);
     fwrite(fileHeader, 1, FILE_HEADER_SIZE, imageFile);
@@ -78,13 +82,14 @@ void generateBitmapImage(unsigned char* image, int height, int width, char* imag
     unsigned char* infoHeader = createBitmapInfoHeader(height, width);
     fwrite(infoHeader, 1, INFO_HEADER_SIZE, imageFile);
 
-    int i;
-    for (i = 0; i < height; i++) {
+    for (size_t i = 0; i < height; i++) {
         fwrite(image + (i*widthInBytes), BYTES_PER_PIXEL, width, imageFile);
         fwrite(padding, 1, paddingSize, imageFile);
     }
 
-    fclose(imageFile);
+    if (!fclose(imageFile))
+        return false;
+    return true;
 }
 
 
@@ -99,7 +104,7 @@ void write_image_to_bmp(const image& img, char* fileaddress_p) {
     {
         for (int y = 0; y < img.height(); ++y)
         {
-            int index = x * 3 + 0 + y * BYTES_PER_PIXEL * img.width();
+            int index = x * 3 + 0 + y * BYTES_PER_PIXEL * (int)img.width();
             as_bytes[index]     = img.get(x, y).B;
             as_bytes[index + 1] = img.get(x, y).G;
             as_bytes[index + 2] = img.get(x, y).R;

@@ -30,7 +30,7 @@ struct pixelchunk
 
 struct chunkshape {
     std::list<std::shared_ptr<pixelchunk>> chunks;
-    std::list<std::list<std::shared_ptr<pixelchunk>>> boundaries;
+    std::list<std::shared_ptr<pixelchunk>> boundaries;
     pixel colour;
 };
 
@@ -38,7 +38,7 @@ struct chunkmap
 {
     chunkmap();
     chunkmap(const image& image, int chunk_size);
-    chunkmap(chunkmap &&other) : groups(std::move(other.groups)), shape_list(std::move(other.shape_list)) { other.groups.clear(); other.shape_list.clear(); }
+    chunkmap(chunkmap &&other) noexcept : groups(std::move(other.groups)), shape_list(std::move(other.shape_list)) { other.groups.clear(); other.shape_list.clear(); }
 
     chunkmap(const chunkmap& other) = delete;
 
@@ -62,7 +62,7 @@ struct chunkmap
     bool borders_to_file(char* file) const;
 
 private:
-    void iterate_pixels(const image& other, int chunk_size);
+    void iterate_pixels(const image& other, size_t chunk_size);
 };
 
 typedef struct

@@ -35,10 +35,11 @@ struct pixelD
 {
     pixelD() : R(0.0), G(0.0), B(0.0) {}
     pixelD(float R, float G, float B) : R(R), G(G), B(B) {}
+    pixelD(double R, double G, double B) : R(R), G(G), B(B) {}
     pixelD(const pixelD& p) : R(p.R), G(p.G), B(p.B) {}
     pixelD(const pixel& p) : R((double)p.R / 255.0), G((double)p.G / 255.0), B((double)p.B / 255.0) {}
 
-    float R, G, B;
+    double R, G, B;
 
     inline operator pixel() { return { (byte)(R * 255.0), (byte)(G * 255.0), (byte)(B * 255.0) }; }
 
@@ -53,7 +54,7 @@ struct pixelF
     pixelF(float R, float G, float B) : R(R), G(G), B(B) {}
     pixelF(const pixelF& other) : R(other.R), G(other.G), B(other.G) {}
     pixelF(const pixel& p) : R((float)p.R / 255.f), G((float)p.G / 255.f), B((float)p.B / 255.f) {}
-    pixelF(const pixelD& p) : R(p.R), G(p.G), B(p.B) {}
+    pixelF(const pixelD& p) : R((float)p.R), G((float)p.G), B((float)p.B) {}
 
     float R, G, B;
 
@@ -69,17 +70,17 @@ struct image
 {
     image() : pixels() {}
     image(size_t width, size_t height) : pixels(width, std::vector<pixel>(height)) {}
-    image(image&& other) : pixels(std::move(other.pixels)) {}
+    image(image&& other) noexcept : pixels(std::move(other.pixels)) {}
 
     image(const image& other) = delete;
 
     inline image& operator=(const image& other) = delete;
-    inline image& operator=(image &&other) { pixels = std::move(other.pixels); other.pixels.clear(); return *this; }
+    inline image& operator=(image &&other) noexcept { pixels = std::move(other.pixels); other.pixels.clear(); return *this; }
 
     std::vector<std::vector<pixel>> pixels;
 
-    inline int width() const noexcept { return pixels.size(); }
-    inline int height() const noexcept { return (pixels.empty() ? 0 : pixels.front().size()); }
+    inline size_t width() const noexcept { return pixels.size(); }
+    inline size_t height() const noexcept { return (pixels.empty() ? 0 : pixels.front().size()); }
 
     const pixel& get(int x, int y) const
     {

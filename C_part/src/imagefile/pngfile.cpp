@@ -1,8 +1,12 @@
+#include "pngfile.h"
+
 #include <png.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+#include <stdexcept>
+#include <memory>
 
-#include "pngfile.h"
 #include "../image.h"
 #include "utility/error.h"
 #include "utility/logger.h"
@@ -24,15 +28,12 @@ image convert_png_to_image(char* fileaddress) {
         return image();
     }
 
-    /// Open File
-    FILE* file_p = fopen(fileaddress, "rb");
+    FILE* wtf = fopen(fileaddress, "rb");
 
-    if (!file_p)
-    {
-        LOG_INFO("Could not open file '%s' for reading", fileaddress);
-        setError(ASSUMPTION_WRONG);
-        return image();
-    }
+    /// Open File
+    FILE* file_p = nullptr;
+    if (fopen_s(&file_p, fileaddress, "rb"))
+        throw std::invalid_argument((std::string("Could not open file: '") + fileaddress + "'").c_str());
 
     /// Verify File
     LOG_INFO("Checking if file is PNG type");
@@ -126,18 +127,18 @@ image convert_png_to_image(char* fileaddress) {
     LOG_INFO("dimensions: %d x %d ", output.width(), output.height());
 
     // Allocate row pointers to be filled
-    png_bytep* row_pointers_p = new png_bytep[output.height()];
-
-    for (int y = 0; y < output.height(); ++y)
-    {
-        row_pointers_p[y] = new png_byte[png_get_rowbytes(read_struct, info)];
-    }
+    std::vector<std::vector<png_byte>> data(output.height(), std::vector<png_byte>(png_get_rowbytes(read_struct, info)));
 
     LOG_INFO("reading the image...");
     
     // Switch to RGB format, and fill the row pointers with values
-    image_struct.format = PNG_FORMAT_RGB;
-    png_read_image(read_struct, row_pointers_p);
+    {
+        std::vector<png_bytep> unsafe_data(output.height());
+        for (int i = 0; i < unsafe_data.size(); ++i)
+            unsafe_data[i] = data[i].data();
+        image_struct.format = PNG_FORMAT_RGB;
+        png_read_image(read_struct, unsafe_data.data());
+    }
 
     LOG_INFO("closing image file...");
 
@@ -150,43 +151,30 @@ image convert_png_to_image(char* fileaddress) {
     if (color_type == PNG_COLOR_TYPE_RGB)
     {
         LOG_INFO("Type is RGB");
-        for (int y = 0; y < output.height(); ++y)
+        for (size_t y = 0; y < output.height(); ++y)
         {
-            png_byte *row_p = row_pointers_p[y];
-
-            for (int x = 0; x < output.width(); ++x)
+            for (size_t x = 0; x < output.width(); ++x)
             {
-                png_byte *pixel_p = &(row_p[x * 3]);
-
-                output.set(x, y, pixel{pixel_p[0], pixel_p[1], pixel_p[2]});
+                output.set(x, y, pixel{data[y][x * 3 + 0], data[y][x * 3 + 1], data[y][x * 3 + 2] });
             }
         }
     }
     else if (color_type == PNG_COLOR_TYPE_RGBA)
     {
         LOG_INFO("Type is RGBA");
-        for (int y = 0; y < output.height(); ++y)
+        for (size_t y = 0; y < output.height(); ++y)
         {
-            png_byte *row_p = row_pointers_p[y];
-
-            for (int x = 0; x < output.width(); ++x)
+            for (size_t x = 0; x < output.width(); ++x)
             {
-                png_byte *pixel_p = &(row_p[x * 4]);
-
-                output.set(x, y, pixel{pixel_p[0], pixel_p[1], pixel_p[2]});
+                output.set(x, y, pixel{ data[y][x * 4 + 0], data[y][x * 4 + 1], data[y][x * 4 + 2] });
             }
         }
     }
 
     else
     {
-        LOG_INFO("color type is not RGBA");
+        throw std::invalid_argument("png file was not a supported color type");
     }
-
-    for (int i = 0; i < output.height(); ++i)
-        delete[] row_pointers_p[i];
-        
-    delete[] row_pointers_p;
     
     LOG_INFO("png file converted to image struct.");
     return output;

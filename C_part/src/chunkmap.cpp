@@ -11,10 +11,10 @@
 #include "imagefile/pngfile.h"
 #include "utility/logger.h"
 
-void chunkmap::iterate_pixels(const image& input, int chunk_size) {
-    for (int x = 0; x < width(); ++x)
+void chunkmap::iterate_pixels(const image& input, size_t chunk_size) {
+    for (int x = 0; x < (int)width(); ++x)
     {
-        for (int y = 0; y < height(); ++y)
+        for (int y = 0; y < (int)height(); ++y)
         {
             int x_offset = x * chunk_size;
             int y_offset = y * chunk_size;
@@ -23,8 +23,8 @@ void chunkmap::iterate_pixels(const image& input, int chunk_size) {
             pixelchunk& chunk = *(groups[x][y] = std::make_shared<pixelchunk>(coordinate{ x, y }));
 
             // Assigned the edge case pixelchunk dimensions
-            int node_width = input.width() - x * chunk_size;
-            int node_height = input.height() - y * chunk_size;
+            size_t node_width = input.width() - (size_t)x * chunk_size;
+            size_t node_height = input.height() - (size_t)y * chunk_size;
 
             // Check if not actually on the edge
             if (node_width > chunk_size)

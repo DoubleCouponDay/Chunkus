@@ -4,6 +4,12 @@
 #include <math.h>
 
 
+template<class T>
+inline T lerp(T a, T b, float t)
+{
+    return a + (b - a) * t;
+}
+
 struct vector2
 {
     vector2() = default;
@@ -30,12 +36,12 @@ struct vector2
         float mag_product = mag() * other.mag();
 
         if (mag_product == 0.f)
-            return M_PI * 2.f;
+            return (float)M_PI * 2.f;
         
         float trig_coefficient = dot(other) / mag_product;
 
         if (trig_coefficient > 1.f || trig_coefficient < -1.f)
-            return M_PI * 2.f;
+            return (float)M_PI * 2.f;
 
         return acosf(trig_coefficient);
     }
