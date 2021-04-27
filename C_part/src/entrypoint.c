@@ -9,6 +9,7 @@
 #include "imagefile/svg.h"
 #include "simplify.h"
 #include "imagefile/converter.h"
+#include "string.h"
 
 const char *format1_p = "png";
 const char *format2_p = "jpeg";
@@ -127,10 +128,10 @@ int entrypoint(int argc, char* argv[]) {
 
 int set_algorithm(char* algo)
 {
-	if(algo == "dcdfill")
+	if(strcmp(algo, "dcdfill") == 0)
 		target_algorithm = dcdfill_for_nsvg;
 
-	else if(algo == "bobsweep")
+	else if(strcmp(algo, "bobsweep") == 0)
 		target_algorithm = bobsweep_for_nsvg;
 
 	else
