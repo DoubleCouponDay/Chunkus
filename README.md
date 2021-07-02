@@ -20,53 +20,38 @@ It should work on windows and linux. For windows, install visual studio communit
 
 Install Rust lang so that you can use the `cargo` tool to work with the discord-v folder as a rust project.  
 
-Install Xmake.io so that you can build the C code in the root directory.  
+```
+    rustup target add x86_64-unknown-linux-musl
+```
 
-Install Conan.io. it can only be run from cmd, not powershell. Windows defender antivirus may nuke your conan.exe so you will have to add the folder in the exclusions.
-    create conanfile.txt
-    
-    add [requires] section
-        library names followed by /version
-    
-    add [generators] section
-        cmake
-        
-    cd into build directory
-    
-    conan install ..
+Install docker and docker compose (for the release build)
+
+Install python3 and python3-pip (for installing conan)
+    it can only be run from cmd, not powershell. Windows defender antivirus may nuke your conan.exe so you will have to add the folder in the exclusions.
+
+```
+    apt-get install python3
+    apt-get install python3-pip
+    python3 -m pip install --upgrade pip
+    python3 -m pip install conan
+```
+
+disclaimer: conan no longer works with python2 and pip2 as it has python3 only syntax. If you didn't install conan from the correct place, your build will fail.
   
 ---
 
 ## Building the C code
 <br>
 
-The C building uses a lua based build tool called Xmake, https://xmake.io/  
-First configure the xmake build tool with:  
-    
-    xmake f -m debug -y
+The C code builds to `C_part\build`
 
-This gets xmake to find the correct compiler and linker, and allows conan to download the dependencies  
-It also configures xmake for debug building
-You can configure it to produce release builds with:
-
-    xmake f -m release
-
-You must add an environment variable called `conanpath` and make its value the absolute path to your `.conan` folder. Usually this is found in your user folder.
-
-Now you should be able to run xmake and successfully build the C binaries  
-Simply call:
-    
-    xmake
-
-
-Xmake will build 2 executables, and a static library.
-They can most likely be found in xmake's default debug build folder
-- Xmake's default build folder on Windows: `Vectorizer/build/x64/windows/debug/`
-- Xmake's default build folder on Linux: `Vectorizer/build/x86_64/linux/debug/`  
-
-The static library (either **staticvectorizer.lib** or **libstaticvectorizer.a**) is required for the rust component, however if the static library does in fact lie in the default build directory, the rust build script should copy it automatically.
-
-The C code builds to `/build/windows/x64/`.
+```
+    cd C_part/build
+    conan install ../
+    conan profile update settings.compiler.libcxx-libstc++11 default
+    cmake ../
+    make
+```
   
 ---
   
@@ -129,42 +114,13 @@ Currently only values of 0 and 1 are supported
 - Value 0 means linked-list aggregation algorithm  
 - Value 1 means image-sweep algorithm  
 
-`!va or !vectorizeralgorithm [algorithm_num]` eg.  
-    
-    !algo 0
-
-You should receive a confirmation message telling you which algorithm number you set it to  
-
-# Package manager
-
-conan.io
-
-# Libraries used
-
-Libraries the C code depends on:
-- libpng
-    - zlib
-
-Ex-dependencies:
-- libjpg  
-- nanosvg  
-
-# Tests
+`!va or !vectorizeralgorithm [algorithm_num]`
 
 ## C Tests
 
 The C code contains a test suite (based on MUnit)
-This is in Xmake as its own target
-Run the Xmake tool with target **tests** to easily run the executable
-
-    xmake -b tests
-    xmake r tests
-
-Note:  
-    The test executable may require undocumented arguments, such as relative paths to images, and as such may be harder to run from Xmake directly  
-    The test executable can be found in the Xmake build folder (eg. **./build/windows/x64/debug** on windows) and can be run manually from there  
 
 # Deployment
     build C code, then Rust code, then run `sudo docker build` on a Linux machine.
 
-    one the image is built, deploy it to your docker hub registration.
+    once the image is built, deploy it to your docker hub registration.

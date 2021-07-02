@@ -7,9 +7,9 @@ RUN apt-get update && \
     apt-get install -y musl-tools && \    
     apt-get install software-properties-common -y && \
     apt-get install python3=3.7.3-1 -y && \
-    apt-get install python-pip -y && \
-    python -m pip install --upgrade pip && \
-    python -m pip install conan && \
+    apt-get install python3-pip -y && \
+    python3 -m pip install --upgrade pip && \
+    python3 -m pip install conan && \
     apt-get install cmake -y && \
     apt-get install build-essential && \
     rustup target add x86_64-unknown-linux-musl
