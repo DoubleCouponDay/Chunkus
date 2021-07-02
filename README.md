@@ -20,36 +20,37 @@ It should work on windows and linux. For windows, install visual studio communit
 
 Install Rust lang so that you can use the `cargo` tool to work with the discord-v folder as a rust project.  
 
-Install Xmake.io so that you can build the C code in the root directory.  
+```
+    rustup target add x86_64-unknown-linux-musl
+```
 
-Install Conan.io. it can only be run from cmd, not powershell. Windows defender antivirus may nuke your conan.exe so you will have to add the folder in the exclusions.
-    create conanfile.txt
-    
-    add [requires] section
-        library names followed by /version
-    
-    add [generators] section
-        cmake
-        
-    cd into build directory
-    
-    conan install ..
+Install docker and docker compose (for the release build)
+
+Install python3 and python3-pip (for installing conan)
+    it can only be run from cmd, not powershell. Windows defender antivirus may nuke your conan.exe so you will have to add the folder in the exclusions.
+
+```
+    apt-get install python3
+    apt-get install python3-pip
+    python3 -m pip install --upgrade pip
+    python3 -m pip install conan
+```
+
+disclaimer: conan no longer works with python2 and pip2 as it has python3 only syntax. If you didn't install conan from the correct place, your build will fail.
   
 ---
 
 # Libraries used
 
-Libraries the C code depends on:
-- libpng
-- zlib
-- libjpeg  
-- nanosvg
+The C code builds to `C_part\build`
 
-
-## Building the C code
-<br>
-
-UNDER RENOVATION
+```
+    cd C_part/build
+    conan install ../
+    conan profile update settings.compiler.libcxx-libstc++11 default
+    cmake ../
+    make
+```
   
 ## Building the Rust code
 
@@ -110,30 +111,13 @@ Currently only values of 0 and 1 are supported
 - Value 0 means linked-list aggregation algorithm  
 - Value 1 means image-sweep algorithm  
 
-`!va or !vectorizeralgorithm [algorithm_num]` eg.  
-    
-    !algo 0
-
-You should receive a confirmation message telling you which algorithm number you set it to  
+`!va or !vectorizeralgorithm [algorithm_num]`
 
 ## C Tests
 
 The C code contains a test suite (based on MUnit)
-This is in Xmake as its own target
-Run the Xmake tool with target **tests** to easily run the executable
-
-    xmake -b tests
-    xmake r tests
-
-Note:  
-    The test executable may require undocumented arguments, such as relative paths to images, and as such may be harder to run from Xmake directly  
-    The test executable can be found in the Xmake build folder (eg. **./build/windows/x64/debug** on windows) and can be run manually from there  
-
-## Rust Tests
-
-TODO
 
 # Deployment
     Run `sudo docker build` in the root directory. 
 
-    Once the image is built, tag it with your hub tag and then deploy it to your docker hub registration.
+    once the image is built, deploy it to your docker hub registration.
