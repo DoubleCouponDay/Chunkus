@@ -1,0 +1,10 @@
+version: "3.5"
+services:
+  vectorizer:
+    container_name: vectorizer
+    build: http://github.com/DoubleCouponDay/Vectorizer.git
+    restart: unless-stopped
+    environment:
+      VECTORIZER: 
+
+      TRAMPOLINE: 
