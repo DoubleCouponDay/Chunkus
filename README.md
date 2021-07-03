@@ -89,6 +89,10 @@ The rust part builds to `/discord-v/target/debug/`.
 
 # Running
 
+`cargo run --bin trampoline`
+
+It can only run if your bot is offline. There can only be one usage of your tokens at a time.
+
 Commands to use the bot:
 ### Vectorize: Goes through all attachments of the command message, executes the algorithm on them and returns the output  
 `!v or !vectorize` with an attachment or url eg.  

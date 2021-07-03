@@ -85,7 +85,7 @@ fn error_string_wininet(errno: i32) -> String {
 
 #[cfg(target_os = "linux")]
 pub fn error_string(errno:i32) -> String {
-    sysexit::from_status(errno)
+    sysexit::Code::from(errno).to_string()
 }
 
 #[cfg(target_os = "windows")]
