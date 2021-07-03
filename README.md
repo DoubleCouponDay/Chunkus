@@ -121,6 +121,23 @@ Currently only values of 0 and 1 are supported
 The C code contains a test suite (based on MUnit)
 
 # Deployment
-    build C code, then Rust code, then run `sudo docker build` on a Linux machine.
+    
+    build C code, then Rust code, then run `sudo docker build` on a Linux machine. once the image is built, deploy it to your docker hub registration.
 
-    once the image is built, deploy it to your docker hub registration.
+    
+
+# Operation
+    you can run the bot on your computer or inside a docker container.
+
+# Running on your computer
+    Set the VECTORIZER and TRAMPOLINE environment variables to the value of your discord bot's secret token.
+    This will allow trampoline to start the bots.
+
+# Running as a container
+    You will need to install OPENSSL 1.1.1
+
+    Fill in the blanks in the dockercompose.yml file and run it.
+
+    `sudo docker-compose up --build --detach`
+
+    
