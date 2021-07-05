@@ -1,5 +1,5 @@
 use std::ffi::CString;
-use std::ptr;
+use std::ptr::{self, null_mut};
 use crate::constants::{
     FfiResult
 };
@@ -15,23 +15,25 @@ mod ffimodule
     #[link(name = "vec", kind = "static")] 
     extern {        
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
-        pub fn set_algorithm(algo: *mut *mut u8) -> c_int;
+        pub fn set_algorithm(algo: *mut u8) -> c_int;
     }
 }
 
 fn call_vectorize(input: &mut CString, output: &mut CString, chunk: &mut CString, threshold: &mut CString, numcolours: &mut CString) -> FfiResult
 {
     let result: FfiResult;
+    let mut argv: [*mut u8; 7] = [
+        ptr::null_mut(), 
+        input.as_ptr() as *mut u8, 
+        output.as_ptr() as *mut u8, 
+        chunk.as_ptr() as *mut u8, 
+        threshold.as_ptr() as *mut u8,
+        numcolours.as_ptr() as *mut u8,
+        ptr::null_mut()
+    ];
 
     unsafe { 
-        let mut argv: [*mut u8; 6] = [
-            ptr::null_mut(), 
-            input.as_ptr() as *mut u8, 
-            output.as_ptr() as *mut u8, 
-            chunk.as_ptr() as *mut u8, 
-            threshold.as_ptr() as *mut u8,
-            numcolours.as_ptr() as *mut u8    
-        ];
+        
         let cint = ffimodule::entrypoint(5, argv.as_mut_ptr()); 
         let between: i32 = cint;
         result = FfiResult::from(between);
@@ -42,12 +44,14 @@ fn call_vectorize(input: &mut CString, output: &mut CString, chunk: &mut CString
 pub fn set_algorithm(algorithm: &str) -> FfiResult
 {
     let result: FfiResult;
+    let algo_copy = algorithm.clone();
+    let algo_cstring = CString::new(algo_copy).unwrap();
+    
     unsafe
     {
         println!("{}", algorithm);
-        let formatted = algorithm.as_ptr() as *mut u8;
-        let mut argv: [*mut u8; 1] = [formatted];
-        let output = ffimodule::set_algorithm(argv.as_mut_ptr());
+        let formatted = algo_cstring.as_ptr() as *mut u8;
+        let output = ffimodule::set_algorithm(formatted);
         result = FfiResult::from(output);
     }
     result
