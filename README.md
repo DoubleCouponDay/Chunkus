@@ -7,14 +7,11 @@ Currently, only png is supported.
 
 it has a Rust component and a C component.
 
-# Getting started
-
-You will need to create a file in the `discord-v` folder called `secrettoken.rs`. A template is given in the wiki. 
-<br>
-
 # Building
   
 ## Requirements
+
+You will need to create a file in the `discord-v` folder called `secrettoken.rs`. A template is given in the wiki. 
 
 It works on windows and linux.
 
