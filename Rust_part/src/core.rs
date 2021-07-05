@@ -7,7 +7,7 @@ use crate::options::{ParsedOptions};
 
 mod ffimodule
 {
-    use libc::{c_int, c_char};
+    use libc::{c_int};
 
     //if no kind given, defaults to dynamic
     #[link(name = "zlib", kind = "static")]
@@ -15,7 +15,7 @@ mod ffimodule
     #[link(name = "vec", kind = "static")] 
     extern {        
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
-        pub fn set_algorithm(algo: *mut c_char) -> c_int;
+        pub fn set_algorithm(algo: *mut *mut u8) -> c_int;
     }
 }
 
@@ -44,8 +44,10 @@ pub fn set_algorithm(algorithm: &str) -> FfiResult
     let result: FfiResult;
     unsafe
     {
-        let formatted = algorithm.as_ptr() as *mut i8;
-        let output = ffimodule::set_algorithm(formatted);
+        println!("{}", algorithm);
+        let formatted = algorithm.as_ptr() as *mut u8;
+        let mut argv: [*mut u8; 1] = [formatted];
+        let output = ffimodule::set_algorithm(argv.as_mut_ptr());
         result = FfiResult::from(output);
     }
     result

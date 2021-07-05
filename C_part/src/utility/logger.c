@@ -34,7 +34,6 @@ void logger(const char* tag, const char* message, ...) {
     if (!logfile)
     {
         open_log(LOG_PATH);
-        return;
     }
 
     va_list args;

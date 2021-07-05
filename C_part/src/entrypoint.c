@@ -129,20 +129,30 @@ int entrypoint(int argc, char* argv[]) {
 }
 
 //PUBLIC FACING
-int set_algorithm(char* algo)
+int set_algorithm(char* argv[])
 {
+	FILE* logfile = fopen("log.txt", "w");
+	fprintf(logfile, "sup\n");
+	char* algo = argv[0];
+	fprintf(logfile, algo);
+
 	if(strcmp(algo, "dcdfill") == 0) {
 		target_algorithm = dcdfill_for_nsvg;
-		LOG_INFO("set algorithm to dcdfill");
+		//LOG_INFO("set algorithm to dcdfill");
+		fprintf(logfile, "set to dcdfill\n");
 	}
 		
 	else if(strcmp(algo, "bobsweep") == 0) {
 		target_algorithm = bobsweep_for_nsvg;
-		LOG_INFO("set algorithm to bobsweep");
+		//LOG_INFO("set algorithm to bobsweep");
+		fprintf(logfile, "set to bobsweep\n");
 	}
 		
 	else {
+		fprintf(logfile, "nothing\n");
+		fflush(logfile);
 		return BAD_ARGUMENT_ERROR;
 	}
+	fflush(logfile);
 	return SUCCESS_CODE;
 }
