@@ -29,7 +29,7 @@ const A_EXT: &'static str = ".a";
 
 const BAD_ZLIB: &'static str = "libz";
 const GOOD_ZLIB: &'static str = "zlib";
-const LIB_PNG: &'static str = "libpng16";
+const LIB_PNG: &'static str = "libpng16"; //windows and linux dont have the same package names from conan
 const LIB: &'static str = "lib";
 const NUM_LIBS: usize = 3;
 
