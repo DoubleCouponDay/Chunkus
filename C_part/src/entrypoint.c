@@ -8,6 +8,7 @@
 #include "imagefile/pngfile.h"
 #include "imagefile/svg.h"
 #include "simplify.h"
+#include "string.h"
 
 const char *format1_p = "png";
 const char *format2_p = "jpeg";
@@ -52,8 +53,11 @@ int execute_program(vectorize_options options) {
 	return getAndResetErrorCode();
 }
 
-
+//PUBLIC FACING
 int entrypoint(int argc, char* argv[]) {
+	// int crash[1];
+	// crash[1];
+
 	clear_logfile();
 	LOG_INFO("entrypoint with: ");
 
@@ -124,16 +128,21 @@ int entrypoint(int argc, char* argv[]) {
 	return execute_program(options);
 }
 
+//PUBLIC FACING
 int set_algorithm(char* algo)
 {
-	if(algo == "dcdfill")
+	if(strcmp(algo, "dcdfill") == 0) {
 		target_algorithm = dcdfill_for_nsvg;
-
-	else if(algo == "bobsweep")
+		LOG_INFO("set algorithm to dcdfill");
+	}
+		
+	else if(strcmp(algo, "bobsweep") == 0) {
 		target_algorithm = bobsweep_for_nsvg;
-
-	else
+		LOG_INFO("set algorithm to bobsweep");
+	}
+		
+	else {
 		return BAD_ARGUMENT_ERROR;
-
+	}
 	return SUCCESS_CODE;
 }
