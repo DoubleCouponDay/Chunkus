@@ -5,7 +5,7 @@ mod consts;
 #[cfg(test)]
 mod tests {
     use vecbot::secrettoken::{
-        gettoken
+        gettoken, getchannelid
     };
     use vecbot::bot::{
         create_vec_bot
@@ -47,15 +47,17 @@ mod tests {
 
     #[tokio::test]
     async fn bot_creatable() -> Result<(), Error> {
-        let token = gettoken().as_str();
-        let _outcome = create_vec_bot(token);
+        let token = gettoken();
+        let tokenstr = token.as_str();
+        let _outcome = create_vec_bot(tokenstr);
         Ok(())
     }
 
     #[tokio::test]
     async fn bot_runnable() -> Result<(), Error> {
-        let token = gettoken().as_str();
-        let mut client = create_vec_bot(token).await;
+        let token = gettoken();
+        let tokenstr = token.as_str();
+        let mut client = create_vec_bot(tokenstr).await;
         let shard_man = client.shard_manager.clone();
 
         let _ = client.start();
