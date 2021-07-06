@@ -24,7 +24,9 @@ mod tests {
     use std::sync::{Mutex, Arc};
     
     use super::handlers::{
-        MESSAGE_CONTENT,
+        RECEIVE_CONTENT,
+        RECEIVE_EMBED_CONTENT,
+        RECEIVE_IMAGE_EMBED_CONTENT,
         ReceiveEmbedMessageHandler, 
         ReceiveMessageHandler, 
         ReceiveImageEmbedMessageHandler,
@@ -86,7 +88,7 @@ mod tests {
 
         // Wait for other bot to connect and then send message
         let message = MessageBuilder::new()
-            .push(MESSAGE_CONTENT)
+            .push(RECEIVE_CONTENT)
             .build();
 
         thread::sleep(Duration::from_secs(5));
@@ -96,7 +98,7 @@ mod tests {
         }
 
         // Give time to receive message
-        thread::sleep(Duration::from_secs(10));
+        thread::sleep(Duration::from_secs(2));
 
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
@@ -129,7 +131,7 @@ mod tests {
         
         if let Err(_message_sent) = channelid.send_message(&http, |m| 
         {
-            m.content(MESSAGE_CONTENT);
+            m.content(RECEIVE_EMBED_CONTENT);
             m.embed(|e|
             {
                 e.title("Epic Embed");
@@ -143,7 +145,7 @@ mod tests {
         }
 
         // Give time to receive message
-        thread::sleep(Duration::from_secs(10));
+        thread::sleep(Duration::from_secs(2));
 
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
@@ -177,7 +179,7 @@ mod tests {
         
         if let Err(_message_sent) = channelid.send_message(&http, |m| 
         {
-            m.content(MESSAGE_CONTENT);
+            m.content(RECEIVE_IMAGE_EMBED_CONTENT);
             m.embed(|e|
             {
                 e.title("Epic Embed");
@@ -192,7 +194,7 @@ mod tests {
         }
 
         // Give time to receive message
-        thread::sleep(Duration::from_secs(10));
+        thread::sleep(Duration::from_secs(2));
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
         // And reset to false
@@ -218,7 +220,7 @@ mod tests {
         let token = gettoken();
         let handler = StartOtherBotHandler{};
 
-        thread::sleep(Duration::from_secs(10));
+        thread::sleep(Duration::from_secs(2));
 
 
         // Check if other bot is running

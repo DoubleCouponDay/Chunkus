@@ -95,3 +95,5 @@ conan.lock
 *.lock
 
 Rust_part/vec
+
+Rust_part/rickroll.bmp

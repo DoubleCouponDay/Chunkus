@@ -142,9 +142,17 @@ Currently only values of 0 and 1 are supported
 
 `!va or !vectorizeralgorithm [algorithm_num]`
 
-## C Tests
+# C Tests
 
 The C code contains a test suite (based on MUnit)
+
+# Rust Tests
+
+Because there are end to end tests which require access to the bot token, the Rust tests must be run in series.
+
+```
+cargo test -- --test-threads 1
+```
 
 # Deployment
     
