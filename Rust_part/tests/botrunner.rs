@@ -11,7 +11,7 @@ use serenity::{
 use std::{
     thread::JoinHandle
 };
-use std::{thread};
+use std::{thread, time::{Duration}};
 use std::sync::{Arc};
 
 use vecbot::secrettoken::{
@@ -53,6 +53,7 @@ pub async fn start_running_bot<H: EventHandler + 'static>(handler: H) -> Running
     
         println!("Runtime finished");
     });
+    thread::sleep(Duration::from_secs(2));
     
     RunningBot {
         client,
@@ -60,3 +61,4 @@ pub async fn start_running_bot<H: EventHandler + 'static>(handler: H) -> Running
         thread
     }
 }
+

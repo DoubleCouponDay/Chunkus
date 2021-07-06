@@ -1,4 +1,3 @@
-
 pub const INPUTFILENAME: &str = "input.png";
 
 pub const OUTPUT_SVG_FILE: &str = "output.svg";
@@ -74,3 +73,5 @@ fn ffiresult_to_string(input: &FfiResult) -> &'static str {
         FfiResult::UnknownError => "UnknownError"
     }
 }
+
+pub const CRASH: &str = "CRASH";

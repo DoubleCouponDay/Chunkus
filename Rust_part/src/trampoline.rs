@@ -138,7 +138,7 @@ async fn start_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
     initialize_child(data).await;
 }
 
-async fn initialize_child(data: &Arc<RwLock<TypeMap>>) {
+pub async fn initialize_child(data: &Arc<RwLock<TypeMap>>) {
     println!("starting vectorizer...");
     let created_process = Command::new("bot").spawn().unwrap(); //if path is not absolute, path variable is searched
     initialize_data_insert(data, created_process).await;

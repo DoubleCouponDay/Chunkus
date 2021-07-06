@@ -26,8 +26,11 @@ pub struct ReceiveImageEmbedMessageHandler
 {
     pub message_received_mutex: Arc<Mutex<bool>>,
 }
+pub struct StartOtherBotHandler;
 
-pub struct StartOtherBotHandler {}
+pub struct DoNothing;
+
+pub struct CrashRunHandler;
 
 #[async_trait]
 impl EventHandler for ReceiveEmbedMessageHandler
@@ -93,5 +96,19 @@ impl EventHandler for ReceiveMessageHandler
         {
             println!("Found non-test message");
         }
+    }
+}
+
+#[async_trait]
+impl EventHandler for DoNothing {
+    async fn message(&self, _ctx: Context, _msg: Message) {
+        
+    }
+}
+
+#[async_trait]
+impl EventHandler for CrashRunHandler {
+    async fn message(&self, _ctx: Context, msg: Message) {
+        
     }
 }

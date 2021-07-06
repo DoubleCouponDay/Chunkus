@@ -6,8 +6,9 @@ mod consts;
 mod tests {
     use vecbot::secrettoken::{getchannelid, gettoken, getwatchertoken};
     use vecbot::bot::{
-        create_vec_bot
+        create_vec_bot, DefaultHandler
     };
+    use vecbot::constants::CRASH;
     use std::result::Result;
     use std::io::Error;
     use tokio;
@@ -18,6 +19,7 @@ mod tests {
             id::{ChannelId},
         },
         utils::MessageBuilder,
+        client::{EventHandler}
     };
     use std::{thread, time::{Duration}};
     
@@ -31,6 +33,7 @@ mod tests {
         ReceiveMessageHandler, 
         ReceiveImageEmbedMessageHandler,
         StartOtherBotHandler,
+        DoNothing
     };
     use super::consts::TEST_IMAGE;
     use super::botrunner::{
@@ -91,7 +94,7 @@ mod tests {
             .push(RECEIVE_CONTENT)
             .build();
 
-        thread::sleep(Duration::from_secs(5));
+        thread::sleep(Duration::from_secs(2));
 
         if let Err(_message_sent) = channelid.say(&http, &message).await {
             panic!("test message not sent!");
@@ -126,8 +129,6 @@ mod tests {
 
         let handler = ReceiveEmbedMessageHandler{ message_received_mutex: indicator_clone };
         let running_bot: RunningBot = start_running_bot(handler).await;
-
-        thread::sleep(Duration::from_secs(5));
         
         if let Err(_message_sent) = channelid.send_message(&http, |m| 
         {
@@ -172,10 +173,6 @@ mod tests {
 
         let handler = ReceiveImageEmbedMessageHandler{ message_received_mutex: indicator_clone };
         let running_bot: RunningBot = start_running_bot(handler).await;
-
-        thread::sleep(Duration::from_secs(5));
-        
-        println!("Emptying Indicator");
         
         if let Err(_message_sent) = channelid.send_message(&http, |m| 
         {
@@ -227,6 +224,33 @@ mod tests {
         // Either use the bot's http to check the bot UserId's status
         // Or ask the bot whether it thinks the bot is online
         
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn crashing_returns_an_informative_status_code() -> Result<(), Error> {
+        let token2 = getwatchertoken();
+        let channelid = ChannelId(getchannelid());
+        let http = Http::new_with_token(&token2);
+        
+        let shared_indicator_mutex: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+        let indicator_clone = shared_indicator_mutex.clone();
+
+        let handler = ReceiveImageEmbedMessageHandler{ message_received_mutex: indicator_clone };
+        let trampoline: RunningBot = start_running_bot(DoNothing{}).await;
+
+        if let Err(_message_sent) = channelid.send_message(&http, |m| 
+            {
+                m.content(CRASH);
+                m
+            }).await {
+                panic!("test message not sent!");
+            }
+        //refactor main.rs so that it can accept a switch
+        //start a trampoline bot in a separate thread
+        //pass it a handler that starts vectorizer with a custom handler
+        //make a custom handler that only calls crash
 
         Ok(())
     }

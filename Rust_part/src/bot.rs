@@ -484,7 +484,6 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
             continue;
         }
 
-
         // Send the output
         let msg_files = vec![outputname.as_str(), png_output.as_str()];
 
@@ -498,20 +497,4 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
             println!("Error sending result {}", err);
         }
     }
-}
-
-#[command]
-async fn status(ctx: &Context, msg: &Message) -> CommandResult
-{
-
-
-    Ok(())
-}
-
-#[command]
-async fn restart_vec(ctx: &Context, msg: &Message) -> CommandResult
-{
-
-
-    Ok(())
 }
