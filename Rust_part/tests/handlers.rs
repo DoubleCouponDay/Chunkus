@@ -81,8 +81,8 @@ impl EventHandler for ReceiveMessageHandler
     {
         if msg.content == MESSAGE_CONTENT
         {
-            println!("Found test message");
-        
+            println!("Found receive test message");
+            *self.message_received_mutex.lock().unwrap() = true;   
         }
 
         else
