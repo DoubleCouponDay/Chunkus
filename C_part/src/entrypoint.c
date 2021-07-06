@@ -143,3 +143,9 @@ int set_algorithm(char* argv)
 	}
 	return SUCCESS_CODE;
 }
+
+//PUBLIC FACING
+int just_crash() {
+	char crash = ((char*)"bigpp")[69];
+	return 69;
+}

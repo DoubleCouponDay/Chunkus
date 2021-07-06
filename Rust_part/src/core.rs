@@ -16,10 +16,11 @@ mod ffimodule
     extern {        
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
         pub fn set_algorithm(algo: *mut u8) -> c_int;
+        pub fn crash() -> c_int;
     }
 }
 
-fn call_vectorize(input: &mut CString, output: &mut CString, chunk: &mut CString, threshold: &mut CString, numcolours: &mut CString) -> FfiResult
+fn call_entrypoint(input: &mut CString, output: &mut CString, chunk: &mut CString, threshold: &mut CString, numcolours: &mut CString) -> FfiResult
 {
     let result: FfiResult;
     let mut argv: [*mut u8; 7] = [
@@ -70,5 +71,13 @@ pub fn do_vectorize(input_file: &String, output_file: &String, options: ParsedOp
     let mut threshold_c = CString::new(options.threshold).unwrap();
     let mut colours_c = CString::new(options.numcolours).unwrap();
 
-    return call_vectorize(&mut input_c, &mut output_c, &mut chunk_c, &mut threshold_c, &mut colours_c);
+    return call_entrypoint(&mut input_c, &mut output_c, &mut chunk_c, &mut threshold_c, &mut colours_c);
+}
+
+pub fn crashing_this_plane() {
+    println!("with no survivors");
+
+    unsafe {
+        let kapow = ffimodule::crash();
+    }
 }
