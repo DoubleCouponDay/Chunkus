@@ -38,8 +38,7 @@ impl EventHandler for ReceiveEmbedMessageHandler
     {
         if msg.content == MESSAGE_CONTENT && msg.embeds.len() > 0
         {
-            println!("Found test message");
-
+            println!("Found receive embed test message");
             *self.message_received_mutex.lock().unwrap() = true;
         }
         else
@@ -59,10 +58,12 @@ impl EventHandler for ReceiveImageEmbedMessageHandler
             match &msg.embeds[0].image
             {
                 Some(_img) => {
-                    println!("Found special test message");
-                
+                    println!("Found image embed test message");
+                    *self.message_received_mutex.lock().unwrap() = true;                    
                 }
-                None => {}
+                None => {
+                    println!("no image in embed")
+                }
             }
         }
 
