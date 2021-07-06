@@ -55,9 +55,6 @@ int execute_program(vectorize_options options) {
 
 //PUBLIC FACING
 int entrypoint(int argc, char* argv[]) {
-	// int crash[1];
-	// crash[1];
-
 	clear_logfile();
 	LOG_INFO("entrypoint with: ");
 

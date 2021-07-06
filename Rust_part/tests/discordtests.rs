@@ -4,9 +4,7 @@ mod consts;
 
 #[cfg(test)]
 mod tests {
-    use vecbot::secrettoken::{
-        gettoken, getchannelid
-    };
+    use vecbot::secrettoken::{getchannelid, gettoken, getwatchertoken};
     use vecbot::bot::{
         create_vec_bot
     };

@@ -43,12 +43,9 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Launch trampoline",
+            "name": "Launch trampoline (Linux)",
             "args": [],
-            "program": "${workspaceFolder}/Rust_part/target/debug/trampoline.exe",
-            "windows": {
-                "program": "${workspaceFolder}/Rust_part/target/debug/trampoline.exe"
-            },
+            "program": "${workspaceFolder}/Rust_part/target/debug/trampoline",
             "cwd": "${workspaceFolder}/Rust_part",
             "stopOnEntry": false,
             "sourceLanguages": ["rust"]            
