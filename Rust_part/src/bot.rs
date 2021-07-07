@@ -285,20 +285,6 @@ async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandRe
 }
 
 #[command]
-#[aliases("vd")]
-async fn vectorizerdelete(ctx: &Context, msg: &Message, args: Args) -> CommandResult
-{
-    if let Ok(msg_id) = args.rest().parse::<u64>()
-    {
-        if let Err(why) = ctx.http.delete_message(msg.channel_id.0, msg_id).await
-        {
-            eprintln!("Error deleting message: {:?}", why);
-        }
-    }
-    Ok(())
-}
-
-#[command]
 #[aliases("va")]
 pub async fn vectorizeralgorithm(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 {
