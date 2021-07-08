@@ -109,10 +109,6 @@ pub async fn create_vec_bot(token: &str, shouldcrash: bool) -> Client
 
 #[async_trait]
 impl EventHandler for DefaultHandler {
-    async fn message(&self, _ctx: Context, msg: Message) {
-        println!("message received {:?}", msg.content);
-    }
-
     async fn message_update(&self, ctx: Context, _old_if_available: Option<Message>, _new: Option<Message>, event: MessageUpdateEvent)
     {
         // check if message id is one we are listening to
