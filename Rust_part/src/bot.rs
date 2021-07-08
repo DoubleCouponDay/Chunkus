@@ -225,11 +225,11 @@ async fn wait_for_message_update(msg_id: MessageId, ctx: &Context) -> Result<Mes
         let stored_hashset = data_write.get_mut::<MsgListen>().unwrap();
         stored_hashset.remove(&msg_id);
         let updated_write = data_write.get_mut::<MsgUpdate>().unwrap();
-        if let Some(ass) = updated_write.remove(&msg_id)
+        if let Some(thing) = updated_write.remove(&msg_id)
         {
             let stored_hashset = data_write.get_mut::<MsgListen>().unwrap();
             stored_hashset.remove(&msg_id);
-            return Ok(ass);
+            return Ok(thing);
         }
         else
         {
