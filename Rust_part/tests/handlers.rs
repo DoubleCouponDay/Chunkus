@@ -16,7 +16,7 @@ pub static RECEIVE_CONTENT: &'static str = "2";
 pub static RECEIVE_IMAGE_EMBED_CONTENT: &'static str = "3";
 pub struct ReceiveEmbedMessageHandler
 {
-    pub message_received_mutex: Arc<Mutex<bool>>,
+    pub message_received_mutex: Arc<Mutex<bool>>
 }
 pub struct ReceiveMessageHandler
 {
@@ -24,13 +24,12 @@ pub struct ReceiveMessageHandler
 }
 pub struct ReceiveImageEmbedMessageHandler
 {
-    pub message_received_mutex: Arc<Mutex<bool>>,
+    pub message_received_mutex: Arc<Mutex<bool>>
 }
 pub struct StartOtherBotHandler;
-
-pub struct DoNothing;
-
-pub struct CrashRunHandler;
+pub struct CrashRunHandler {
+    pub message_received_mutex: Arc<Mutex<bool>>
+}
 
 #[async_trait]
 impl EventHandler for ReceiveEmbedMessageHandler
@@ -100,15 +99,14 @@ impl EventHandler for ReceiveMessageHandler
 }
 
 #[async_trait]
-impl EventHandler for DoNothing {
-    async fn message(&self, _ctx: Context, _msg: Message) {
-        
-    }
-}
-
-#[async_trait]
 impl EventHandler for CrashRunHandler {
     async fn message(&self, _ctx: Context, msg: Message) {
-        
+        if true {
+            *self.message_received_mutex.lock().unwrap() = true;
+        }
+
+        else {
+            println!("message was not the status code");
+        }
     }
 }

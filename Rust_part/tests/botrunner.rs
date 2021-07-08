@@ -14,14 +14,11 @@ use std::{
 use std::{thread, time::{Duration}};
 use std::sync::{Arc};
 
-use vecbot::secrettoken::{
-    gettoken
-};
+use vecbot::secrettoken::{gettoken, getwatchertoken};
 
 pub struct RunningBot {
     pub client: Client,
-    pub shard_manager: Arc<tokio::sync::Mutex<ShardManager>>,
-    pub thread: JoinHandle<()>
+    pub shard_manager: Arc<tokio::sync::Mutex<ShardManager>>
 }
 
 pub async fn start_running_bot<H: EventHandler + 'static>(handler: H) -> RunningBot {
@@ -33,32 +30,11 @@ pub async fn start_running_bot<H: EventHandler + 'static>(handler: H) -> Running
 
     // Start bot 1 (Vectorizer)
     let _ = client.start();
-    
-    // Start bot 2  in another thread
-    let thread = thread::spawn(move || {
-        let runtime = Runtime::new().expect("Unable to create the runtime");
 
-        println!("Runtime created");
-            
-        // Continue running until notified to shutdown
-        runtime.block_on(async {
-            println!("inside async block");
-
-            let token2 = gettoken();
-
-            let mut client2 = create_bot_with_handle(token2.as_str(), handler).await;
-            
-            client2.start().await.expect(" big pp");
-        });
-    
-        println!("Runtime finished");
-    });
     thread::sleep(Duration::from_secs(2));
     
     RunningBot {
         client,
-        shard_manager,
-        thread
+        shard_manager
     }
 }
-

@@ -6,10 +6,10 @@ mod consts;
 mod tests {
     use vecbot::{        
         secrettoken::{getchannelid, gettoken, getwatchertoken},
-        bot::{create_vec_bot, DefaultHandler},
-        trampoline::{initialize_child, create_trampoline_bot}
+        bot::{create_vec_bot},
+        trampoline::{initialize_child, create_trampoline_with_handle}
     };
-    use std::result::Result;
+    use std::{ops::Add, result::Result};
     use std::io::Error;
     use tokio;
     use serenity;
@@ -24,22 +24,21 @@ mod tests {
     
     use std::sync::{Mutex, Arc};
     
-    use super::handlers::{
-        RECEIVE_CONTENT,
-        RECEIVE_EMBED_CONTENT,
-        RECEIVE_IMAGE_EMBED_CONTENT,
-        ReceiveEmbedMessageHandler, 
-        ReceiveMessageHandler, 
-        ReceiveImageEmbedMessageHandler,
-        StartOtherBotHandler,
-        DoNothing
-    };
-    use super::consts::{
-        TEST_IMAGE
-    };
-    use super::botrunner::{
-        start_running_bot,
-        RunningBot
+    use super::{
+        handlers::{
+            RECEIVE_CONTENT,
+            RECEIVE_EMBED_CONTENT,
+            RECEIVE_IMAGE_EMBED_CONTENT,
+            ReceiveEmbedMessageHandler, 
+            ReceiveMessageHandler, 
+            ReceiveImageEmbedMessageHandler,
+            CrashRunHandler
+        },
+        consts::TEST_IMAGE,
+        botrunner::{
+            start_running_bot,
+            RunningBot
+        }
     };
     
     #[test]
@@ -215,10 +214,10 @@ mod tests {
         // wait a bit
         // check if 1st bot running
 
-        let token = gettoken();
-        let handler = StartOtherBotHandler{};
+        // let token = gettoken();
+        // let handler = StartOtherBotHandler{};
 
-        thread::sleep(Duration::from_secs(2));
+        // thread::sleep(Duration::from_secs(2));
 
 
         // Check if other bot is running
@@ -234,25 +233,43 @@ mod tests {
         //start trampoline with the shouldcrash flag raised
         let token2 = getwatchertoken();
         let channelid = ChannelId(getchannelid());
-        let http = Http::new_with_token(&token2);        
-        let mut watcher_client = create_trampoline_bot(token2.as_str()).await;
-        initialize_child(&watcher_client.data).await;
-        watcher_client.start();
+        let http = Http::new_with_token(&token2); 
+        let mutex = Arc::new(Mutex::new(false));
+
+        let handler = CrashRunHandler{
+            message_received_mutex: mutex.clone() //the underlying data store is shared
+        };
+        let mut watcher_client = create_trampoline_with_handle(token2.as_str(), handler).await;
+        initialize_child(&watcher_client.data, true).await; //raises the flag
+        let _ = watcher_client.start();
+
+        
+        if let Err(_message_sent) = channelid.send_message(&http, |m| 
+        {
+            m.content("pls crash"); //just for fun. not required
+            m
+        }).await {
+            panic!("test message not sent!");
+        }
 
         //invoke vectorizer
         if let Err(_message_sent) = channelid.send_message(&http, |m| 
-            {
-                m.content("pls crash");
-                m
-            }).await {
-                panic!("test message not sent!");
-            }
+        {
+            let mut message = String::from("!v ");
+            message.push_str(TEST_IMAGE);
+
+            m.content(message);
+            m
+        }).await {
+            panic!("test message not sent!");
+        }
         
         thread::sleep(Duration::from_secs(2));
-        
-        //read chat for the status code
 
-        //assert the status code is either the windows code on the unix code
+        //check the mutex for confirmation of the status code in chat
+        if *mutex.lock().unwrap() == false {
+            panic!("received message was not the expected status code for this operating system!");
+        }
 
         Ok(())
     }

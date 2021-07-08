@@ -48,7 +48,7 @@ impl TypeMapKey for TrampolineProcessKey
 #[commands(trampolinestatus, trampolinerestart)]
 struct Trampoline;
 
-struct TrampolineHandler;
+pub struct TrampolineHandler;
 
 #[derive(PartialEq, Eq)]
 pub enum VectorizerStatus
@@ -117,7 +117,7 @@ async fn get_vectorizer_status(data: &Arc<RwLock<TypeMap>>) -> Result<Vectorizer
     output
 }
 
-async fn start_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
+async fn restart_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
 {   
     // Check if bot already running
     if let Ok(status) = get_vectorizer_status(data).await
@@ -128,12 +128,14 @@ async fn start_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
             return;
         }
     }
-    initialize_child(data).await;
+    initialize_child(data, false).await;
 }
 
-pub async fn initialize_child(data: &Arc<RwLock<TypeMap>>) {
+pub async fn initialize_child(data: &Arc<RwLock<TypeMap>>, shouldcrash: bool) {
     println!("starting vectorizer...");
-    let created_process = Command::new("bot").spawn().unwrap(); //if path is not absolute, path variable is searched
+    let mut process_step1 = Command::new("bot");
+    let mut process_step2 = process_step1.arg(shouldcrash.to_string());
+    let created_process = process_step2.spawn().unwrap(); //if path is not absolute, path variable is searched
     initialize_data_insert(data, created_process).await;
 }
 
@@ -215,7 +217,7 @@ async fn trampolinerestart(ctx: &Context, msg: &Message) -> CommandResult
         eprintln!("Error responding to restart request: {}", why);
     }
 
-    start_vectorizer_bot(&ctx.data).await;
+    restart_vectorizer_bot(&ctx.data).await;
 
     Ok(())
 }
@@ -249,18 +251,18 @@ impl EventHandler for TrampolineHandler {
                         match status
                         {
                             VectorizerStatus::Running => (),
-                            VectorizerStatus::DeadButSuccessfully => start_vectorizer_bot(&ctx.data).await,
+                            VectorizerStatus::DeadButSuccessfully => restart_vectorizer_bot(&ctx.data).await,
                             VectorizerStatus::Crashed(_) => { 
                                 println!("vectorizer crashed!");
                                 let lastline = get_last_line_of_log();
                                 inform_channel_of(&ctx, &new_message.channel_id, format!("Vectorizer crashed with status: {}", status)).await;
                                 inform_channel_of(&ctx, &new_message.channel_id, format!("last line of log: `{}`", lastline)).await;
-                                start_vectorizer_bot(&ctx.data).await;
+                                restart_vectorizer_bot(&ctx.data).await;
                                 return;
                             }
                             VectorizerStatus::FailedWithoutCode => { 
                                 inform_channel_of(&ctx, &new_message.channel_id, format!("Vectorizer crashed without status code.")).await; 
-                                start_vectorizer_bot(&ctx.data).await;
+                                restart_vectorizer_bot(&ctx.data).await;
                                 return;
                             }
                         }                    
@@ -301,7 +303,7 @@ impl EventHandler for TrampolineHandler {
     }
 }
 
-pub async fn create_trampoline_bot(token: &str) -> Client {
+pub async fn create_trampoline_with_handle<T: EventHandler + 'static>(token: &str, handler: T) -> Client {
     println!("starting trampoline...");
 
     let framework = StandardFramework::new().configure(|c| c
@@ -311,7 +313,7 @@ pub async fn create_trampoline_bot(token: &str) -> Client {
 
     // Login with a bot token from the environment
     let client = ClientBuilder::new(&token)
-        .event_handler(TrampolineHandler)
+        .event_handler(handler)
         .framework(framework)
         .await
         .expect("Error running bot");
