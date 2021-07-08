@@ -4,11 +4,11 @@ mod consts;
 
 #[cfg(test)]
 mod tests {
-    use vecbot::secrettoken::{getchannelid, gettoken, getwatchertoken};
-    use vecbot::bot::{
-        create_vec_bot, DefaultHandler
+    use vecbot::{        
+        secrettoken::{getchannelid, gettoken, getwatchertoken},
+        bot::{create_vec_bot, DefaultHandler},
+        trampoline::{initialize_child, create_trampoline_bot}
     };
-    use vecbot::constants::CRASH;
     use std::result::Result;
     use std::io::Error;
     use tokio;
@@ -18,8 +18,7 @@ mod tests {
         model::{
             id::{ChannelId},
         },
-        utils::MessageBuilder,
-        client::{EventHandler}
+        utils::MessageBuilder
     };
     use std::{thread, time::{Duration}};
     
@@ -35,7 +34,9 @@ mod tests {
         StartOtherBotHandler,
         DoNothing
     };
-    use super::consts::TEST_IMAGE;
+    use super::consts::{
+        TEST_IMAGE
+    };
     use super::botrunner::{
         start_running_bot,
         RunningBot
@@ -52,7 +53,7 @@ mod tests {
     async fn bot_creatable() -> Result<(), Error> {
         let token = gettoken();
         let tokenstr = token.as_str();
-        let _outcome = create_vec_bot(tokenstr);
+        let _outcome = create_vec_bot(tokenstr, false);
         Ok(())
     }
 
@@ -60,7 +61,7 @@ mod tests {
     async fn bot_runnable() -> Result<(), Error> {
         let token = gettoken();
         let tokenstr = token.as_str();
-        let mut client = create_vec_bot(tokenstr).await;
+        let mut client = create_vec_bot(tokenstr, false).await;
         let shard_man = client.shard_manager.clone();
 
         let _ = client.start();
@@ -230,27 +231,28 @@ mod tests {
 
     #[tokio::test]
     async fn crashing_returns_an_informative_status_code() -> Result<(), Error> {
+        //start trampoline with the shouldcrash flag raised
         let token2 = getwatchertoken();
         let channelid = ChannelId(getchannelid());
-        let http = Http::new_with_token(&token2);
-        
-        let shared_indicator_mutex: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
-        let indicator_clone = shared_indicator_mutex.clone();
+        let http = Http::new_with_token(&token2);        
+        let mut watcher_client = create_trampoline_bot(token2.as_str()).await;
+        initialize_child(&watcher_client.data).await;
+        watcher_client.start();
 
-        let handler = ReceiveImageEmbedMessageHandler{ message_received_mutex: indicator_clone };
-        let trampoline: RunningBot = start_running_bot(DoNothing{}).await;
-
+        //invoke vectorizer
         if let Err(_message_sent) = channelid.send_message(&http, |m| 
             {
-                m.content(CRASH);
+                m.content("pls crash");
                 m
             }).await {
                 panic!("test message not sent!");
             }
-        //refactor main.rs so that it can accept a switch
-        //start a trampoline bot in a separate thread
-        //pass it a handler that starts vectorizer with a custom handler
-        //make a custom handler that only calls crash
+        
+        thread::sleep(Duration::from_secs(2));
+        
+        //read chat for the status code
+
+        //assert the status code is either the windows code on the unix code
 
         Ok(())
     }

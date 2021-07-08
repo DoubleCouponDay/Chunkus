@@ -73,5 +73,3 @@ fn ffiresult_to_string(input: &FfiResult) -> &'static str {
         FfiResult::UnknownError => "UnknownError"
     }
 }
-
-pub const CRASH: &str = "CRASH";

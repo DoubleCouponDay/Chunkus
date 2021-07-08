@@ -1,4 +1,4 @@
-use std::{collections::{HashSet, HashMap}, fs::File, fs::remove_file, io::prelude::*, ops::Add, path::Path, process::{Child, Command}, time::{Duration, Instant}};
+use std::{collections::{HashSet, HashMap}, fs::File, io::Write, ops::Add, path::Path, time::{Duration, Instant}};
 use serenity::{
     async_trait,
     http::Http,
@@ -21,7 +21,9 @@ use serenity::{
     },
 };
 use tokio::sync::RwLockWriteGuard;
-use crate::core::do_vectorize;
+use crate::core::{
+    do_vectorize, crashing_this_plane
+};
 use crate::constants;
 use crate::svg::render_svg_to_png;
 use crate::options::{
@@ -40,7 +42,7 @@ struct MsgUpdate;
 pub struct DefaultHandler;
 
 #[group]
-#[commands(vectorize, vectorizeralgorithm, vectorizerparams, vectorizerdelete)]
+#[commands(vectorize, vectorizeralgorithm, vectorizerparams)]
 struct General;
 
 pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, handler: H) -> Client {    
@@ -76,7 +78,7 @@ pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, hand
     client
 }
 
-pub async fn create_vec_bot(token: &str) -> Client
+pub async fn create_vec_bot(token: &str, shouldcrash: bool) -> Client
 {
     println!("creating framework...");
 
@@ -98,7 +100,7 @@ pub async fn create_vec_bot(token: &str) -> Client
         let mut data: RwLockWriteGuard<'_, TypeMap> = client.data.write().await; //only allowed one mutable reference
         data.insert::<MsgListen>(HashSet::<MessageId>::new());
         data.insert::<MsgUpdate>(HashMap::<MessageId, MessageUpdateEvent>::new());
-        let params = VectorizeOptions {chunksize: 0, threshold: 0, numcolours: 0};
+        let params = VectorizeOptions {chunksize: 0, threshold: 0, numcolours: 0, shouldcrash};
         insert_params(data, params).await;
     }
 
@@ -263,7 +265,8 @@ async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandRe
         let params = VectorizeOptions {
             chunksize: possiblechunksize.unwrap(), 
             threshold: possiblethreshold.unwrap(),
-            numcolours: possiblecolours.unwrap()
+            numcolours: possiblecolours.unwrap(),
+            shouldcrash: false, //VP will never be called during a crash test. crashing cannot occur with user facing calls
         };
         let parsed = insert_params(data_write, params).await;
         
@@ -331,10 +334,10 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
     }).await;
     
     let mut embed_urls: Vec<String> = vec![];
-    if msg.embeds.len() < 1 && msg.attachments.len() < 1
+    if msg.embeds.len() < 1 && msg.attachments.len() < 1 // No embed, lets wait for an on_update
     {   
         println!("No embeds; waiting for message update");
-        // No embed, lets wait for an on_update
+        
         match wait_for_message_update(msg.id, &ctx).await
         {
             Ok(update_data) =>
@@ -372,6 +375,7 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
         println!("embed count {0}", msg.embeds.len());
         println!("attachments count {0}", msg.attachments.len());
         println!("message contents {0}", msg.content);
+
         for embed in msg.embeds.iter() {
             if let Some(url) = &embed.url
             {
@@ -379,6 +383,7 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
                 embed_urls.push(url.clone());
             }
         }
+
         for attachment in msg.attachments.iter()
         {
             println!("Pushing attachment url");
@@ -435,6 +440,12 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
         // Get Options        
         let options: ParsedOptions = get_params(ctx).await;
+
+        if options.shouldcrash.parse::<bool>().unwrap() {
+            println!("shouldcrash == true. initiating crash...");
+            crashing_this_plane();
+            return;
+        }
 
         let outputname = String::from(constants::OUTPUT_SVG_FILE);
         println!("Vectorizing....");

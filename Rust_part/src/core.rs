@@ -1,5 +1,5 @@
 use std::ffi::CString;
-use std::ptr::{self, null_mut};
+use std::ptr::{self};
 use crate::constants::{
     FfiResult
 };
@@ -16,7 +16,7 @@ mod ffimodule
     extern {        
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
         pub fn set_algorithm(algo: *mut u8) -> c_int;
-        pub fn crash() -> c_int;
+        pub fn just_crash() -> c_int;
     }
 }
 
@@ -78,6 +78,6 @@ pub fn crashing_this_plane() {
     println!("with no survivors");
 
     unsafe {
-        let kapow = ffimodule::crash();
+        let _kapow = ffimodule::just_crash();
     }
 }
