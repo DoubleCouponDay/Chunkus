@@ -36,5 +36,5 @@ name = "bot"
 path = "src/main.rs"
 
 [[bin]]
-name = "trampoline"
-path = "src/trampoline.rs"
+name = "possible"
+path = "src/trampoline_main.rs"

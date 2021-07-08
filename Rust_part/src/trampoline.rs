@@ -1,11 +1,3 @@
-mod secrettoken;
-mod constants;
-mod bot;
-mod core;
-mod svg;
-mod options;
-mod error_show;
-
 use std::{
     io::Error,
     fmt, 
@@ -35,10 +27,11 @@ use serenity::
     client::{Client, ClientBuilder, Context, EventHandler},
 };
 use tokio::time::sleep;
-use error_show::error_string;
 use std::sync::Arc;
-use vecbot::bot::{END_MESSAGE, START_MESSAGE, ERR_MESSAGE};
-use std::env;
+use super::{
+    error_show::error_string,
+    bot::{ERR_MESSAGE, START_MESSAGE, END_MESSAGE}
+};
 struct TrampolineData {
     pub vectorizer: Child,
     pub vectorizer_finished: bool
@@ -324,22 +317,4 @@ pub async fn create_trampoline_bot(token: &str) -> Client {
         .expect("Error running bot");
 
     client
-}
-
-#[tokio::main]
-async fn main() -> CommandResult
-{
-    let watcher_token_obj = secrettoken::getwatchertoken();
-    let watcher_token = watcher_token_obj.as_str();
-
-    let mut watcher_client = create_trampoline_bot(watcher_token).await;
-    initialize_child(&watcher_client.data).await;
-    println!("trampoline running...");
-
-    if let Err(why) = watcher_client.start().await
-    {
-        eprintln!("Failed to run watcher client: {}", why);
-    }
-
-    Ok(())
 }

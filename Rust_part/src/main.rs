@@ -5,8 +5,9 @@ mod core;
 mod svg;
 mod options;
 mod error_show;
+mod trampoline;
 
-extern crate libc;
+use std::env::args;
 fn main()
 {
     tokio::runtime::Builder::new_current_thread()
@@ -20,9 +21,13 @@ fn main()
 
 async fn run_bot()
 {
+    println!("bot main initiated...");
+    let arguments = args();
+    let shouldcrash = arguments.last().unwrap().parse::<bool>().unwrap();
+    println!("shouldcrash: {}", shouldcrash);
     let tokenobj = secrettoken::gettoken();
     let token = tokenobj.as_str();
-    let mut client = bot::create_vec_bot(token).await;
+    let mut client = bot::create_vec_bot(token, shouldcrash).await;
     
     if let Err(why) = client.start().await
     {
