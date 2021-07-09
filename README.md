@@ -37,6 +37,7 @@ Install Rust lang so that you can use the `cargo` tool to work with the discord-
 Install docker and docker compose (for the release build)
 
 Install python3 and python3-pip (for installing conan)
+
     it can only be run from cmd, not powershell. Windows defender antivirus may nuke your conan.exe so you will have to add the folder in the exclusions.
 
 ```
@@ -46,8 +47,9 @@ Install python3 and python3-pip (for installing conan)
     python3 -m pip install conan
 ```
 
-disclaimer: conan no longer works with python2 and pip2 as it has python3 only syntax. If you didn't install conan from the correct place, your build will fail.
+Set the `CONAN` environment variable to the directory containing your conan packages. on windows it's: `C:\Users\sjsui\.conan\data`. On linux it's: 
 
+disclaimer: conan no longer works with python2 and pip2 as it is using python3 syntax. If you didn't install conan from the correct place, your build will fail.
 
   
 ---

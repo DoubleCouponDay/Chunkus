@@ -22,7 +22,7 @@ const COMMON_PATH: &'static str = "../C_part/build/lib/";
 const LINUXCORE: &'static str = "libvec"; //linux requires lib prepended to library filenames
 
 const RELEASEBUILDKEY: &'static str = "releasebuild";
-const CONANPATHKEY: &'static str = "conanpath";
+const CONANPATHKEY: &'static str = "CONAN";
 
 const LIB_EXT: &'static str = ".lib";
 const A_EXT: &'static str = ".a";
