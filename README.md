@@ -1,19 +1,23 @@
 # Rasterizer
-the project objective
+converts png files to svg files!
 
-convert jpg, png files to svg files!
+This was a group project created and maintained by Samuel, Joshua, Matthew.
 
-Currently, only png is supported.
+## Building Requirements
 
 it has a Rust component and a C component.
 
-# Building
-  
-## Requirements
+Set the `VECTORIZER` and `TRAMPOLINE` environment variables to the value of your two discord bot's secret tokens.
 
-You will need to create a file in the `discord-v` folder called `secrettoken.rs`. A template is given in the wiki. 
+use this template for the `secrettoken.rs` file that you must create, in the `Rust_part/src` folder.
 
-It works on windows and linux.
+```
+    pub fn gettoken() -> &'static str { }
+
+    pub fn gettestbotstoken() -> &'static str { }
+
+    pub fn getchannelid() -> u64 { }
+```
 
 For windows:
     + install visual studio 2019
@@ -109,7 +113,7 @@ If it doesn't, you or I have done something wrong
 
 The rust part builds to `/discord-v/target/debug/`.
 
-# Running
+## Running
 
 `cargo run --bin trampoline`
 
@@ -142,11 +146,11 @@ Currently only values of 0 and 1 are supported
 
 `!va or !vectorizeralgorithm [algorithm_num]`
 
-# C Tests
+## C Tests
 
-The C code contains a test suite (based on MUnit)
+The C code contains a test suite (based on MUnit). Run the `test` binary created in `C_part/build`. an single test name can be taken as argument, otherwise it runs all tests.
 
-# Rust Tests
+## Rust Tests
 
 Because there are end to end tests which require access to the bot token, the Rust tests must be run in series.
 
@@ -154,23 +158,14 @@ Because there are end to end tests which require access to the bot token, the Ru
 cargo test -- --test-threads 1
 ```
 
-# Deployment
+## Deployment
+    you can run the bot on your computer or inside a docker container.
     
     build C code, then Rust code, then run `sudo docker build` on a Linux machine. once the image is built, deploy it to your docker hub registration.
 
-    
+    to use docker-compose on your computer, You will need to install OPENSSL 1.1.1
 
-# Operation
-    you can run the bot on your computer or inside a docker container.
-
-# Running on your computer
-    Set the VECTORIZER and TRAMPOLINE environment variables to the value of your discord bot's secret token.
-    This will allow trampoline to start the bots.
-
-# Running as a container
-    You will need to install OPENSSL 1.1.1
-
-    Fill in the blanks in the dockercompose.yml file and run it.
+    Fill in the blanks in the dockercompose.yml file to pass the environment variables into the container.
 
     `sudo docker-compose up --build --detach`
 
