@@ -14,7 +14,7 @@ use this template for the `secrettoken.rs` file that you must create, in the `Ru
 ```
     pub fn gettoken() -> &'static str { }
 
-    pub fn gettestbotstoken() -> &'static str { }
+    pub fn getwatchertoken() -> &'static str { }
 
     pub fn getchannelid() -> u64 { }
 ```
