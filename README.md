@@ -19,11 +19,14 @@ use this template for the `secrettoken.rs` file that you must create, in the `Ru
     pub fn getchannelid() -> u64 { }
 ```
 
-For windows:
-    + install visual studio 2019
-    + add msbuild.exe to your PATH environment variable
-        `C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\msbuild.exe`
-    
+For windows there are some extra steps:
+
++ install visual studio 2019
+
++ add msbuild.exe to your PATH environment variable
+
+    `C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\msbuild.exe`
+
 
 Install Rust lang so that you can use the `cargo` tool to work with the discord-v folder as a rust project.  
 
