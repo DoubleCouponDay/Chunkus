@@ -7,6 +7,7 @@ use std::{
         Command
     }, 
     time::Duration,
+    path::Path
 };
 use serenity::
 {
@@ -119,6 +120,7 @@ async fn get_vectorizer_status(data: &Arc<RwLock<TypeMap>>) -> Result<Vectorizer
 
 async fn restart_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
 {   
+    println!("restarting vectorizer...");
     // Check if bot already running
     if let Ok(status) = get_vectorizer_status(data).await
     {
@@ -132,9 +134,13 @@ async fn restart_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
 }
 
 pub async fn initialize_child(data: &Arc<RwLock<TypeMap>>, shouldcrash: bool) {
-    println!("starting vectorizer...");
-    let mut process_step1 = Command::new("bot");
-    let mut process_step2 = process_step1.arg(shouldcrash.to_string());
+    println!("initializing vectorizer...");
+    let bot_path = Path::new("bot");
+    let abs_path = bot_path.canonicalize().unwrap();
+    let os_path = abs_path.as_os_str();
+    println!("os_path to bot: {}", os_path.to_str().unwrap());
+    let mut process_step1 = Command::new(os_path);
+    let process_step2 = process_step1.arg(shouldcrash.to_string());
     let created_process = process_step2.spawn().unwrap(); //if path is not absolute, path variable is searched
     initialize_data_insert(data, created_process).await;
 }
@@ -303,8 +309,8 @@ impl EventHandler for TrampolineHandler {
     }
 }
 
-pub async fn create_trampoline_with_handle<T: EventHandler + 'static>(token: &str, handler: T) -> Client {
-    println!("starting trampoline...");
+pub async fn create_trampoline_bot(token: &str) -> Client {
+    println!("initializing trampoline...");
 
     let framework = StandardFramework::new().configure(|c| c
         .prefix("!")
@@ -313,7 +319,7 @@ pub async fn create_trampoline_with_handle<T: EventHandler + 'static>(token: &st
 
     // Login with a bot token from the environment
     let client = ClientBuilder::new(&token)
-        .event_handler(handler)
+        .event_handler(TrampolineHandler)
         .framework(framework)
         .await
         .expect("Error running bot");

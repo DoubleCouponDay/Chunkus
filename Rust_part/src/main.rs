@@ -28,9 +28,10 @@ async fn run_bot()
     let tokenobj = secrettoken::gettoken();
     let token = tokenobj.as_str();
     let mut client = bot::create_vec_bot(token, shouldcrash).await;
+    println!("vectorizer running...");
     
     if let Err(why) = client.start().await
     {
-        println!("Client error: {:?}", why);
+        println!("failed to start vectorizer: {:?}", why);
     }
 }

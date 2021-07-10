@@ -86,15 +86,13 @@ pub async fn create_vec_bot(token: &str, shouldcrash: bool) -> Client
         .prefix("!")
         .with_whitespace(true))
             .group(&GENERAL_GROUP);
-        
-    println!("vectorizer running...");
 
     // Login with a bot token from the environment
     let client = ClientBuilder::new(&token)
         .event_handler(DefaultHandler)
         .framework(framework)
         .await
-        .expect("Error bot is running");
+        .expect("Error while creating vec bot client");
 
     {
         let mut data: RwLockWriteGuard<'_, TypeMap> = client.data.write().await; //only allowed one mutable reference
@@ -109,6 +107,7 @@ pub async fn create_vec_bot(token: &str, shouldcrash: bool) -> Client
 
 #[async_trait]
 impl EventHandler for DefaultHandler {
+    //USED TO HANDLE SITUATIONS WHERE LINKS TAKE A WHILE TO LOAD THEIR IMAGE
     async fn message_update(&self, ctx: Context, _old_if_available: Option<Message>, _new: Option<Message>, event: MessageUpdateEvent)
     {
         // check if message id is one we are listening to
