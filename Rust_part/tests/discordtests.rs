@@ -7,12 +7,9 @@ mod tests {
     use vecbot::{        
         secrettoken::{getchannelid, gettoken, getwatchertoken},
         bot::{create_vec_bot, create_bot_with_handle},
-        trampoline::{initialize_child, create_trampoline_bot}
+        trampoline::{initialize_child, create_trampoline_bot, TrampolineProcessKey}
     };
-    use std::{result::Result};
-    use std::io::Error;
     use tokio;
-    use serenity;
     use serenity::{
         http::Http,
         model::{
@@ -20,8 +17,13 @@ mod tests {
         },
         utils::MessageBuilder
     };
-    use std::{thread, time::{Duration}};    
-    use std::sync::{Mutex, Arc};
+    use std::{
+        thread::sleep, 
+        time::{Duration},
+        sync::{Mutex, Arc},
+        result::Result,
+        io::Error
+    };    
     
     use super::{
         handlers::{
@@ -93,14 +95,14 @@ mod tests {
             .push(RECEIVE_CONTENT)
             .build();
 
-        thread::sleep(Duration::from_secs(2));
+        sleep(Duration::from_secs(2));
 
         if let Err(_message_sent) = channelid.say(&http, &message).await {
             panic!("test message not sent!");
         }
 
         // Give time to receive message
-        thread::sleep(Duration::from_secs(2));
+        sleep(Duration::from_secs(2));
 
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
@@ -145,7 +147,7 @@ mod tests {
         }
 
         // Give time to receive message
-        thread::sleep(Duration::from_secs(2));
+        sleep(Duration::from_secs(2));
 
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
@@ -190,7 +192,7 @@ mod tests {
         }
 
         // Give time to receive message
-        thread::sleep(Duration::from_secs(2));
+        sleep(Duration::from_secs(2));
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
         // And reset to false
@@ -201,6 +203,28 @@ mod tests {
 
         // Shutdown bot 1
         running_bot.shard_manager.lock().await.shutdown_all().await;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn trampoline_runnable() -> Result<(), Error> {
+        let token2 = getwatchertoken();
+        let mut trampoline = create_trampoline_bot(token2.as_str()).await;
+        initialize_child(&trampoline.data, true).await; //raises the flag
+        let _ = trampoline.start();
+        println!("trampoline running...");
+        sleep(Duration::from_secs(2));
+
+        //close the unmanaged resources
+        {
+            println!("locking 6");
+            let mut lock = trampoline.data.write().await;
+            let child = lock.get_mut::<TrampolineProcessKey>().unwrap();
+            let _ = child.vectorizer.kill().expect("bot was already killed");
+            println!("unlocking 6");
+        }
+        
+        trampoline.shard_manager.lock().await.shutdown_all().await;
         Ok(())
     }
 
@@ -216,7 +240,7 @@ mod tests {
         // let token = gettoken();
         // let handler = StartOtherBotHandler{};
 
-        // thread::sleep(Duration::from_secs(2));
+        // sleep(Duration::from_secs(2));
 
 
         // Check if other bot is running
@@ -231,53 +255,56 @@ mod tests {
     async fn crashing_returns_an_informative_status_code() -> Result<(), Error> {
         //start trampoline with the shouldcrash flag raised
         let token2 = getwatchertoken();
-        // let channelid = ChannelId(getchannelid());
-        // let mutex = Arc::new(Mutex::new(false));
-
-        let mut watcher_client = create_trampoline_bot(token2.as_str()).await;
-        initialize_child(&watcher_client.data, true).await; //raises the flag
-        let _ = watcher_client.start();
+        let http = Http::new_with_token(&token2);
+        let mutex = Arc::new(Mutex::new(false));
+        let mut trampoline = create_trampoline_bot(token2.as_str()).await;
+        initialize_child(&trampoline.data, true).await; //raises the flag
+        let _ = trampoline.start();
+        println!("trampoline running...");
 
         //start auxiliary bot for reading chat
-        // let token1 = gettoken();
-        // let handler = CrashRunHandler{
-        //     message_received_mutex: mutex.clone() //the underlying data store is shared
-        // };
-        //let mut auxiliary = create_bot_with_handle(token1.as_str(), handler).await;
-        // let _ = auxiliary.start();
-        
-        // if let Err(_message_sent) = channelid.send_message(&http, |m| 
-        // {
-        //     m.content("pls crash"); //just for fun. not required
-        //     m
-        // }).await {
-        //     panic!("test message not sent!");
-        // }
+        let channelid = ChannelId(getchannelid());
+        let token1 = gettoken();
+        let handler = CrashRunHandler{
+            message_received_mutex: mutex.clone() //the underlying data store is shared
+        };
+        let mut auxiliary = create_bot_with_handle(token1.as_str(), handler, true).await;
+        let _ = auxiliary.start();
 
-        // //invoke vectorizer
-        // if let Err(_message_sent) = channelid.send_message(&http, |m| 
-        // {
-        //     m.content("!v");
-
-        //     m.embed(|e| {
-        //         e.image(TEST_IMAGE);
-        //         e
-        //     });
-        //     m
-        // }).await {
-        //     panic!("test message not sent!");
-        // }
+        sleep(Duration::from_secs(10));
         
-        thread::sleep(Duration::from_secs(2));
+        if let Err(_message_sent) = channelid.send_message(&http, |m| 
+        {
+            m.content("pls crash"); //just for fun. not required
+            m
+        }).await {
+            panic!("test message not sent!");
+        }
+
+        //invoke vectorizer
+        if let Err(_message_sent) = channelid.send_message(&http, |m| 
+        {
+            m.content("!v");
+
+            m.embed(|e| {
+                e.image(TEST_IMAGE);
+                e
+            });
+            m
+        }).await {
+            panic!("test message not sent!");
+        }
+        
+        sleep(Duration::from_secs(10));
 
         //check the mutex for confirmation of the status code in chat
-        // if *mutex.lock().unwrap() == false {
-        //     panic!("received message was not the expected status code for this operating system!");
-        // }
+        if *mutex.lock().unwrap() == false {
+            panic!("received message was not the expected status code for this operating system!");
+        }
 
         // Shutdown auxiliary
-        //auxiliary.shard_manager.lock().await.shutdown_all().await;
-        watcher_client.shard_manager.lock().await.shutdown_all().await;
+        auxiliary.shard_manager.lock().await.shutdown_all().await;
+        trampoline.shard_manager.lock().await.shutdown_all().await;
 
         Ok(())
     }

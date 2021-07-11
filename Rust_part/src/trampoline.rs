@@ -26,11 +26,11 @@ use super::{
     error_show::error_string,
     bot::{ERR_MESSAGE, START_MESSAGE, END_MESSAGE}
 };
-struct TrampolineData {
+pub struct TrampolineData {
     pub vectorizer: Child,
     pub vectorizer_finished: bool
 }
-struct TrampolineProcessKey;
+pub struct TrampolineProcessKey;
 
 impl TypeMapKey for TrampolineProcessKey
 {

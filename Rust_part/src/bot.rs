@@ -45,7 +45,7 @@ pub struct DefaultHandler;
 #[commands(vectorize, vectorizeralgorithm, vectorizerparams)]
 struct General;
 
-pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, handler: H) -> Client {    
+pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, handler: H, shouldcrash: bool) -> Client {    
     println!("creating http token...");
     let http = Http::new_with_token(&token);
     
@@ -63,8 +63,9 @@ pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, hand
     println!("creating framework...");
 
     let framework = StandardFramework::new().configure(|c| c
-        .on_mention(Some(_bot_id))
-        .with_whitespace(true));
+        .prefix("!")
+        .with_whitespace(true))
+        .group(&GENERAL_GROUP);
         
     println!("creating client...");
 
@@ -74,6 +75,8 @@ pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, hand
         .framework(framework)
         .await
         .expect("Error creating client");
+
+    initialize_bot(&client, shouldcrash);
 
     client
 }
@@ -94,15 +97,17 @@ pub async fn create_vec_bot(token: &str, shouldcrash: bool) -> Client
         .await
         .expect("Error while creating vec bot client");
 
-    {
+    initialize_bot(&client, shouldcrash);
+
+    client
+}
+
+pub async fn initialize_bot(client: &Client, shouldcrash: bool) {
         let mut data: RwLockWriteGuard<'_, TypeMap> = client.data.write().await; //only allowed one mutable reference
         data.insert::<MsgListen>(HashSet::<MessageId>::new());
         data.insert::<MsgUpdate>(HashMap::<MessageId, MessageUpdateEvent>::new());
         let params = VectorizeOptions {chunksize: 0, threshold: 0, numcolours: 0, shouldcrash};
         insert_params(data, params).await;
-    }
-
-    client
 }
 
 #[async_trait]

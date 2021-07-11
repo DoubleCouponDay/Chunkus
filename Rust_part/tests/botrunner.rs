@@ -23,7 +23,7 @@ pub struct RunningBot {
 
 pub async fn start_running_bot<H: EventHandler + 'static>(handler: H) -> RunningBot {
     let token1 = gettoken();
-    let mut client = create_bot_with_handle(token1.as_str(), DefaultHandler).await;
+    let mut client = create_bot_with_handle(token1.as_str(), DefaultHandler, false).await;
 
     // Used to shutdown
     let shard_manager = client.shard_manager.clone();

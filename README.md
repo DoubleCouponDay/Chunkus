@@ -176,16 +176,16 @@ cargo test -- --test-threads 1
 ```
 
 ## Running and Deployment
-    you can run the bot on your computer or inside a docker container.
-    
-    build C code, then Rust code, then run `sudo docker build` on a Linux machine. once the image is built, deploy it to your docker hub registration.
+you can run the bot on your computer or inside a docker container.
 
-    Create a `releasebuild` environment variable and set it to true.
+build C code, then Rust code, then run `sudo docker build` on a Linux machine. once the image is built, deploy it to your docker hub registration.
 
-    to use docker-compose on your computer, You will need to install OPENSSL 1.1.1
+Create a `releasebuild` environment variable and set it to true.
 
-    Fill in the blanks in the dockercompose.yml file to pass the environment variables into the container.
+to use docker-compose on your computer, You will need to install OPENSSL 1.1.1
 
-    `sudo docker-compose up --build --detach`
+Fill in the blanks in the dockercompose.yml file to pass the environment variables into the container.
+
+`sudo docker-compose up --build --detach`
 
     
