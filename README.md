@@ -124,6 +124,10 @@ The rust part builds to `/discord-v/target/debug/`.
 
 It can only run if your bot is offline. There can only be one usage of your tokens at a time.
 
+Cargo must find bot.exe so add to the PATH environment variable with the Rust build location
+
+`(REPO CLONE FOLDER)/Rust_part/target/debug`
+
 Commands to use the bot:
 ### Vectorize: Goes through all attachments of the command message, executes the algorithm on them and returns the output  
 `!v or !vectorize` with an attachment or url eg.  
@@ -163,10 +167,12 @@ Because there are end to end tests which require access to the bot token, the Ru
 cargo test -- --test-threads 1
 ```
 
-## Deployment
+## Running and Deployment
     you can run the bot on your computer or inside a docker container.
     
     build C code, then Rust code, then run `sudo docker build` on a Linux machine. once the image is built, deploy it to your docker hub registration.
+
+    Create a `releasebuild` environment variable and set it to true.
 
     to use docker-compose on your computer, You will need to install OPENSSL 1.1.1
 

@@ -1,14 +1,7 @@
-use std::{
-    io::Error,
-    fmt, 
-    io::prelude::*, 
-    process::{
+use std::{env::current_dir, fmt, io::Error, io::prelude::*, path::Path, process::{
         Child,
         Command
-    }, 
-    time::Duration,
-    path::Path
-};
+    }, thread::current, time::Duration};
 use serenity::
 {
     async_trait,
@@ -132,14 +125,13 @@ async fn restart_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
     }
     initialize_child(data, false).await;
 }
-
+ 
 pub async fn initialize_child(data: &Arc<RwLock<TypeMap>>, shouldcrash: bool) {
     println!("initializing vectorizer...");
+    let dir = current_dir().unwrap();
+    println!("current dir: {}", dir.to_str().unwrap());
     let bot_path = Path::new("bot");
-    let abs_path = bot_path.canonicalize().unwrap();
-    let os_path = abs_path.as_os_str();
-    println!("os_path to bot: {}", os_path.to_str().unwrap());
-    let mut process_step1 = Command::new(os_path);
+    let mut process_step1 = Command::new(bot_path);
     let process_step2 = process_step1.arg(shouldcrash.to_string());
     let created_process = process_step2.spawn().unwrap(); //if path is not absolute, path variable is searched
     initialize_data_insert(data, created_process).await;

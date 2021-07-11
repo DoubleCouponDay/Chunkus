@@ -159,7 +159,7 @@ fn verify_conan_environment() {
     else {
         let message = String::from("could not find the ")
             .add(CONANPATHKEY)
-            .add("environment variable.");
+            .add(" environment variable.");
 
         panic!(message);
     }
