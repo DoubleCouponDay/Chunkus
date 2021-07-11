@@ -65,7 +65,7 @@ From the root folder, run the following commands:
     cd C_part
     mkdir build
     cd build
-    conan profile update settings.compiler.libcxx=libstc++11 default
+    conan profile update settings.compiler.libcxx=libstdc++11 default
     conan install ../
     cmake ../
 ```
