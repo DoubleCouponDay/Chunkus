@@ -1,5 +1,5 @@
 mod handlers;
-mod botrunner;
+mod runner;
 mod consts;
 
 #[cfg(test)]
@@ -36,7 +36,7 @@ mod tests {
             CrashRunHandler
         },
         consts::TEST_IMAGE,
-        botrunner::{
+        runner::{
             start_running_bot,
             RunningBot
         }
@@ -257,9 +257,7 @@ mod tests {
         let token2 = getwatchertoken();
         let http = Http::new_with_token(&token2);
         let mutex = Arc::new(Mutex::new(false));
-        let mut trampoline = create_trampoline_bot(token2.as_str()).await;
-        initialize_child(&trampoline.data, true).await; //raises the flag
-        let _ = trampoline.start();
+        
         println!("trampoline running...");
 
         //start auxiliary bot for reading chat
