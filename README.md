@@ -132,8 +132,6 @@ The rust part builds to `/discord-v/target/debug/`.
 
 `cargo run --bin trampoline`
 
-It can only run if your bot is offline. There can only be one usage of your tokens at a time.
-
 Cargo must find bot.exe so add to the PATH environment variable with the Rust build location
 
 `(REPO CLONE FOLDER)/Rust_part/target/debug`
