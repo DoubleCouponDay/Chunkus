@@ -6,14 +6,13 @@ use serenity::{
     model::{
         prelude::Message
     },
+    prelude::Mutex
 };
-use std::sync::{
-    Mutex, Arc
-};
+use std::sync::Arc;
 
-pub static RECEIVE_EMBED_CONTENT: &'static str = "1";
-pub static RECEIVE_CONTENT: &'static str = "2";
-pub static RECEIVE_IMAGE_EMBED_CONTENT: &'static str = "3";
+pub static RECEIVE_EMBED_CONTENT: &'static str = "receive embed test";
+pub static RECEIVE_CONTENT: &'static str = "receive content test";
+pub static RECEIVE_IMAGE_EMBED_CONTENT: &'static str = "receive image embed test";
 pub struct ReceiveEmbedMessageHandler
 {
     pub message_received_mutex: Arc<Mutex<bool>>
@@ -41,7 +40,7 @@ impl EventHandler for ReceiveEmbedMessageHandler
         if msg.content == RECEIVE_EMBED_CONTENT && msg.embeds.len() > 0
         {
             println!("Found receive embed test message");
-            *self.message_received_mutex.lock().unwrap() = true;
+            *self.message_received_mutex.lock().await = true;
         }
         else
         {
@@ -63,7 +62,7 @@ impl EventHandler for ReceiveImageEmbedMessageHandler
             {
                 Some(_img) => {
                     println!("Found image embed test message");
-                    *self.message_received_mutex.lock().unwrap() = true;                    
+                    *self.message_received_mutex.lock().await = true;                    
                 }
                 None => {
                     println!("no image in embed")
@@ -88,7 +87,7 @@ impl EventHandler for ReceiveMessageHandler
         if msg.content == RECEIVE_CONTENT
         {
             println!("Found receive test message");
-            *self.message_received_mutex.lock().unwrap() = true;   
+            *self.message_received_mutex.lock().await = true;   
         }
 
         else
@@ -102,7 +101,7 @@ impl EventHandler for ReceiveMessageHandler
 impl EventHandler for CrashRunHandler {
     async fn message(&self, _ctx: Context, msg: Message) {
         if true {
-            *self.message_received_mutex.lock().unwrap() = true;
+            *self.message_received_mutex.lock().await = true;
         }
 
         else {

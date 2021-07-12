@@ -7,23 +7,22 @@ mod tests {
     use vecbot::{        
         secrettoken::{getchannelid, gettoken, getwatchertoken},
         bot::{create_vec_bot, create_bot_with_handle},
-        trampoline::{initialize_child, create_trampoline_bot, TrampolineProcessKey}
+        trampoline::{create_trampoline_bot}
     };
     use tokio;
     use serenity::{
-        http::Http,
+        http::Http, 
         model::{
             id::{ChannelId},
-        },
-        utils::MessageBuilder
+        }, 
+        utils::MessageBuilder,
+        client::bridge::gateway::ShardManager,
+        prelude::Mutex
     };
     use std::{
-        thread::sleep, 
-        time::{Duration},
-        sync::{Mutex, Arc},
-        result::Result,
-        io::Error
-    };    
+        io::Error, result::Result, thread::sleep, time::{Duration},
+        sync::Arc
+    };
     
     use super::{
         handlers::{
@@ -61,11 +60,12 @@ mod tests {
     async fn bot_runnable() -> Result<(), Error> {
         let token = gettoken();
         let tokenstr = token.as_str();
-        let mut client = create_vec_bot(tokenstr, false).await;
-        let shard_man = client.shard_manager.clone();
-
-        let _ = client.start();
+        let bot = create_vec_bot(tokenstr, false).await;
+        let shards = bot.shard_manager.clone();
+        let _running_bot: RunningBot = start_running_bot(bot);
         println!("bot shutting down...");
+        sleep(Duration::from_secs(2));
+        shutdown_bot(shards).await;
         Ok(())
     }
 
@@ -78,14 +78,14 @@ mod tests {
         let http = Http::new_with_token(&token1);
         
         let shared_indicator_mutex = Arc::new(Mutex::new(false));
-        let indicator_clone = shared_indicator_mutex.clone();
                 
         let handler = ReceiveMessageHandler { 
-            message_received_mutex: indicator_clone
+            message_received_mutex: shared_indicator_mutex.clone()
         };
 
-        let mut bot = create_bot_with_handle(token1, handler, false).await;
-        let running_bot: RunningBot = start_running_bot(bot);
+        let bot = create_bot_with_handle(token1, handler, false).await;
+        let shards = bot.shard_manager.clone();
+        let _running_bot: RunningBot = start_running_bot(bot);
 
         // Wait for other bot to connect and then send message
         let message = MessageBuilder::new()
@@ -104,12 +104,14 @@ mod tests {
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
         // And reset to false
-        if *shared_indicator_mutex.lock().unwrap() == false
+        if *shared_indicator_mutex.lock().await == false
         {
+            shutdown_bot(shards).await;
             panic!("test message not received!");
         }
 
         // Shutdown bot 1
+        shutdown_bot(shards).await;
         Ok(())
     }
 
@@ -125,8 +127,9 @@ mod tests {
         let indicator_clone = shared_indicator_mutex.clone();
 
         let handler = ReceiveEmbedMessageHandler{ message_received_mutex: indicator_clone };
-        let mut bot = create_bot_with_handle(token1, handler, false).await;
-        let running_bot: RunningBot = start_running_bot(bot);
+        let bot = create_bot_with_handle(token1, handler, false).await;
+        let shards = bot.shard_manager.clone();
+        let _running_bot: RunningBot = start_running_bot(bot);
         
         if let Err(_message_sent) = channelid.send_message(&http, |m| 
         {
@@ -149,12 +152,14 @@ mod tests {
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
         // And reset to false
-        if *shared_indicator_mutex.lock().unwrap() == false
+        if *shared_indicator_mutex.lock().await == false
         {
+            shutdown_bot(shards).await;
             panic!("test message not received!");
         }
 
         // Shutdown bot 1
+        shutdown_bot(shards).await;
         Ok(())
     }
 
@@ -170,8 +175,9 @@ mod tests {
         let indicator_clone = shared_indicator_mutex.clone();
 
         let handler = ReceiveImageEmbedMessageHandler{ message_received_mutex: indicator_clone };
-        let mut bot = create_bot_with_handle(token1, handler, false).await;
-        let running_bot: RunningBot = start_running_bot(bot);
+        let bot = create_bot_with_handle(token1, handler, false).await;
+        let shards = bot.shard_manager.clone();
+        let _running_bot: RunningBot = start_running_bot(bot);
         
         if let Err(_message_sent) = channelid.send_message(&http, |m| 
         {
@@ -194,32 +200,26 @@ mod tests {
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
         // And reset to false
-        if *shared_indicator_mutex.lock().unwrap() == false
+        if *shared_indicator_mutex.lock().await == false
         {
+            shutdown_bot(shards).await;
             panic!("test message not received!");
         }
 
         // Shutdown bot 1
+        shutdown_bot(shards).await;
         Ok(())
     }
 
     #[tokio::test]
     async fn trampoline_runnable() -> Result<(), Error> {
         let token2 = getwatchertoken();
-        let mut trampoline = create_trampoline_bot(token2.as_str(), false).await;
-        initialize_child(&trampoline.data, true).await; //raises the flag
-        let _ = trampoline.start();
+        let trampoline = create_trampoline_bot(token2.as_str(), false).await;
+        let shards = trampoline.shard_manager.clone();
+        let _foo = start_running_bot(trampoline);
         println!("trampoline running...");
         sleep(Duration::from_secs(2));
-
-        //close the unmanaged resources
-        {
-            println!("locking 6");
-            let mut lock = trampoline.data.write().await;
-            let child = lock.get_mut::<TrampolineProcessKey>().unwrap();
-            let _ = child.vectorizer.kill().expect("bot was already killed");
-            println!("unlocking 6");
-        }
+        shutdown_bot(shards).await;
         Ok(())
     }
 
@@ -228,8 +228,9 @@ mod tests {
         //start trampoline with the shouldcrash flag raised
         let token2 = getwatchertoken();
         let http = Http::new_with_token(&token2);
-        let mut trampoline = create_trampoline_bot(&token2, true).await; //sets the crash scenario
-        let running_trampoline = start_running_bot(trampoline);
+        let trampoline = create_trampoline_bot(&token2, true).await; //sets the crash scenario
+        let shards2 = trampoline.shard_manager.clone();
+        let _foo = start_running_bot(trampoline);
         println!("trampoline running...");
 
         //start auxiliary bot for reading chat
@@ -240,8 +241,9 @@ mod tests {
         let crash_handler = CrashRunHandler{
             message_received_mutex: mutex.clone() //the underlying data store is shared
         };
-        let mut bot = create_bot_with_handle(token1, crash_handler, false).await;
-        let running_bot: RunningBot = start_running_bot(bot);
+        let bot = create_bot_with_handle(token1, crash_handler, false).await;
+        let shards1 = bot.shard_manager.clone();
+        let _running_bot: RunningBot = start_running_bot(bot);
 
         sleep(Duration::from_secs(2));
         
@@ -268,12 +270,22 @@ mod tests {
         }
         
         sleep(Duration::from_secs(5));
-
+        let messageconfirmed = *mutex.lock().await;
+        
         //check the mutex for confirmation of the status code in chat
-        if *mutex.lock().unwrap() == false {
+        if messageconfirmed == false {
+            shutdown_bot(shards2).await;
+            shutdown_bot(shards1).await;
             panic!("received message was not the expected status code for this operating system!");
         }
+        shutdown_bot(shards2).await;
+        shutdown_bot(shards1).await;
+        
         Ok(())
+    }
+
+    async fn shutdown_bot(shards: Arc<Mutex<ShardManager>>) {
+        shards.lock().await.shutdown_all().await;
     }
 
 

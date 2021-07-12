@@ -76,7 +76,7 @@ pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, hand
         .await
         .expect("Error creating client");
 
-    initialize_bot(&client, shouldcrash);
+    initialize_bot(&client, shouldcrash).await;
 
     client
 }
@@ -97,7 +97,7 @@ pub async fn create_vec_bot(token: &str, shouldcrash: bool) -> Client
         .await
         .expect("Error while creating vec bot client");
 
-    initialize_bot(&client, shouldcrash);
+    initialize_bot(&client, shouldcrash).await;
 
     client
 }

@@ -46,7 +46,7 @@ fn main() {
     let oldtemplate = String::from("../").add(TEMPLATE_NAME);
     let newtemplate = String::from(TEMPLATE_NAME);
     println!("copying template from: {}, to: {}", &oldtemplate, &newtemplate);
-    let _ = copy(oldtemplate, newtemplate);
+    let _foo =copy(oldtemplate, newtemplate);
 
     let previous_lib_path: String;
     let mut new_lib_path: String;
