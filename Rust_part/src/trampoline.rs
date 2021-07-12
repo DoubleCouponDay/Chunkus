@@ -1,7 +1,15 @@
-use std::{env::current_dir, fmt, io::Error, io::prelude::*, path::Path, process::{
+use std::{
+    env::current_dir, 
+    fmt, 
+    io::Error, 
+    io::prelude::*, 
+    path::Path, 
+    process::{
         Child,
         Command
-    }, thread::current, time::Duration};
+    }, 
+    time::Duration
+};
 use serenity::
 {
     async_trait,
@@ -20,8 +28,12 @@ use serenity::
     },
     client::{Client, ClientBuilder, Context, EventHandler},
 };
-use tokio::time::sleep;
+use tokio::{
+    time::sleep,
+    runtime::Runtime
+};
 use std::sync::Arc;
+
 use super::{
     error_show::error_string,
     bot::{ERR_MESSAGE, START_MESSAGE, END_MESSAGE}
@@ -35,14 +47,15 @@ pub struct TrampolineProcessKey;
 impl TypeMapKey for TrampolineProcessKey
 {
     type Value = TrampolineData;
-
 }
 
 #[group]
 #[commands(trampolinestatus, trampolinerestart)]
 struct Trampoline;
 
-pub struct TrampolineHandler;
+pub struct TrampolineHandler {
+    pub data: Arc<RwLock<TypeMap>>
+}
 
 #[derive(PartialEq, Eq)]
 pub enum VectorizerStatus
@@ -74,9 +87,9 @@ async fn get_vectorizer_status(data: &Arc<RwLock<TypeMap>>) -> Result<Vectorizer
     println!("locking 1");
     let mut data_mut_read = data.write().await;
     let potentialdata = data_mut_read.get_mut::<TrampolineProcessKey>().unwrap();
-    let thing2 = potentialdata.vectorizer.try_wait();
+    let thing5 = potentialdata.vectorizer.try_wait();
 
-    let output = match thing2 {
+    let output = match thing5 {
         Err(why) => Err(why),
 
         Ok(possible_exit) => {
@@ -301,20 +314,48 @@ impl EventHandler for TrampolineHandler {
     }
 }
 
-pub async fn create_trampoline_bot(token: &str) -> Client {
+impl Drop for TrampolineHandler {
+    fn drop(&mut self) {
+        let runtime = Runtime::new().unwrap();
+        let future = self.data.write();
+        let mut lock = runtime.block_on(future);
+        let data = lock.get_mut::<TrampolineProcessKey>().unwrap();
+        data.vectorizer.kill().unwrap();
+    }
+}
+
+pub async fn create_trampoline_bot(token: &str, shouldcrash: bool) -> Client {
     println!("initializing trampoline...");
 
     let framework = StandardFramework::new().configure(|c| c
         .prefix("!")
         .with_whitespace(true))
-        .group(&TRAMPOLINE_GROUP);
+        .group(&TRAMPOLINE_GROUP); //_GROUP suffix is used by serenity to identify a group of commands type
+
+    let dummy = Command::new("ls").spawn().expect("couldnt create dummy");
+
+    let data = TrampolineData {
+        vectorizer: dummy,
+        vectorizer_finished: false
+    };
+
+    let mut map = TypeMap::new();
+    map.insert::<TrampolineProcessKey>(data);
+
+    let shared = Arc::new(RwLock::new(map));
+
+    let handler = TrampolineHandler {
+        data: shared.clone()
+    };
 
     // Login with a bot token from the environment
-    let client = ClientBuilder::new(&token)
-        .event_handler(TrampolineHandler)
+    let mut client = ClientBuilder::new(&token)
+        .event_handler(handler)
         .framework(framework)
         .await
         .expect("Error running bot");
 
+    client.data = shared.clone();
+    initialize_child(&client.data, shouldcrash).await;
     client
 }

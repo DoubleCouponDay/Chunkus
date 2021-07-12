@@ -18,8 +18,7 @@ async fn main() -> CommandResult
     let watcher_token_obj = getwatchertoken();
     let watcher_token = watcher_token_obj.as_str();
 
-    let mut watcher_client = create_trampoline_bot(watcher_token).await;
-    initialize_child(&watcher_client.data, false).await; //separate from create_trampoline_bot because it should be invoked under many conditions
+    let mut watcher_client = create_trampoline_bot(watcher_token, false).await;    
     println!("trampoline running...");
 
     if let Err(why) = watcher_client.start().await
