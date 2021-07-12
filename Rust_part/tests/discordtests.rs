@@ -66,18 +66,14 @@ mod tests {
 
         let _ = client.start();
         println!("bot shutting down...");
-        shard_man.lock().await.shutdown_all().await;
-
         Ok(())
     }
 
 
     #[tokio::test]
     async fn can_send_and_receive_a_message() -> Result<(), Error> {
-        println!("starting two bots...");
-        let token1 = gettoken();
-        
-        println!("check whether messages can be sent between them...");
+        let tokensized = gettoken();
+        let token1 = tokensized.as_str();
         let channelid = ChannelId(getchannelid());
         let http = Http::new_with_token(&token1);
         
@@ -88,7 +84,8 @@ mod tests {
             message_received_mutex: indicator_clone
         };
 
-        let running_bot: RunningBot = start_running_bot(handler).await;
+        let mut bot = create_bot_with_handle(token1, handler, false).await;
+        let running_bot: RunningBot = start_running_bot(bot);
 
         // Wait for other bot to connect and then send message
         let message = MessageBuilder::new()
@@ -113,15 +110,14 @@ mod tests {
         }
 
         // Shutdown bot 1
-        running_bot.shard_manager.lock().await.shutdown_all().await;
-
         Ok(())
     }
 
     #[tokio::test]
     async fn can_embed_a_message() -> Result<(), Error>
     { 
-        let token1 = gettoken();
+        let tokensized = gettoken();
+        let token1 = tokensized.as_str();
         let channelid = ChannelId(getchannelid());
         let http = Http::new_with_token(&token1);
         
@@ -129,7 +125,8 @@ mod tests {
         let indicator_clone = shared_indicator_mutex.clone();
 
         let handler = ReceiveEmbedMessageHandler{ message_received_mutex: indicator_clone };
-        let running_bot: RunningBot = start_running_bot(handler).await;
+        let mut bot = create_bot_with_handle(token1, handler, false).await;
+        let running_bot: RunningBot = start_running_bot(bot);
         
         if let Err(_message_sent) = channelid.send_message(&http, |m| 
         {
@@ -158,14 +155,14 @@ mod tests {
         }
 
         // Shutdown bot 1
-        running_bot.shard_manager.lock().await.shutdown_all().await;
         Ok(())
     }
 
     #[tokio::test]
     async fn can_embed_an_image_message() -> Result<(), Error>
     {    
-        let token1 = gettoken();
+        let tokensized = gettoken();
+        let token1 = tokensized.as_str();
         let channelid = ChannelId(getchannelid());
         let http = Http::new_with_token(&token1);
         
@@ -173,7 +170,8 @@ mod tests {
         let indicator_clone = shared_indicator_mutex.clone();
 
         let handler = ReceiveImageEmbedMessageHandler{ message_received_mutex: indicator_clone };
-        let running_bot: RunningBot = start_running_bot(handler).await;
+        let mut bot = create_bot_with_handle(token1, handler, false).await;
+        let running_bot: RunningBot = start_running_bot(bot);
         
         if let Err(_message_sent) = channelid.send_message(&http, |m| 
         {
@@ -202,14 +200,13 @@ mod tests {
         }
 
         // Shutdown bot 1
-        running_bot.shard_manager.lock().await.shutdown_all().await;
         Ok(())
     }
 
     #[tokio::test]
     async fn trampoline_runnable() -> Result<(), Error> {
         let token2 = getwatchertoken();
-        let mut trampoline = create_trampoline_bot(token2.as_str()).await;
+        let mut trampoline = create_trampoline_bot(token2.as_str(), false).await;
         initialize_child(&trampoline.data, true).await; //raises the flag
         let _ = trampoline.start();
         println!("trampoline running...");
@@ -223,53 +220,30 @@ mod tests {
             let _ = child.vectorizer.kill().expect("bot was already killed");
             println!("unlocking 6");
         }
-        
-        trampoline.shard_manager.lock().await.shutdown_all().await;
         Ok(())
     }
-
-    // #[tokio::test]
-    // async fn second_bot_starts_first_bot_when_dead() -> Result<(), Error>
-    // {
-        // something like
-        // make sure 1st bot not running
-        // start 2nd bot
-        // wait a bit
-        // check if 1st bot running
-
-        // let token = gettoken();
-        // let handler = StartOtherBotHandler{};
-
-        // sleep(Duration::from_secs(2));
-
-
-        // Check if other bot is running
-        // Either use the bot's http to check the bot UserId's status
-        // Or ask the bot whether it thinks the bot is online
-        
-
-    //     Ok(())
-    // }
 
     #[tokio::test]
     async fn crashing_returns_an_informative_status_code() -> Result<(), Error> {
         //start trampoline with the shouldcrash flag raised
         let token2 = getwatchertoken();
         let http = Http::new_with_token(&token2);
-        let mutex = Arc::new(Mutex::new(false));
-        
+        let mut trampoline = create_trampoline_bot(&token2, true).await; //sets the crash scenario
+        let running_trampoline = start_running_bot(trampoline);
         println!("trampoline running...");
 
         //start auxiliary bot for reading chat
         let channelid = ChannelId(getchannelid());
-        let token1 = gettoken();
-        let handler = CrashRunHandler{
+        let tokensized = gettoken();
+        let token1 = tokensized.as_str();
+        let mutex = Arc::new(Mutex::new(false));
+        let crash_handler = CrashRunHandler{
             message_received_mutex: mutex.clone() //the underlying data store is shared
         };
-        let mut auxiliary = create_bot_with_handle(token1.as_str(), handler, true).await;
-        let _ = auxiliary.start();
+        let mut bot = create_bot_with_handle(token1, crash_handler, false).await;
+        let running_bot: RunningBot = start_running_bot(bot);
 
-        sleep(Duration::from_secs(10));
+        sleep(Duration::from_secs(2));
         
         if let Err(_message_sent) = channelid.send_message(&http, |m| 
         {
@@ -293,17 +267,36 @@ mod tests {
             panic!("test message not sent!");
         }
         
-        sleep(Duration::from_secs(10));
+        sleep(Duration::from_secs(5));
 
         //check the mutex for confirmation of the status code in chat
         if *mutex.lock().unwrap() == false {
             panic!("received message was not the expected status code for this operating system!");
         }
-
-        // Shutdown auxiliary
-        auxiliary.shard_manager.lock().await.shutdown_all().await;
-        trampoline.shard_manager.lock().await.shutdown_all().await;
-
         Ok(())
     }
+
+
+    // #[tokio::test]
+    // async fn second_bot_starts_first_bot_when_dead() -> Result<(), Error>
+    // {
+        // something like
+        // make sure 1st bot not running
+        // start 2nd bot
+        // wait a bit
+        // check if 1st bot running
+
+        // let token = gettoken();
+        // let handler = StartOtherBotHandler{};
+
+        // sleep(Duration::from_secs(2));
+
+
+        // Check if other bot is running
+        // Either use the bot's http to check the bot UserId's status
+        // Or ask the bot whether it thinks the bot is online
+        
+
+    //     Ok(())
+    // }
 }

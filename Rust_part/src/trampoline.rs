@@ -355,7 +355,7 @@ pub async fn create_trampoline_bot(token: &str, shouldcrash: bool) -> Client {
         .await
         .expect("Error running bot");
 
-    client.data = shared.clone();
+    client.data = shared;
     initialize_child(&client.data, shouldcrash).await;
     client
 }
