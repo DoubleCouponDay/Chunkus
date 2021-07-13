@@ -1,6 +1,7 @@
 use serenity::client::{
     Context, EventHandler
 };
+use serenity::framework::StandardFramework;
 use serenity::{
     async_trait,
     model::{
@@ -8,6 +9,8 @@ use serenity::{
     },
     prelude::Mutex
 };
+use vecbot::bot::generate_bot_id;
+use vecbot::secrettoken::gettoken;
 use std::sync::Arc;
 
 pub static RECEIVE_EMBED_CONTENT: &'static str = "receive embed test";
@@ -100,12 +103,18 @@ impl EventHandler for ReceiveMessageHandler
 #[async_trait]
 impl EventHandler for CrashRunHandler {
     async fn message(&self, _ctx: Context, msg: Message) {
-        if true {
-            *self.message_received_mutex.lock().await = true;
-        }
-
-        else {
-            println!("message was not the status code");
-        }
+        let msgstr = msg.content.as_str();
+        println!("crashrunhandler: {}", msgstr);
+        *self.message_received_mutex.lock().await = true;
     }
+}
+
+pub async fn get_test_framework(token: &str) -> StandardFramework {
+    let bot_id = generate_bot_id(token).await;
+
+    let framework = StandardFramework::new().configure(|c| c
+        .on_mention(Some(bot_id))
+        .with_whitespace(true));
+
+    framework
 }

@@ -10,15 +10,9 @@ mod tests {
         trampoline::{create_trampoline_bot}
     };
     use tokio;
-    use serenity::{
-        http::Http, 
-        model::{
+    use serenity::{client::bridge::gateway::ShardManager, http::Http, model::{
             id::{ChannelId},
-        }, 
-        utils::MessageBuilder,
-        client::bridge::gateway::ShardManager,
-        prelude::Mutex
-    };
+        }, prelude::Mutex, utils::MessageBuilder};
     use std::{
         io::Error, result::Result, thread::sleep, time::{Duration},
         sync::Arc
@@ -32,7 +26,8 @@ mod tests {
             ReceiveEmbedMessageHandler, 
             ReceiveMessageHandler, 
             ReceiveImageEmbedMessageHandler,
-            CrashRunHandler
+            CrashRunHandler,
+            get_test_framework
         },
         consts::TEST_IMAGE,
         runner::{
@@ -69,21 +64,19 @@ mod tests {
         Ok(())
     }
 
-
     #[tokio::test]
     async fn can_send_and_receive_a_message() -> Result<(), Error> {
         let tokensized = gettoken();
         let token1 = tokensized.as_str();
         let channelid = ChannelId(getchannelid());
         let http = Http::new_with_token(&token1);
-        
         let shared_indicator_mutex = Arc::new(Mutex::new(false));
-                
+
         let handler = ReceiveMessageHandler { 
             message_received_mutex: shared_indicator_mutex.clone()
-        };
-
-        let bot = create_bot_with_handle(token1, handler, false).await;
+        };        
+        let framework = get_test_framework(token1).await;
+        let bot = create_bot_with_handle(token1, handler, framework, false).await;
         let shards = bot.shard_manager.clone();
         let _running_bot: RunningBot = start_running_bot(bot);
 
@@ -125,9 +118,9 @@ mod tests {
         
         let shared_indicator_mutex: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
         let indicator_clone = shared_indicator_mutex.clone();
-
         let handler = ReceiveEmbedMessageHandler{ message_received_mutex: indicator_clone };
-        let bot = create_bot_with_handle(token1, handler, false).await;
+        let framework = get_test_framework(token1).await;
+        let bot = create_bot_with_handle(token1, handler, framework, false).await;
         let shards = bot.shard_manager.clone();
         let _running_bot: RunningBot = start_running_bot(bot);
         
@@ -173,9 +166,9 @@ mod tests {
         
         let shared_indicator_mutex: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
         let indicator_clone = shared_indicator_mutex.clone();
-
         let handler = ReceiveImageEmbedMessageHandler{ message_received_mutex: indicator_clone };
-        let bot = create_bot_with_handle(token1, handler, false).await;
+        let framework = get_test_framework(token1).await;
+        let bot = create_bot_with_handle(token1, handler, framework, false).await;
         let shards = bot.shard_manager.clone();
         let _running_bot: RunningBot = start_running_bot(bot);
         
@@ -241,7 +234,8 @@ mod tests {
         let crash_handler = CrashRunHandler{
             message_received_mutex: mutex.clone() //the underlying data store is shared
         };
-        let bot = create_bot_with_handle(token1, crash_handler, false).await;
+        let framework = get_test_framework(token1).await;
+        let bot = create_bot_with_handle(token1, crash_handler, framework, false).await;
         let shards1 = bot.shard_manager.clone();
         let _running_bot: RunningBot = start_running_bot(bot);
 
