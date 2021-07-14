@@ -82,6 +82,45 @@ impl fmt::Display for VectorizerStatus
     }
 }
 
+pub async fn create_trampoline_bot(token: &str, shouldcrash: bool, framework_maybe: Option<StandardFramework>) -> Client {
+    println!("initializing trampoline...");
+    let dummy = Command::new("ls").spawn().expect("couldnt create dummy");
+
+    let data = TrampolineData {
+        vectorizer: dummy,
+        vectorizer_finished: false
+    };
+
+    let mut map = TypeMap::new();
+    map.insert::<TrampolineProcessKey>(data);
+    let shared = Arc::new(RwLock::new(map));
+
+    let framework: StandardFramework = match framework_maybe {
+        Some(frame) => frame,
+        None => StandardFramework::new().configure(|c| {
+                c.prefix("!")
+                .with_whitespace(true)
+                .case_insensitivity(true)
+            })
+            .group(&TRAMPOLINE_GROUP) //_GROUP suffix is used by serenity to identify a group of commands type                
+    };
+    
+    let handler = TrampolineHandler {
+        data: shared.clone()
+    };
+
+    // Login with a bot token from the environment
+    let mut client = ClientBuilder::new(&token)
+        .event_handler(handler)
+        .framework(framework)
+        .await
+        .expect("Error running bot");
+
+    client.data = shared;
+    initialize_child(&client.data, shouldcrash).await;
+    client
+}
+
 async fn get_vectorizer_status(data: &Arc<RwLock<TypeMap>>) -> Result<VectorizerStatus, Error>
 {
     println!("locking 1");
@@ -324,38 +363,3 @@ impl Drop for TrampolineHandler {
     }
 }
 
-pub async fn create_trampoline_bot(token: &str, shouldcrash: bool) -> Client {
-    println!("initializing trampoline...");
-
-    let framework = StandardFramework::new().configure(|c| c
-        .prefix("!")
-        .with_whitespace(true))
-        .group(&TRAMPOLINE_GROUP); //_GROUP suffix is used by serenity to identify a group of commands type
-
-    let dummy = Command::new("ls").spawn().expect("couldnt create dummy");
-
-    let data = TrampolineData {
-        vectorizer: dummy,
-        vectorizer_finished: false
-    };
-
-    let mut map = TypeMap::new();
-    map.insert::<TrampolineProcessKey>(data);
-
-    let shared = Arc::new(RwLock::new(map));
-
-    let handler = TrampolineHandler {
-        data: shared.clone()
-    };
-
-    // Login with a bot token from the environment
-    let mut client = ClientBuilder::new(&token)
-        .event_handler(handler)
-        .framework(framework)
-        .await
-        .expect("Error running bot");
-
-    client.data = shared;
-    initialize_child(&client.data, shouldcrash).await;
-    client
-}

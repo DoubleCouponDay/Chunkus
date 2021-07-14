@@ -4,19 +4,12 @@ mod consts;
 
 #[cfg(test)]
 mod tests {
-    use vecbot::{        
-        secrettoken::{getchannelid, gettoken, getwatchertoken},
-        bot::{create_vec_bot, create_bot_with_handle},
-        trampoline::{create_trampoline_bot}
-    };
+    use vecbot::{bot::{create_bot_with_handle, create_vec_bot, generate_bot_id}, secrettoken::{getchannelid, gettoken, getwatchertoken}, trampoline::{create_trampoline_bot}};
     use tokio;
     use serenity::{client::bridge::gateway::ShardManager, http::Http, model::{
             id::{ChannelId},
         }, prelude::Mutex, utils::MessageBuilder};
-    use std::{
-        io::Error, result::Result, thread::sleep, time::{Duration},
-        sync::Arc
-    };
+    use std::{io::Error, result::Result, sync::{Arc, atomic::{AtomicBool, Ordering}}, thread::sleep, time::{Duration}};
     
     use super::{
         handlers::{
@@ -27,7 +20,7 @@ mod tests {
             ReceiveMessageHandler, 
             ReceiveImageEmbedMessageHandler,
             CrashRunHandler,
-            get_test_framework
+            get_test_framework,
         },
         consts::TEST_IMAGE,
         runner::{
@@ -68,42 +61,39 @@ mod tests {
     async fn can_send_and_receive_a_message() -> Result<(), Error> {
         let tokensized = gettoken();
         let token1 = tokensized.as_str();
+        let token2sized = getwatchertoken();
+        let token2 = token2sized.as_str();
         let channelid = ChannelId(getchannelid());
-        let http = Http::new_with_token(&token1);
-        let shared_indicator_mutex = Arc::new(Mutex::new(false));
+        let http = Http::new_with_token(&token2);
+        let flag = Arc::new(AtomicBool::new(false));
 
         let handler = ReceiveMessageHandler { 
-            message_received_mutex: shared_indicator_mutex.clone()
+            worked: flag.clone()
         };        
-        let framework = get_test_framework(token1).await;
+        let id = generate_bot_id(token1).await;
+        let framework = get_test_framework(id.0).await;
         let bot = create_bot_with_handle(token1, handler, framework, false).await;
         let shards = bot.shard_manager.clone();
         let _running_bot: RunningBot = start_running_bot(bot);
 
-        // Wait for other bot to connect and then send message
-        let message = MessageBuilder::new()
-            .push(RECEIVE_CONTENT)
-            .build();
-
         sleep(Duration::from_secs(2));
 
-        if let Err(_message_sent) = channelid.say(&http, &message).await {
+        if let Err(_message_sent) = channelid.send_message(&http, |m| {
+            m.content(RECEIVE_CONTENT);
+            m
+        }).await {
             panic!("test message not sent!");
         }
 
         // Give time to receive message
         sleep(Duration::from_secs(2));
 
-
-        // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
-        // And reset to false
-        if *shared_indicator_mutex.lock().await == false
+        if flag.load(Ordering::SeqCst) == false
         {
             shutdown_bot(shards).await;
             panic!("test message not received!");
         }
 
-        // Shutdown bot 1
         shutdown_bot(shards).await;
         Ok(())
     }
@@ -114,12 +104,16 @@ mod tests {
         let tokensized = gettoken();
         let token1 = tokensized.as_str();
         let channelid = ChannelId(getchannelid());
-        let http = Http::new_with_token(&token1);
-        
-        let shared_indicator_mutex: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
-        let indicator_clone = shared_indicator_mutex.clone();
-        let handler = ReceiveEmbedMessageHandler{ message_received_mutex: indicator_clone };
-        let framework = get_test_framework(token1).await;
+        let token2sized = getwatchertoken();
+        let token2 = token2sized.as_str();
+        let http = Http::new_with_token(&token2);
+        let worked = Arc::new(AtomicBool::new(false));
+
+        let handler = ReceiveEmbedMessageHandler { 
+            worked: worked.clone()
+        };
+        let id = generate_bot_id(token1).await;
+        let framework = get_test_framework(id.0).await;
         let bot = create_bot_with_handle(token1, handler, framework, false).await;
         let shards = bot.shard_manager.clone();
         let _running_bot: RunningBot = start_running_bot(bot);
@@ -142,11 +136,9 @@ mod tests {
         // Give time to receive message
         sleep(Duration::from_secs(2));
 
+        let flag = worked.load(Ordering::SeqCst);
 
-        // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
-        // And reset to false
-        if *shared_indicator_mutex.lock().await == false
-        {
+        if flag == false {
             shutdown_bot(shards).await;
             panic!("test message not received!");
         }
@@ -164,10 +156,13 @@ mod tests {
         let channelid = ChannelId(getchannelid());
         let http = Http::new_with_token(&token1);
         
-        let shared_indicator_mutex: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
-        let indicator_clone = shared_indicator_mutex.clone();
-        let handler = ReceiveImageEmbedMessageHandler{ message_received_mutex: indicator_clone };
-        let framework = get_test_framework(token1).await;
+        let flag = Arc::new(AtomicBool::new(false));
+
+        let handler = ReceiveImageEmbedMessageHandler{ 
+            worked: flag.clone()
+        };
+        let id = generate_bot_id(token1).await;
+        let framework = get_test_framework(id.0).await;
         let bot = create_bot_with_handle(token1, handler, framework, false).await;
         let shards = bot.shard_manager.clone();
         let _running_bot: RunningBot = start_running_bot(bot);
@@ -193,7 +188,7 @@ mod tests {
 
         // Finally check if MESSAGE_INDICATOR changed (indicating the 2nd bot received the message)
         // And reset to false
-        if *shared_indicator_mutex.lock().await == false
+        if flag.load(Ordering::SeqCst) == false
         {
             shutdown_bot(shards).await;
             panic!("test message not received!");
@@ -207,7 +202,7 @@ mod tests {
     #[tokio::test]
     async fn trampoline_runnable() -> Result<(), Error> {
         let token2 = getwatchertoken();
-        let trampoline = create_trampoline_bot(token2.as_str(), false).await;
+        let trampoline = create_trampoline_bot(token2.as_str(), false, None).await;
         let shards = trampoline.shard_manager.clone();
         let _foo = start_running_bot(trampoline);
         println!("trampoline running...");
@@ -221,7 +216,9 @@ mod tests {
         //start trampoline with the shouldcrash flag raised
         let token2 = getwatchertoken();
         let http = Http::new_with_token(&token2);
-        let trampoline = create_trampoline_bot(&token2, true).await; //sets the crash scenario
+        let id2 = generate_bot_id(&token2).await;
+        let framework2 = get_test_framework(id2.0).await;
+        let trampoline = create_trampoline_bot(&token2, true, Some(framework2)).await; //sets the crash scenario
         let shards2 = trampoline.shard_manager.clone();
         let _foo = start_running_bot(trampoline);
         println!("trampoline running...");
@@ -230,11 +227,13 @@ mod tests {
         let channelid = ChannelId(getchannelid());
         let tokensized = gettoken();
         let token1 = tokensized.as_str();
-        let mutex = Arc::new(Mutex::new(false));
+        let flag = Arc::new(AtomicBool::new(false));
+
         let crash_handler = CrashRunHandler{
-            message_received_mutex: mutex.clone() //the underlying data store is shared
+            worked: flag.clone()
         };
-        let framework = get_test_framework(token1).await;
+        let id = generate_bot_id(token1).await;
+        let framework = get_test_framework(id.0).await;
         let bot = create_bot_with_handle(token1, crash_handler, framework, false).await;
         let shards1 = bot.shard_manager.clone();
         let _running_bot: RunningBot = start_running_bot(bot);
@@ -263,8 +262,8 @@ mod tests {
             panic!("test message not sent!");
         }
         
-        sleep(Duration::from_secs(5));
-        let messageconfirmed = *mutex.lock().await;
+        sleep(Duration::from_secs(2));
+        let messageconfirmed = flag.load(Ordering::SeqCst);
         
         //check the mutex for confirmation of the status code in chat
         if messageconfirmed == false {

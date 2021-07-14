@@ -57,7 +57,7 @@ pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, hand
 
     let client = ClientBuilder::new(token)
         .event_handler(handler)
-        .framework(framework)
+        .framework(framework) //I set standardframework as a requirement in the toml
         .await
         .expect("Error creating client");
 

@@ -49,6 +49,6 @@
             "cwd": "${workspaceFolder}/Rust_part",
             "stopOnEntry": false,
             "sourceLanguages": ["rust"]            
-          },
+        },
     ]
 }

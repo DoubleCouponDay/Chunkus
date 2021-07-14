@@ -2,35 +2,36 @@ use serenity::client::{
     Context, EventHandler
 };
 use serenity::framework::StandardFramework;
+use serenity::framework::standard::Configuration;
+use serenity::model::id::ChannelId;
 use serenity::{
     async_trait,
     model::{
         prelude::Message
     },
-    prelude::Mutex
 };
-use vecbot::bot::generate_bot_id;
-use vecbot::secrettoken::gettoken;
+use std::collections::HashSet;
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 pub static RECEIVE_EMBED_CONTENT: &'static str = "receive embed test";
-pub static RECEIVE_CONTENT: &'static str = "receive content test";
+pub static RECEIVE_CONTENT: &'static str = "receive test";
 pub static RECEIVE_IMAGE_EMBED_CONTENT: &'static str = "receive image embed test";
 pub struct ReceiveEmbedMessageHandler
 {
-    pub message_received_mutex: Arc<Mutex<bool>>
+    pub worked: Arc<AtomicBool>
 }
 pub struct ReceiveMessageHandler
 {
-    pub message_received_mutex: Arc<Mutex<bool>>
+    pub worked: Arc<AtomicBool>
 }
 pub struct ReceiveImageEmbedMessageHandler
 {
-    pub message_received_mutex: Arc<Mutex<bool>>
+    pub worked: Arc<AtomicBool>
 }
 pub struct StartOtherBotHandler;
 pub struct CrashRunHandler {
-    pub message_received_mutex: Arc<Mutex<bool>>
+    pub worked: Arc<AtomicBool>
 }
 
 #[async_trait]
@@ -38,17 +39,10 @@ impl EventHandler for ReceiveEmbedMessageHandler
 {
     async fn message(&self, _ctx: Context, msg: Message)
     {
-        println!("ReceiveEmbedMessageHandler: {}", msg.content);
-
-        if msg.content == RECEIVE_EMBED_CONTENT && msg.embeds.len() > 0
-        {
-            println!("Found receive embed test message");
-            *self.message_received_mutex.lock().await = true;
+        if msg.content == RECEIVE_EMBED_CONTENT && msg.embeds.len() > 0 {
+            self.worked.store(true, Ordering::SeqCst);
         }
-        else
-        {
-            println!("Found non-test message");
-        }
+        
     }
 }
 
@@ -57,25 +51,15 @@ impl EventHandler for ReceiveImageEmbedMessageHandler
 {
     async fn message(&self, _ctx: Context, msg: Message)
     {
-        println!("ReceiveImageEmbedMessageHandler: {}", msg.content);
-
         if msg.content == RECEIVE_IMAGE_EMBED_CONTENT && msg.embeds.len() > 0
         {
             match &msg.embeds[0].image
             {
                 Some(_img) => {
-                    println!("Found image embed test message");
-                    *self.message_received_mutex.lock().await = true;                    
+                    self.worked.store(true, Ordering::SeqCst);
                 }
-                None => {
-                    println!("no image in embed")
-                }
+                None => {}
             }
-        }
-
-        else
-        {
-            println!("Found non-test message");
         }
     }
 }
@@ -85,18 +69,12 @@ impl EventHandler for ReceiveMessageHandler
 {
     async fn message(&self, _ctx: Context, msg: Message)
     {
-        println!("ReceiveMessageHandler: {}", msg.content);
-
-        if msg.content == RECEIVE_CONTENT
-        {
-            println!("Found receive test message");
-            *self.message_received_mutex.lock().await = true;   
-        }
-
-        else
-        {
-            println!("Found non-test message");
-        }
+        self.worked.store(true, Ordering::SeqCst);
+        
+        // if msg.content == RECEIVE_CONTENT
+        // {
+            
+        // }
     }
 }
 
@@ -105,16 +83,24 @@ impl EventHandler for CrashRunHandler {
     async fn message(&self, _ctx: Context, msg: Message) {
         let msgstr = msg.content.as_str();
         println!("crashrunhandler: {}", msgstr);
-        *self.message_received_mutex.lock().await = true;
+        self.worked.store(true, Ordering::SeqCst);
     }
 }
 
-pub async fn get_test_framework(token: &str) -> StandardFramework {
-    let bot_id = generate_bot_id(token).await;
+pub async fn get_test_framework(channelid: u64) -> StandardFramework {
+    StandardFramework::new().configure(|a| {
+        a.prefixes(vec!["", "!"])
+        .case_insensitivity(true) //dont care about case
+        .ignore_bots(false) //dont ignore bot messages from automated tests
+        .with_whitespace(true); //release all cares whatsoever 
 
-    let framework = StandardFramework::new().configure(|c| c
-        .on_mention(Some(bot_id))
-        .with_whitespace(true));
+        let mut set = HashSet::<ChannelId>::new();
 
-    framework
+        let id = ChannelId {
+            0: channelid
+        };
+        set.insert(id);
+        a.allowed_channels(set);
+        a
+    })
 }
