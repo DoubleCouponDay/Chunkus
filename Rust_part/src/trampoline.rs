@@ -85,7 +85,7 @@ impl fmt::Display for VectorizerStatus
             VectorizerStatus::Crashed(code) => {
                 let interpreted = error_string(*code);
                 write!(f, "VectorizerStatus::Crashed: {}", interpreted)},
-            VectorizerStatus::FailedWithoutCode => write!(f, "VectorizerStatus::FailedWithoutCod")
+            VectorizerStatus::FailedWithoutCode => write!(f, "VectorizerStatus::FailedWithoutCode.")
         }
     }
 }
@@ -138,35 +138,33 @@ async fn get_vectorizer_status(data: &Arc<RwLock<TypeMap>>) -> Result<Vectorizer
     let potentialdata = data_mut_read.get_mut::<TrampolineProcessKey>().unwrap();
     let mut thing5 = potentialdata.gimme.write().await;
     let thing67 = thing5.vectorizer.try_wait();
+    println!("checking status of vec process: {}", thing5.vectorizer.id());
 
     let output = match thing67 {
         Err(why) => Err(why),
 
         Ok(possible_exit) => {
-            if let Some(exit_status) = possible_exit
-            {
-                if exit_status.success()
-                {
-                    Ok(VectorizerStatus::DeadButSuccessfully)
-                }
-
-                else
-                {
-                    if let Some(exit_code) = exit_status.code()
+            match possible_exit {
+                Some(exit_status) => {            
+                    if exit_status.success()
                     {
-                        Ok(VectorizerStatus::Crashed(exit_code))
+                        Ok(VectorizerStatus::DeadButSuccessfully)
                     }
 
                     else
                     {
-                        Ok(VectorizerStatus::FailedWithoutCode)
-                    }
-                }
-            }
+                        if let Some(exit_code) = exit_status.code()
+                        {
+                            Ok(VectorizerStatus::Crashed(exit_code))
+                        }
 
-            else
-            {
-                Ok(VectorizerStatus::Running)
+                        else
+                        {
+                            Ok(VectorizerStatus::FailedWithoutCode)
+                        }
+                    }
+                },
+                None => Ok(VectorizerStatus::Running)
             }
         }
     };
@@ -197,6 +195,7 @@ pub async fn initialize_child(data: &Arc<RwLock<TypeMap>>, shouldcrash: bool) {
     let mut process_step1 = Command::new(bot_path);
     let process_step2 = process_step1.arg(shouldcrash.to_string());
     let created_process = process_step2.spawn().unwrap(); //if path is not absolute, path variable is searched
+    println!("created vec process: {}", created_process.id());
     initialize_data_insert(data, created_process).await;
 }
 
@@ -344,7 +343,6 @@ impl EventHandler for TrampolineHandler {
 
                         if readentry.vectorizer_finished {
                             println!("No need to loop.");
-                            println!("unlocking 5");
                             return;
                         }
                         println!("unlocking 5");

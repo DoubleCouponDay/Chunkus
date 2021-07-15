@@ -48,7 +48,7 @@
             "program": "${workspaceFolder}/Rust_part/target/debug/trampoline",
             "cwd": "${workspaceFolder}/Rust_part",
             "stopOnEntry": false,
-            "sourceLanguages": ["rust"]            
+            "sourceLanguages": ["rust"]
         },
     ]
 }

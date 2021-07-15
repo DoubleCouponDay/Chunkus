@@ -1,4 +1,4 @@
-use std::{collections::{HashSet, HashMap}, fs::File, io::Write, ops::Add, path::Path, time::{Duration, Instant}};
+use std::{collections::{HashSet, HashMap}, fs::File, io::Write, ops::Add, path::Path, process::exit, time::{Duration, Instant}};
 use serenity::{async_trait, client::{
         Client, ClientBuilder, Context, EventHandler
     }, framework::{Framework, standard::{
@@ -428,7 +428,7 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
         if shouldcrash {
             println!("shouldcrash == true. initiating crash...");
-            panic!("crash test");
+            exit(101);
         }
 
         let outputname = String::from(constants::OUTPUT_SVG_FILE);
