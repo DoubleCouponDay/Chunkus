@@ -23,14 +23,13 @@ mod ffimodule
 fn call_entrypoint(input: &mut CString, output: &mut CString, chunk: &mut CString, threshold: &mut CString, numcolours: &mut CString) -> FfiResult
 {
     let result: FfiResult;
-    let mut argv: [*mut u8; 7] = [
+    let mut argv: [*mut u8; 6] = [
         ptr::null_mut(), 
         input.as_ptr() as *mut u8, 
         output.as_ptr() as *mut u8, 
         chunk.as_ptr() as *mut u8, 
         threshold.as_ptr() as *mut u8,
         numcolours.as_ptr() as *mut u8,
-        ptr::null_mut()
     ];
 
     unsafe { 

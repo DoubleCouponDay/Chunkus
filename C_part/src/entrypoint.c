@@ -60,7 +60,7 @@ int entrypoint(int argc, char* argv[]) {
 
 	for (int i = 1; i < argc; ++i)
 	{
-		LOG_INFO("%s, ", argv[i]);
+		LOG_INFO("argument %d: %s, ", i, argv[i]);
 	}
 
 	if (argc <= 1)
@@ -82,7 +82,7 @@ int entrypoint(int argc, char* argv[]) {
 	else
 		output_file_p = argv[2];
 
-	int chunk_size = 0;
+	int chunk_size = DEFAULT_CHUNKSIZE;
 
 	if (argc > 3)
 		chunk_size = atoi(argv[3]);
@@ -96,15 +96,18 @@ int entrypoint(int argc, char* argv[]) {
 		threshold = (float)atof(argv[4]);	
 		
 	if (threshold < 0.f)
-		threshold = DEFAULT_THRESHOLD;
+		threshold = 1;
 
 	int num_colours = DEFAULT_COLOURS;
 
 	if(argc > 5)
 		num_colours = (int)atoi(argv[5]);
 
-	if (num_colours < 1)
+	if (num_colours > DEFAULT_COLOURS)
 		num_colours = DEFAULT_COLOURS;
+
+	if (num_colours < 1)
+		num_colours = 1;
 
 	// Halt execution if either path is bad
 	if (input_file_path == NULL || output_file_p == NULL)
@@ -113,7 +116,7 @@ int entrypoint(int argc, char* argv[]) {
 		return SUCCESS_CODE;
 	}
 
-	LOG_INFO("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f', colours: %f", input_file_path, output_file_p, chunk_size, threshold, num_colours);
+	LOG_INFO("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f', colours: %d", input_file_path, output_file_p, chunk_size, threshold, num_colours);
 
 	vectorize_options options = {
 		input_file_path,
