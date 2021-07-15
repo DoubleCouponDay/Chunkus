@@ -54,6 +54,7 @@ fn place_default_if_needed(input: u32, constant: u32) -> String {
 }
 
 pub async fn insert_params(mut data: RwLockWriteGuard<'_, TypeMap>, input: VectorizeOptions) -> ParsedOptions {
+    println!("inserting params. shouldcrash: {}", input.shouldcrash);
 
     let options = ParsedOptions {
         chunksize: place_default_if_needed(input.chunksize, DEFAULT_CHUNK_SIZE),

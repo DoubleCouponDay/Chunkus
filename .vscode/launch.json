@@ -44,7 +44,7 @@
             "type": "lldb",
             "request": "launch",
             "name": "Launch trampoline (Linux)",
-            "args": [],
+            "args": ["true"],
             "program": "${workspaceFolder}/Rust_part/target/debug/trampoline",
             "cwd": "${workspaceFolder}/Rust_part",
             "stopOnEntry": false,

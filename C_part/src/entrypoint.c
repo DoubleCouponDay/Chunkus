@@ -146,5 +146,7 @@ int set_algorithm(char* argv)
 
 //PUBLIC FACING
 int just_crash() {
-	abort();
+	clear_logfile();
+	LOG_ERR("crashing with no survivors");
+	return 1/0;
 }

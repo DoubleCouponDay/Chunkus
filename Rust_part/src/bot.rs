@@ -423,11 +423,12 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
         // Get Options        
         let options: ParsedOptions = get_params(ctx).await;
+        let shouldcrash = options.shouldcrash.parse::<bool>().unwrap();
+        println!("vectorizing urls. shouldcrash: {}", shouldcrash);
 
-        if options.shouldcrash.parse::<bool>().unwrap() {
+        if shouldcrash {
             println!("shouldcrash == true. initiating crash...");
-            crashing_this_plane();
-            return;
+            panic!("crash test");
         }
 
         let outputname = String::from(constants::OUTPUT_SVG_FILE);

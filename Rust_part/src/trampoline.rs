@@ -38,6 +38,16 @@ use super::{
     error_show::error_string,
     bot::{ERR_MESSAGE, START_MESSAGE, END_MESSAGE}
 };
+
+pub struct somenewkey;
+
+pub struct somenewvalue {
+    gimme: Arc<RwLock<TrampolineData>>
+}
+
+impl TypeMapKey for somenewkey {
+    type Value = somenewvalue;
+}
 pub struct TrampolineData {
     pub vectorizer: Child,
     pub vectorizer_finished: bool
@@ -54,7 +64,7 @@ impl TypeMapKey for TrampolineProcessKey
 struct Trampoline;
 
 pub struct TrampolineHandler {
-    pub data: Arc<RwLock<TypeMap>>
+    pub data: Arc<RwLock<TrampolineData>>
 }
 
 #[derive(PartialEq, Eq)]
@@ -90,10 +100,7 @@ pub async fn create_trampoline_bot(token: &str, shouldcrash: bool, framework_may
         vectorizer: dummy,
         vectorizer_finished: false
     };
-
-    let mut map = TypeMap::new();
-    map.insert::<TrampolineProcessKey>(data);
-    let shared = Arc::new(RwLock::new(map));
+    let shared = Arc::new(RwLock::new(data));
 
     let framework: StandardFramework = match framework_maybe {
         Some(frame) => frame,
@@ -109,14 +116,18 @@ pub async fn create_trampoline_bot(token: &str, shouldcrash: bool, framework_may
         data: shared.clone()
     };
 
+    let somenewwhatever = somenewvalue {
+        gimme: shared.clone()
+    };
+
     // Login with a bot token from the environment
-    let mut client = ClientBuilder::new(&token)
+    let client = ClientBuilder::new(&token)
         .event_handler(handler)
         .framework(framework)
+        .type_map_insert::<somenewkey>(somenewwhatever)
         .await
         .expect("Error running bot");
-
-    client.data = shared;
+  
     initialize_child(&client.data, shouldcrash).await;
     client
 }
@@ -288,7 +299,7 @@ impl EventHandler for TrampolineHandler {
         let contentcontains_err = new_message.content.contains(ERR_MESSAGE);
         let content_contains_end = new_message.content.contains(END_MESSAGE);
 
-        if new_message.author.name == "Vectorizer" {
+        if new_message.author.name == "Vectorizer" || new_message.author.name == "Staging1" || new_message.author.name == "Staging2" {
             if(contentcontainsstart) {
                 set_state(&ctx.data, false).await;
                 println!("vectorizer was commanded.");                
@@ -358,8 +369,7 @@ impl Drop for TrampolineHandler {
         let runtime = Runtime::new().unwrap();
         let future = self.data.write();
         let mut lock = runtime.block_on(future);
-        let data = lock.get_mut::<TrampolineProcessKey>().unwrap();
-        data.vectorizer.kill().unwrap();
+        lock.vectorizer.kill().unwrap();
     }
 }
 

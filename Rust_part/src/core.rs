@@ -74,10 +74,11 @@ pub fn do_vectorize(input_file: &String, output_file: &String, options: ParsedOp
     return call_entrypoint(&mut input_c, &mut output_c, &mut chunk_c, &mut threshold_c, &mut colours_c);
 }
 
-pub fn crashing_this_plane() {
+pub fn crashing_this_plane() -> i32 {
     println!("with no survivors");
 
     unsafe {
-        let _kapow = ffimodule::just_crash();
+        let kapow = ffimodule::just_crash();
+        return kapow;
     }
 }
