@@ -189,7 +189,6 @@ async fn restart_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
  
 pub async fn initialize_child(data: &Arc<RwLock<TypeMap>>, shouldcrash: bool) {
     println!("initializing vectorizer...");
-    let dir = current_dir().unwrap();
     let bot_path = Path::new("bot");
     let mut process_step1 = Command::new(bot_path);
     let process_step2 = process_step1.arg(shouldcrash.to_string());
@@ -319,16 +318,11 @@ impl EventHandler for TrampolineHandler {
                                 restart_vectorizer_bot(&ctx.data).await
                             },
                             VectorizerStatus::Crashed(_) => { 
-                                println!("vectorizer crashed!");
-                                let lastline = get_last_line_of_log();
-                                inform_channel_of(&ctx, &new_message.channel_id, format!("Vectorizer crashed with status: {}", status)).await;
-                                inform_channel_of(&ctx, &new_message.channel_id, format!("last line of log: `{}`", lastline)).await;
-                                restart_vectorizer_bot(&ctx.data).await;
+                                perform_crash_contingency(&ctx, &new_message, status).await;
                                 return;
                             }
                             VectorizerStatus::FailedWithoutCode => { 
-                                inform_channel_of(&ctx, &new_message.channel_id, format!("Vectorizer crashed without status code.")).await; 
-                                restart_vectorizer_bot(&ctx.data).await;
+                                perform_crash_contingency(&ctx, &new_message, status).await;
                                 return;
                             }
                         }                    
@@ -366,6 +360,14 @@ impl EventHandler for TrampolineHandler {
         }
         ()
     }
+}
+
+async fn perform_crash_contingency(ctx: &Context, new_message: &Message, status: VectorizerStatus) {
+    println!("vectorizer crashed!");
+    let lastline = get_last_line_of_log();
+    inform_channel_of(ctx, &new_message.channel_id, format!("Vectorizer crashed with status: {}", status)).await;
+    inform_channel_of(ctx, &new_message.channel_id, format!("last line of log: `{}`", lastline)).await;
+    restart_vectorizer_bot(&ctx.data).await;
 }
 
 impl Drop for TrampolineHandler {
