@@ -7,3 +7,7 @@ pub fn gettoken() -> String {
 pub fn getwatchertoken() -> String {
     var("TRAMPOLINE").unwrap()
 }
+
+pub fn getchannelid() -> u64 {
+    787470274261549056
+}

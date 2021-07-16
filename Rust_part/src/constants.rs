@@ -1,4 +1,3 @@
-
 pub const INPUTFILENAME: &str = "input.png";
 
 pub const OUTPUT_SVG_FILE: &str = "output.svg";

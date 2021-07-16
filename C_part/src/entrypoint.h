@@ -10,7 +10,8 @@ typedef struct {
 } vectorize_options;
 
 int entrypoint(int argc, char* argv[]);
-int set_algorithm(char* algo);
+int set_algorithm(char* argv);
+int just_crash();
 
 extern const char* format1_p;
 extern const char* format2_p;

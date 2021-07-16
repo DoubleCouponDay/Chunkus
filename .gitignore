@@ -98,3 +98,5 @@ conan.lock
 Rust_part/vec
 
 build/.cmake/api/v1/query/client-vscode/
+
+Rust_part/rickroll.bmp

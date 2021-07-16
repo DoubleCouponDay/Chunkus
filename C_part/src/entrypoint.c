@@ -8,7 +8,6 @@
 #include "imagefile/pngfile.h"
 #include "imagefile/svg.h"
 #include "simplify.h"
-#include "imagefile/converter.h"
 #include "string.h"
 
 const char *format1_p = "png";
@@ -54,14 +53,14 @@ int execute_program(vectorize_options options) {
 	return getAndResetErrorCode();
 }
 
-
+//PUBLIC FACING
 int entrypoint(int argc, char* argv[]) {
 	clear_logfile();
 	LOG_INFO("entrypoint with: ");
 
 	for (int i = 1; i < argc; ++i)
 	{
-		LOG_INFO("%s, ", argv[i]);
+		LOG_INFO("argument %d: %s, ", i, argv[i]);
 	}
 
 	if (argc <= 1)
@@ -83,7 +82,7 @@ int entrypoint(int argc, char* argv[]) {
 	else
 		output_file_p = argv[2];
 
-	int chunk_size = 0;
+	int chunk_size = DEFAULT_CHUNKSIZE;
 
 	if (argc > 3)
 		chunk_size = atoi(argv[3]);
@@ -97,15 +96,18 @@ int entrypoint(int argc, char* argv[]) {
 		threshold = (float)atof(argv[4]);	
 		
 	if (threshold < 0.f)
-		threshold = DEFAULT_THRESHOLD;
+		threshold = 1;
 
 	int num_colours = DEFAULT_COLOURS;
 
 	if(argc > 5)
 		num_colours = (int)atoi(argv[5]);
 
-	if (num_colours < 1)
+	if (num_colours > DEFAULT_COLOURS)
 		num_colours = DEFAULT_COLOURS;
+
+	if (num_colours < 1)
+		num_colours = 1;
 
 	// Halt execution if either path is bad
 	if (input_file_path == NULL || output_file_p == NULL)
@@ -114,7 +116,7 @@ int entrypoint(int argc, char* argv[]) {
 		return SUCCESS_CODE;
 	}
 
-	LOG_INFO("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f', colours: %f", input_file_path, output_file_p, chunk_size, threshold, num_colours);
+	LOG_INFO("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f', colours: %d", input_file_path, output_file_p, chunk_size, threshold, num_colours);
 
 	vectorize_options options = {
 		input_file_path,
@@ -126,16 +128,30 @@ int entrypoint(int argc, char* argv[]) {
 	return execute_program(options);
 }
 
-int set_algorithm(char* algo)
+//PUBLIC FACING
+int set_algorithm(char* argv)
 {
-	if(strcmp(algo, "dcdfill") == 0)
+	if(strcmp(argv, "dcdfill") == 0) {
 		target_algorithm = dcdfill_for_nsvg;
-
-	else if(strcmp(algo, "bobsweep") == 0)
+		LOG_INFO("set algorithm to dcdfill");
+	}
+		
+	else if(strcmp(argv, "bobsweep") == 0) {
 		target_algorithm = bobsweep_for_nsvg;
-
-	else
+		LOG_INFO("set algorithm to bobsweep");
+	}
+		
+	else {
 		return BAD_ARGUMENT_ERROR;
-
+	}
 	return SUCCESS_CODE;
+}
+
+//PUBLIC FACING
+int just_crash() {
+	clear_logfile();
+	LOG_ERR("crashing this plane; with no survivors");
+	void* crash = (void*)1;
+	free(crash);
+	return 0;
 }

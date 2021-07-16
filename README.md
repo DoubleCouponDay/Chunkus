@@ -1,22 +1,32 @@
 # Rasterizer
-the project objective
+converts png files to svg files!
 
-convert jpg, png files to svg files!
+This was a group project created and maintained by Samuel, Joshua, Matthew.
 
-Currently, only png is supported.
+## Building Requirements
 
 it has a Rust component and a C component.
 
-# Getting started
+Set the `VECTORIZER` and `TRAMPOLINE` environment variables to the value of your two discord bot's secret tokens.
 
-You will need to create a file in the `discord-v` folder called `secrettoken.rs`. A template is given in the wiki. 
-<br>
+use this template for the `secrettoken.rs` file that you must create, in the `Rust_part/src` folder.
 
-# Building
-  
-## Requirements
+```
+    pub fn gettoken() -> &'static str { }
 
-It should work on windows and linux. For windows, install visual studio community edition and the C++ desktop development workload.  
+    pub fn getwatchertoken() -> &'static str { }
+
+    pub fn getchannelid() -> u64 { }
+```
+
+For windows there are some extra steps:
+
++ install visual studio 2019
+
++ add msbuild.exe to your PATH environment variable
+
+    `C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\msbuild.exe`
+
 
 Install Rust lang so that you can use the `cargo` tool to work with the discord-v folder as a rust project.  
 
@@ -27,6 +37,7 @@ Install Rust lang so that you can use the `cargo` tool to work with the discord-
 Install docker and docker compose (for the release build)
 
 Install python3 and python3-pip (for installing conan)
+
     it can only be run from cmd, not powershell. Windows defender antivirus may nuke your conan.exe so you will have to add the folder in the exclusions.
 
 ```
@@ -36,7 +47,10 @@ Install python3 and python3-pip (for installing conan)
     python3 -m pip install conan
 ```
 
-disclaimer: conan no longer works with python2 and pip2 as it has python3 only syntax. If you didn't install conan from the correct place, your build will fail.
+Set the `CONAN` environment variable to the directory containing your conan packages. on windows it's: `C:\Users\(YOU))\.conan\data`. On linux it's: /home/(YOU))/.conan/data
+
+disclaimer: conan no longer works with python2 and pip2 as it is using python3 syntax. If you didn't install conan from the correct place, your build will fail.
+
   
 ---
 
@@ -44,13 +58,42 @@ disclaimer: conan no longer works with python2 and pip2 as it has python3 only s
 
 The C code builds to `C_part\build`
 
+From the root folder, run the following commands:
+
 ```
-    cd C_part/build
+    cd C_part
+    mkdir build
+    cd build
+```
+
+If on linux, run this line:
+
+```
+conan profile update settings.compiler.libcxx=libstdc++11 default
+```
+
+Then continue with cross-platform instructions:
+
+```
     conan install ../
-    conan profile update settings.compiler.libcxx-libstc++11 default
     cmake ../
+```
+
+If you are on windows:
+
+```
+    msbuild vec.sln
+```
+
+If you are on linux: 
+
+```
     make
 ```
+
+The C code is now build into `/build/bin/vec.lib`
+
+---
   
 ## Building the Rust code
 
@@ -84,7 +127,13 @@ If it doesn't, you or I have done something wrong
 
 The rust part builds to `/discord-v/target/debug/`.
 
-# Running
+## Running
+
+`cargo run --bin trampoline`
+
+Cargo must find bot.exe so add to the PATH environment variable with the Rust build location
+
+`(REPO CLONE FOLDER)/Rust_part/target/debug`
 
 Commands to use the bot:
 ### Vectorize: Goes through all attachments of the command message, executes the algorithm on them and returns the output  
@@ -115,26 +164,27 @@ Currently only values of 0 and 1 are supported
 
 ## C Tests
 
-The C code contains a test suite (based on MUnit)
+The C code contains a test suite (based on MUnit). Run the `test` binary created in `C_part/build`. an single test name can be taken as argument, otherwise it runs all tests.
 
-# Deployment
-    
-    build C code, then Rust code, then run `sudo docker build` on a Linux machine. once the image is built, deploy it to your docker hub registration.
+## Rust Tests
 
-    
+Because there are end to end tests which require access to the bot token, the Rust tests must be run in series.
 
-# Operation
-    you can run the bot on your computer or inside a docker container.
+```
+cargo test -- --test-threads 1
+```
 
-# Running on your computer
-    Set the VECTORIZER and TRAMPOLINE environment variables to the value of your discord bot's secret token.
-    This will allow trampoline to start the bots.
+## Running and Deployment
+you can run the bot on your computer or inside a docker container.
 
-# Running as a container
-    You will need to install OPENSSL 1.1.1
+build C code, then Rust code, then run `sudo docker build` on a Linux machine. once the image is built, deploy it to your docker hub registration.
 
-    Fill in the blanks in the dockercompose.yml file and run it.
+Create a `releasebuild` environment variable and set it to true.
 
-    `sudo docker-compose up --build --detach`
+to use docker-compose on your computer, You will need to install OPENSSL 1.1.1
+
+Fill in the blanks in the dockercompose.yml file to pass the environment variables into the container.
+
+`sudo docker-compose up --build --detach`
 
     

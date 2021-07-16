@@ -64,6 +64,9 @@
         "stdio.h": "c",
         "vec.h": "c",
         "error.h": "c",
+        "entrypoint.h": "c",
+        "signal.h": "c"
+        "error.h": "c",
         "jpeg.h": "c",
         "png.h": "c",
         "jpeglib.h": "c",
