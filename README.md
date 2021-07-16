@@ -1,4 +1,4 @@
-# Rasterizer
+# Vectorizer
 converts png files to svg files!
 
 This was a group project created and maintained by Samuel, Joshua, Matthew.
