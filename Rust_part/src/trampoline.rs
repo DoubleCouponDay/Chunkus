@@ -42,7 +42,8 @@ impl TypeMapKey for SharedState {
 }
 pub struct TrampolineData {
     pub vectorizer: Child,
-    pub vectorizer_finished: bool
+    pub vectorizer_finished: bool,
+    pub shouldcrash: bool
 }
 pub struct TrampolineProcessKey;
 
@@ -90,7 +91,8 @@ pub async fn create_trampoline_bot(token: &str, shouldcrash: bool, framework_may
 
     let data = TrampolineData {
         vectorizer: dummy,
-        vectorizer_finished: false
+        vectorizer_finished: false,
+        shouldcrash: shouldcrash
     };
     let shared = Arc::new(RwLock::new(data));
 
@@ -178,7 +180,15 @@ async fn restart_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
             return;
         }
     }
-    initialize_child(data, false).await;
+    println!("locking 7");
+    {
+        let lock = data.read().await;
+        let state = lock.get::<TrampolineProcessKey>().unwrap();
+        let sharedstate = state.gimme.read().await;
+        let shouldcrash = sharedstate.shouldcrash;
+        initialize_child(data, shouldcrash).await;
+    }
+    println!("unlocking 7");
 }
  
 pub async fn initialize_child(data: &Arc<RwLock<TypeMap>>, shouldcrash: bool) {
