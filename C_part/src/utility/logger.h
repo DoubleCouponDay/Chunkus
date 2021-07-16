@@ -14,4 +14,4 @@ void logger(const char* tag, const char* message, ...);
 #define LOG_ERR(fmt, args...) logger("ERROR", "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, ##args)
 #endif
 
-#endif /* LOG_H */
+#endif

@@ -1,34 +1,37 @@
 use serenity::client::{
     Context, EventHandler
 };
+use serenity::framework::StandardFramework;
+use serenity::framework::standard::Configuration;
+use serenity::model::id::ChannelId;
 use serenity::{
     async_trait,
     model::{
         prelude::Message
     },
 };
-use std::sync::{
-    Mutex, Arc
-};
+use std::collections::HashSet;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
-pub static MESSAGE_CONTENT: &'static str = "test";
-
+pub static RECEIVE_EMBED_CONTENT: &'static str = "receive embed test";
+pub static RECEIVE_CONTENT: &'static str = "receive test";
+pub static RECEIVE_IMAGE_EMBED_CONTENT: &'static str = "receive image embed test";
 pub struct ReceiveEmbedMessageHandler
 {
-    pub message_received_mutex: Arc<Mutex<bool>>,
+    pub worked: Arc<AtomicBool>
 }
 pub struct ReceiveMessageHandler
 {
-    pub message_received_mutex: Arc<Mutex<bool>>
+    pub worked: Arc<AtomicBool>
 }
 pub struct ReceiveImageEmbedMessageHandler
 {
-    pub message_received_mutex: Arc<Mutex<bool>>,
+    pub worked: Arc<AtomicBool>
 }
-
-pub struct StartOtherBotHandler
-{
-
+pub struct StartOtherBotHandler;
+pub struct CrashRunHandler {
+    pub worked: Arc<AtomicBool>
 }
 
 #[async_trait]
@@ -36,16 +39,10 @@ impl EventHandler for ReceiveEmbedMessageHandler
 {
     async fn message(&self, _ctx: Context, msg: Message)
     {
-        if msg.content == MESSAGE_CONTENT && msg.embeds.len() > 0
-        {
-            println!("Found test message");
-
-            *self.message_received_mutex.lock().unwrap() = true;
+        if msg.content == RECEIVE_EMBED_CONTENT && msg.embeds.len() > 0 {
+            self.worked.store(true, Ordering::SeqCst);
         }
-        else
-        {
-            println!("Found non-test message");
-        }
+        
     }
 }
 
@@ -54,21 +51,15 @@ impl EventHandler for ReceiveImageEmbedMessageHandler
 {
     async fn message(&self, _ctx: Context, msg: Message)
     {
-        if msg.content == MESSAGE_CONTENT && msg.embeds.len() > 0
+        if msg.content == RECEIVE_IMAGE_EMBED_CONTENT && msg.embeds.len() > 0
         {
             match &msg.embeds[0].image
             {
                 Some(_img) => {
-                    println!("Found special test message");
-                
+                    self.worked.store(true, Ordering::SeqCst);
                 }
                 None => {}
             }
-        }
-
-        else
-        {
-            println!("Found non-test message");
         }
     }
 }
@@ -78,15 +69,38 @@ impl EventHandler for ReceiveMessageHandler
 {
     async fn message(&self, _ctx: Context, msg: Message)
     {
-        if msg.content == MESSAGE_CONTENT
-        {
-            println!("Found test message");
+        self.worked.store(true, Ordering::SeqCst);
         
-        }
-
-        else
-        {
-            println!("Found non-test message");
-        }
+        // if msg.content == RECEIVE_CONTENT
+        // {
+            
+        // }
     }
+}
+
+#[async_trait]
+impl EventHandler for CrashRunHandler {
+    async fn message(&self, _ctx: Context, msg: Message) {
+        let msgstr = msg.content.as_str();
+        println!("crashrunhandler: {}", msgstr);
+        self.worked.store(true, Ordering::SeqCst);
+    }
+}
+
+pub async fn get_test_framework(channelid: u64) -> StandardFramework {
+    StandardFramework::new().configure(|a| {
+        a.prefixes(vec!["", "!"])
+        .case_insensitivity(true) //dont care about case
+        .ignore_bots(false) //dont ignore bot messages from automated tests
+        .with_whitespace(true); //release all cares whatsoever 
+
+        let mut set = HashSet::<ChannelId>::new();
+
+        let id = ChannelId {
+            0: channelid
+        };
+        set.insert(id);
+        a.allowed_channels(set);
+        a
+    })
 }

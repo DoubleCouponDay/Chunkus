@@ -64,7 +64,9 @@
         "string.h": "c",
         "stdio.h": "c",
         "vec.h": "c",
-        "error.h": "c"
+        "error.h": "c",
+        "entrypoint.h": "c",
+        "signal.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

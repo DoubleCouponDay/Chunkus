@@ -6,3 +6,5 @@ pub mod core;
 pub mod svg;
 pub mod options;
 pub mod error_show;
+pub mod trampoline;
+

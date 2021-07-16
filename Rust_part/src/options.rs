@@ -19,13 +19,15 @@ pub struct VectorizeOptions
 {
     pub chunksize: u32,
     pub threshold: u32,
-    pub numcolours: u32
+    pub numcolours: u32,
+    pub shouldcrash: bool
 }
 
-pub struct ParsedOptions {
+pub struct ParsedOptions { //we need strings in order to make the char** for the core
     pub chunksize: String,
     pub threshold: String,
-    pub numcolours: String
+    pub numcolours: String,
+    pub shouldcrash: String
 }
 
 impl TypeMapKey for VectorizeOptionsKey
@@ -38,7 +40,8 @@ impl Clone for ParsedOptions {
         ParsedOptions {
             chunksize: self.chunksize.clone(),
             threshold: self.threshold.clone(),
-            numcolours: self.numcolours.clone()
+            numcolours: self.numcolours.clone(),
+            shouldcrash: self.shouldcrash.clone()
         }
     }
 }
@@ -51,11 +54,13 @@ fn place_default_if_needed(input: u32, constant: u32) -> String {
 }
 
 pub async fn insert_params(mut data: RwLockWriteGuard<'_, TypeMap>, input: VectorizeOptions) -> ParsedOptions {
+    println!("inserting params. shouldcrash: {}", input.shouldcrash);
 
     let options = ParsedOptions {
         chunksize: place_default_if_needed(input.chunksize, DEFAULT_CHUNK_SIZE),
         threshold: place_default_if_needed(input.threshold, DEFAULT_THRESHOLD),
-        numcolours: place_default_if_needed(input.numcolours, DEFAULT_COLOURS)
+        numcolours: place_default_if_needed(input.numcolours, DEFAULT_COLOURS),
+        shouldcrash: input.shouldcrash.to_string()
     };
     data.insert::<VectorizeOptionsKey>(options.clone());
     options

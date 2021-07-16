@@ -22,14 +22,14 @@ const COMMON_PATH: &'static str = "../C_part/build/lib/";
 const LINUXCORE: &'static str = "libvec"; //linux requires lib prepended to library filenames
 
 const RELEASEBUILDKEY: &'static str = "releasebuild";
-const CONANPATHKEY: &'static str = "conanpath";
+const CONANPATHKEY: &'static str = "CONAN";
 
 const LIB_EXT: &'static str = ".lib";
 const A_EXT: &'static str = ".a";
 
 const BAD_ZLIB: &'static str = "libz";
 const GOOD_ZLIB: &'static str = "zlib";
-const LIB_PNG: &'static str = "libpng16";
+const LIB_PNG: &'static str = "libpng16"; //windows and linux dont have the same package names from conan
 const LIB: &'static str = "lib";
 const NUM_LIBS: usize = 3;
 
@@ -46,7 +46,7 @@ fn main() {
     let oldtemplate = String::from("../").add(TEMPLATE_NAME);
     let newtemplate = String::from(TEMPLATE_NAME);
     println!("copying template from: {}, to: {}", &oldtemplate, &newtemplate);
-    let _ = copy(oldtemplate, newtemplate);
+    let _foo =copy(oldtemplate, newtemplate);
 
     let previous_lib_path: String;
     let mut new_lib_path: String;
@@ -159,7 +159,7 @@ fn verify_conan_environment() {
     else {
         let message = String::from("could not find the ")
             .add(CONANPATHKEY)
-            .add("environment variable.");
+            .add(" environment variable.");
 
         panic!(message);
     }
