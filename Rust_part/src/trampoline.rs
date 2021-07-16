@@ -11,23 +11,17 @@ use std::{
     time::Duration
 };
 use serenity::
-{
-    async_trait,
-    model::{prelude::Message, id::ChannelId},
-    prelude::{
-        TypeMapKey,
-        RwLock,
-        TypeMap
-    },
-    framework::standard::{
+{async_trait, client::{Client, ClientBuilder, Context, EventHandler}, framework::standard::{
         CommandResult,
         StandardFramework,
         macros::{
             group, command,
         },
-    },
-    client::{Client, ClientBuilder, Context, EventHandler},
-};
+    }, http::AttachmentType, model::{prelude::Message, id::ChannelId}, prelude::{
+        TypeMapKey,
+        RwLock,
+        TypeMap
+    }};
 use tokio::{
     time::sleep,
     runtime::Runtime
@@ -221,30 +215,17 @@ async fn set_state(data: &Arc<RwLock<TypeMap>>, vectorizer_finished: bool) {
     println!("unlocking 3");
 }
 
-fn get_last_line_of_log() -> String
+async fn post_the_log(ctx: &Context, msg: &Message)
 {
-    if let Ok(file) = std::fs::File::open("log.txt")
-    {
-        let mut buf_reader = std::io::BufReader::new(file);
-        let mut contents = String::new();
-        
-        if buf_reader.read_to_string(&mut contents).is_err()
-        {
-            return String::from("couldn't read log file");
-        }
-        
-        if let Some(last_line) = contents.lines().last() {
-            return String::from(last_line);
-        }
-        
-        else
-        {
-            return String::from("no lines found in log file!");
-        }
-    }
+    let logpath = Path::new("log.txt");
+    let channelid = msg.channel_id;
+    let attachment = AttachmentType::from(logpath);
 
-    else {
-        return String::from("log file not found!");
+    if let Err(_message_sent) = channelid.send_message(&ctx.http, |m| {
+        m.add_file(attachment);
+        m
+    }).await {
+        panic!("test message not sent!");
     }
 }
 
@@ -353,20 +334,16 @@ impl EventHandler for TrampolineHandler {
                 println!("vectorizer finished task.");
                 set_state(&ctx.data, true).await;
             }
-
-            else {
-                println!("vectorizer was not commanded to run.");
-            }
+            //else, vectorizer was not commanded to run
         }
         ()
     }
 }
 
 async fn perform_crash_contingency(ctx: &Context, new_message: &Message, status: VectorizerStatus) {
-    println!("vectorizer crashed!");
-    let lastline = get_last_line_of_log();
+    println!("vectorizer crashed!");    
     inform_channel_of(ctx, &new_message.channel_id, format!("Vectorizer crashed with status: {}", status)).await;
-    inform_channel_of(ctx, &new_message.channel_id, format!("last line of log: `{}`", lastline)).await;
+    post_the_log(ctx, new_message).await;
     restart_vectorizer_bot(&ctx.data).await;
 }
 
