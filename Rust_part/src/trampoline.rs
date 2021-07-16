@@ -190,7 +190,6 @@ async fn restart_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
 pub async fn initialize_child(data: &Arc<RwLock<TypeMap>>, shouldcrash: bool) {
     println!("initializing vectorizer...");
     let dir = current_dir().unwrap();
-    println!("current dir: {}", dir.to_str().unwrap());
     let bot_path = Path::new("bot");
     let mut process_step1 = Command::new(bot_path);
     let process_step2 = process_step1.arg(shouldcrash.to_string());
@@ -297,7 +296,6 @@ async fn inform_channel_of(ctx: &Context, channel: &ChannelId, message: String)
 #[async_trait]
 impl EventHandler for TrampolineHandler {
     async fn message(&self, ctx: Context, new_message: Message) {
-        println!("name of author: {}", new_message.author.name);
         let contentcontainsstart = new_message.content.contains(START_MESSAGE);
         let contentcontains_err = new_message.content.contains(ERR_MESSAGE);
         let content_contains_end = new_message.content.contains(END_MESSAGE);

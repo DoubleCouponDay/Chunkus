@@ -428,7 +428,8 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
         if shouldcrash {
             println!("shouldcrash == true. initiating crash...");
-            exit(101);
+            let _crash = crashing_this_plane();
+            //exit(1);
         }
 
         let outputname = String::from(constants::OUTPUT_SVG_FILE);

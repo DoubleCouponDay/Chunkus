@@ -150,6 +150,8 @@ int set_algorithm(char* argv)
 //PUBLIC FACING
 int just_crash() {
 	clear_logfile();
-	LOG_ERR("crashing with no survivors");
-	return 1/0;
+	LOG_ERR("crashing this plane; with no survivors");
+	void* crash = (void*)1;
+	free(crash);
+	return 0;
 }
