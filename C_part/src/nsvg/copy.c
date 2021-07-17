@@ -2,7 +2,6 @@
 #include <nanosvg.h>
 #include <stdio.h>
 #include <stdlib.h>
-//#include <unistd.h> //linux only
 #include <string.h>
 
 #include "../utility/logger.h"
