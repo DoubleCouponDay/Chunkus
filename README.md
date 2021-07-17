@@ -7,17 +7,7 @@ This was a group project created and maintained by Samuel, Joshua, Matthew.
 
 it has a Rust component and a C component.
 
-Set the `VECTORIZER` and `TRAMPOLINE` environment variables to the value of your two discord bot's secret tokens.
-
-use this template for the `secrettoken.rs` file that you must create, in the `Rust_part/src` folder.
-
-```
-    pub fn gettoken() -> &'static str { }
-
-    pub fn getwatchertoken() -> &'static str { }
-
-    pub fn getchannelid() -> u64 { }
-```
+Set the `VECTORIZER`, `TRAMPOLINE` and `CHANNELID` environment variables to the value of your two discord bot's secret tokens.
 
 For windows there are some extra steps:
 
