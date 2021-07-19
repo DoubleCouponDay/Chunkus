@@ -34,4 +34,4 @@ WORKDIR /home/sjsui/vectorizer/Rust_part/
 RUN cargo build -vv --release
 
 #create entrypoint of container
-CMD ["./target/release/trampoline"]
+CMD ["./target/release/trampoline", "false"]
