@@ -1,7 +1,7 @@
 # Vectorizer
 converts png files to svg files!
 
-This was a group project created and maintained by Samuel, Joshua, Matthew.
+This was a group project by Samuel, Joshua, Matthew.
 
 ## Building Requirements
 
@@ -18,7 +18,7 @@ For windows there are some extra steps:
     `C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\msbuild.exe`
 
 
-Install Rust lang so that you can use the `cargo` tool to work with the discord-v folder as a rust project.  
+Install Rust lang so that you can use the `cargo` tool to work with the rust part.
 
 ```
     rustup target add x86_64-unknown-linux-musl
