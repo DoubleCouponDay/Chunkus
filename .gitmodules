@@ -1,0 +1,3 @@
+[submodule "Cpp_part/freeglut"]
+	path = Cpp_part/freeglut
+	url = https://github.com/FreeGLUTProject/freeglut

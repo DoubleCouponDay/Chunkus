@@ -24,6 +24,10 @@ cmake_install.cmake
 **/output.svg
 **/chunkmap.png
 
+Cpp_part/*glut*/
+Cpp_part/out/
+Cpp_part/.vs/
+
 Rust_part/target
 
 C_part/.xmake/
@@ -73,7 +77,7 @@ C_part/build/
 *.idb
 *.pdb
 
-# Kernel Module Compile Results
+# Kernel Module Compile Results wtf?
 *.mod*
 *.cmd
 .tmp_versions/
