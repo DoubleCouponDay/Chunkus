@@ -50,5 +50,16 @@
             "stopOnEntry": false,
             "sourceLanguages": ["rust"]
         },
+        {
+            "type": "cppdbg",
+            "request": "launch",
+            "name": "Launch the fkin GUI",
+            "args": ["true"],
+            "program": "${workspaceFolder}/Cpp_part/build/Vectorizer_GUI",
+            "cwd": "${workspaceFolder}/Cpp_part/build",
+            "stopOnEntry": false,
+            "MIMode": "gdb",
+            "sourceLanguages": ["cpp"]
+        },
     ]
 }
