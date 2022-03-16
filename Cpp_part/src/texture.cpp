@@ -1,13 +1,20 @@
 #include "texture.h"
 
 #include <stdio.h>
+#include <exception>
+#include <stdexcept>
 
-Texture::Texture()
+template<class TStorage>
+Texture<TStorage>::Texture()
+	: _data()
+	, _width(0)
+	, _height(0)
 {
 }
 
 // Currently silently returns empty, should maybe throw instead
-Texture::Texture(std::string fileName, bool flipY)
+template<class TStorage>
+Texture<TStorage>::Texture(std::string fileName, bool flipY)
 {
 	_width = -1;
 	_height = -1;
@@ -40,14 +47,14 @@ Texture::Texture(std::string fileName, bool flipY)
 	_height = *(int*)&(header[22]);
 
 	// Some BMP files are misformatted, guess missing information
-	if (imageSize == 0)    imageSize = _width * _height * 3; // 3 : one byte for each Red, Green and Blue component
+	if (imageSize == 0)    imageSize = _width * _height * 3; // 3 Bytes for red, green and blue
 	if (dataPos == 0)      dataPos = 54; // The BMP header is done that way
 
 	// Create a buffer
-	_data = std::make_unique<unsigned char[]>(imageSize);
+	_data.resize(imageSize / 3); // Divide by 3 as our TStorage type should contain all 3 colors
 
 	// Read the actual data from the file into the buffer
-	fread(_data.get(), 1, imageSize, file);
+	fread(_data.data(), 1, imageSize, file);
 
 	// Everything is in memory now, the file wan be closed
 	fclose(file);
@@ -58,31 +65,44 @@ Texture::Texture(std::string fileName, bool flipY)
 		int size = _width * 3;
 		for (int i = 0; i < _height / 2; i++) {
 
-			memcpy(tmpBuffer, _data.get() + _width * 3 * i, size);
+			memcpy(tmpBuffer, _data.data() + _width * 3 * i, size);
 
-			memcpy(_data.get() + _width * 3 * i, _data.get() + _width * 3 * (_height - i - 1), size);
+			memcpy(_data.data() + _width * 3 * i, _data.data() + _width * 3 * (_height - i - 1), size);
 
-			memcpy(_data.get() + _width * 3 * (_height - i - 1), tmpBuffer, size);
+			memcpy(_data.data() + _width * 3 * (_height - i - 1), tmpBuffer, size);
 		}
 		delete[] tmpBuffer;
 	}
 }
 
-Texture::Texture(unsigned char* source, GLuint width, GLuint height)
-	: _data(source)
+template<class TStorage>
+Texture<TStorage>::Texture(TStorage* source, GLuint width, GLuint height)
+	: _data(source, source + width * height)
 	, _width(width)
 	, _height(height)
 {
 }
 
-Texture::Texture(Texture&& other) 
+template<class TStorage>
+Texture<TStorage>::Texture(TStorage color, GLuint width, GLuint height)
+	: _data((unsigned long long)width * height)
+	, _width(width)
+	, _height(height)
+{
+	for (int i = 0; i < _width * _height; ++i)
+		_data[i] = color;
+}
+
+template<class TStorage>
+Texture<TStorage>::Texture(Texture<TStorage>&& other)
 	: _data(std::move(other._data))
 	, _width(other._width)
 	, _height(other._height)
 {
 }
 
-Texture& Texture::operator=(Texture&& other)
+template<class TStorage>
+Texture<TStorage>& Texture<TStorage>::operator=(Texture<TStorage>&& other)
 {
 	_data = std::move(other._data);
 	_width = other._width;
@@ -94,17 +114,208 @@ Texture& Texture::operator=(Texture&& other)
 	return *this;
 }
 
-const unsigned char* Texture::getData() const
+template<class TStorage>
+const TStorage* Texture<TStorage>::getData() const
 {
-	return _data.get();
+	return _data.data();
 }
 
-GLuint Texture::getWidth() const
+template<class TStorage>
+const unsigned char* Texture<TStorage>::getBytes() const
+{
+	return reinterpret_cast<const unsigned char*>(_data.data());
+}
+
+template<class TStorage>
+GLuint Texture<TStorage>::getWidth() const
 {
 	return _width;
 }
 
-GLuint Texture::getHeight() const
+template<class TStorage>
+GLuint Texture<TStorage>::getHeight() const
 {
 	return _height;
 }
+
+template<class TStorage>
+void Texture<TStorage>::clear()
+{
+	_data.clear();
+	_width = 0;
+	_height = 0;
+}
+
+template<class TStorage>
+TStorage Texture<TStorage>::getPixel(int x, int y) const
+{
+	return _data[(long long)_width * y + x];
+}
+
+template<class TStorage>
+void Texture<TStorage>::setPixel(int x, int y, TStorage color)
+{
+	memcpy(&_data[(long long)y * _width + x], &color, sizeof(color));
+}
+
+template<class TStorage>
+void Texture<TStorage>::setArea(const Texture<TStorage>& other, int x, int y)
+{
+	setArea(other, x, y, other.getWidth(), other.getHeight());
+}
+
+
+template<class TStorage>
+void Texture<TStorage>::setArea(const Texture<TStorage>& other, int x, int y, int width, int height)
+{
+	if (x < 0 || y < 0 || x + width >= _width || y + height >= _height ||
+		width > other.getWidth() || height > other.getHeight())
+		throw std::invalid_argument("Invalid X/Y or Width/Height given to Texture::setArea");
+
+	for (int x2 = 0; x2 < width; ++x2)
+	{
+		for (int y2 = 0; y2 < height; ++y2)
+		{
+			setPixel(x2 + x, y2 + y, other.getPixel(x2, y2));
+		}
+	}
+}
+
+template class Texture<Color32>;
+
+template class Texture<Color8>;
+
+GLTexture::GLTexture() : _texName(0)
+{
+}
+
+GLTexture::GLTexture(const Texture8& tex)
+{
+	GLuint myTex = 0;
+	glGenTextures(1, &myTex);
+
+	glBindTexture(GL_TEXTURE_2D, myTex);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex.getWidth(), tex.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)tex.getData());
+
+	_texName = myTex;
+}
+
+GLTexture::GLTexture(GLTexture&& other)
+	: _texName(other._texName)
+{
+	other._texName = 0;
+}
+
+GLTexture::~GLTexture()
+{
+	clear();
+}
+
+GLTexture& GLTexture::operator=(GLTexture&& other)
+{
+	clear();
+	_texName = other._texName;
+
+	other._texName = 0;
+
+	return *this;
+}
+
+void GLTexture::clear()
+{
+	if (_texName)
+	{
+		glDeleteTextures(1, &_texName);
+		_texName = 0;
+	}
+}
+
+GLuint GLTexture::getName() const
+{
+	return _texName;
+}
+
+void GLTexture::bindTo(GLenum target) const
+{
+	glBindTexture(target, _texName);
+}
+
+WomboTexture::WomboTexture()
+{
+}
+
+WomboTexture::WomboTexture(std::string fileName, bool flipY)
+	: _cpuTex(fileName, flipY)
+	, _glTex(_cpuTex)
+{
+}
+
+WomboTexture::WomboTexture(GLTexture&& glTex, Texture8&& cpuTex)
+	: _cpuTex(std::move(cpuTex))
+	, _glTex(std::move(glTex))
+{
+}
+
+WomboTexture::WomboTexture(WomboTexture&& other)
+	: _cpuTex(std::move(other._cpuTex))
+	, _glTex(std::move(other._glTex))
+{
+}
+
+WomboTexture& WomboTexture::operator=(WomboTexture&& other)
+{
+	clear();
+
+	_glTex = std::move(other._glTex);
+	_cpuTex = std::move(other._cpuTex);
+
+	return *this;
+}
+
+void WomboTexture::clear()
+{
+	_glTex.clear();
+	_cpuTex.clear();
+}
+
+void WomboTexture::updateImage(const Texture8& src, int xoffset, int yoffset)
+{
+	updateImage(src, xoffset, yoffset, src.getWidth(), src.getHeight());
+}
+
+void WomboTexture::updateImage(const Texture8& src, int xoffset, int yoffset, int width, int height)
+{
+	if (xoffset < 0 || yoffset < 0 ||
+		xoffset + width >= _cpuTex.getWidth() ||
+		yoffset + height >= _cpuTex.getHeight())
+		throw std::invalid_argument("Invalid X/Y or Width/Height given to WomboTexture::updateImage");
+
+	_cpuTex.setArea(src, xoffset, yoffset, width, height);
+
+	_glTex.bindTo(GL_TEXTURE_2D);
+	//glTexSubImage2D(GL_TEXTURE_2D, 0, xoffset, yoffset, width, height, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)src.getData());
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _cpuTex.getWidth(), _cpuTex.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)_cpuTex.getData());
+}
+
+void WomboTexture::setPixel(int x, int y, Color8 color)
+{
+	if (x < 0 || y < 0 || x >= _cpuTex.getWidth() || y >= _cpuTex.getHeight())
+		throw std::invalid_argument("Can not set out of bounds pixel");
+
+	_cpuTex.setPixel(x, y, color);
+
+	_glTex.bindTo(GL_TEXTURE_2D);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, &color);
+}
+
+void WomboTexture::setArea(int x, int y, int width, int height, Color8 color)
+{
+	// Create temporary texture that contains just the color we are setting
+	auto tmpTex = Texture8(color, width, height);
+
+	updateImage(tmpTex, x, y, width, height);
+}
+

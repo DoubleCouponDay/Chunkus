@@ -4,49 +4,31 @@
 #include <string>
 #include <string.h>
 
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 
 #include "texture.h"
 #include "gl.h"
 
 
 
-GLuint genGLTexture(const Texture& tex)
+void drawTexture(const GLTexture& tex)
 {
-	GLuint glTex[] = { 0, 0 };
-	checkForGlError("blah");
-	glGenTextures(2, &glTex[0]);
-	checkForGlError("blah");
-	glBindTexture(GL_TEXTURE_2D, glTex[0]);
-   
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex.getWidth(), tex.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)tex.getData());
-	
-
-	std::cout << "Generated epic texture: " << glTex[0] << ", " << glTex[1] << std::endl;
-	return glTex[0];
-}
-
-void drawTexture(GLuint glTex)
-{
-	glBindTexture(GL_TEXTURE_2D, glTex);
+	tex.bindTo(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 	// Front Face
-    glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.35f, -0.6f,  0.f);  // Bottom Left Of The Texture and Quad
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5f, -0.5f,  0.f);  // Bottom Left Of The Texture and Quad
     glTexCoord2f(1.0f, 0.0f); glVertex3f( 0.5f, -0.5f,  0.0f);  // Bottom Right Of The Texture and Quad
-    glTexCoord2f(1.0f, 1.0f); glVertex3f( 0.6f,  0.3f,  0.0f);  // Top Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f); glVertex3f( 0.5f,  0.5f,  0.0f);  // Top Right Of The Texture and Quad
     glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f,  0.5f,  0.0f);  // Top Left Of The Texture and Quad
 
 	glEnd();
 }
 
-GLuint myTex = 0;
+WomboTexture epicTex;
 
 void my_init()
 {
-	auto tex = Texture("epic.bmp", false);
-	myTex = genGLTexture(tex);
+	epicTex = WomboTexture("epic.bmp", false);
 
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
@@ -62,9 +44,24 @@ void display()
 	glTranslatef(0.f, 0.f, 0.f);
 	glColor3f(1.f, 0.f, 1.f);
 	glutSolidCube(0.4);
-	drawTexture(myTex);
+	glColor3f(1.f, 1.f, 1.f);
+	drawTexture(epicTex.getGLTex());
+
+	glRasterPos2i(100, 120);
+	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"big chungus");
 
 	glutSwapBuffers();
+}
+
+void setTexPixel(int value)
+{
+	(void)value;
+
+	std::cout << "Setting pixels" << std::endl;
+	checkForGlError("Before setting pixel");
+	epicTex.setArea(15, 15, 25, 25, Colors::Orange8);
+	checkForGlError("After setting pixel");
+	glutPostRedisplay();
 }
 
 int main(int argc, char** argv)
@@ -80,6 +77,8 @@ int main(int argc, char** argv)
 	my_init();
 
 	glutDisplayFunc(display);
+
+	glutTimerFunc(3000, setTexPixel, 0);
 
 	glutMainLoop();
 

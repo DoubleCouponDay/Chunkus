@@ -27,7 +27,8 @@ find_package(OpenGL REQUIRED)
 find_package(GLUT QUIET)
 
 if (NOT GLUT_FOUND)
-	
+	message("Using freeglut github repository for glut")
+
 	execute_process(COMMAND git submodule update --init -- freeglut
 					WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -37,6 +38,7 @@ if (NOT GLUT_FOUND)
 	target_include_directories(Vectorizer_GUI PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/freeglut/include")
 	target_link_libraries(Vectorizer_GUI PRIVATE freeglut)
 else()
+	message("Found Freeglut installation: dirs: ${GLUT_INCLUDE_DIRS} libs: ${GLUT_LIBRARIES}")
 	target_include_directories(Vectorizer_GUI PRIVATE ${GLUT_INCLUDE_DIRS})
 	target_link_libraries(Vectorizer_GUI PRIVATE ${GLUT_LIBRARIES})
 endif()
