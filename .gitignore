@@ -27,6 +27,7 @@ cmake_install.cmake
 Cpp_part/*glut*/
 Cpp_part/out/
 Cpp_part/.vs/
+Cpp_part/freeglut/
 
 Rust_part/target
 
