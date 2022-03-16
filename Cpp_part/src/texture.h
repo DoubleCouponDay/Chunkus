@@ -27,34 +27,34 @@ namespace Colors
 	constexpr Color8 Orange8 = { 0xb0, 0x40, 0x10 };
 }
 
-template<class TStorage>
+template<class ColorT>
 class Texture
 {
-	std::vector<TStorage> _data;
+	std::vector<ColorT> _data;
 	GLuint _width;
 	GLuint _height;
 public:
 	Texture();
 	Texture(std::string fileName, bool flipY);
-	Texture(TStorage* source, GLuint width, GLuint height);
-	Texture(TStorage color, GLuint width, GLuint height);
-	Texture(Texture<TStorage>&& other);
-	Texture(const Texture<TStorage>& other) = delete;
+	Texture(ColorT* source, GLuint width, GLuint height);
+	Texture(ColorT color, GLuint width, GLuint height);
+	Texture(Texture<ColorT>&& other);
+	Texture(const Texture<ColorT>& other) = delete;
 
-	Texture<TStorage>& operator=(Texture<TStorage>&& other);
-	Texture<TStorage>& operator=(const Texture<TStorage>& other) = delete;
+	Texture<ColorT>& operator=(Texture<ColorT>&& other);
+	Texture<ColorT>& operator=(const Texture<ColorT>& other) = delete;
 
-	const TStorage* getData() const;
+	const ColorT* getData() const;
 	const unsigned char* getBytes() const;
 	GLuint getWidth() const;
 	GLuint getHeight() const;
 
 	void clear();
 
-	TStorage getPixel(int x, int y) const;
-	void setPixel(int x, int y, TStorage color);
-	void setArea(const Texture<TStorage>& other, int x, int y, int width, int height);
-	void setArea(const Texture<TStorage>& other, int x, int y);
+	ColorT getPixel(int x, int y) const;
+	void setPixel(int x, int y, ColorT color);
+	void setArea(const Texture<ColorT>& other, int x, int y, int width, int height);
+	void setArea(const Texture<ColorT>& other, int x, int y);
 };
 
 using Texture8 = Texture<Color8>;

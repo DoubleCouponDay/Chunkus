@@ -4,8 +4,8 @@
 #include <exception>
 #include <stdexcept>
 
-template<class TStorage>
-Texture<TStorage>::Texture()
+template<class ColorT>
+Texture<ColorT>::Texture()
 	: _data()
 	, _width(0)
 	, _height(0)
@@ -13,8 +13,8 @@ Texture<TStorage>::Texture()
 }
 
 // Currently silently returns empty, should maybe throw instead
-template<class TStorage>
-Texture<TStorage>::Texture(std::string fileName, bool flipY)
+template<class ColorT>
+Texture<ColorT>::Texture(std::string fileName, bool flipY)
 {
 	_width = -1;
 	_height = -1;
@@ -51,7 +51,7 @@ Texture<TStorage>::Texture(std::string fileName, bool flipY)
 	if (dataPos == 0)      dataPos = 54; // The BMP header is done that way
 
 	// Create a buffer
-	_data.resize(imageSize / 3); // Divide by 3 as our TStorage type should contain all 3 colors
+	_data.resize(imageSize / 3); // Divide by 3 as our ColorT type should contain all 3 colors
 
 	// Read the actual data from the file into the buffer
 	fread(_data.data(), 1, imageSize, file);
@@ -75,16 +75,16 @@ Texture<TStorage>::Texture(std::string fileName, bool flipY)
 	}
 }
 
-template<class TStorage>
-Texture<TStorage>::Texture(TStorage* source, GLuint width, GLuint height)
+template<class ColorT>
+Texture<ColorT>::Texture(ColorT* source, GLuint width, GLuint height)
 	: _data(source, source + width * height)
 	, _width(width)
 	, _height(height)
 {
 }
 
-template<class TStorage>
-Texture<TStorage>::Texture(TStorage color, GLuint width, GLuint height)
+template<class ColorT>
+Texture<ColorT>::Texture(ColorT color, GLuint width, GLuint height)
 	: _data((unsigned long long)width * height)
 	, _width(width)
 	, _height(height)
@@ -93,16 +93,16 @@ Texture<TStorage>::Texture(TStorage color, GLuint width, GLuint height)
 		_data[i] = color;
 }
 
-template<class TStorage>
-Texture<TStorage>::Texture(Texture<TStorage>&& other)
+template<class ColorT>
+Texture<ColorT>::Texture(Texture<ColorT>&& other)
 	: _data(std::move(other._data))
 	, _width(other._width)
 	, _height(other._height)
 {
 }
 
-template<class TStorage>
-Texture<TStorage>& Texture<TStorage>::operator=(Texture<TStorage>&& other)
+template<class ColorT>
+Texture<ColorT>& Texture<ColorT>::operator=(Texture<ColorT>&& other)
 {
 	_data = std::move(other._data);
 	_width = other._width;
@@ -114,59 +114,59 @@ Texture<TStorage>& Texture<TStorage>::operator=(Texture<TStorage>&& other)
 	return *this;
 }
 
-template<class TStorage>
-const TStorage* Texture<TStorage>::getData() const
+template<class ColorT>
+const ColorT* Texture<ColorT>::getData() const
 {
 	return _data.data();
 }
 
-template<class TStorage>
-const unsigned char* Texture<TStorage>::getBytes() const
+template<class ColorT>
+const unsigned char* Texture<ColorT>::getBytes() const
 {
 	return reinterpret_cast<const unsigned char*>(_data.data());
 }
 
-template<class TStorage>
-GLuint Texture<TStorage>::getWidth() const
+template<class ColorT>
+GLuint Texture<ColorT>::getWidth() const
 {
 	return _width;
 }
 
-template<class TStorage>
-GLuint Texture<TStorage>::getHeight() const
+template<class ColorT>
+GLuint Texture<ColorT>::getHeight() const
 {
 	return _height;
 }
 
-template<class TStorage>
-void Texture<TStorage>::clear()
+template<class ColorT>
+void Texture<ColorT>::clear()
 {
 	_data.clear();
 	_width = 0;
 	_height = 0;
 }
 
-template<class TStorage>
-TStorage Texture<TStorage>::getPixel(int x, int y) const
+template<class ColorT>
+ColorT Texture<ColorT>::getPixel(int x, int y) const
 {
 	return _data[(long long)_width * y + x];
 }
 
-template<class TStorage>
-void Texture<TStorage>::setPixel(int x, int y, TStorage color)
+template<class ColorT>
+void Texture<ColorT>::setPixel(int x, int y, ColorT color)
 {
 	memcpy(&_data[(long long)y * _width + x], &color, sizeof(color));
 }
 
-template<class TStorage>
-void Texture<TStorage>::setArea(const Texture<TStorage>& other, int x, int y)
+template<class ColorT>
+void Texture<ColorT>::setArea(const Texture<ColorT>& other, int x, int y)
 {
 	setArea(other, x, y, other.getWidth(), other.getHeight());
 }
 
 
-template<class TStorage>
-void Texture<TStorage>::setArea(const Texture<TStorage>& other, int x, int y, int width, int height)
+template<class ColorT>
+void Texture<ColorT>::setArea(const Texture<ColorT>& other, int x, int y, int width, int height)
 {
 	if (x < 0 || y < 0 || x + width >= _width || y + height >= _height ||
 		width > other.getWidth() || height > other.getHeight())
