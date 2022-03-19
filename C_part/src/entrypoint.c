@@ -155,3 +155,8 @@ int just_crash() {
 	free(crash);
 	return 0;
 }
+
+void epic_exported_function()
+{
+	printf("Ligma balls lmao\n");
+}

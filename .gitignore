@@ -7,10 +7,6 @@ Rust_part/template.svg
 conaninfo.txt
 graph_info.json
 conanbuildinfo.cmake
-CMakeFiles/
-**/CMakeCache.txt
-**/Makefile
-cmake_install.cmake
 **/log.txt
 **/conanbuildinfo.txt
 
@@ -24,15 +20,13 @@ cmake_install.cmake
 **/output.svg
 **/chunkmap.png
 
-Cpp_part/*glut*/
-Cpp_part/out/
-Cpp_part/.vs/
-Cpp_part/freeglut/
+.vs/
+**/out/
+**/build/
 
 Rust_part/target
 
 C_part/.xmake/
-C_part/build/
 
 # Prerequisites
 *.d
@@ -78,7 +72,8 @@ C_part/build/
 *.idb
 *.pdb
 
-# Kernel Module Compile Results wtf?
+# Kernel Module Compile Results
+# wtf is this gitignore crap?
 *.mod*
 *.cmd
 .tmp_versions/

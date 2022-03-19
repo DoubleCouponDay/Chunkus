@@ -41,3 +41,14 @@ endif()
 
 
 target_link_libraries(Vectorizer_GUI PRIVATE ${OPENGL_LIBRARIES})
+
+if (TARGET vec)
+	message("Found the C vectorizer")
+	target_link_libraries(Vectorizer_GUI PRIVATE vec)
+	target_include_directories(Vectorizer_GUI PRIVATE $<TARGET_PROPERTY:vec,INTERFACE_INCLUDE_DIRECTORIES>)
+
+	add_dependencies(Vectorizer_GUI vec)
+else()
+	message("Did not find the C Vectorizer target! This should not happen! Make sure the C_part subdirectory is added first in the root CMakeLists.txt")
+	return()
+endif()
