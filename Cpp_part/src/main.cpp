@@ -12,15 +12,21 @@
 #include <entrypoint.h>
 
 
-void drawTexture(const GLTexture& tex)
+void drawTexture(const GLTexture& tex, int texWidth, int texHeight)
 {
+	int width = glutGet(GLUT_WINDOW_WIDTH);
+	int height = glutGet(GLUT_WINDOW_HEIGHT);
+
+	float percentWidth = (float)texWidth * 2 / (float)width;
+	float percentHeight = (float)texHeight * 2 / (float)height;
+
 	tex.bindTo(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 	// Front Face
-    glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5f, -0.5f,  0.f);  // Bottom Left Of The Texture and Quad
-    glTexCoord2f(1.0f, 0.0f); glVertex3f( 0.5f, -0.5f,  0.0f);  // Bottom Right Of The Texture and Quad
-    glTexCoord2f(1.0f, 1.0f); glVertex3f( 0.5f,  0.5f,  0.0f);  // Top Right Of The Texture and Quad
-    glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f,  0.5f,  0.0f);  // Top Left Of The Texture and Quad
+    glTexCoord2f(0.0f, 0.0f); glVertex3f( percentWidth, 1.f - percentHeight * 2.f	,  0.f);  // Bottom Left Of The Texture and Quad
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(-percentWidth, 1.f - percentHeight * 2.f	,  0.f);  // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(-percentWidth, 1.f							,  0.f);  // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f); glVertex3f( percentWidth, 1.f							,  0.f);  // Top Left Of The Texture and Quad
 
 	glEnd();
 }
@@ -46,7 +52,7 @@ void display()
 	glColor3f(1.f, 0.f, 1.f);
 	glutSolidCube(0.4);
 	glColor3f(1.f, 1.f, 1.f);
-	drawTexture(epicTex.getGLTex());
+	drawTexture(epicTex.getGLTex(), epicTex.getCpuTex().getWidth(), epicTex.getCpuTex().getHeight());
 
 	glColor4f(1.f, 0.f, 0.f, 1.f);
 	glRasterPos2i(100, 120);
