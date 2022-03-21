@@ -183,3 +183,43 @@ void free_test_struct(test_struct* t)
 {
 	free(t->data);
 }
+
+int do_the_vectorize(vectorizer_data data)
+{
+	image input_img = convert_png_to_image(data.filename);
+
+	if (input_img.pixels_array_2d == NULL)
+	{
+		free_image_contents(input_img);
+		return getAndResetErrorCode();
+	}
+
+	vectorize_options options = {
+		data.filename,
+		data.chunk_size,
+		data.threshold,
+		256
+	};
+	NSVGimage* nsvg = target_algorithm(input_img, options);
+
+	if (isBadError() || nsvg == NULL)
+	{
+		free_nsvg(nsvg);
+		free_image_contents(input_img);
+		return getAndResetErrorCode();
+	}
+
+	write_svg_file(nsvg);
+
+	if (isBadError())
+	{
+		free_nsvg(nsvg);
+		free_image_contents(input_img);
+		return getAndResetErrorCode();
+	}
+
+
+	free_nsvg(nsvg);
+	free_image_contents(input_img);
+	return getAndResetErrorCode();
+}

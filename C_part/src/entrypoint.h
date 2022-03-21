@@ -1,5 +1,7 @@
 #pragma once
 
+#include "utility/error.h"
+
 #ifndef VEC_EXPORT
 #	if defined(__WIN32__) || defined(WIN32) || (_WIN32)
 #		ifdef VEC_EXPORTDLL
@@ -28,6 +30,7 @@ extern const char* format2_p;
 typedef struct vectorizer_data
 {
 	const char* filename;
+	const char* outputfilename;
 	int chunk_size;
 	float threshold;
 } vectorizer_data;
@@ -48,7 +51,11 @@ typedef struct test_struct
 void VEC_EXPORT epic_exported_function();
 
 test_struct VEC_EXPORT get_test_struct();
-void VEC_EXPORT free_test_struct();
+void VEC_EXPORT free_test_struct(test_struct* t);
+
+int VEC_EXPORT do_the_vectorize(vectorizer_data data);
+
+
 
 #ifdef __cplusplus
 };

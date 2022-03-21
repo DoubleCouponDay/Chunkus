@@ -90,6 +90,9 @@ public:
 	void bindTo(GLenum target) const;
 };
 
+/// <summary>
+/// Class that contains an OpenGL texture and a CPU Texture
+/// </summary>
 class WomboTexture
 {
 	// Ordering in this case is helpful, we want CPU Texture to load before the OpenGL texture as the OpenGL texture gets its data from the cpu texture

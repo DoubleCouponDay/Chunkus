@@ -73,16 +73,50 @@ struct Button
 	}
 };
 
+enum class ActiveTexture
+{
+	INPUT = 0,
+	INTERMEDIATE,
+	VECTORIZED,
+};
+
 struct GUIData
 {
 	Vector2i windowSize = { 800, 600 };
 	Vector3i lowLeft = { 0, 0, 0 }, lowRight = { 0, 0, 0, }, upRight = { 0, 0, 0 }, upLeft = { 0, 0, 0 };
-	WomboTexture texture;
+	WomboTexture inputTexture;
+	WomboTexture intermediateTexture;
+	WomboTexture vectorizedTexture;
+	Box textureArea;
 	Color32 texColor = Colors::White32;
 	Button button1;
 	Button button2;
 	Button button3;
+	Button button4;
 	int scrollage = 0;
+	ActiveTexture activeTexture = ActiveTexture::INPUT;
+
+	inline WomboTexture& getActiveTexture()
+	{
+		switch (activeTexture)
+		{
+		default:
+		case ActiveTexture::INPUT: return inputTexture;
+		case ActiveTexture::INTERMEDIATE: return intermediateTexture;
+		case ActiveTexture::VECTORIZED: return vectorizedTexture;
+		}
+	}
+
+	inline const char* getCurrentText() const
+	{
+		switch (activeTexture)
+		{
+		default:
+		case ActiveTexture::INPUT: return "Input Image";
+		case ActiveTexture::INTERMEDIATE: return "Intermediate";
+		case ActiveTexture::VECTORIZED: return "Vectorized Output";
+		}
+	}
 };
 
 
@@ -108,7 +142,7 @@ void renderString(int x, int y, void* font, std::string str, Color32 color)
 
 void renderButton(const Button& button)
 {
-	glScissor(button.position.x, button.position.y, button.dimensions.x, button.dimensions.y);
+	glScissor(button.position.x, button.position.y, button.dimensions.x, button.dimensions.y); // Scissor Rect
 	
 	{
 		auto mat = GLMatrix(GL_MODELVIEW);
@@ -128,6 +162,8 @@ void renderButton(const Button& button)
 
 	int yMargin = (button.dimensions.y - 18) / 2;
 	renderString(button.position.x + 5, button.position.y + yMargin, GLUT_BITMAP_HELVETICA_18, button.text, Colors::White32);
+
+	glScissor(0, 0, myData.windowSize.x, myData.windowSize.y);
 }
 
 Vector2i windowToGL(Vector2i windowCoords)
@@ -135,27 +171,9 @@ Vector2i windowToGL(Vector2i windowCoords)
 	return Vector2i{ windowCoords.x, myData.windowSize.y - windowCoords.y };
 }
 
-void drawTexture(const GLTexture& tex, int texWidth, int texHeight)
+void drawTextureOrtho(const GLTexture& tex, int texWidth, int texHeight, Vector3i translate, float scale, Box box)
 {
-	int width = myData.windowSize.x;
-	int height = myData.windowSize.y;
-
-	float percentWidth = (float)texWidth * 2 / (float)width;
-	float percentHeight = (float)texHeight * 2 / (float)height;
-
-	tex.bindTo(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	// Front Face
-    glTexCoord2f(0.0f, 0.0f); glVertex3f( percentWidth, 1.f - percentHeight * 2.f	,  0.f);  // Bottom Left Of The Texture and Quad
-    glTexCoord2f(1.0f, 0.0f); glVertex3f(-percentWidth, 1.f - percentHeight * 2.f	,  0.f);  // Bottom Right Of The Texture and Quad
-    glTexCoord2f(1.0f, 1.0f); glVertex3f(-percentWidth, 1.f							,  0.f);  // Top Right Of The Texture and Quad
-    glTexCoord2f(0.0f, 1.0f); glVertex3f( percentWidth, 1.f							,  0.f);  // Top Left Of The Texture and Quad
-
-	glEnd();
-}
-
-void drawTextureOrtho(const GLTexture& tex, int texWidth, int texHeight, Vector3i translate, float scale)
-{
+	glScissor(box.lower.x, box.lower.y, box.width(), box.height());
 	auto mat = GLMatrix(GL_MODELVIEW);
 	glTranslatef((float)myData.windowSize.x * 0.5f, myData.windowSize.y - 15, 0.f);
 	glScalef(scale, scale, scale);
@@ -184,28 +202,63 @@ void drawTextureOrtho(const GLTexture& tex, int texWidth, int texHeight, Vector3
 
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glScissor(0, 0, myData.windowSize.x, myData.windowSize.y);
 }
 
 void onResize(int w, int h)
 {
 	myData.windowSize.x = w;
 	myData.windowSize.y = h;
+	myData.textureArea = Box{ Vector2i{ 50, 300 }, Vector2i{ myData.windowSize.x - 50, myData.windowSize.y } };
 	glViewport(0, 0, w, h);
+}
+
+void doVectorize()
+{
+	vectorizer_data data;
+	data.chunk_size = 1;
+	data.filename = "input.png";
+	data.outputfilename = "output.svg";
+	data.threshold = 100.f;
+
+	int code = do_the_vectorize(data);
+
+	if (code != SUCCESS_CODE)
+	{
+
+	}
+	else
+	{
+		Texture8 tex = Texture8{ "input.png", false };
+		if (tex.getBytes() == nullptr)
+		{
+			myData.inputTexture			= WomboTexture("placeholder.bmp", false);
+			myData.intermediateTexture	= WomboTexture("placeholder.bmp", false);
+			myData.vectorizedTexture	= WomboTexture("placeholder.bmp", false);
+			return;
+		}
+		myData.inputTexture = WomboTexture(std::move(tex));
+	}
 }
 
 void my_init()
 {
 	myData.windowSize = { glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT) };
+	myData.textureArea = Box{ Vector2i{ 50, 300 }, Vector2i{ myData.windowSize.x - 50, myData.windowSize.y } };
 
-	myData.texture = WomboTexture("epic.bmp", false);
+	myData.inputTexture			= WomboTexture("placeholder.bmp", false);
+	myData.intermediateTexture	= WomboTexture("placeholder.bmp", false);
+	myData.vectorizedTexture	= WomboTexture("placeholder.bmp", false);
 
 	myData.button1 = Button{ Vector2i{ 15, 15 }, Vector2u{ 100, 32 }, "Button 1", Colors::Grey32 };
 	myData.button2 = Button{ Vector2i{ 125, 15 }, Vector2u{ 100, 32 }, "Button 2", Colors::Grey32 };
 	myData.button3 = Button{ Vector2i{ 235, 15 }, Vector2u{ 100, 32 }, "Button 3", Colors::Grey32 };
+	myData.button4 = Button{ Vector2i{ 345, 15 }, Vector2u{ 80, 32 }, "Swap Tex", Colors::Grey32 };
 
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_SCISSOR_TEST);
 }
 
 void display()
@@ -236,10 +289,11 @@ void display()
 		gluOrtho2D(0.0, myData.windowSize.x, 0.0, myData.windowSize.y);
 
 		glColor3f(myData.texColor.R, myData.texColor.G, myData.texColor.B);
-		drawTextureOrtho(myData.texture.getGLTex(), myData.texture.getCpuTex().getWidth(), myData.texture.getCpuTex().getHeight(), { 0,0,0 }, pow(1.1, myData.scrollage));
+		auto& tex = myData.getActiveTexture();
+		drawTextureOrtho(tex.getGLTex(), tex.getCpuTex().getWidth(), tex.getCpuTex().getHeight(), { 0,0,0 }, pow(1.1, myData.scrollage), myData.textureArea);
 
-		const char text[] = "the holy fk please just draw fox jumped over the lazy ass fkin pc";
-		renderString(300, 200, GLUT_BITMAP_TIMES_ROMAN_24, text, Colors::White32);
+		renderString(50, 300, GLUT_BITMAP_HELVETICA_18, myData.getCurrentText(), Colors::White32);
+
 		renderString(10, 120 - 0, GLUT_BITMAP_TIMES_ROMAN_24, "Lower Left: " + myData.lowLeft.toString(), Colors::White32);
 		renderString(10, 120 - 24, GLUT_BITMAP_TIMES_ROMAN_24, "Lower Right: " + myData.lowRight.toString(), Colors::White32);
 		renderString(10, 120 - 48, GLUT_BITMAP_TIMES_ROMAN_24, "Upper Right: " + myData.upRight.toString(), Colors::White32);
@@ -249,6 +303,7 @@ void display()
 		buttons.push_back(&myData.button1);
 		buttons.push_back(&myData.button2);
 		buttons.push_back(&myData.button3);
+		buttons.push_back(&myData.button4);
 
 		for (auto& button : buttons)
 			renderButton(*button);
@@ -267,7 +322,7 @@ void setTexPixel(int value)
 
 	std::cout << "Setting pixels" << std::endl;
 	checkForGlError("Before setting pixel");
-	myData.texture.setArea(15, 15, 25, 25, Colors::Orange8);
+
 	checkForGlError("After setting pixel");
 	glutPostRedisplay();
 }
@@ -291,7 +346,30 @@ void onKeyboardButton(unsigned char key, int mouseX, int mouseY)
 			}
 		}
 
-		myData.texture = WomboTexture{ std::move(tex) };
+		free_test_struct(&t);
+
+		myData.getActiveTexture() = WomboTexture{ std::move(tex) };
+	}
+	if (key == '1')
+	{
+		std::cout << "Switching to input image" << std::endl;
+
+		myData.activeTexture = ActiveTexture::INPUT;
+		glutPostRedisplay();
+	}
+	if (key == '2')
+	{
+		std::cout << "Switching to intermediate image" << std::endl;
+
+		myData.activeTexture = ActiveTexture::INTERMEDIATE;
+		glutPostRedisplay();
+	}
+	if (key == '3')
+	{
+		std::cout << "Switching to output image" << std::endl;
+
+		myData.activeTexture = ActiveTexture::VECTORIZED;
+		glutPostRedisplay();
 	}
 }
 
@@ -301,6 +379,7 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 	bool within1 = myData.button1.isWithin(glCoords);
 	bool within2 = myData.button2.isWithin(glCoords);
 	bool within3 = myData.button3.isWithin(glCoords);
+	bool within4 = myData.button4.isWithin(glCoords);
 
 	if (button == GLUT_LEFT_BUTTON)
 	{
@@ -320,6 +399,10 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 			{
 				std::cout << "Button 3 clicked" << std::endl;
 				myData.texColor = Colors::Green32;
+			}
+			if (within4)
+			{
+				std::cout << "Swapping textures" << std::endl;
 			}
 		}
 	}
