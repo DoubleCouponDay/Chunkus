@@ -25,7 +25,30 @@ int just_crash();
 extern const char* format1_p;
 extern const char* format2_p;
 
+typedef struct vectorizer_data
+{
+	const char* filename;
+	int chunk_size;
+	float threshold;
+} vectorizer_data;
+
+typedef struct algorithm_progress
+{
+	vectorizer_data initial_data;
+	int big_chungus;
+} algorithm_progress;
+
+typedef struct test_struct
+{
+	int width;
+	int height;
+	unsigned char* data;
+} test_struct;
+
 void VEC_EXPORT epic_exported_function();
+
+test_struct VEC_EXPORT get_test_struct();
+void VEC_EXPORT free_test_struct();
 
 #ifdef __cplusplus
 };

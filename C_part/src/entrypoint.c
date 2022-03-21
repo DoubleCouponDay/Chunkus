@@ -160,3 +160,26 @@ void epic_exported_function()
 {
 	printf("Ligma balls lmao\n");
 }
+
+test_struct get_test_struct()
+{
+	test_struct t;
+	t.width = 128;
+	t.height = 128;
+	t.data = calloc((size_t)t.width * t.height, sizeof(unsigned char));
+
+	for (int x = 0; x < t.width; ++x)
+	{
+		for (int y = 0; y < t.height; ++y)
+		{
+			t.data[y * t.width + x] = rand() % 255;
+		}
+	}
+
+	return t;
+}
+
+void free_test_struct(test_struct* t)
+{
+	free(t->data);
+}

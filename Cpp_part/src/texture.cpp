@@ -259,6 +259,12 @@ WomboTexture::WomboTexture(GLTexture&& glTex, Texture8&& cpuTex)
 {
 }
 
+WomboTexture::WomboTexture(Texture8&& cpuTex)
+	: _cpuTex(std::move(cpuTex))
+	, _glTex(_cpuTex)
+{
+}
+
 WomboTexture::WomboTexture(WomboTexture&& other)
 	: _cpuTex(std::move(other._cpuTex))
 	, _glTex(std::move(other._glTex))

@@ -6,6 +6,15 @@
 #include <GL/glut.h>
 
 
+class GLMatrix
+{
+private:
+	GLenum _matMode;
+public:
+	GLMatrix(GLenum matrixMode) : _matMode(matrixMode) { glMatrixMode(matrixMode); glPushMatrix(); glLoadIdentity(); }
+	~GLMatrix() { glMatrixMode(_matMode); glPopMatrix(); }
+};
+
 char const* glErrorString(GLenum const err) noexcept;
 
 bool checkForGlError(std::string description);

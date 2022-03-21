@@ -47,6 +47,7 @@ bool checkForGlError(std::string description)
 
     if (err != GL_NO_ERROR)
     {
-        throw GLException(description + ": " + glErrorString(err));
+        auto complete_description = description + ": " + glErrorString(err);
+        throw GLException(complete_description);
     }
 }
