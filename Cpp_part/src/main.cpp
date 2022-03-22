@@ -14,196 +14,7 @@
 
 #include <entrypoint.h>
 
-struct Vector2i
-{
-	int x;
-	int y;
-
-	inline Vector2i operator-() const { return { -x, -y }; }
-	inline Vector2i operator-(const Vector2i& other) const { return { x - other.x, y - other.y }; }
-	inline Vector2i operator+(const Vector2i& other) const { return { x + other.x, y + other.y }; }
-};
-
-struct Vector2u
-{
-	unsigned int x;
-	unsigned int y;
-};
-
-struct Vector3i
-{
-	int x, y, z;
-
-	inline std::string toString() const
-	{
-		char buf[80] = { 0 };
-
-		auto len = snprintf(buf, sizeof(buf), "(%00u, %00u, %00u)", x, y, z);
-		return std::string(buf, buf + len);
-	}
-};
-
-struct Box
-{
-	Vector2i lower;
-	Vector2i upper;
-
-	inline Vector2i dimensions() const
-	{
-		return upper - lower;
-	}
-
-	inline int width() const { return dimensions().x; }
-	inline int height() const { return dimensions().y; }
-};
-
-struct Button
-{
-	Vector2i position;
-	Vector2u dimensions;
-	std::string text;
-	Color32 color;
-
-	inline bool isWithin(Vector2i pos) const
-	{
-		return pos.x >= position.x 
-			&& pos.y >= position.y
-			&& pos.x < position.x + dimensions.x
-			&& pos.y < position.y + dimensions.y;
-	}
-};
-
-enum class ActiveTexture
-{
-	INPUT = 0,
-	INTERMEDIATE,
-	VECTORIZED,
-};
-
-struct GUIData
-{
-	Vector2i windowSize = { 800, 600 };
-	Vector3i lowLeft = { 0, 0, 0 }, lowRight = { 0, 0, 0, }, upRight = { 0, 0, 0 }, upLeft = { 0, 0, 0 };
-	WomboTexture inputTexture;
-	WomboTexture intermediateTexture;
-	WomboTexture vectorizedTexture;
-	Box textureArea;
-	Color32 texColor = Colors::White32;
-	Button button1;
-	Button button2;
-	Button button3;
-	Button button4;
-	int scrollage = 0;
-	ActiveTexture activeTexture = ActiveTexture::INPUT;
-
-	inline WomboTexture& getActiveTexture()
-	{
-		switch (activeTexture)
-		{
-		default:
-		case ActiveTexture::INPUT: return inputTexture;
-		case ActiveTexture::INTERMEDIATE: return intermediateTexture;
-		case ActiveTexture::VECTORIZED: return vectorizedTexture;
-		}
-	}
-
-	inline const char* getCurrentText() const
-	{
-		switch (activeTexture)
-		{
-		default:
-		case ActiveTexture::INPUT: return "Input Image";
-		case ActiveTexture::INTERMEDIATE: return "Intermediate";
-		case ActiveTexture::VECTORIZED: return "Vectorized Output";
-		}
-	}
-};
-
-
-GUIData myData{};
-
-
-void renderString(int x, int y, void* font, std::string str, Color32 color)
-{
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-
-	glColor3f(1.f, 1.f, 1.f);
-	glRasterPos2i(x, y);
-
-	for (auto& ch : str)
-	{
-		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ch);
-	}
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-}
-
-void renderButton(const Button& button)
-{
-	glScissor(button.position.x, button.position.y, button.dimensions.x, button.dimensions.y); // Scissor Rect
-	
-	{
-		auto mat = GLMatrix(GL_MODELVIEW);
-
-
-		glColor3f(button.color.R, button.color.G, button.color.B);
-
-		glBegin(GL_QUADS);
-		// Counter Clockwise order
-		glVertex3i(button.position.x + 0,					button.position.y + 0,						0); // Lower Left
-		glVertex3i(button.position.x + button.dimensions.x, button.position.y + 0,						0); // Lower Right
-		glVertex3i(button.position.x + button.dimensions.x, button.position.y + button.dimensions.y,	0); // Upper Right
-		glVertex3i(button.position.x + 0,					button.position.y + button.dimensions.y,	0); // Upper Left
-
-		glEnd();
-	}
-
-	int yMargin = (button.dimensions.y - 18) / 2;
-	renderString(button.position.x + 5, button.position.y + yMargin, GLUT_BITMAP_HELVETICA_18, button.text, Colors::White32);
-
-	glScissor(0, 0, myData.windowSize.x, myData.windowSize.y);
-}
-
-Vector2i windowToGL(Vector2i windowCoords)
-{
-	return Vector2i{ windowCoords.x, myData.windowSize.y - windowCoords.y };
-}
-
-void drawTextureOrtho(const GLTexture& tex, int texWidth, int texHeight, Vector3i translate, float scale, Box box)
-{
-	glScissor(box.lower.x, box.lower.y, box.width(), box.height());
-	auto mat = GLMatrix(GL_MODELVIEW);
-	glTranslatef((float)myData.windowSize.x * 0.5f, myData.windowSize.y - 15, 0.f);
-	glScalef(scale, scale, scale);
-	glTranslatef(0.f, -((float)texHeight * 0.5f), 0.f);
-	//glTranslatef(translate.x, translate.y, translate.z);
-	int width = myData.windowSize.x;
-	int height = myData.windowSize.y;
-
-	int halfWidth = texWidth;
-	int halfHeight = texHeight;
-
-	int midPoint = width / 2;
-
-	tex.bindTo(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-
-	myData.lowLeft	= { -halfWidth, -halfHeight, 0 };  // Bottom Left Of The Texture and Quad
-	myData.lowRight = { +halfWidth, -halfHeight, 0 };  // Bottom Right Of The Texture and Quad
-	myData.upRight	= { +halfWidth, +halfHeight, 0 };  // Top Right Of The Texture and Quad
-	myData.upLeft	= { -halfWidth, +halfHeight, 0 };  // Top Left Of The Texture and Quad
-
-    glTexCoord2f(0.0f, 0.0f); glVertex3i(myData.lowLeft.x,	myData.lowLeft.y,	myData.lowLeft.z);  // Bottom Left
-    glTexCoord2f(1.0f, 0.0f); glVertex3i(myData.lowRight.x, myData.lowRight.y,	myData.lowRight.z);  // Bottom Right
-    glTexCoord2f(1.0f, 1.0f); glVertex3i(myData.upRight.x,	myData.upRight.y,	myData.upRight.z);  // Top Right
-    glTexCoord2f(0.0f, 1.0f); glVertex3i(myData.upLeft.x,	myData.upLeft.y,	myData.upLeft.z);  // Top Left
-
-	glEnd();
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glScissor(0, 0, myData.windowSize.x, myData.windowSize.y);
-}
+#include "global.h"
 
 void onResize(int w, int h)
 {
@@ -243,8 +54,9 @@ void doVectorize()
 
 void my_init()
 {
+	constexpr int textureAreaStart = 150;
 	myData.windowSize = { glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT) };
-	myData.textureArea = Box{ Vector2i{ 50, 300 }, Vector2i{ myData.windowSize.x - 50, myData.windowSize.y } };
+	myData.textureArea = Box{ Vector2i{ 50, textureAreaStart }, Vector2i{ myData.windowSize.x - 50, myData.windowSize.y } };
 
 	myData.inputTexture			= WomboTexture("placeholder.bmp", false);
 	myData.intermediateTexture	= WomboTexture("placeholder.bmp", false);
@@ -254,6 +66,14 @@ void my_init()
 	myData.button2 = Button{ Vector2i{ 125, 15 }, Vector2u{ 100, 32 }, "Button 2", Colors::Grey32 };
 	myData.button3 = Button{ Vector2i{ 235, 15 }, Vector2u{ 100, 32 }, "Button 3", Colors::Grey32 };
 	myData.button4 = Button{ Vector2i{ 345, 15 }, Vector2u{ 80, 32 }, "Swap Tex", Colors::Grey32 };
+	constexpr int buttonSize = 40;
+	myData.leftButton = Button{ Vector2i{ myData.windowSize.x / 2 - buttonSize, textureAreaStart - buttonSize }, Vector2u{ buttonSize, buttonSize }, "<", Colors::Grey32 };
+	myData.rightButton = Button{ Vector2i{ myData.windowSize.x / 2, textureAreaStart - buttonSize }, Vector2u{ buttonSize, buttonSize }, ">", Colors::Grey32 };
+
+	myData.data.filename = "uwu.png";
+
+	auto buttons = { &myData.button1, &myData.button2, &myData.button3, &myData.button4, &myData.leftButton, &myData.rightButton };
+	myData.buttons.insert(myData.buttons.begin(), buttons.begin(), buttons.end());
 
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
@@ -261,51 +81,51 @@ void my_init()
 	glEnable(GL_SCISSOR_TEST);
 }
 
+/// <summary>
+/// Display callback, called whenever the window needs to be redrawn
+/// </summary>
 void display()
-{	
+{
+	// Things to draw:
+	// - Active texture
+	// - Buttons
+	// - Status string
+	// - Filename string
 	myData.windowSize.x = glutGet(GLUT_WINDOW_WIDTH);
 	myData.windowSize.y = glutGet(GLUT_WINDOW_HEIGHT);
 	checkForGlError("Displaying");
 	glClear(GL_COLOR_BUFFER_BIT);
 	checkForGlError("Cleared the back buffer");
 
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	glTranslatef(0.f, 0.f, 0.f);
-	glColor3f(1.f, 0.f, 1.f);
-	glutSolidCube(0.4);
-	checkForGlError("Drew cube");
-	glColor3f(1.f, 1.f, 1.f);
-	//drawTexture(epicTex.getGLTex(), epicTex.getCpuTex().getWidth(), epicTex.getCpuTex().getHeight());
-
-	checkForGlError("Drew texture");
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-
 	{
 		auto proj = GLMatrix(GL_PROJECTION);
 
 		gluOrtho2D(0.0, myData.windowSize.x, 0.0, myData.windowSize.y);
 
+		// Draw active texture
 		glColor3f(myData.texColor.R, myData.texColor.G, myData.texColor.B);
 		auto& tex = myData.getActiveTexture();
-		drawTextureOrtho(tex.getGLTex(), tex.getCpuTex().getWidth(), tex.getCpuTex().getHeight(), { 0,0,0 }, pow(1.1, myData.scrollage), myData.textureArea);
+		drawVecTextureArea(tex.getGLTex(), tex.getCpuTex().getWidth(), tex.getCpuTex().getHeight(), { 0,0,0 }, pow(1.1, myData.scrollage), myData.textureArea);
 
+		// Draw active texture string
 		renderString(50, 300, GLUT_BITMAP_HELVETICA_18, myData.getCurrentText(), Colors::White32);
 
+		// Draw random other textures
 		renderString(10, 120 - 0, GLUT_BITMAP_TIMES_ROMAN_24, "Lower Left: " + myData.lowLeft.toString(), Colors::White32);
 		renderString(10, 120 - 24, GLUT_BITMAP_TIMES_ROMAN_24, "Lower Right: " + myData.lowRight.toString(), Colors::White32);
 		renderString(10, 120 - 48, GLUT_BITMAP_TIMES_ROMAN_24, "Upper Right: " + myData.upRight.toString(), Colors::White32);
 		renderString(10, 120 - 72, GLUT_BITMAP_TIMES_ROMAN_24, "Upper Left: " + myData.upLeft.toString(), Colors::White32);
 
-		std::vector<Button*> buttons{};
-		buttons.push_back(&myData.button1);
-		buttons.push_back(&myData.button2);
-		buttons.push_back(&myData.button3);
-		buttons.push_back(&myData.button4);
+		// Draw status string
+		renderString(5, 5, GLUT_BITMAP_HELVETICA_18, myData.statusString, Colors::White32);
 
-		for (auto& button : buttons)
+		// Draw file string
+		std::string vectorizeString = std::string("Vectorizing '") + myData.data.filename + "'";
+		auto statusLen = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)vectorizeString.c_str());
+		renderString(myData.windowSize.x / 2 - (statusLen / 2), myData.windowSize.y - 50 - 18, GLUT_BITMAP_HELVETICA_18, vectorizeString, Colors::Grey32);
+
+		// Draw buttons
+		for (auto& button : myData.buttons)
 			renderButton(*button);
 
 		checkForGlError("Rendered string");
@@ -410,7 +230,6 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 
 void onMouseWheel(int button, int dir, int x, int y)
 {
-	std::cout << "Scroll: " << dir << std::endl;
 	myData.scrollage += dir;
 	glutPostRedisplay();
 }
