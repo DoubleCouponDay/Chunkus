@@ -16,10 +16,13 @@ file(GLOB sourceglob
     "${PROJECT_SOURCE_DIR}/src/nsvg/*.c")
 
 if(BUILD_SHARED_LIBS)
+    message("Building vec as shared library")
     add_library(vec SHARED ${sourceglob} ${headersglob})
     add_compile_definitions(vec VEC_EXPORTDLL)
 else()
+    message("Build vec as a static library")
     add_library(vec STATIC ${sourceglob} ${headersglob})
+    add_compile_definitions(vec VEC_NOEXPORTDLL)
 endif()
 
 target_include_directories(vec INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)

@@ -6,8 +6,10 @@
 #	if defined(__WIN32__) || defined(WIN32) || (_WIN32)
 #		ifdef VEC_EXPORTDLL
 #			define VEC_EXPORT __declspec(dllexport)
+#		elif defined(VEC_NOEXPORTDLL)
+#			define VEC_EXPORT 
 #		else
-#			define VEC_EXPORT __declspec(dllimport)
+#			define VEC_EXPORT 
 #		endif
 #	else
 #		define VEC_EXPORT
