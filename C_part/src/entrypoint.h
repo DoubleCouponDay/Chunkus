@@ -37,10 +37,14 @@ typedef struct vectorizer_data
 	float threshold;
 } vectorizer_data;
 
+// Needs memory management
 typedef struct algorithm_progress
 {
 	vectorizer_data initial_data;
-	int big_chungus;
+	chunkmap* map;
+	int fill_x;
+	int fill_y;
+
 } algorithm_progress;
 
 typedef struct test_struct
@@ -56,6 +60,12 @@ test_struct VEC_EXPORT get_test_struct();
 void VEC_EXPORT free_test_struct(test_struct* t);
 
 int VEC_EXPORT do_the_vectorize(vectorizer_data data);
+
+
+algorithm_progress VEC_EXPORT begin_vectorization(vectorizer_data data);
+void VEC_EXPORT step_vectorization(algorithm_progress* progress);
+void VEC_EXPORT reverse_vectorization(algorithm_progress* progress);
+void VEC_EXPORT complete_vectorization(algorithm_progress* progress);
 
 
 
