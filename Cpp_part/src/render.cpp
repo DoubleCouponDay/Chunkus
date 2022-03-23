@@ -18,6 +18,14 @@ void renderString(int x, int y, void* font, std::string str, Color32 color)
 	glPopMatrix();
 }
 
+void renderString(Box box, void* font, std::string str, Color32 color)
+{
+	int yMargin = box.height() - glutBitmapHeight(font);
+	int xMargin = box.width() - glutBitmapLength(font, (const unsigned char*)str.c_str());
+
+	renderString(box.lower.x + xMargin / 2, box.lower.y + yMargin / 2, font, str, color);
+}
+
 void renderButton(const Button& button)
 {
 	glScissor(button.position.x, button.position.y, button.dimensions.x, button.dimensions.y); // Scissor Rect

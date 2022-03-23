@@ -4,6 +4,8 @@
 #include <exception>
 #include <stdexcept>
 
+#include "gl.h"
+
 template<class ColorT>
 Texture<ColorT>::Texture()
 	: _data()
@@ -189,16 +191,23 @@ GLTexture::GLTexture() : _texName(0)
 {
 }
 
-GLTexture::GLTexture(const Texture8& tex)
+GLTexture::GLTexture(const Texture8& tex) : _texName(0)
 {
+	if (tex.getData() == nullptr || tex.getWidth() < 1 || tex.getHeight() < 1)
+		return;
+
+	checkForGlError("Creating GLTexture");
 	GLuint myTex = 0;
 	glGenTextures(1, &myTex);
 
+	checkForGlError("Generated textures");
 	glBindTexture(GL_TEXTURE_2D, myTex);
 
+	checkForGlError("Bound texture");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex.getWidth(), tex.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)tex.getData());
+	checkForGlError("Set texture parameters");
 
 	_texName = myTex;
 }

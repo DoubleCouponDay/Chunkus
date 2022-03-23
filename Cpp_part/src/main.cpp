@@ -16,14 +16,6 @@
 
 #include "global.h"
 
-void onResize(int w, int h)
-{
-	myData.windowSize.x = w;
-	myData.windowSize.y = h;
-	myData.textureArea = Box{ Vector2i{ 50, 300 }, Vector2i{ myData.windowSize.x - 50, myData.windowSize.y } };
-	glViewport(0, 0, w, h);
-}
-
 void doVectorize()
 {
 	vectorizer_data data;
@@ -52,33 +44,73 @@ void doVectorize()
 	}
 }
 
+constexpr int textureAreaStart = 150;
+constexpr int buttonSize = 40;
 void my_init()
 {
-	constexpr int textureAreaStart = 150;
+	checkForGlError("Beginning of my_init");
 	myData.windowSize = { glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT) };
 	myData.textureArea = Box{ Vector2i{ 50, textureAreaStart }, Vector2i{ myData.windowSize.x - 50, myData.windowSize.y } };
 
+	checkForGlError("Pre check of textures");
 	myData.inputTexture			= WomboTexture("placeholder.bmp", false);
 	myData.intermediateTexture	= WomboTexture("placeholder.bmp", false);
 	myData.vectorizedTexture	= WomboTexture("placeholder.bmp", false);
+	checkForGlError("Post check of textures");
 
-	myData.button1 = Button{ Vector2i{ 15, 15 }, Vector2u{ 100, 32 }, "Button 1", Colors::Grey32 };
-	myData.button2 = Button{ Vector2i{ 125, 15 }, Vector2u{ 100, 32 }, "Button 2", Colors::Grey32 };
-	myData.button3 = Button{ Vector2i{ 235, 15 }, Vector2u{ 100, 32 }, "Button 3", Colors::Grey32 };
-	myData.button4 = Button{ Vector2i{ 345, 15 }, Vector2u{ 80, 32 }, "Swap Tex", Colors::Grey32 };
-	constexpr int buttonSize = 40;
-	myData.leftButton = Button{ Vector2i{ myData.windowSize.x / 2 - buttonSize, textureAreaStart - buttonSize }, Vector2u{ buttonSize, buttonSize }, "<", Colors::Grey32 };
-	myData.rightButton = Button{ Vector2i{ myData.windowSize.x / 2, textureAreaStart - buttonSize }, Vector2u{ buttonSize, buttonSize }, ">", Colors::Grey32 };
+	myData.vectorizeButton =	Button{ Vector2i{ 15, 35 }, Vector2u{ 100, 32 }, "Vectorize", Colors::Grey32 };
+	myData.quitButton =			Button{ Vector2i{ myData.windowSize.x - 50, 0 }, Vector2u{ 50, 32 }, "Quit", Colors::Grey32 };
+	myData.leftButton =			Button{ Vector2i{ myData.windowSize.x / 2 - buttonSize, textureAreaStart - buttonSize },	Vector2u{ buttonSize, buttonSize }, "<", Colors::Grey32 };
+	myData.rightButton =		Button{ Vector2i{ myData.windowSize.x / 2, textureAreaStart - buttonSize },					Vector2u{ buttonSize, buttonSize }, ">", Colors::Grey32 };
 
-	myData.data.filename = "uwu.png";
+	int switchInputLength = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"Input") + 6;
+	int switchIntermediateLength = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"Intermediate") + 6;
+	int switchOutputLength = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"Output") + 6;
 
-	auto buttons = { &myData.button1, &myData.button2, &myData.button3, &myData.button4, &myData.leftButton, &myData.rightButton };
+	int firstSwitchPosition = myData.windowSize.x / 2 - (switchIntermediateLength / 2) - switchInputLength;
+	int secondSwitchPosition = firstSwitchPosition + switchInputLength;
+	int thirdSwitchPosition = secondSwitchPosition + switchIntermediateLength;
+
+	myData.switchInputButton	= Button{ Vector2i{ firstSwitchPosition, textureAreaStart - buttonSize * 2},	Vector2u{ (unsigned int)switchInputLength, buttonSize},			"Input",		Colors::Grey32};
+	myData.switchInterButton	= Button{ Vector2i{ secondSwitchPosition, textureAreaStart - buttonSize * 2 },	Vector2u{ (unsigned int)switchIntermediateLength, buttonSize }, "Intermediate", Colors::Grey32 };
+	myData.switchVectorButton	= Button{ Vector2i{ thirdSwitchPosition, textureAreaStart - buttonSize * 2 },	Vector2u{ (unsigned int)switchOutputLength, buttonSize },		"Output",		Colors::Grey32 };
+	checkForGlError("Post make buttons");
+
+	myData.data.filename = "";
+
+	auto buttons = { &myData.vectorizeButton, &myData.quitButton, &myData.switchInputButton, &myData.switchInterButton, &myData.switchVectorButton, &myData.leftButton, &myData.rightButton };
 	myData.buttons.insert(myData.buttons.begin(), buttons.begin(), buttons.end());
 
+	checkForGlError("Post Init");
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_SCISSOR_TEST);
+	checkForGlError("Post set gl things");
+}
+
+void onResize(int w, int h)
+{
+	myData.windowSize.x = w;
+	myData.windowSize.y = h;
+	myData.textureArea = Box{ Vector2i{ 50, textureAreaStart }, Vector2i{ myData.windowSize.x - 50, myData.windowSize.y } };
+
+	myData.quitButton = Button{ Vector2i{ myData.windowSize.x - 50, 0 }, Vector2u{ 50, 32 }, "Quit", Colors::Grey32 };
+	myData.leftButton = Button{ Vector2i{ myData.windowSize.x / 2 - buttonSize, textureAreaStart - buttonSize }, Vector2u{ buttonSize, buttonSize }, "<", Colors::Grey32 };
+	myData.rightButton = Button{ Vector2i{ myData.windowSize.x / 2, textureAreaStart - buttonSize }, Vector2u{ buttonSize, buttonSize }, ">", Colors::Grey32 };
+
+	int switchInputLength = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"Input") + 6;
+	int switchIntermediateLength = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"Intermediate") + 6;
+	int switchOutputLength = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"Output") + 6;
+
+	int firstSwitchPosition = myData.windowSize.x / 2 - (switchIntermediateLength / 2) - switchInputLength;
+	int secondSwitchPosition = firstSwitchPosition + switchInputLength;
+	int thirdSwitchPosition = secondSwitchPosition + switchIntermediateLength;
+
+	myData.switchInputButton = Button{ Vector2i{ firstSwitchPosition, textureAreaStart - buttonSize * 2},	Vector2u{ (unsigned int)switchInputLength, buttonSize},	"Input", Colors::Grey32 };
+	myData.switchInterButton = Button{ Vector2i{ secondSwitchPosition, textureAreaStart - buttonSize * 2 }, Vector2u{ (unsigned int)switchIntermediateLength, buttonSize }, "Intermediate", Colors::Grey32 };
+	myData.switchVectorButton = Button{ Vector2i{ thirdSwitchPosition, textureAreaStart - buttonSize * 2 },	Vector2u{ (unsigned int)switchOutputLength, buttonSize }, "Output", Colors::Grey32 };
+	glViewport(0, 0, w, h);
 }
 
 /// <summary>
@@ -108,21 +140,22 @@ void display()
 		drawVecTextureArea(tex.getGLTex(), tex.getCpuTex().getWidth(), tex.getCpuTex().getHeight(), { 0,0,0 }, pow(1.1, myData.scrollage), myData.textureArea);
 
 		// Draw active texture string
-		renderString(50, 300, GLUT_BITMAP_HELVETICA_18, myData.getCurrentText(), Colors::White32);
+		int activeTexStrLen = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)myData.getCurrentText());
+		int fontHeight = glutBitmapHeight(GLUT_BITMAP_HELVETICA_18);
+		renderString(Box{ Vector2i{ myData.windowSize.x / 2 - activeTexStrLen / 2, textureAreaStart - buttonSize * 2 - fontHeight - 3 }, Vector2u{ (unsigned int)activeTexStrLen, (unsigned int)fontHeight + 6 } }, GLUT_BITMAP_HELVETICA_18, myData.getCurrentText(), Colors::White32);
 
-		// Draw random other textures
-		renderString(10, 120 - 0, GLUT_BITMAP_TIMES_ROMAN_24, "Lower Left: " + myData.lowLeft.toString(), Colors::White32);
-		renderString(10, 120 - 24, GLUT_BITMAP_TIMES_ROMAN_24, "Lower Right: " + myData.lowRight.toString(), Colors::White32);
-		renderString(10, 120 - 48, GLUT_BITMAP_TIMES_ROMAN_24, "Upper Right: " + myData.upRight.toString(), Colors::White32);
-		renderString(10, 120 - 72, GLUT_BITMAP_TIMES_ROMAN_24, "Upper Left: " + myData.upLeft.toString(), Colors::White32);
 
 		// Draw status string
 		renderString(5, 5, GLUT_BITMAP_HELVETICA_18, myData.statusString, Colors::White32);
 
 		// Draw file string
-		std::string vectorizeString = std::string("Vectorizing '") + myData.data.filename + "'";
+		std::string vectorizeString;
+		if (strlen(myData.data.filename))
+			vectorizeString = std::string("Vectorizing '") + myData.data.filename + "' with chunk size: " + std::to_string(myData.data.chunk_size) + " and threshold: " + std::to_string(myData.data.threshold);
+		else
+			vectorizeString = std::string("Not vectorizing anything");
 		auto statusLen = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)vectorizeString.c_str());
-		renderString(myData.windowSize.x / 2 - (statusLen / 2), myData.windowSize.y - 50 - 18, GLUT_BITMAP_HELVETICA_18, vectorizeString, Colors::Grey32);
+		renderString(myData.windowSize.x / 2 - (statusLen / 2), myData.windowSize.y - fontHeight, GLUT_BITMAP_HELVETICA_18, vectorizeString, Colors::Grey32);
 
 		// Draw buttons
 		for (auto& button : myData.buttons)
@@ -196,33 +229,52 @@ void onKeyboardButton(unsigned char key, int mouseX, int mouseY)
 void onMouseButton(int button, int state, int mouseX, int mouseY)
 {
 	auto glCoords = windowToGL({ mouseX, mouseY });
-	bool within1 = myData.button1.isWithin(glCoords);
-	bool within2 = myData.button2.isWithin(glCoords);
-	bool within3 = myData.button3.isWithin(glCoords);
-	bool within4 = myData.button4.isWithin(glCoords);
+	bool withinVectorize = myData.vectorizeButton.isWithin(glCoords);
+	bool withinQuit = myData.quitButton.isWithin(glCoords);
+	bool withinLeft = myData.leftButton.isWithin(glCoords);
+	bool withinRight = myData.rightButton.isWithin(glCoords);
+	bool withinInput = myData.switchInputButton.isWithin(glCoords);
+	bool withinInter = myData.switchInterButton.isWithin(glCoords);
+	bool withinVector = myData.switchVectorButton.isWithin(glCoords);
 
 	if (button == GLUT_LEFT_BUTTON)
 	{
 		if (state == GLUT_DOWN)
 		{
-			if (within1)
+			if (withinVectorize)
 			{
-				std::cout << "Button 1 clicked" << std::endl;
-				myData.texColor = Colors::Orange32;
+				std::cout << "Vectorize Button Clicked" << std::endl;
 			}
-			if (within2)
+			if (withinQuit)
 			{
-				std::cout << "Button 2 clicked" << std::endl;
-				myData.texColor = Colors::Pink32;
+				std::cout << "Quit Button clicked" << std::endl;
+				glutExit();
 			}
-			if (within3)
+			if (withinLeft)
 			{
-				std::cout << "Button 3 clicked" << std::endl;
-				myData.texColor = Colors::Green32;
+				std::cout << "Left Button clicked" << std::endl;
 			}
-			if (within4)
+			if (withinRight)
 			{
-				std::cout << "Swapping textures" << std::endl;
+				std::cout << "Right Button clicked" << std::endl;
+			}
+			if (withinInput)
+			{
+				std::cout << "Switch to Input Button clicked" << std::endl;
+				myData.activeTexture = ActiveTexture::INPUT;
+				glutPostRedisplay();
+			}
+			if (withinInter)
+			{
+				std::cout << "Switch to Intermediate Button clicked" << std::endl;
+				myData.activeTexture = ActiveTexture::INTERMEDIATE;
+				glutPostRedisplay();
+			}
+			if (withinVector)
+			{
+				std::cout << "Switch to Vectorized output Button clicked" << std::endl;
+				myData.activeTexture = ActiveTexture::VECTORIZED;
+				glutPostRedisplay();
 			}
 		}
 	}
@@ -257,6 +309,7 @@ int main(int argc, char** argv)
 	glutMouseWheelFunc(onMouseWheel);
 	glutReshapeFunc(onResize);
 
+	checkForGlError("Before Glut Main");
 	glutMainLoop();
 
 	return 0;

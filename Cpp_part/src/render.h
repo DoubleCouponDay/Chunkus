@@ -9,6 +9,8 @@
 
 struct Vector2i
 {
+	Vector2i() = default;
+	Vector2i(int x, int y) : x(x), y(y) {}
 	int x;
 	int y;
 
@@ -38,6 +40,9 @@ struct Vector3i
 
 struct Box
 {
+	Box() {}
+	Box(Vector2i low, Vector2i up) : lower(low), upper(up) {}
+	Box(Vector2i lower, Vector2u bounds) : lower(lower), upper(lower.x + bounds.x, lower.y + bounds.y) {}
 	Vector2i lower;
 	Vector2i upper;
 
@@ -67,6 +72,7 @@ struct Button
 };
 
 void renderString(int x, int y, void* font, std::string str, Color32 color);
+void renderString(Box box, void* font, std::string str, Color32 color);
 
 void renderButton(const Button& button);
 

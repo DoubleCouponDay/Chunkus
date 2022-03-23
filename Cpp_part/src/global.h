@@ -24,12 +24,13 @@ struct GUIData
 	WomboTexture vectorizedTexture;
 	Box textureArea;
 	Color32 texColor = Colors::White32;
-	Button button1;
-	Button button2;
-	Button button3;
-	Button button4;
+	Button vectorizeButton;
+	Button quitButton;
 	Button leftButton;
 	Button rightButton;
+	Button switchInputButton;
+	Button switchInterButton;
+	Button switchVectorButton;
 	vectorizer_data data;
 	int scrollage = 0;
 	ActiveTexture activeTexture = ActiveTexture::INPUT;
