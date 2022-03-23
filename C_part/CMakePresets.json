@@ -33,7 +33,7 @@
       "vendor": { "microsoft.com/VisualStudioSettings/CMake/1.0": { "hostOS": [ "Windows" ] } }
     },
     {
-      "name": "windows-default-shared-hotreload",
+      "name": "windows-default-shared",
       "displayName": "Windows x64 Debug",
       "description": "Target Windows with the Visual Studio development environment.",
       "generator": "Ninja",
@@ -45,8 +45,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
-        "BUILD_SHARED_LIBS": true,
-        "VEC_HOTRELOAD":  true
+        "BUILD_SHARED_LIBS":  true
       },
       "vendor": { "microsoft.com/VisualStudioSettings/CMake/1.0": { "hostOS": [ "Windows" ] } }
     }

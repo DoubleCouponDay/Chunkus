@@ -223,3 +223,35 @@ int do_the_vectorize(vectorizer_data data)
 	free_image_contents(input_img);
 	return getAndResetErrorCode();
 }
+
+algorithm_progress begin_vectorization(vectorizer_data data)
+{
+	printf("yoooo uwu big chungus...\n");
+	algorithm_progress prog = { 0 };
+
+	prog.initial_data = data;
+	prog.map = 0;
+	prog.fill_x = 0;
+	prog.fill_y = 0;
+
+	return prog;
+}
+
+void step_vectorization(algorithm_progress* prog)
+{
+	printf("you know what fk you you fat piece of shit you suck, but i still love you, wait that's toxic, you're actually jsut cool\n");
+
+}
+
+void reverse_vectorization(algorithm_progress* prog)
+{
+	printf("bababooey\n");
+
+}
+
+void complete_vectorization(algorithm_progress* prog)
+{
+	printf("Completed? no\n");
+
+}
+

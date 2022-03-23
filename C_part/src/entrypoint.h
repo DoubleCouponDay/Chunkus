@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utility/error.h"
+#include "chunkmap.h"
 
 #ifndef VEC_EXPORT
 #	if defined(__WIN32__) || defined(WIN32) || (_WIN32)

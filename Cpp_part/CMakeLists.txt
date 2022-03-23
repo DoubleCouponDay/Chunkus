@@ -44,7 +44,9 @@ target_link_libraries(Vectorizer_GUI PRIVATE ${OPENGL_LIBRARIES})
 
 if (TARGET vec)
 	message("Found the C vectorizer")
-	target_link_libraries(Vectorizer_GUI PRIVATE vec)
+	if(NOT VEC_HOTRELOAD)
+		target_link_libraries(Vectorizer_GUI PRIVATE vec)
+	endif()
 	target_include_directories(Vectorizer_GUI PRIVATE $<TARGET_PROPERTY:vec,INTERFACE_INCLUDE_DIRECTORIES>)
 
 	add_dependencies(Vectorizer_GUI vec)
@@ -52,3 +54,5 @@ else()
 	message("Did not find the C Vectorizer target! This should not happen! Make sure the C_part subdirectory is added first in the root CMakeLists.txt")
 	return()
 endif()
+
+set_property(TARGET Vectorizer_GUI PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin")

@@ -31,7 +31,10 @@ struct GUIData
 	Button switchInputButton;
 	Button switchInterButton;
 	Button switchVectorButton;
+	Button beginReloadButton;
+	Button finishReloadButton;
 	vectorizer_data data;
+	algorithm_progress progress;
 	int scrollage = 0;
 	ActiveTexture activeTexture = ActiveTexture::INPUT;
 	std::string statusString = "Yo what's up";
