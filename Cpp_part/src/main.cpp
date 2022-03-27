@@ -12,7 +12,7 @@
 #include "texture.h"
 #include "gl.h"
 
-#include <entrypoint.h>
+#include "../../C_part/src/entrypoint.h"
 
 #include "global.h"
 #include "interop.h"

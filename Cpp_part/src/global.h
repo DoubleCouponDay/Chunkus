@@ -1,6 +1,6 @@
 #pragma once
 
-#include <entrypoint.h>
+#include "../../C_part/src/entrypoint.h"
 
 #include "color.h"
 #include "texture.h"

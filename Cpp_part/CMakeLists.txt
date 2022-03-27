@@ -1,7 +1,7 @@
 # CMakeList.txt : CMake project for Vectorizer_GUI, include source and define
 # project specific logic here.
 #
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.13.4)
 
 cmake_policy(SET CMP0091 NEW)
 
@@ -22,7 +22,9 @@ set_target_properties(Vectorizer_GUI
 		CXX_STANDARD 17
 		CXX_STANDARD_REQUIRED YES
 		CXX_EXTENSIONS NO)
-		
+
+set(OpenGL_GL_PREFERENCE "LEGACY")
+
 find_package(OpenGL REQUIRED)
 find_package(GLUT QUIET)
 

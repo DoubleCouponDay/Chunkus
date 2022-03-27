@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <exception>
 #include <stdexcept>
+#include <cstring>
 
 #include "gl.h"
 

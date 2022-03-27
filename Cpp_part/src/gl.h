@@ -25,7 +25,7 @@ class GLException : public std::exception
 public:
 	GLException(std::string err) : _err(std::move(err)) {}
 
-	inline const char* what() const override
+	inline const char* what() const noexcept override
 	{
 		return _err.c_str();
 	}
