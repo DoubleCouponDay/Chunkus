@@ -57,6 +57,11 @@ disclaimer: conan no longer works with python2 and pip2 as it is using python3 s
 ## Building the C code
 <br>
 
+To build on windows, clone freeglut from https://github.com/FreeGLUTProject/freeglut into Cpp_part/freeglut.
+On linux just make sure you have the freeglut package
+
+Also have an placeholder.bmp in the binary folder (wherever you build or install) if you want a placeholder image for non-existant images
+
 The C code builds to `C_part\build`
 
 From the root folder, run the following commands:
