@@ -3,50 +3,43 @@
 #if defined(WIN32) || defined(_WIN32)
 #define WIN32_MEAN_AND_LEAN
 #include <Windows.h>
+#elif defined(__linux__)
+#include <dlfcn.h>
+#endif
 
 #include <iostream>
-#endif
 
+#include <functional>
 
-
-namespace interop
-{
-	typedef void(*interop_action)();
-	typedef test_struct(*interop_test_call)();
-	typedef void(*interop_test_action)(test_struct*);
-	typedef int(*interop_return_action)(vectorizer_data data);
-	typedef algorithm_progress(*interop_do_vectorize)(vectorizer_data);
-	typedef void(*interop_algorithm_action)(algorithm_progress*);
-
-	interop_action epic_exported_function;
-	interop_test_call get_test_struct;
-	interop_test_action free_test_struct;
-
-	interop_return_action do_the_vectorize;
-
-	interop_do_vectorize begin_vectorization;
-	interop_algorithm_action step_vectorization;
-	interop_algorithm_action reverse_vectorization;
-	interop_algorithm_action complete_vectorization;
+interop::interop() {
+	vecLib = NULL;
+	#if defined(WIN32) || defined(_WIN32)
+		get_procedure_address = GetProcAddress;
+		open_shared_lib = LoadLibrary;
+		close_shared_lib = FreeLibrary;
+	#else
+		get_procedure_address = dlsym;
+		open_shared_lib = std::bind(dlopen, std::placeholders::_1, RTLD_NOW|RTLD_GLOBAL);
+		close_shared_lib = dlclose;
+	#endif
 }
-
-#if defined(WIN32) || defined(_WIN32)
-HMODULE vecLib = NULL;
-#endif
 
 void interop::release_shared_lib()
 {
+	if (vecLib == NULL)
+		return;
 #if defined(WIN32) || defined(_WIN32)
-	if (vecLib == NULL || vecLib == INVALID_HANDLE_VALUE)
+	if(vecLib == INVALID_HANDLE_VALUE)
 		return;
 
 	FreeLibrary(vecLib);
+#else
+	dlclose(vecLib);
 #endif
 }
 
-void interop::hot_reload()
-{
-#if defined(WIN32) || defined(_WIN32)
+void load_shared_lib() {
+	#if defined(WIN32) || defined(_WIN32)
 	if (vecLib != NULL && vecLib != INVALID_HANDLE_VALUE)
 		FreeLibrary(vecLib);
 	
@@ -57,6 +50,17 @@ void interop::hot_reload()
 		std::cerr << "Unable to load vec.dll (does it exist?)!" << std::endl;
 		exit(1);
 	}
+	#else
+	vecLib = dlopen();
+	#endif
+}
+
+void interop::hot_reload()
+{
+	load_shared_lib
+	
+
+	
 
 	interop::epic_exported_function = (interop_action)GetProcAddress(vecLib, "epic_exported_function");
 	if (!interop::epic_exported_function)
@@ -107,8 +111,6 @@ void interop::hot_reload()
 		exit(1);
 	}
 	std::cout << "vec.dll has been hot reloaded!" << std::endl;
-
-#endif
 }
 
 void dieIfIllegal()
