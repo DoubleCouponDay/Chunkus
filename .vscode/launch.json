@@ -41,6 +41,17 @@
             "requireExactSource": false
         },
         {
+            "name": "(Linux) Launch Vectorizer_GUI",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\Cpp_part\\build\\Vectorizer_GUI",
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}\\Cpp_part\\build",
+            "environment": [],
+            "console": "internalConsole",
+            "requireExactSource": false
+        },
+        {
             "type": "lldb",
             "request": "launch",
             "name": "Launch trampoline (Linux)",
