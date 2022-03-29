@@ -81,7 +81,7 @@ conan profile update settings.compiler.libcxx=libstdc++11 default
 Then continue with cross-platform instructions:
 
 ```
-    conan install ../
+    conan install ../ --build=libpng --build=zlib
     cmake ../
 ```
 
