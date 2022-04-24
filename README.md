@@ -75,6 +75,7 @@ From the root folder, run the following commands:
 If on linux, run this line:
 
 ```
+conan profile new default --detect
 conan profile update settings.compiler.libcxx=libstdc++11 default
 ```
 
@@ -82,6 +83,8 @@ Then continue with cross-platform instructions:
 
 ```
     conan install ../ --build=libpng --build=zlib
+    cd ../
+    cmake -B build
     cmake --build build
 ```
 
@@ -181,4 +184,15 @@ Fill in the blanks in the dockercompose.yml file to pass the environment variabl
 
 `sudo docker-compose up --build --detach`
 
-    
+## Debugging the C Algorithm
+
+You can use the Vectorizer_GUI to pause frame on a current iteration of the vectorizer algorithm.
+
+First you must run cmake install, after building:
+
+    cmake --build build
+    cmake --install build --prefix build
+
+Open the Desktop App by running this:
+
+    /build/bin/Vectorizer_GUI
