@@ -82,19 +82,7 @@ Then continue with cross-platform instructions:
 
 ```
     conan install ../ --build=libpng --build=zlib
-    cmake ../
-```
-
-If you are on windows:
-
-```
-    msbuild vec.sln
-```
-
-If you are on linux: 
-
-```
-    make
+    cmake --build build
 ```
 
 The C code is now build into `/build/bin/vec.lib`
