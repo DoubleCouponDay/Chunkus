@@ -33,7 +33,7 @@ struct Vector3i
 	{
 		char buf[80] = { 0 };
 
-		auto len = snprintf(buf, sizeof(buf), "(%00u, %00u, %00u)", x, y, z);
+		auto len = snprintf(buf, sizeof(buf), "(%.2u, %.2u, %.2u)", x, y, z);
 		return std::string(buf, buf + len);
 	}
 };

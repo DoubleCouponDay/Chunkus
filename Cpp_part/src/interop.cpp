@@ -11,7 +11,11 @@
 
 #include <functional>
 
-interop::interop() {
+interop::interop()
+#if defined(__linux__)
+	: open_shared_lib(std::bind(dlopen, std::placeholders::_1, RTLD_NOW|RTLD_GLOBAL))
+#endif
+ {
 	vecLib = NULL;
 	#if defined(WIN32) || defined(_WIN32)
 		get_procedure_address = GetProcAddress;
@@ -19,9 +23,13 @@ interop::interop() {
 		close_shared_lib = FreeLibrary;
 	#else
 		get_procedure_address = dlsym;
-		open_shared_lib = std::bind(dlopen, std::placeholders::_1, RTLD_NOW|RTLD_GLOBAL);
 		close_shared_lib = dlclose;
 	#endif
+}
+
+void interop::setExeFolder(std::string input_exefolder)
+{
+	exe_folder = input_exefolder;
 }
 
 void interop::release_shared_lib()
@@ -32,13 +40,22 @@ void interop::release_shared_lib()
 	close_shared_lib(vecLib);
 }
 
+#include <filesystem>
+
 void interop::load_shared_lib() {
 	release_shared_lib();
-	
-	vecLib = open_shared_lib("vec");
+
+	auto libname = getLibName().c_str();
+	vecLib = open_shared_lib(libname);
 
 	if (isBad())
 	{
+		std::string err = "";
+#ifdef __linux__
+		err = dlerror();
+		std::cerr << "Linux DL err: " << err << std::endl;
+#endif
+
 		std::cerr << "Unable to load shared library vec (vec.dll/(lib)vec.so does it exist?)!" << std::endl;
 		exit(1);
 	}
@@ -118,6 +135,17 @@ void interop::dieIfIllegal()
 		std::cerr << "Can not call dynamic function that hasn't been loaded!" << std::endl;
 		exit(1);
 	}
+}
+
+std::string interop::getLibName() const
+{
+	auto p = std::filesystem::path(exe_folder);
+#if defined(WIN32) | defined(_WIN32)
+	p.append("vec.dll");
+#else
+	p.append("libvec.so");
+#endif
+	return p.string();
 }
 
 test_struct interop::getTestStruct()

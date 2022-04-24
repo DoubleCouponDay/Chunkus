@@ -6,6 +6,7 @@
 #include <vector>
 #include <cmath>
 #include <array>
+#include <filesystem>
 
 #include <GL/freeglut.h>
 
@@ -17,6 +18,8 @@
 #include "global.h"
 #include "interop.h"
 
+interop platform{};
+
 void doVectorize()
 {
 	vectorizer_data data;
@@ -25,7 +28,7 @@ void doVectorize()
 	data.outputfilename = "output.svg";
 	data.threshold = 100.f;
 
-	int code = interop::doTheVectorize(data);
+	int code = platform.doTheVectorize(data);
 
 	if (code != SUCCESS_CODE)
 	{
@@ -228,7 +231,7 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 			{
 				std::cout << "Vectorize Button Clicked" << std::endl;
 				std::cout << "Temporary action: call begin_vectorization" << std::endl;
-				myData.progress = interop::beginVectorization(myData.data);
+				myData.progress = platform.beginVectorization(myData.data);
 			}
 			if (withinQuit)
 			{
@@ -239,13 +242,13 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 			{
 				std::cout << "Left Button clicked" << std::endl;
 				std::cout << "Temporary action: call reverse_vectorization" << std::endl;
-				interop::reverseVectorization(&myData.progress);
+				platform.reverseVectorization(&myData.progress);
 			}
 			if (withinRight)
 			{
 				std::cout << "Right Button clicked" << std::endl;
 				std::cout << "Temporary action: call step_vectorization" << std::endl;
-				interop::stepVectorization(&myData.progress);
+				platform.stepVectorization(&myData.progress);
 			}
 			if (withinInput)
 			{
@@ -268,12 +271,12 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 			if (withinBeginLoad)
 			{
 				std::cout << "Begin Reloading Button was clicked" << std::endl;
-				interop::release_shared_lib();
+				platform.release_shared_lib();
 			}
 			if (withinFinishLoad)
 			{
 				std::cout << "Finish Reloading Button was clicked" << std::endl;
-				interop::hot_reload();
+				platform.hot_reload();
 			}
 		}
 	}
@@ -287,7 +290,12 @@ void onMouseWheel(int button, int dir, int x, int y)
 
 int main(int argc, char** argv)
 {
-	interop::hot_reload();
+	auto exe_path = std::filesystem::path(argv[0]);
+	auto exe_dir = exe_path.parent_path();
+	auto exe_dir_name = exe_dir.string();
+
+	platform.setExeFolder(exe_dir_name);
+	platform.hot_reload();
 
 	glutInit(&argc, argv);
 
