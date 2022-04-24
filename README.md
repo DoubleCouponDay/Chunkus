@@ -195,4 +195,4 @@ First you must run cmake install, after building:
 
 Open the Desktop App by running this:
 
-    build/bin/Vectorizer_GUI
+    ./build/bin/Vectorizer_GUI
