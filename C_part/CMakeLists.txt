@@ -27,7 +27,7 @@ endif()
 
 target_include_directories(vec INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/conanbuildinfo.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../build/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
 target_link_libraries(vec CONAN_PKG::libpng CONAN_PKG::nanosvg)
