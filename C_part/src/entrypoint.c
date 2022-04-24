@@ -239,7 +239,7 @@ algorithm_progress begin_vectorization(vectorizer_data data)
 
 void step_vectorization(algorithm_progress* prog)
 {
-	printf("you know what fk you you fat piece of shit you suck, but i still love you, wait that's toxic, you're actually jsut cool\n");
+	
 
 }
 
