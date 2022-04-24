@@ -58,3 +58,7 @@ else()
 endif()
 
 set_property(TARGET Vectorizer_GUI PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+if (UNIX)
+	target_link_libraries(Vectorizer_GUI PRIVATE dl)
+endif(UNIX)

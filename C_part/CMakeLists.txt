@@ -38,7 +38,7 @@ set_target_properties(vec PROPERTIES PUBLIC_HEADER "./src/entrypoint.h")
 install(
   TARGETS vec
   ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
+  LIBRARY DESTINATION bin
   RUNTIME DESTINATION bin
 )
 
