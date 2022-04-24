@@ -1,4 +1,4 @@
-# Rasterizer
+# Vectorizer
 converts png files to svg files!
 
 This was a group project created and maintained by Samuel, Joshua, Matthew.
@@ -47,7 +47,7 @@ Install python3 and python3-pip (for installing conan)
     python3 -m pip install conan
 ```
 
-Set the `CONAN` environment variable to the directory containing your conan packages. on windows it's: `C:\Users\(YOU))\.conan\data`. On linux it's: /home/(YOU))/.conan/data
+Set the `CONAN` environment variable to the directory containing your conan packages. on windows it's: `C:\Users\(YOU))\.conan\data`. On linux it's: ~/.conan/data
 
 disclaimer: conan no longer works with python2 and pip2 as it is using python3 syntax. If you didn't install conan from the correct place, your build will fail.
 
