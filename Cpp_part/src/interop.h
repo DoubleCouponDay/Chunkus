@@ -42,6 +42,9 @@ class interop {
 		void* vecLib;
 	#endif
 
+	bool isBad();
+	void dieIfIllegal();
+
 	public:
 	interop();
 	void release_shared_lib();

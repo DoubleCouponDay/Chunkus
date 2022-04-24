@@ -26,85 +26,74 @@ interop::interop() {
 
 void interop::release_shared_lib()
 {
-	if (vecLib == NULL)
-		return;
-#if defined(WIN32) || defined(_WIN32)
-	if(vecLib == INVALID_HANDLE_VALUE)
+	if (isBad())
 		return;
 
-	FreeLibrary(vecLib);
-#else
-	dlclose(vecLib);
-#endif
+	close_shared_lib(vecLib);
 }
 
-void load_shared_lib() {
-	#if defined(WIN32) || defined(_WIN32)
-	if (vecLib != NULL && vecLib != INVALID_HANDLE_VALUE)
-		FreeLibrary(vecLib);
+void interop::load_shared_lib() {
+	release_shared_lib();
 	
-	vecLib = LoadLibrary("vec");
+	vecLib = open_shared_lib("vec");
 
-	if (vecLib == NULL || vecLib == INVALID_HANDLE_VALUE)
+	if (isBad())
 	{
-		std::cerr << "Unable to load vec.dll (does it exist?)!" << std::endl;
+		std::cerr << "Unable to load shared library vec (vec.dll/(lib)vec.so does it exist?)!" << std::endl;
 		exit(1);
 	}
-	#else
-	vecLib = dlopen();
-	#endif
 }
 
 void interop::hot_reload()
 {
-	load_shared_lib
+	load_shared_lib();
 	
 
 	
 
-	interop::epic_exported_function = (interop_action)GetProcAddress(vecLib, "epic_exported_function");
+	interop::epic_exported_function = (interop_action)get_procedure_address(vecLib, "epic_exported_function");
 	if (!interop::epic_exported_function)
 	{
 		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
 		exit(1);
 	}
-	interop::get_test_struct = (interop_test_call)GetProcAddress(vecLib, "get_test_struct");
+	interop::get_test_struct = (interop_test_call)get_procedure_address(vecLib, "get_test_struct");
 	if (!interop::get_test_struct)
 	{
 		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
 		exit(1);
 	}
-	interop::free_test_struct = (interop_test_action)GetProcAddress(vecLib, "free_test_struct");
+	interop::free_test_struct = (interop_test_action)get_procedure_address(vecLib, "free_test_struct");
 	if (!interop::free_test_struct)
 	{
 		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
 		exit(1);
 	}
-	interop::do_the_vectorize = (interop_return_action)GetProcAddress(vecLib, "do_the_vectorize");
+	interop::do_the_vectorize = (interop_return_action)get_procedure_address(vecLib, "do_the_vectorize");
 	if (!interop::do_the_vectorize)
 	{
 		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
 		exit(1);
 	}
-	interop::begin_vectorization = (interop_do_vectorize)GetProcAddress(vecLib, "begin_vectorization");
+	interop::begin_vectorization = (interop_do_vectorize)get_procedure_address(vecLib, "begin_vectorization");
 	if (!interop::begin_vectorization)
 	{
 		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
 		exit(1);
 	}
-	interop::step_vectorization = (interop_algorithm_action)GetProcAddress(vecLib, "step_vectorization");
+	interop::step_vectorization = (interop_algorithm_action)get_procedure_address(vecLib, "step_vectorization");
 	if (!interop::step_vectorization)
 	{
 		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
 		exit(1);
 	}
-	interop::reverse_vectorization = (interop_algorithm_action)GetProcAddress(vecLib, "reverse_vectorization");
+	interop::reverse_vectorization = (interop_algorithm_action)get_procedure_address(vecLib, "reverse_vectorization");
 	if (!interop::reverse_vectorization)
 	{
 		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
 		exit(1);
 	}
-	interop::complete_vectorization = (interop_algorithm_action)GetProcAddress(vecLib, "complete_vectorization");
+	interop::complete_vectorization = (interop_algorithm_action)get_procedure_address(vecLib, "complete_vectorization");
 	if (!interop::complete_vectorization)
 	{
 		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
@@ -113,15 +102,22 @@ void interop::hot_reload()
 	std::cout << "vec.dll has been hot reloaded!" << std::endl;
 }
 
-void dieIfIllegal()
+bool interop::isBad()
 {
-#if defined(WIN32) || defined(_WIN32)
-	if (vecLib == NULL || vecLib == INVALID_HANDLE_VALUE)
+#if defined(WIN32) | defined(_WIN32)
+	if (vecLib == INVALID_HANDLE_VALUE)
+		return true;
+#endif
+	return vecLib == NULL;
+}
+
+void interop::dieIfIllegal()
+{
+	if (isBad())
 	{
 		std::cerr << "Can not call dynamic function that hasn't been loaded!" << std::endl;
 		exit(1);
 	}
-#endif
 }
 
 test_struct interop::getTestStruct()
