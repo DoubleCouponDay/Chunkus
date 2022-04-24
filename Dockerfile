@@ -27,6 +27,7 @@ WORKDIR /home/sjsui/vectorizer/C_part/build/
 RUN conan install ../ && \
     conan profile update settings.compiler.libcxx=libstdc++11 default && \
     cd ../ && \
+    cmake -B build && \
     cmake --build build
 
 #build Rust code
