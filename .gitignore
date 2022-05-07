@@ -23,6 +23,7 @@ conanbuildinfo.cmake
 .vs/
 **/out/
 **/build/
+**/install/
 
 Rust_part/target
 
