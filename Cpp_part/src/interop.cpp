@@ -45,8 +45,18 @@ void interop::release_shared_lib()
 void interop::load_shared_lib() {
 	release_shared_lib();
 
-	auto libname = getLibName().c_str();
-	vecLib = open_shared_lib(libname);
+	auto libnames = getLibNames();
+
+	std::cout << "Trying to load shared vec library..." << std::endl;
+
+	for (int i = 0; i < libnames.size(); ++i)
+	{
+		auto& name = libnames[i];
+		vecLib = open_shared_lib(name.c_str());
+
+		if (!isBad())
+			break;
+	}
 
 	if (isBad())
 	{
@@ -56,7 +66,15 @@ void interop::load_shared_lib() {
 		std::cerr << "Linux DL err: " << err << std::endl;
 #endif
 
-		std::cerr << "Unable to load shared library vec (vec.dll/(lib)vec.so does it exist?)!" << std::endl;
+		if (libnames.empty())
+		{
+			std::cerr << "Unable to load shared vec library. getLibNames() returned empty vector (something went wrong)" << std::endl;
+			exit(1);
+		}
+
+		std::cerr << "Unable to load shared library vec. Tried:" << std::endl;
+		for (int i = 0; i < libnames.size(); ++i)
+			std::cerr << "\t" << libnames[i] << std::endl;
 		exit(1);
 	}
 }
@@ -137,15 +155,28 @@ void interop::dieIfIllegal()
 	}
 }
 
-std::string interop::getLibName() const
+std::vector<std::string> interop::getLibNames() const
 {
+	std::vector<std::filesystem::path> paths{};
 	auto p = std::filesystem::path(exe_folder);
 #if defined(WIN32) | defined(_WIN32)
-	p.append("vec.dll");
+	paths.emplace_back(p / "vec.dll");
+	paths.emplace_back(p / "libvec.dll");
+	paths.emplace_back("vec.dll");
+	paths.emplace_back("libvec.dll");
 #else
-	p.append("libvec.so");
+	paths.emplace_back(p / "libvec.so");
+	paths.emplace_back(p / "vec.so");
+	paths.emplace_back("libvec.so");
+	paths.emplace_back("vec.so");
 #endif
-	return p.string();
+
+	std::vector<std::string> strings{ paths.size(), std::string() };
+
+	for (int i = 0; i < paths.size(); ++i)
+		strings[i] = paths[i].string();
+
+	return strings;
 }
 
 test_struct interop::getTestStruct()

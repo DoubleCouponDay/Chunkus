@@ -3,6 +3,7 @@
 #include "../../C_part/src/entrypoint.h"
 
 #include <string>
+#include <vector>
 
 typedef void(*interop_action)();
 typedef test_struct(*interop_test_call)();
@@ -12,6 +13,10 @@ typedef algorithm_progress(*interop_do_vectorize)(vectorizer_data);
 typedef void*(*interop_algorithm_action)(algorithm_progress*);
 
 #if defined(WIN32) || defined(_WIN32)
+#ifndef WIN32_MEAN_AND_LEAN
+#define WIN32_MEAN_AND_LEAN
+#endif
+#include <Windows.h>
 	typedef FARPROC(*getProcedureAddress)(HMODULE hModule, LPCSTR lpProcName);
 	typedef HMODULE(*openSharedLib)(LPCSTR lpLibName);
 	typedef BOOL(*closeSharedLib)(HMODULE module);
@@ -48,7 +53,7 @@ class interop {
 	bool isBad();
 	void dieIfIllegal();
 	void load_shared_lib();
-	std::string getLibName() const;
+	std::vector<std::string> getLibNames() const;
 	std::string exe_folder;
 
 	public:
