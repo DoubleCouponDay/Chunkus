@@ -8,3 +8,5 @@ set(BUILD_SHARED_LIBS ON)
 
 add_subdirectory(C_part)
 add_subdirectory(Cpp_part)
+
+install(FILES hotreload.bat hotreload.sh DESTINATION ./)
