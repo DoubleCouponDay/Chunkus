@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.13.4)
-project(vec)
+
+project("vec" "C")
 
 set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -27,7 +28,11 @@ endif()
 
 target_include_directories(vec INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../build/conanbuildinfo.cmake)
+if (DEFINED CONAN_CMAKE_DIR)
+    include(${CONAN_CMAKE_DIR}/conanbuildinfo.cmake)
+else()
+    include(${CMAKE_CURRENT_SOURCE_DIR}/../build/conanbuildinfo.cmake)
+endif(DEFINED CONAN_CMAKE_DIR)
 conan_basic_setup(TARGETS)
 
 target_link_libraries(vec CONAN_PKG::libpng CONAN_PKG::nanosvg)

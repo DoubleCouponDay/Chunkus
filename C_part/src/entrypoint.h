@@ -1,8 +1,5 @@
 #pragma once
 
-#include "utility/error.h"
-#include "chunkmap.h"
-
 #ifndef VEC_EXPORT
 #	if defined(__WIN32__) || defined(WIN32) || (_WIN32)
 #		ifdef VEC_EXPORTDLL
@@ -20,6 +17,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include "utility/error.h"
+#include "chunkmap.h"
 
 extern const int NUM_COLOURS;
 
@@ -67,6 +67,7 @@ algorithm_progress VEC_EXPORT begin_vectorization(vectorizer_data data);
 void VEC_EXPORT step_vectorization(algorithm_progress* progress);
 void VEC_EXPORT reverse_vectorization(algorithm_progress* progress);
 void VEC_EXPORT complete_vectorization(algorithm_progress* progress);
+void VEC_EXPORT free_algorithm_progress_data(algorithm_progress* progress);
 
 
 

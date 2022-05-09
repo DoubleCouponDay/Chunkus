@@ -239,19 +239,26 @@ algorithm_progress begin_vectorization(vectorizer_data data)
 
 void step_vectorization(algorithm_progress* prog)
 {
-	
+	printf("old content now ;(\n");
 
 }
 
 void reverse_vectorization(algorithm_progress* prog)
 {
-	printf("bababooey\n");
+	printf("bababooey why am i up this early\n");
 
 }
 
 void complete_vectorization(algorithm_progress* prog)
 {
-	printf("Completed? no\n");
+	printf("Completed? yet another hot reloading test :sunglasses: \n");
 
 }
 
+void free_algorithm_progress_data(algorithm_progress* prog)
+{
+	printf("Freeing Vectorization data\n");
+
+	free_chunkmap(prog->map);
+	prog->map = NULL;
+}
