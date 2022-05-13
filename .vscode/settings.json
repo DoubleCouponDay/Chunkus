@@ -109,7 +109,10 @@
         "streambuf": "cpp",
         "cfenv": "cpp",
         "cinttypes": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "cstring": "cpp",
+        "nanosvg.h": "c",
+        "usage.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

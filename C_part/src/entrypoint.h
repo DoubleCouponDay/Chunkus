@@ -1,5 +1,7 @@
 #pragma once
 
+#include <nanosvg.h>
+
 #ifndef VEC_EXPORT
 #	if defined(__WIN32__) || defined(WIN32) || (_WIN32)
 #		ifdef VEC_EXPORTDLL
@@ -48,28 +50,15 @@ typedef struct algorithm_progress
 
 } algorithm_progress;
 
-typedef struct test_struct
-{
-	int width;
-	int height;
-	unsigned char* data;
-} test_struct;
+typedef struct gui_images {
+    struct gui_images* previous;
+    NSVGimage* current;
+    struct gui_images* next;
+} gui_images;
 
-void VEC_EXPORT epic_exported_function();
+gui_images* VEC_EXPORT gui_vectorize(vectorizer_data input);
 
-test_struct VEC_EXPORT get_test_struct();
-void VEC_EXPORT free_test_struct(test_struct* t);
-
-int VEC_EXPORT do_the_vectorize(vectorizer_data data);
-
-
-algorithm_progress VEC_EXPORT begin_vectorization(vectorizer_data data);
-void VEC_EXPORT step_vectorization(algorithm_progress* progress);
-void VEC_EXPORT reverse_vectorization(algorithm_progress* progress);
-void VEC_EXPORT complete_vectorization(algorithm_progress* progress);
-void VEC_EXPORT free_algorithm_progress_data(algorithm_progress* progress);
-
-
+void VEC_EXPORT free_gui_images(gui_images* input);
 
 #ifdef __cplusplus
 };

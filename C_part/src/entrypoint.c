@@ -156,109 +156,52 @@ int just_crash() {
 	return 0;
 }
 
-void epic_exported_function()
+gui_images* gui_vectorize(vectorizer_data input)
 {
-	printf("Ligma balls lmao\n");
-}
-
-test_struct get_test_struct()
-{
-	test_struct t;
-	t.width = 128;
-	t.height = 128;
-	t.data = calloc((size_t)t.width * t.height, sizeof(unsigned char));
-
-	for (int x = 0; x < t.width; ++x)
-	{
-		for (int y = 0; y < t.height; ++y)
-		{
-			t.data[y * t.width + x] = rand() % 255;
-		}
-	}
-
-	return t;
-}
-
-void free_test_struct(test_struct* t)
-{
-	free(t->data);
-}
-
-int do_the_vectorize(vectorizer_data data)
-{
-	image input_img = convert_png_to_image(data.filename);
+	image input_img = convert_png_to_image(input.filename);
 
 	if (input_img.pixels_array_2d == NULL)
 	{
 		free_image_contents(input_img);
-		return getAndResetErrorCode();
+		return NULL;
 	}
 
 	vectorize_options options = {
-		data.filename,
-		data.chunk_size,
-		data.threshold,
+		input.filename,
+		input.chunk_size,
+		input.threshold,
 		256
 	};
-	NSVGimage* nsvg = target_algorithm(input_img, options);
+	gui_images* gui_output = NULL; // eventually set it to target_algorithm(input_img, options); when the algorithms can output gui_images linked lists
 
-	if (isBadError() || nsvg == NULL)
+	if (isBadError() || gui_output == NULL)
 	{
-		free_nsvg(nsvg);
+		free_gui_images(gui_output);
 		free_image_contents(input_img);
-		return getAndResetErrorCode();
+		return NULL;
 	}
-
-	write_svg_file(nsvg);
 
 	if (isBadError())
 	{
-		free_nsvg(nsvg);
+		free_gui_images(gui_output);
 		free_image_contents(input_img);
-		return getAndResetErrorCode();
+		return NULL;
 	}
 
-
-	free_nsvg(nsvg);
-	free_image_contents(input_img);
-	return getAndResetErrorCode();
+	return gui_output;
 }
 
-algorithm_progress begin_vectorization(vectorizer_data data)
-{
-	printf("beginning vectorization...\n");
-	algorithm_progress prog = { 0 };
+void free_gui_images(gui_images* input) {
+    if(!input) {
+        LOG_INFO("input is null");
+        return;
+    }
 
-	prog.initial_data = data;
-	prog.map = 0;
-	prog.fill_x = 0;
-	prog.fill_y = 0;
-
-	return prog;
-}
-
-void step_vectorization(algorithm_progress* prog)
-{
-	printf("old content now ;(\n");
-
-}
-
-void reverse_vectorization(algorithm_progress* prog)
-{
-	printf("bababooey why am i up this early\n");
-
-}
-
-void complete_vectorization(algorithm_progress* prog)
-{
-	printf("Completed? yet another hot reloading test :sunglasses: \n");
-
-}
-
-void free_algorithm_progress_data(algorithm_progress* prog)
-{
-	printf("Freeing Vectorization data\n");
-
-	free_chunkmap(prog->map);
-	prog->map = NULL;
+    while(input->next != NULL) {
+		gui_images* next_image = input->next;
+		free_nsvg(input->current);
+		free(input);
+		input = next_image;
+    }
+    free(input);
 }

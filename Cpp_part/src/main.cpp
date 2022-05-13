@@ -20,20 +20,21 @@
 
 interop platform{};
 
-void doVectorize()
+void doVectorize(std::string image_path)
 {
 	vectorizer_data data;
 	data.chunk_size = 1;
-	data.filename = "input.png";
+	data.filename = image_path.c_str();
 	data.outputfilename = "output.svg";
 	data.threshold = 100.f;
 
-	int code = platform.doTheVectorize(data);
+	int code = 0;
 
 	if (code != SUCCESS_CODE)
 	{
 
 	}
+
 	else
 	{
 		Texture8 tex = Texture8{ "input.png", false };
@@ -235,18 +236,6 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 				std::cout << "Quit Button clicked" << std::endl;
 				glutExit();
 			}
-			if (withinLeft)
-			{
-				std::cout << "Left Button clicked" << std::endl;
-				std::cout << "Temporary action: call reverse_vectorization" << std::endl;
-				platform.reverseVectorization(&myData.progress);
-			}
-			if (withinRight)
-			{
-				std::cout << "Right Button clicked" << std::endl;
-				std::cout << "Temporary action: call step_vectorization" << std::endl;
-				platform.stepVectorization(&myData.progress);
-			}
 			if (withinInput)
 			{
 				std::cout << "Switch to Input Button clicked" << std::endl;
@@ -291,6 +280,12 @@ int main(int argc, char** argv)
 	auto exe_dir = exe_path.parent_path();
 	auto exe_dir_name = exe_dir.string();
 
+	if(argc == 1) {
+		std::cerr << "error: missing absolute path to image." << std::endl; 
+		exit(1);
+	}
+	auto image_path = std::filesystem::path(argv[1]);
+
 	platform.setExeFolder(exe_dir_name);
 	platform.hot_reload();
 
@@ -303,6 +298,7 @@ int main(int argc, char** argv)
 	glutCreateWindow(argv[0]);
 
 	my_init();
+	doVectorize(image_path.string());
 
 	glutDisplayFunc(display);
 

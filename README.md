@@ -91,6 +91,7 @@ Then continue with cross-platform instructions:
     cd ../
     cmake -B build
     cmake --build build
+    cmake --install build --prefix build
 ```
 
 The C code is now build into `/build/bin/vec.lib`
@@ -196,11 +197,6 @@ Fill in the blanks in the dockercompose.yml file to pass the environment variabl
 
 You can use the Vectorizer_GUI to pause frame on a current iteration of the vectorizer algorithm.
 
-First you must run cmake install, after building:
-
-    cmake --build build
-    cmake --install build --prefix build
-
-Open the Desktop App by running this:
+First you must build using cmake from the root directory, then open the Desktop App by running this:
 
     ./build/bin/Vectorizer_GUI

@@ -83,53 +83,8 @@ void interop::hot_reload()
 {
 	load_shared_lib();
 	
-
-	
-
-	interop::epic_exported_function = (interop_action)get_procedure_address(vecLib, "epic_exported_function");
-	if (!interop::epic_exported_function)
-	{
-		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
-		exit(1);
-	}
-	interop::get_test_struct = (interop_test_call)get_procedure_address(vecLib, "get_test_struct");
-	if (!interop::get_test_struct)
-	{
-		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
-		exit(1);
-	}
-	interop::free_test_struct = (interop_test_action)get_procedure_address(vecLib, "free_test_struct");
-	if (!interop::free_test_struct)
-	{
-		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
-		exit(1);
-	}
-	interop::do_the_vectorize = (interop_return_action)get_procedure_address(vecLib, "do_the_vectorize");
-	if (!interop::do_the_vectorize)
-	{
-		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
-		exit(1);
-	}
-	interop::begin_vectorization = (interop_do_vectorize)get_procedure_address(vecLib, "begin_vectorization");
-	if (!interop::begin_vectorization)
-	{
-		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
-		exit(1);
-	}
-	interop::step_vectorization = (interop_algorithm_action)get_procedure_address(vecLib, "step_vectorization");
-	if (!interop::step_vectorization)
-	{
-		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
-		exit(1);
-	}
-	interop::reverse_vectorization = (interop_algorithm_action)get_procedure_address(vecLib, "reverse_vectorization");
-	if (!interop::reverse_vectorization)
-	{
-		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
-		exit(1);
-	}
-	interop::complete_vectorization = (interop_algorithm_action)get_procedure_address(vecLib, "complete_vectorization");
-	if (!interop::complete_vectorization)
+	interop::gui_vectorize = (gui_images*(*)(vectorizer_data))get_procedure_address(vecLib, "complete_vectorization");
+	if (!interop::gui_vectorize)
 	{
 		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
 		exit(1);
@@ -177,46 +132,4 @@ std::vector<std::string> interop::getLibNames() const
 		strings[i] = paths[i].string();
 
 	return strings;
-}
-
-test_struct interop::getTestStruct()
-{
-	dieIfIllegal();
-	return interop::get_test_struct();
-}
-
-void interop::freeTestStruct(test_struct* t)
-{
-	dieIfIllegal();
-	interop::free_test_struct(t);
-}
-
-int interop::doTheVectorize(vectorizer_data data)
-{
-	dieIfIllegal();
-	return interop::do_the_vectorize(data);
-}
-
-algorithm_progress interop::beginVectorization(vectorizer_data data)
-{
-	dieIfIllegal();
-	return interop::begin_vectorization(data);
-}
-
-void interop::stepVectorization(algorithm_progress* progress)
-{
-	dieIfIllegal();
-	interop::step_vectorization(progress);
-}
-
-void interop::reverseVectorization(algorithm_progress* progress)
-{
-	dieIfIllegal();
-	interop::reverse_vectorization(progress);
-}
-
-void interop::completeVectorization(algorithm_progress* progress)
-{
-	dieIfIllegal();
-	interop::complete_vectorization(progress);
 }
