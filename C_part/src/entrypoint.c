@@ -226,7 +226,7 @@ int do_the_vectorize(vectorizer_data data)
 
 algorithm_progress begin_vectorization(vectorizer_data data)
 {
-	printf("yoooo uwu big chungus...\n");
+	printf("beginning vectorization...\n");
 	algorithm_progress prog = { 0 };
 
 	prog.initial_data = data;
