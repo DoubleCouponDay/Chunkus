@@ -79,9 +79,9 @@ void my_init()
 	checkForGlError("Beginning of my_init");
 	myData.windowSize = { glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT) };
 	myData.textureArea = Box{ Vector2i{ 50, textureAreaStart }, Vector2i{ myData.windowSize.x - 50, myData.windowSize.y } };
-	
+
 	myData.vectorizeButton = Button{ Vector2i{ 15, 35 }, Vector2u{ 100, 32 }, "Vectorize", Colors::Grey32 };
-	myData.selectFileButton = Button{ Vector2i{ 15, 70 }, Vector2u{100, 32}, "Select Image", Colors::Grey32 };
+	myData.selectFileButton = Button{ Vector2i{ 15, 70 }, Vector2u{ 170, 32 }, "Select Image", Colors::Grey32 };
 
 	sizeButtons();
 	checkForGlError("Post make buttons");
