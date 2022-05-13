@@ -24,6 +24,7 @@ struct GUIData
 	WomboTexture vectorizedTexture;
 	Box textureArea;
 	Color32 texColor = Colors::White32;
+
 	Button vectorizeButton;
 	Button quitButton;
 	Button leftButton;
@@ -33,6 +34,8 @@ struct GUIData
 	Button switchVectorButton;
 	Button beginReloadButton;
 	Button finishReloadButton;
+	Button selectFileButton;
+
 	vectorizer_data data;
 	algorithm_progress progress;
 	int scrollage = 0;

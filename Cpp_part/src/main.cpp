@@ -86,13 +86,26 @@ void my_init()
 	myData.vectorizedTexture	= WomboTexture("placeholder.bmp", false);
 	checkForGlError("Post check of textures"); 
 	myData.vectorizeButton = Button{ Vector2i{ 15, 35 }, Vector2u{ 100, 32 }, "Vectorize", Colors::Grey32 };
+	myData.selectFileButton = Button{ Vector2i{ 15, 70 }, Vector2u{100, 32}, "Select Image", Colors::Grey32 };
 
 	sizeButtons();
 	checkForGlError("Post make buttons");
 
 	myData.data.filename = "";
 
-	auto buttons = { &myData.vectorizeButton, &myData.quitButton, &myData.switchInputButton, &myData.switchInterButton, &myData.switchVectorButton, &myData.leftButton, &myData.rightButton, &myData.beginReloadButton, &myData.finishReloadButton };
+	auto buttons = {
+		&myData.vectorizeButton, 
+		&myData.quitButton, 
+		&myData.switchInputButton, 
+		&myData.switchInterButton, 
+		&myData.switchVectorButton, 
+		&myData.leftButton, 
+		&myData.rightButton, 
+		&myData.beginReloadButton, 
+		&myData.finishReloadButton,
+		&myData.selectFileButton
+	};
+
 	myData.buttons.insert(myData.buttons.begin(), buttons.begin(), buttons.end());
 
 	checkForGlError("Post Init");
