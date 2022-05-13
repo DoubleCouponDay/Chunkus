@@ -81,7 +81,7 @@ void my_init()
 	myData.textureArea = Box{ Vector2i{ 50, textureAreaStart }, Vector2i{ myData.windowSize.x - 50, myData.windowSize.y } };
 
 	myData.vectorizeButton = Button{ Vector2i{ 15, 35 }, Vector2u{ 100, 32 }, "Vectorize", Colors::Grey32 };
-	myData.selectFileButton = Button{ Vector2i{ 15, 70 }, Vector2u{ 170, 32 }, "Select Image", Colors::Grey32 };
+	myData.selectFileButton = Button{ Vector2i{ 15, 70 }, Vector2u{ 140, 32 }, "Select Image", Colors::Grey32 };
 
 	sizeButtons();
 	checkForGlError("Post make buttons");
