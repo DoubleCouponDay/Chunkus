@@ -25,7 +25,6 @@ struct GUIData
 	Box textureArea;
 	Color32 texColor = Colors::White32;
 
-	Button vectorizeButton;
 	Button quitButton;
 	Button leftButton;
 	Button rightButton;
@@ -34,7 +33,6 @@ struct GUIData
 	Button switchVectorButton;
 	Button beginReloadButton;
 	Button finishReloadButton;
-	Button selectFileButton;
 
 	vectorizer_data data;
 	algorithm_progress progress;

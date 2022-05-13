@@ -80,16 +80,12 @@ void my_init()
 	myData.windowSize = { glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT) };
 	myData.textureArea = Box{ Vector2i{ 50, textureAreaStart }, Vector2i{ myData.windowSize.x - 50, myData.windowSize.y } };
 
-	myData.vectorizeButton = Button{ Vector2i{ 15, 35 }, Vector2u{ 100, 32 }, "Vectorize", Colors::Grey32 };
-	myData.selectFileButton = Button{ Vector2i{ 15, 70 }, Vector2u{ 140, 32 }, "Select Image", Colors::Grey32 };
-
 	sizeButtons();
 	checkForGlError("Post make buttons");
 
 	myData.data.filename = "";
 
 	auto buttons = {
-		&myData.vectorizeButton, 
 		&myData.quitButton, 
 		&myData.switchInputButton, 
 		&myData.switchInterButton, 
@@ -97,8 +93,7 @@ void my_init()
 		&myData.leftButton, 
 		&myData.rightButton, 
 		&myData.beginReloadButton, 
-		&myData.finishReloadButton,
-		&myData.selectFileButton
+		&myData.finishReloadButton
 	};
 
 	myData.buttons.insert(myData.buttons.begin(), buttons.begin(), buttons.end());
@@ -110,6 +105,7 @@ void my_init()
 	glEnable(GL_SCISSOR_TEST);
 	checkForGlError("Post set gl things");
 }
+
 
 void onResize(int w, int h)
 {
@@ -221,7 +217,6 @@ void onKeyboardButton(unsigned char key, int mouseX, int mouseY)
 void onMouseButton(int button, int state, int mouseX, int mouseY)
 {
 	auto glCoords = windowToGL({ mouseX, mouseY });
-	bool withinVectorize = myData.vectorizeButton.isWithin(glCoords);
 	bool withinQuit = myData.quitButton.isWithin(glCoords);
 	bool withinLeft = myData.leftButton.isWithin(glCoords);
 	bool withinRight = myData.rightButton.isWithin(glCoords);
@@ -235,12 +230,6 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 	{
 		if (state == GLUT_DOWN)
 		{
-			if (withinVectorize)
-			{
-				std::cout << "Vectorize Button Clicked" << std::endl;
-				std::cout << "Temporary action: call begin_vectorization" << std::endl;
-				myData.progress = platform.beginVectorization(myData.data);
-			}
 			if (withinQuit)
 			{
 				std::cout << "Quit Button clicked" << std::endl;
