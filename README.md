@@ -91,6 +91,9 @@ Then continue with cross-platform instructions:
 The C code is now build into `/build/bin/vec.lib`
 
 ---
+
+You can easily build all components by executing the build script. It must be executed from the root directory.
+
   
 ## Building the Rust code
 
