@@ -37,7 +37,7 @@ struct GUIData
 	algorithm_progress progress;
 	int scrollage = 0;
 	ActiveTexture activeTexture = ActiveTexture::INPUT;
-	std::string statusString = "Yo what's up";
+	std::string statusString = "";
 
 	std::vector<Button*> buttons;
 
