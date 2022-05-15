@@ -26,8 +26,9 @@ ENV PATH $PATH:/home/sjsui/vectorizer/Rust_part/target/release
 WORKDIR /home/sjsui/vectorizer/C_part/build/
 RUN conan install ../ && \
     conan profile update settings.compiler.libcxx=libstdc++11 default && \
-    cmake ../ && \
-    make
+    cd ../ && \
+    cmake -B build && \
+    cmake --build build
 
 #build Rust code
 WORKDIR /home/sjsui/vectorizer/Rust_part/

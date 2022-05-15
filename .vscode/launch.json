@@ -41,6 +41,17 @@
             "requireExactSource": false
         },
         {
+            "name": "(Linux) Launch Vectorizer_GUI",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\Cpp_part\\build\\Vectorizer_GUI",
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}\\Cpp_part\\build",
+            "environment": [],
+            "console": "internalConsole",
+            "requireExactSource": false
+        },
+        {
             "type": "lldb",
             "request": "launch",
             "name": "Launch trampoline (Linux)",
@@ -49,6 +60,17 @@
             "cwd": "${workspaceFolder}/Rust_part",
             "stopOnEntry": false,
             "sourceLanguages": ["rust"]
+        },
+        {
+            "type": "cppdbg",
+            "request": "launch",
+            "name": "Launch the fkin GUI",
+            "args": ["true"],
+            "program": "${workspaceFolder}/Cpp_part/build/Vectorizer_GUI",
+            "cwd": "${workspaceFolder}/Cpp_part/build",
+            "stopOnEntry": false,
+            "MIMode": "gdb",
+            "sourceLanguages": ["cpp"]
         },
     ]
 }

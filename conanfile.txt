@@ -1,6 +1,7 @@
 [requires]
+zlib/1.2.11
 libpng/1.6.37
-nanosvg/20190405
+nanosvg/cci.20210904
     
 [generators]
 cmake
