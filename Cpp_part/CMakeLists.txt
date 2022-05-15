@@ -41,8 +41,22 @@ else()
 	target_link_libraries(Vectorizer_GUI PRIVATE ${GLUT_LIBRARIES})
 endif()
 
-
 target_link_libraries(Vectorizer_GUI PRIVATE ${OPENGL_LIBRARIES})
+
+find_package(LUNASVG QUIET)
+
+if (NOT LUNASVG_FOUND)
+	message("Did not find lunasvg package installed, looking for clone in ${CMAKE_CURRENT_SOURCE_DIR}/lunasvg")
+
+	add_subdirectory(lunasvg)
+
+	target_include_directories(Vectorizer_GUI PRIVATE $<TARGET_PROPERTY:lunasvg,INTERFACE_INCLUDE_DIRECTORIES>)
+	target_link_libraries(Vectorizer_GUI PRIVATE lunasvg)
+else()
+	message("Using installed lunasvg")
+	target_include_directories(Vectorizer_GUI PRIVATE ${LUNASVG_INCLUDE_DIRS})
+	target_link_libraries(Vectorizer_GUI PRIVATE ${LUNASVG_LIBRARIES})
+endif()
 
 if (TARGET vec)
 	message("Found the C vectorizer")
