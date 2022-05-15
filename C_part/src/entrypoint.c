@@ -155,3 +155,53 @@ int just_crash() {
 	free(crash);
 	return 0;
 }
+
+gui_images* gui_vectorize(vectorizer_data input)
+{
+	image input_img = convert_png_to_image(input.filename);
+
+	if (input_img.pixels_array_2d == NULL)
+	{
+		free_image_contents(input_img);
+		return NULL;
+	}
+
+	vectorize_options options = {
+		input.filename,
+		input.chunk_size,
+		input.threshold,
+		256
+	};
+	gui_images* gui_output = NULL; // eventually set it to target_algorithm(input_img, options); when the algorithms can output gui_images linked lists
+
+	if (isBadError() || gui_output == NULL)
+	{
+		free_gui_images(gui_output);
+		free_image_contents(input_img);
+		return NULL;
+	}
+
+	if (isBadError())
+	{
+		free_gui_images(gui_output);
+		free_image_contents(input_img);
+		return NULL;
+	}
+
+	return gui_output;
+}
+
+void free_gui_images(gui_images* input) {
+    if(!input) {
+        LOG_INFO("input is null");
+        return;
+    }
+
+    while(input->next != NULL) {
+		gui_images* next_image = input->next;
+		free_nsvg(input->current);
+		free(input);
+		input = next_image;
+    }
+    free(input);
+}

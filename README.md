@@ -37,7 +37,7 @@ Install python3 and python3-pip (for installing conan)
     python3 -m pip install conan
 ```
 
-Set the `CONAN` environment variable to the directory containing your conan packages. on windows it's: `C:\Users\(YOU))\.conan\data`. On linux it's: /home/(YOU))/.conan/data
+Set the `CONAN` environment variable to the directory containing your conan packages. on windows it's: `C:\Users\(YOU))\.conan\data`. On linux it's: ~/.conan/data
 
 disclaimer: conan no longer works with python2 and pip2 as it is using python3 syntax. If you didn't install conan from the correct place, your build will fail.
 
@@ -45,6 +45,16 @@ disclaimer: conan no longer works with python2 and pip2 as it is using python3 s
 ---
 
 # Libraries used
+
+To build on windows, clone freeglut from https://github.com/FreeGLUTProject/freeglut into Cpp_part/freeglut.
+
+On linux install the following:
+
+	sudo apt-get install mesa-common-dev
+		
+	sudo apt-get install freeglut3-dev
+
+Also have an placeholder.bmp in the binary folder (wherever you build or install) if you want a placeholder image for non-existant images
 
 The C code builds to `C_part\build`
 
@@ -59,31 +69,26 @@ From the root folder, run the following commands:
 If on linux, run this line:
 
 ```
+conan profile new default --detect
 conan profile update settings.compiler.libcxx=libstdc++11 default
 ```
 
 Then continue with cross-platform instructions:
 
 ```
-    conan install ../
-    cmake ../
-```
-
-If you are on windows:
-
-```
-    msbuild vec.sln
-```
-
-If you are on linux: 
-
-```
-    make
+    conan install ../ --build=libpng --build=zlib
+    cd ../
+    cmake -B build
+    cmake --build build
+    cmake --install build --prefix build
 ```
 
 The C code is now build into `/build/bin/vec.lib`
 
 ---
+
+You can easily build all components by executing the build script. It must be executed from the root directory.
+
   
 ## Building the Rust code
 
@@ -177,4 +182,10 @@ Fill in the blanks in the dockercompose.yml file to pass the environment variabl
 
 `sudo docker-compose up --build --detach`
 
-    
+## Debugging the C Algorithm
+
+You can use the Vectorizer_GUI to pause frame on a current iteration of the vectorizer algorithm.
+
+First you must build using cmake from the root directory, then open the Desktop App by running this:
+
+    ./build/bin/Vectorizer_GUI
