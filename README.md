@@ -58,6 +58,7 @@ disclaimer: conan no longer works with python2 and pip2 as it is using python3 s
 <br>
 
 To build on windows, clone freeglut from https://github.com/FreeGLUTProject/freeglut into Cpp_part/freeglut.
+You will also need lunasvg from https://github.com/sammycage/lunasvg cloned into Cpp_part/lunasvg. (cmake will try and find it installed but it's likely not in any package repo)
 
 On linux install the following:
 
