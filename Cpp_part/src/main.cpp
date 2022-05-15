@@ -10,6 +10,8 @@
 
 #include <GL/freeglut.h>
 
+#include <lunasvg.h>
+
 #include "texture.h"
 #include "gl.h"
 
@@ -288,6 +290,37 @@ int main(int argc, char** argv)
 
 	platform.setExeFolder(exe_dir_name);
 	platform.hot_reload();
+
+	std::cout << "Testing lunasvg" << std::endl;
+
+	{
+		using namespace lunasvg;
+
+		auto doc = Document::loadFromData(
+			"<?xml version = \"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+			"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n"
+			"<svg width=\"391\" height=\"391\" viewBox=\"-70.5 -70.5 391 391\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n"
+			"<rect fill=\"#fff\" stroke=\"#000\" x=\" - 70\" y=\" - 70\" width=\"390\" height=\"390\"/>\n"
+			"<g opacity=\"0.8\">\n"
+			"    <rect x=\"25\" y=\"25\" width=\"200\" height=\"200\" fill=\"lime\" stroke-width=\"4\" stroke=\"pink\" />\n"
+			"    <circle cx=\"125\" cy=\"125\" r=\"75\" fill=\"orange\" />\n"
+			"    <polyline points=\"50, 150 50, 200 200, 200 200, 100\" stroke=\"red\" stroke-width=\"4\" fill=\"none\" />\n"
+			"    <line x1=\"50\" y1=\"50\" x2=\"200\" y2=\"200\" stroke=\"blue\" stroke-width=\"4\" />\n"
+			"</g>\n"
+			"</svg>\n"
+		);
+
+		auto bitmap = doc->renderToBitmap(391, 391);
+
+		if (!bitmap.valid())
+		{
+			std::cout << "Failed to render svg bitmap" << std::endl;
+		}
+		else
+		{
+			std::cout << "Rendered an svg bitmap" << std::endl;
+		}
+	}
 
 	glutInit(&argc, argv);
 
