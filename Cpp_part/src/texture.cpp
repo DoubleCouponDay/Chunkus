@@ -275,6 +275,30 @@ WomboTexture::WomboTexture(Texture8&& cpuTex)
 {
 }
 
+WomboTexture::WomboTexture(const lunasvg::Bitmap& bitmap)
+	: _cpuTex(Colors::Black8, bitmap.width(), bitmap.height())
+	, _glTex()
+{
+	auto stride = bitmap.stride();
+
+	auto rowData = bitmap.data();
+	for (int y = 0; y < bitmap.height(); ++y)
+	{
+		auto data = rowData;
+		for (int x = 0; x < bitmap.width(); ++x)
+		{
+			if (data[3] == 0)
+				_cpuTex.setPixel(x, y, Colors::Black8);
+			else
+				_cpuTex.setPixel(x, y, Color8{ (unsigned char)data[2], (unsigned char)data[1], (unsigned char)data[0] });
+			data += 4;
+		}
+		rowData += stride;
+	}
+
+	_glTex = GLTexture(_cpuTex);
+}
+
 WomboTexture::WomboTexture(WomboTexture&& other)
 	: _cpuTex(std::move(other._cpuTex))
 	, _glTex(std::move(other._glTex))

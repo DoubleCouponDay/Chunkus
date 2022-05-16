@@ -42,9 +42,35 @@ void doVectorize(std::string image_path)
 		Texture8 tex = Texture8{ "input.png", false };
 		if (tex.getBytes() == nullptr)
 		{
+			using namespace lunasvg;
+
+			auto doc = Document::loadFromData(
+				"<?xml version = \"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+				"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n"
+				"<svg width=\"400\" height=\"400\" viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n"
+				"<rect fill=\"#fff\" stroke=\"#000\" x=\"0\" y=\"0\" width=\"400\" height=\"400\"/>\n"
+				"<g opacity=\"0.8\">\n"
+				"    <rect x=\"50\" y=\"50\" width=\"300\" height=\"300\" fill=\"lime\" stroke-width=\"4\" stroke=\"pink\" />\n"
+				"    <circle cx=\"200\" cy=\"200\" r=\"100\" fill=\"orange\" />\n"
+				"    <polyline points=\"100, 233 100, 300 300, 300 300, 166\" stroke=\"red\" stroke-width=\"4\" fill=\"none\" />\n"
+				"    <line x1=\"100\" y1=\"100\" x2=\"300\" y2=\"300\" stroke=\"blue\" stroke-width=\"4\" />\n"
+				"</g>\n"
+				"</svg>\n"
+			);
+
+			auto bitmap = doc->renderToBitmap(390, 390);
+
+			if (!bitmap.valid())
+			{
+				std::cout << "Failed to render svg bitmap" << std::endl;
+				myData.vectorizedTexture	= WomboTexture("placeholder.bmp", false);
+			}
+			else
+			{
+				myData.vectorizedTexture	= WomboTexture(bitmap);
+			}
 			myData.inputTexture			= WomboTexture("placeholder.bmp", false);
 			myData.intermediateTexture	= WomboTexture("placeholder.bmp", false);
-			myData.vectorizedTexture	= WomboTexture("placeholder.bmp", false);
 			return;
 		}
 		myData.inputTexture = WomboTexture(std::move(tex));
@@ -278,11 +304,14 @@ void onMouseWheel(int button, int dir, int x, int y)
 
 int main(int argc, char** argv)
 {
+	if (argc < 1)
+		return -1;
+
 	auto exe_path = std::filesystem::path(argv[0]);
 	auto exe_dir = exe_path.parent_path();
 	auto exe_dir_name = exe_dir.string();
 
-	if(argc == 1) {
+	if(argc < 2) {
 		std::cerr << "error: missing absolute path to image." << std::endl; 
 		exit(1);
 	}
@@ -292,35 +321,6 @@ int main(int argc, char** argv)
 	platform.hot_reload();
 
 	std::cout << "Testing lunasvg" << std::endl;
-
-	{
-		using namespace lunasvg;
-
-		auto doc = Document::loadFromData(
-			"<?xml version = \"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
-			"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n"
-			"<svg width=\"391\" height=\"391\" viewBox=\"-70.5 -70.5 391 391\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n"
-			"<rect fill=\"#fff\" stroke=\"#000\" x=\" - 70\" y=\" - 70\" width=\"390\" height=\"390\"/>\n"
-			"<g opacity=\"0.8\">\n"
-			"    <rect x=\"25\" y=\"25\" width=\"200\" height=\"200\" fill=\"lime\" stroke-width=\"4\" stroke=\"pink\" />\n"
-			"    <circle cx=\"125\" cy=\"125\" r=\"75\" fill=\"orange\" />\n"
-			"    <polyline points=\"50, 150 50, 200 200, 200 200, 100\" stroke=\"red\" stroke-width=\"4\" fill=\"none\" />\n"
-			"    <line x1=\"50\" y1=\"50\" x2=\"200\" y2=\"200\" stroke=\"blue\" stroke-width=\"4\" />\n"
-			"</g>\n"
-			"</svg>\n"
-		);
-
-		auto bitmap = doc->renderToBitmap(391, 391);
-
-		if (!bitmap.valid())
-		{
-			std::cout << "Failed to render svg bitmap" << std::endl;
-		}
-		else
-		{
-			std::cout << "Rendered an svg bitmap" << std::endl;
-		}
-	}
 
 	glutInit(&argc, argv);
 
