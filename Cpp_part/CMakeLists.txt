@@ -48,6 +48,9 @@ find_package(LUNASVG QUIET)
 if (NOT LUNASVG_FOUND)
 	message("Did not find lunasvg package installed, looking for clone in ${CMAKE_CURRENT_SOURCE_DIR}/lunasvg")
 
+	if (BUILD_SHARED_LIBS)
+		set(BUILD_SHARED_LIBS ON CACHE BOOL "Force Build Shared Libs on" FORCE)
+	endif()
 	add_subdirectory(lunasvg)
 
 	target_include_directories(Vectorizer_GUI PRIVATE $<TARGET_PROPERTY:lunasvg,INTERFACE_INCLUDE_DIRECTORIES>)
