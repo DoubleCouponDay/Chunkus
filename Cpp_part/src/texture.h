@@ -5,6 +5,8 @@
 
 #include <GL/freeglut.h>
 
+#include <lunasvg.h>
+
 #include "color.h"
 
 template<class ColorT>
@@ -74,6 +76,7 @@ public:
 	WomboTexture(std::string fileName, bool flipY);
 	WomboTexture(GLTexture&& glTex, Texture8&& cpuTex);
 	WomboTexture(Texture8&& cpuTex);
+	WomboTexture(const lunasvg::Bitmap& bitmap);
 	WomboTexture(WomboTexture&& other);
 	WomboTexture(const WomboTexture& other) = delete;
 	~WomboTexture() = default;

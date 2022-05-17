@@ -61,9 +61,9 @@ typedef struct gui_images {
     struct gui_images* previous;
     NSVGimage* current;
     struct gui_images* next;
-} gui_images;
+} gui_images, *gui_imagesp;
 
-gui_images* VEC_EXPORT gui_vectorize(vectorizer_data input);
+gui_imagesp VEC_EXPORT gui_vectorize(vectorizer_data input);
 
 void VEC_EXPORT free_gui_images(gui_images* input);
 

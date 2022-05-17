@@ -83,7 +83,7 @@ void interop::hot_reload()
 {
 	load_shared_lib();
 	
-	interop::gui_vectorize = (gui_images*(*)(vectorizer_data))get_procedure_address(vecLib, "complete_vectorization");
+	interop::gui_vectorize = (gui_images*(*)(vectorizer_data))get_procedure_address(vecLib, "gui_vectorize");
 	if (!interop::gui_vectorize)
 	{
 		std::cerr << "Unable to load functions from vec.dll!" << std::endl; 
