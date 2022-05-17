@@ -13,13 +13,15 @@
             ],
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "intelliSenseMode": "msvc-x64"
+            "intelliSenseMode": "msvc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
         },
         {
             "name": "linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${default}"
+                "${default}",
+                "~/.conan/data/**"
             ],
             "defines": [
                 "_DEBUG",
@@ -28,7 +30,8 @@
             ],
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "intelliSenseMode": "gcc-x64"
+            "intelliSenseMode": "gcc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4

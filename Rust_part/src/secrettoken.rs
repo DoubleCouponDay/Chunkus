@@ -9,5 +9,5 @@ pub fn getwatchertoken() -> String {
 }
 
 pub fn getchannelid() -> u64 {
-    787470274261549056
+    var("CHANNELID").unwrap()
 }

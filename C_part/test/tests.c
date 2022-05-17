@@ -11,7 +11,7 @@
 #include "init.h"
 #include "../src/utility/defines.h"
 #include "munit.h"
-#include "debug.h"
+
 #include "../src/chunkmap.h"
 #include "../src/imagefile/pngfile.h"
 #include "../src/imagefile/bmp.h"
@@ -20,9 +20,13 @@
 #include "tears.h"
 #include "../src/utility/error.h"
 #include "../src/imagefile/svg.h"
+#include "../src/imagefile/converter.h"
+#include "../src/nsvg/dcdfiller.h"
+#include "../src/utility/logger.h"
+#include "../src/imagefile/jpegfile.h"
 
 MunitResult aTestCanPass(const MunitParameter params[], void* data) {
-  DEBUG_OUT("test 1 passed");
+  LOG_INFO("test 1 passed");
   return MUNIT_OK;
 }
 
@@ -70,7 +74,7 @@ MunitResult opensPngAndOutputsBmp(const MunitParameter params[], void* userdata)
   FILE* fp = fopen(out_file, "r");
   stuff->fp = fp;
   munit_assert_ptr_not_null(fp); // OUTPUT FILE NOT FOUND
-
+  fclose(fp);
   return MUNIT_OK;
 }
 
@@ -118,27 +122,25 @@ MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], voi
   };
 
   stuff->img = convert_png_to_image(fileaddress);
-  DEBUG_OUT("asserting pixels_array_2d not null");
+  LOG_INFO("asserting pixels_array_2d not null");
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
-  DEBUG_OUT("generating chunkmap");
+  LOG_INFO("generating chunkmap");
   chunkmap* map = generate_chunkmap(stuff->img, options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
   stuff->map = map;
 
-  DEBUG_OUT("asserting groups_array_2d not null");
+  LOG_INFO("asserting groups_array_2d not null");
   munit_assert_ptr_not_null(map->groups_array_2d);
-  DEBUG_OUT("filling chunkmap");
+  LOG_INFO("filling chunkmap");
   fill_chunkmap(stuff->map, &options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  DEBUG_OUT("writing chunkmap to file");
+  LOG_INFO("writing chunkmap to file");
   write_chunkmap_to_png(stuff->map, out_fileaddress);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
   FILE* fp = fopen(out_fileaddress, "r");
-
   munit_assert_ptr_not_null(fp);
-
   fclose(fp);
   return MUNIT_OK;
 }
@@ -165,7 +167,7 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   };
 
   stuff->img = convert_png_to_image(fileaddress);
-  DEBUG_OUT("asserting pixels_array_2d not null");
+  LOG_INFO("asserting pixels_array_2d not null");
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
@@ -175,17 +177,15 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   bool outcome = write_svg_file(stuff->nsvg_image);
   
   if(outcome)
-    DEBUG_OUT("svg writing outcome: %s", "succeeded");
+    LOG_INFO("svg writing outcome: %s", "succeeded");
 
   else 
-    DEBUG_OUT("svg writing outcome: %s", "failed");
+    LOG_INFO("svg writing outcome: %s", "failed");
     
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
   FILE* fp = fopen(OUTPUT_PATH, "r"); //check it at least creates a file every time
-
   munit_assert_ptr_not_null(fp);
-
   fclose(fp);
 
   return MUNIT_OK;
@@ -224,9 +224,7 @@ MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdat
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
   
   FILE* fp = fopen(OUTPUT_PATH, "r");
-
   munit_assert_ptr_not_null(fp);
-
   fclose(fp);
 
   return MUNIT_OK;
@@ -234,68 +232,84 @@ MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdat
 
 MunitResult just_run(const MunitParameter params[], void* userdata) {
   entrypoint(0, NULL);
+  return MUNIT_OK;
 }
 
-int main(int argc, char** argv) {
-  DEBUG_OUT("test runner initializing... ");
-  DEBUG_OUT("args: ");
-  for (int i = 0; i < argc; ++i)
-    printf("%s, ", argv[i]);
-  DEBUG_OUT("");
+MunitResult JPEG_to_image(const MunitParameter params[], void* userdata) {
+  char* inputjpeg = params[5].value;
+  image result = convert_file_to_image(inputjpeg);
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
+  munit_assert(result.width != 0);
+  munit_assert(result.height != 0);
+  munit_assert_ptr_not_null(result.pixels_array_2d);
+  free_image_contents(result);
+  return MUNIT_OK;
+}
 
-  char* param1[] = { "../../../../test/test.png", NULL };
-  char* param2[] = { "1", NULL };
-  char* param3[] = { "1", NULL }; //max threshhold 440
-  char* param4[] = { "./chunkmap.png", NULL };
-  char* param5[] = { "256", NULL }; //max colours 256
-  char* testname = argv[1];
+MunitResult can_convert_jpeg_to_bmp(const MunitParameter params[], void* userdata){
+  jpeg_bmp_stuff* stuff = userdata;
+  // Use constant input/output path
+  char* in_file = params[5].value;
+  char* out_file = "peach.bmp";
 
-  MunitParameterEnum test_params[] = { 
-    { 
-      "filename", param1,
-    },
-    {
-      "chunk_size", param2
-    },
-    {
-      "shape_colour_threshhold", param3
-    },
-    { 
-      "output_filename", param4 
-    },
-    {
-      "num_colours", param5
-    },
-    { NULL, NULL} 
+  // Delete output file
+  remove(out_file);
+
+  stuff->img = convert_file_to_image(in_file);
+
+  munit_assert_ptr_not_null(stuff->img.pixels_array_2d); // FAILED TO CONVERT IMAGE
+
+  write_image_to_bmp(stuff->img, out_file);
+
+  FILE* fp = fopen(out_file, "r");
+  stuff->fp = fp;
+  munit_assert_ptr_not_null(fp); // OUTPUT FILE NOT FOUND
+  fclose(fp);
+  return MUNIT_OK;
+}
+
+MunitResult jpeg_dcd(const MunitParameter params[], void* userdata) {
+    test8stuff* stuff = userdata;
+
+  char* inputjpeg = params[5].value;
+
+  char* chunk_size_str = params[1].value;
+  int chunk_size = atoi(chunk_size_str);
+
+  char* threshold_str = params[2].value;
+  float threshold = atof(threshold_str);
+  
+  char* out_fileaddress = params[3].value;
+  int num_colours = atoi(params[4].value);
+
+  vectorize_options options = {
+    inputjpeg,
+    chunk_size,
+    threshold,
+    num_colours
   };
 
-  MunitTest apple = { "can_pass", aTestCanPass, NULL, NULL, MUNIT_TEST_OPTION_NONE };
-  MunitTest orange = { "read_png", can_read_png, test2setup, test2teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest mango = { "png_to_chunkmap", can_convert_png_to_chunkmap, test4setup, test4teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest peach = { "png_to_bmp", opensPngAndOutputsBmp, test5setup, test5teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest melon = { "png_to_nsvg", can_vectorize_image, test6setup, test6teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest cherry = { "chunkmap_to_png", can_write_chunkmap_shapes_to_file, test69setup, test69teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest banana = { "dcdfill", can_write_to_svgfile, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest yo_mama = { "bobsweep", can_do_speedy_vectorize, speedy_vectorize_setup, speedy_vectorize_teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest run = { "run", just_run, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
+  stuff->img = convert_jpeg_to_image(inputjpeg);
+  LOG_INFO("asserting pixels_array_2d not null");
+  munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  enum { 
-    NUM_TESTS = 9 //UPDATE THIS WHEN YOU ADD NEW TESTS
-  }; 
+  stuff->nsvg_image = dcdfill_for_nsvg(stuff->img, options);
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  namedtest tests[NUM_TESTS] = {
-    {apple.name, apple},
-    {orange.name, orange},
-    {mango.name, mango},
-    {peach.name, peach},
-    {melon.name, melon},
-    {cherry.name, cherry},
-    {banana.name, banana},
-    {yo_mama.name, yo_mama},
-    {run.name, run},
-  };
-  MunitTest* filteredtests = filtertests(tests, NUM_TESTS, testname);
-  MunitSuite suite = { "tests.", filteredtests };
-  int result = munit_suite_main(&suite, NULL, 0, argv);
-  return result;
+  bool outcome = write_svg_file(stuff->nsvg_image);
+  
+  if(outcome)
+    LOG_INFO("svg writing outcome: %s", "succeeded");
+
+  else 
+    LOG_INFO("svg writing outcome: %s", "failed");
+    
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
+
+  FILE* fp = fopen(OUTPUT_PATH, "r"); //check it at least creates a file every time
+  munit_assert_ptr_not_null(fp);
+  fclose(fp);
+
+  return MUNIT_OK;
 }

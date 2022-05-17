@@ -21,11 +21,11 @@ typedef void (*algorithm_debug)(image, vectorize_options, char*,char*);
 algorithm target_algorithm = dcdfill_for_nsvg;
 
 int execute_program(vectorize_options options) {
-	image img = convert_png_to_image(options.file_path);
+	image img = convert_file_to_image(options.file_path);
 
 	if (isBadError())
 	{
-		LOG_ERR("convert_png_to_image failed with: %d", getLastError());
+		LOG_ERR("convert_file_to_image failed with: %d", getLastError());
 		return getAndResetErrorCode();
 	}
 

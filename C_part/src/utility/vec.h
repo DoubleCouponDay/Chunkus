@@ -16,6 +16,7 @@ typedef struct vector3
     float z;
 } vector3;
 
+float getpi();
 vector2 vec_sub(vector2 a, vector2 b);
 vector2 vec_add(vector2 a, vector2 b);
 vector2 vec_negate(vector2 a);

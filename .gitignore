@@ -9,6 +9,7 @@ graph_info.json
 conanbuildinfo.cmake
 **/log.txt
 **/conanbuildinfo.txt
+C_Part/build/
 
 # Discord token
 *.discord_token
@@ -96,6 +97,8 @@ conan.lock
 *.lock
 
 Rust_part/vec
+
+build/.cmake/api/v1/query/client-vscode/
 
 Rust_part/rickroll.bmp
 

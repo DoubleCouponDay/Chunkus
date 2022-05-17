@@ -19,8 +19,10 @@ pub enum FfiResult {
     NullArgumentError,
     OverflowError,
     BadArgumentError,
-    NotPngError,
+    NotPngOrJpeg,
     LowBoundariesCreated,
+    RGBAUnsupported,    
+    GreyscaleUnsupported,
     UnknownError
 }
 
@@ -36,8 +38,10 @@ impl From<i32> for FfiResult {
             6 => FfiResult::NullArgumentError,
             7 => FfiResult::OverflowError,
             8 => FfiResult::BadArgumentError,
-            9 => FfiResult::NotPngError,
+            9 => FfiResult::NotPngOrJpeg,
             10 => FfiResult::LowBoundariesCreated,
+            11 => FfiResult::RGBAUnsupported,
+            12 => FfiResult::GreyscaleUnsupported,
             _ => FfiResult::UnknownError
         }
     }
@@ -68,8 +72,10 @@ fn ffiresult_to_string(input: &FfiResult) -> &'static str {
         FfiResult::NullArgumentError => "NullArgumentError",
         FfiResult::OverflowError => "OverflowError",
         FfiResult::BadArgumentError => "BadArgumentError",
-        FfiResult::NotPngError => "NotPngError",
+        FfiResult::NotPngOrJpeg => "image not PNG or JPEG",
         FfiResult::LowBoundariesCreated => "LowBoundariesCreated",
+        FfiResult::RGBAUnsupported => "RGBAUnsupported",
+        FfiResult::GreyscaleUnsupported => "GreyscaleUnsupported",
         FfiResult::UnknownError => "UnknownError"
     }
 }

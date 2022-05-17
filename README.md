@@ -1,34 +1,24 @@
 # Vectorizer
 converts png files to svg files!
 
-This was a group project created and maintained by Samuel, Joshua, Matthew.
+This was a group project by Samuel, Joshua, Matthew.
 
 ## Building Requirements
 
 it has a Rust component and a C component.
 
-Set the `VECTORIZER` and `TRAMPOLINE` environment variables to the value of your two discord bot's secret tokens.
-
-use this template for the `secrettoken.rs` file that you must create, in the `Rust_part/src` folder.
-
-```
-    pub fn gettoken() -> &'static str { }
-
-    pub fn getwatchertoken() -> &'static str { }
-
-    pub fn getchannelid() -> u64 { }
-```
+Set the `VECTORIZER`, `TRAMPOLINE` and `CHANNELID` environment variables to the value of your two discord bot's secret tokens.
 
 For windows there are some extra steps:
 
-+ install visual studio 2019
++ install visual studio
 
 + add msbuild.exe to your PATH environment variable
 
-    `C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\msbuild.exe`
+    `C:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin`
 
 
-Install Rust lang so that you can use the `cargo` tool to work with the discord-v folder as a rust project.  
+Install Rust lang so that you can use the `cargo` tool to work with the rust part.
 
 ```
     rustup target add x86_64-unknown-linux-musl
@@ -54,8 +44,7 @@ disclaimer: conan no longer works with python2 and pip2 as it is using python3 s
   
 ---
 
-## Building the C code
-<br>
+# Building the C Code
 
 To build on windows, clone freeglut from https://github.com/FreeGLUTProject/freeglut into Cpp_part/freeglut.
 You will also need lunasvg from https://github.com/sammycage/lunasvg cloned into Cpp_part/lunasvg. (cmake will try and find it installed but it's likely not in any package repo)

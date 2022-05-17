@@ -3,13 +3,14 @@
 
 #include "munit.h"
 #include "init.h"
-#include "debug.h"
+
 #include "../src/utility/error.h"
+#include "../src/utility/logger.h"
 
 const int ONE_TEST_SIZE = 2;
 
 MunitTest* filtertests(namedtest* tests_array, int arraylength, char* testname) {
-  DEBUG_OUT("filtering tests for '%s'", testname);
+  LOG_INFO("filtering tests for '%s'", testname);
   MunitTest* output;
   MunitTest endofarray = { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL };
 
@@ -26,7 +27,7 @@ MunitTest* filtertests(namedtest* tests_array, int arraylength, char* testname) 
         }
 
         else if(i == arraylength - 1) {
-            DEBUG_OUT("test with name not found");
+            LOG_ERR("test with name not found");
             exit(BAD_ARGUMENT_ERROR); //the test binary is allowed to fail
         }
     }

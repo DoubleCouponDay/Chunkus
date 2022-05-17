@@ -309,13 +309,7 @@ pub async fn vectorizeralgorithm(ctx: &Context, msg: &Message, args: Args) -> Co
 #[command]
 #[aliases("v")]
 async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
-{
-    println!("message received");
-
-    let _acknowledged = msg.channel_id.send_message(&ctx.http, |m| {
-        m.content(START_MESSAGE)
-    }).await;
-    
+{   
     let mut embed_urls: Vec<String> = vec![];
     if msg.embeds.len() < 1 && msg.attachments.len() < 1 // No embed, lets wait for an on_update
     {   
@@ -347,8 +341,7 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
                     }
                 },
             Err(err) =>
-
-            println!("Received Err {} from wait_for_message_update for id: {}", err, msg.id),
+                println!("Received Err {} from wait_for_message_update for id: {}", err, msg.id),
         }
     }
 

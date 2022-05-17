@@ -6,6 +6,7 @@
 #include "chunkmap.h"
 #include "utility/logger.h"
 #include "utility/error.h"
+#include "entrypoint.h"
 
 void iterateImagePixels(int x, int y, image input, vectorize_options options, chunkmap* output) {
     int x_offset = x * options.chunk_size;

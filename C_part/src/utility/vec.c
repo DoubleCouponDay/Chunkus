@@ -3,7 +3,10 @@
 #include "vec.h"
 #include "defines.h"
 
-float ME_PI = 3.1415926535897932;
+float getpi(){
+    float pi = 3.14159265358979323846;
+    return pi;
+}
 
 vector2 vec_sub(vector2 a, vector2 b)
 {
@@ -40,12 +43,12 @@ float vec_angle_between(vector2 a, vector2 b)
     float mag_product = vec_mag(a) * vec_mag(b);
 
     if (mag_product == 0.f)
-        return ME_PI * 2.f;
+        return getpi() * 2.f;
         
     float trig_coefficient = vec_dot(a, b) / mag_product;
 
     if (trig_coefficient > 1.f || trig_coefficient < -1.f)
-        return ME_PI * 2.f;
+        return getpi() * 2.f;
 
     return acosf(trig_coefficient);
 }
