@@ -21,9 +21,10 @@ extern "C" {
 #endif
 
 #include "utility/error.h"
-#include "chunkmap.h"
 
 extern const int NUM_COLOURS;
+
+struct chunkmap;
 
 typedef struct {
     char* file_path;
@@ -51,7 +52,7 @@ typedef struct vectorizer_data
 typedef struct algorithm_progress
 {
 	vectorizer_data initial_data;
-	chunkmap* map;
+	struct chunkmap* map;
 	int fill_x;
 	int fill_y;
 
