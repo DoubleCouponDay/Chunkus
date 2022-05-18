@@ -58,7 +58,7 @@ void doVectorize(std::string image_path)
 				"</svg>\n"
 			);
 
-			auto bitmap = doc->renderToBitmap(501, 501);
+			auto bitmap = doc->renderToBitmap(396, 531);
 
 			if (!bitmap.valid())
 			{

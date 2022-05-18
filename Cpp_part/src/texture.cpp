@@ -213,6 +213,18 @@ template class Texture<Color32>;
 
 template class Texture<Color8>;
 
+unsigned int nextPow2(unsigned int v)
+{
+	v--;
+	v |= v >> 1;
+	v |= v >> 2;
+	v |= v >> 4;
+	v |= v >> 8;
+	v |= v >> 16;
+	v++;
+	return v;
+}
+
 GLTexture::GLTexture() : _texName(0)
 {
 }
@@ -232,7 +244,13 @@ GLTexture::GLTexture(const Texture8& tex) : _texName(0)
 	checkForGlError("Bound texture");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex.getWidth(), tex.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)tex.getData());
+	auto pow2width = nextPow2(tex.getWidth());
+	auto pow2height = nextPow2(tex.getHeight());
+
+	auto pow2Tex = Texture8{ Colors::Black8, pow2width, pow2height };
+	pow2Tex.setArea(tex, 0, 0);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, pow2width, pow2height, 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)pow2Tex.getData());
 
 	checkForGlError("Set texture parameters");
 
