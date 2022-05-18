@@ -1,11 +1,16 @@
 #include "texture.h"
 
+#include <iostream>
 #include <stdio.h>
 #include <exception>
 #include <stdexcept>
 #include <cstring>
 
+#include <imagefile/bmp.h>
+#include <image.h>
+
 #include "gl.h"
+
 
 template<class ColorT>
 Texture<ColorT>::Texture()
@@ -54,7 +59,7 @@ Texture<ColorT>::Texture(std::string fileName, bool flipY)
 	if (dataPos == 0)      dataPos = 54; // The BMP header is done that way
 
 	// Create a buffer
-	_data.resize(imageSize / 3); // Divide by 3 as our ColorT type should contain all 3 colors
+	_data.resize((size_t)_width * _height); // Divide by 3 as our ColorT type should contain all 3 colors
 
 	// Read the actual data from the file into the buffer
 	fread(_data.data(), 1, imageSize, file);
@@ -167,6 +172,26 @@ void Texture<ColorT>::setArea(const Texture<ColorT>& other, int x, int y)
 	setArea(other, x, y, other.getWidth(), other.getHeight());
 }
 
+template<class ColorT>
+void Texture<ColorT>::writeToBmp(const std::string& fileName) const
+{
+	image c_img = create_image(_width, _height);
+
+	for (int x = 0; x < _width; ++x)
+	{
+		for (int y = 0; y < _height; ++y)
+		{
+			c_img.pixels_array_2d[x][y].r = (unsigned char)getPixel(x, y).R;
+			c_img.pixels_array_2d[x][y].g = (unsigned char)getPixel(x, y).G;
+			c_img.pixels_array_2d[x][y].b = (unsigned char)getPixel(x, y).B;
+		}
+	}
+
+	write_image_to_bmp(c_img, fileName.c_str());
+
+	free_image_contents(c_img);
+}
+
 
 template<class ColorT>
 void Texture<ColorT>::setArea(const Texture<ColorT>& other, int x, int y, int width, int height)
@@ -208,6 +233,7 @@ GLTexture::GLTexture(const Texture8& tex) : _texName(0)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex.getWidth(), tex.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)tex.getData());
+
 	checkForGlError("Set texture parameters");
 
 	_texName = myTex;
