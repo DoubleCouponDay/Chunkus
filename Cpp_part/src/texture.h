@@ -37,6 +37,8 @@ public:
 	void setPixel(int x, int y, ColorT color);
 	void setArea(const Texture<ColorT>& other, int x, int y, int width, int height);
 	void setArea(const Texture<ColorT>& other, int x, int y);
+
+	void writeToBmp(const std::string& fileName) const;
 };
 
 using Texture8 = Texture<Color8>;

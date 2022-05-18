@@ -1,5 +1,6 @@
 #include "interop.h"
 
+#ifdef VECG_INTEROP
 #if defined(WIN32) || defined(_WIN32)
 #define WIN32_MEAN_AND_LEAN
 #include <Windows.h>
@@ -25,11 +26,6 @@ interop::interop()
 		get_procedure_address = dlsym;
 		close_shared_lib = dlclose;
 	#endif
-}
-
-void interop::setExeFolder(std::string input_exefolder)
-{
-	exe_folder = input_exefolder;
 }
 
 void interop::release_shared_lib()
@@ -132,4 +128,22 @@ std::vector<std::string> interop::getLibNames() const
 		strings[i] = paths[i].string();
 
 	return strings;
+}
+#else // VECG_INTEROP
+interop::interop() {}
+
+void interop::release_shared_lib() {}
+
+void interop::hot_reload() {}
+
+interop& interop::operator=(interop&& other)
+{
+	return *this;
+}
+
+#endif // VECG_INTEROP
+
+void interop::setExeFolder(std::string input_exefolder)
+{
+	exe_folder = input_exefolder;
 }

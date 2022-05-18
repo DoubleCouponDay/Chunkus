@@ -31,8 +31,7 @@ struct GUIData
 	Button switchInputButton;
 	Button switchInterButton;
 	Button switchVectorButton;
-	Button beginReloadButton;
-	Button finishReloadButton;
+	Button writeToBmpButton;
 
 	vectorizer_data data;
 	algorithm_progress progress;

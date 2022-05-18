@@ -1,5 +1,8 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -68,3 +71,7 @@ bool colours_are_similar(pixel color_a, pixel color_b, float max_distance);
 char* rgb_to_string(pixel* input);
 image create_image(int width, int height);
 void free_image_contents(image img);
+
+#ifdef __cplusplus
+};
+#endif

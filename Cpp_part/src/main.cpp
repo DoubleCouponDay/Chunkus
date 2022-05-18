@@ -48,7 +48,7 @@ void doVectorize(std::string image_path)
 				"<?xml version = \"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
 				"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n"
 				"<svg width=\"400\" height=\"400\" viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n"
-				"<rect fill=\"#fff\" stroke=\"#000\" x=\"0\" y=\"0\" width=\"400\" height=\"400\"/>\n"
+				"<rect fill=\"#8ff\" stroke=\"#000\" x=\"0\" y=\"0\" width=\"400\" height=\"400\"/>\n"
 				"<g opacity=\"0.8\">\n"
 				"    <rect x=\"50\" y=\"50\" width=\"300\" height=\"300\" fill=\"lime\" stroke-width=\"4\" stroke=\"pink\" />\n"
 				"    <circle cx=\"200\" cy=\"200\" r=\"100\" fill=\"orange\" />\n"
@@ -58,7 +58,7 @@ void doVectorize(std::string image_path)
 				"</svg>\n"
 			);
 
-			auto bitmap = doc->renderToBitmap(390, 390);
+			auto bitmap = doc->renderToBitmap(396, 531);
 
 			if (!bitmap.valid())
 			{
@@ -70,7 +70,7 @@ void doVectorize(std::string image_path)
 				myData.vectorizedTexture	= WomboTexture(bitmap);
 			}
 			myData.inputTexture			= WomboTexture("placeholder.bmp", false);
-			myData.intermediateTexture	= WomboTexture("placeholder.bmp", false);
+			myData.intermediateTexture = WomboTexture(Texture8{ Colors::Orange8, 369, 342 });
 			return;
 		}
 		myData.inputTexture = WomboTexture(std::move(tex));
@@ -89,8 +89,7 @@ void sizeButtons()
 	int switchInputLength = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"Input") + 6;
 	int switchIntermediateLength = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"Intermediate") + 6;
 	int switchOutputLength = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"Output") + 6;
-	int beginReloadLength = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"Begin Reload") + 6;
-	int finishReloadLength = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"Finish Reload") + 6;
+	int writeToBmpLength = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"Write to bmp") + 6;
 
 	int firstSwitchPosition = myData.windowSize.x / 2 - (switchIntermediateLength / 2) - switchInputLength;
 	int secondSwitchPosition = firstSwitchPosition + switchInputLength;
@@ -99,8 +98,7 @@ void sizeButtons()
 	myData.switchInputButton = Button{ Vector2i{ firstSwitchPosition, textureAreaStart - buttonSize * 2},	Vector2u{ (unsigned int)switchInputLength, buttonSize},	"Input", Colors::Grey32 };
 	myData.switchInterButton = Button{ Vector2i{ secondSwitchPosition, textureAreaStart - buttonSize * 2 }, Vector2u{ (unsigned int)switchIntermediateLength, buttonSize }, "Intermediate", Colors::Grey32 };
 	myData.switchVectorButton = Button{ Vector2i{ thirdSwitchPosition, textureAreaStart - buttonSize * 2 },	Vector2u{ (unsigned int)switchOutputLength, buttonSize }, "Output", Colors::Grey32 };
-	myData.beginReloadButton = Button{ Vector2i{ myData.windowSize.x / 2 - beginReloadLength, textureAreaStart - buttonSize * 3 },	Vector2u{ (unsigned int)beginReloadLength, buttonSize }, "Begin Reload", Colors::Grey32 };
-	myData.finishReloadButton = Button{ Vector2i{ myData.windowSize.x / 2, textureAreaStart - buttonSize * 3 },	Vector2u{ (unsigned int)finishReloadLength, buttonSize }, "Finish Reload", Colors::Grey32 };
+	myData.writeToBmpButton = Button{ Vector2i{ myData.windowSize.x / 2 - writeToBmpLength / 2, textureAreaStart - buttonSize * 3 }, Vector2u{ (unsigned int)writeToBmpLength, buttonSize }, "Write to bmp", Colors::Grey32 };
 }
 
 void my_init()
@@ -121,8 +119,7 @@ void my_init()
 		&myData.switchVectorButton, 
 		&myData.leftButton, 
 		&myData.rightButton, 
-		&myData.beginReloadButton, 
-		&myData.finishReloadButton
+		&myData.writeToBmpButton
 	};
 
 	myData.buttons.insert(myData.buttons.begin(), buttons.begin(), buttons.end());
@@ -252,8 +249,7 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 	bool withinInput = myData.switchInputButton.isWithin(glCoords);
 	bool withinInter = myData.switchInterButton.isWithin(glCoords);
 	bool withinVector = myData.switchVectorButton.isWithin(glCoords);
-	bool withinBeginLoad = myData.beginReloadButton.isWithin(glCoords);
-	bool withinFinishLoad = myData.finishReloadButton.isWithin(glCoords);
+	bool withinWrite = myData.writeToBmpButton.isWithin(glCoords);
 
 	if (button == GLUT_LEFT_BUTTON)
 	{
@@ -282,15 +278,10 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 				myData.activeTexture = ActiveTexture::VECTORIZED;
 				glutPostRedisplay();
 			}
-			if (withinBeginLoad)
+			if (withinWrite)
 			{
-				std::cout << "Begin Reloading Button was clicked" << std::endl;
-				platform.release_shared_lib();
-			}
-			if (withinFinishLoad)
-			{
-				std::cout << "Finish Reloading Button was clicked" << std::endl;
-				platform.hot_reload();
+				std::cout << "Write to BMP was clicked" << std::endl;
+				myData.getActiveTexture().getCpuTex().writeToBmp("test.bmp");
 			}
 		}
 	}

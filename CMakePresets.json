@@ -51,6 +51,22 @@
       "vendor": { "microsoft.com/VisualStudioSettings/CMake/1.0": { "hostOS": [ "Windows" ] } }
     },
     {
+      "name": "win-visualstudio",
+      "displayName": "Windows x64 HotReload",
+      "description": "Target Windows with the Visual Studio development environment.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CONAN_CMAKE_DIR": "${sourceDir}/out/build/${presetName}",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+      },
+      "vendor": { "microsoft.com/VisualStudioSettings/CMake/1.0": { "hostOS": [ "Windows" ] } }
+    },
+    {
       "name": "win-hotreload",
       "displayName": "Win CLI HotReload",
       "description": "Windows cmake preset with Hot-Reloading using ninja",

@@ -88,7 +88,7 @@ void generateBitmapImage(unsigned char* image, int height, int width, char* imag
 
 
 
-void write_image_to_bmp(image img, char* fileaddress_p) {
+void write_image_to_bmp(image img, const char* fileaddress_p) {
     if (!img.pixels_array_2d || !fileaddress_p)
         return;
 

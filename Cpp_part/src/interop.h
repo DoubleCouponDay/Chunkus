@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#ifdef VECG_INTEROP
 #if defined(WIN32) || defined(_WIN32)
 #ifndef WIN32_MEAN_AND_LEAN
 #define WIN32_MEAN_AND_LEAN
@@ -20,9 +21,11 @@
 	typedef decltype(std::bind(dlopen, std::placeholders::_1, 0)) openSharedLib;
 	typedef int(*closeSharedLib)(void* handle);
 #endif
+#endif
 
 class interop {
 	private:
+#ifdef VECG_INTEROP
 	getProcedureAddress get_procedure_address;
 	openSharedLib open_shared_lib;
 	closeSharedLib close_shared_lib;
@@ -38,6 +41,7 @@ class interop {
 	void dieIfIllegal();
 	void load_shared_lib();
 	std::vector<std::string> getLibNames() const;
+#endif
 	std::string exe_folder;
 
 	public:
