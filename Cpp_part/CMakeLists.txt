@@ -23,6 +23,10 @@ set_target_properties(Vectorizer_GUI
 		CXX_STANDARD_REQUIRED YES
 		CXX_EXTENSIONS NO)
 
+if (BUILD_SHARED_LIBS)
+	add_compile_definitions(Vectorizer_GUI PUBLIC VECG_INTEROP)
+endif()
+
 set(OpenGL_GL_PREFERENCE "LEGACY")
 
 find_package(OpenGL REQUIRED)
