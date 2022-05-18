@@ -35,7 +35,7 @@ else()
 endif(DEFINED CONAN_CMAKE_DIR)
 conan_basic_setup(TARGETS)
 
-target_link_libraries(vec CONAN_PKG::libpng CONAN_PKG::nanosvg)
+target_link_libraries(vec CONAN_PKG::libpng CONAN_PKG::nanosvg CONAN_PKG::libjpeg)
 
 
 set_target_properties(vec PROPERTIES PUBLIC_HEADER "./src/entrypoint.h")

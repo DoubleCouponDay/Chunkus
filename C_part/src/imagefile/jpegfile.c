@@ -1,8 +1,11 @@
+#include "jpegfile.h"
+
 #include <stdlib.h>
-#include <jpeglib.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+
+#include <jpeglib.h>
 
 #include "../image.h"
 #include "../utility/error.h"
@@ -21,8 +24,8 @@ bool file_is_jpeg(char* fileaddress) {
 	char fourthlast = fileaddress[index - 3];
 	char fifthlast = fileaddress[index - 4];
 
-	if(fifthlast == 'j' && fourthlast == 'p' && thirdlast == 'e' && secondlast == 'g' ||
-		fourthlast == 'j' && thirdlast == 'p' && secondlast == 'g')
+	if((fifthlast == 'j' && fourthlast == 'p' && thirdlast == 'e' && secondlast == 'g') ||
+		(fourthlast == 'j' && thirdlast == 'p' && secondlast == 'g'))
 		return true;
 
 	return false;

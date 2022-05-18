@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "entrypoint.h"
 #include "nsvg/usage.h"
@@ -8,7 +9,7 @@
 #include "imagefile/pngfile.h"
 #include "imagefile/svg.h"
 #include "simplify.h"
-#include "string.h"
+#include "imagefile/converter.h"
 
 const char *format1_p = "png";
 const char *format2_p = "jpeg";
@@ -126,25 +127,6 @@ int entrypoint(int argc, char* argv[]) {
 	};
 
 	return execute_program(options);
-}
-
-//PUBLIC FACING
-int set_algorithm(char* argv)
-{
-	if(strcmp(argv, "dcdfill") == 0) {
-		target_algorithm = dcdfill_for_nsvg;
-		LOG_INFO("set algorithm to dcdfill");
-	}
-		
-	else if(strcmp(argv, "bobsweep") == 0) {
-		target_algorithm = bobsweep_for_nsvg;
-		LOG_INFO("set algorithm to bobsweep");
-	}
-		
-	else {
-		return BAD_ARGUMENT_ERROR;
-	}
-	return SUCCESS_CODE;
 }
 
 //PUBLIC FACING

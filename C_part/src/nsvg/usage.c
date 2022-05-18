@@ -16,7 +16,6 @@
 #include "mapparser.h"
 #include "dcdfiller.h"
 #include "../imagefile/pngfile.h"
-#include "bobsweep.h"
 #include "../utility/logger.h"
 
 

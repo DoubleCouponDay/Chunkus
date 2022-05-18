@@ -76,6 +76,16 @@
         "BUILD_SHARED_LIBS": true,
         "VEC_HOTRELOAD": true
       }
+    },
+    {
+      "name": "win-static",
+      "displayName": "Win CLI HotReload",
+      "description": "Windows cmake preset statically linked using ninja",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        
+      }
     }
   ]
 }
