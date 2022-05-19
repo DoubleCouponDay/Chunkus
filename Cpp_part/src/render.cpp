@@ -82,10 +82,13 @@ void drawVecTextureArea(const GLTexture& tex, int texWidth, int texHeight, Vecto
 	myData.upRight = { +halfWidth, +halfHeight, 0 };  // Top Right Of The Texture and Quad
 	myData.upLeft = { -halfWidth, +halfHeight, 0 };  // Top Left Of The Texture and Quad
 
-	glTexCoord2f(0.0f, 0.0f); glVertex3i(myData.lowLeft.x, myData.lowLeft.y, myData.lowLeft.z);  // Bottom Left
-	glTexCoord2f(1.0f, 0.0f); glVertex3i(myData.lowRight.x, myData.lowRight.y, myData.lowRight.z);  // Bottom Right
-	glTexCoord2f(1.0f, 1.0f); glVertex3i(myData.upRight.x, myData.upRight.y, myData.upRight.z);  // Top Right
-	glTexCoord2f(0.0f, 1.0f); glVertex3i(myData.upLeft.x, myData.upLeft.y, myData.upLeft.z);  // Top Left
+	auto xScale = tex.getXScale();
+	auto yScale = tex.getYScale();
+
+	glTexCoord2f(0.0f * xScale, 0.0f * yScale); glVertex3i(myData.lowLeft.x, myData.lowLeft.y, myData.lowLeft.z);  // Bottom Left
+	glTexCoord2f(1.0f * xScale, 0.0f * yScale); glVertex3i(myData.lowRight.x, myData.lowRight.y, myData.lowRight.z);  // Bottom Right
+	glTexCoord2f(1.0f * xScale, 1.0f * yScale); glVertex3i(myData.upRight.x, myData.upRight.y, myData.upRight.z);  // Top Right
+	glTexCoord2f(0.0f * xScale, 1.0f * yScale); glVertex3i(myData.upLeft.x, myData.upLeft.y, myData.upLeft.z);  // Top Left
 
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);

@@ -47,6 +47,8 @@ using Texture32 = Texture<Color32>;
 class GLTexture
 {
 	GLuint _texName;
+	float _xScale = 1.f;
+	float _yScale = 1.f;
 
 public:
 	GLTexture();
@@ -61,6 +63,8 @@ public:
 	void clear();
 
 	GLuint getName() const;
+	float getXScale() const;
+	float getYScale() const;
 
 	void bindTo(GLenum target) const;
 };

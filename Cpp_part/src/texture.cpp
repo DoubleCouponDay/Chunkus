@@ -250,6 +250,9 @@ GLTexture::GLTexture(const Texture8& tex) : _texName(0)
 	auto pow2Tex = Texture8{ Colors::Black8, pow2width, pow2height };
 	pow2Tex.setArea(tex, 0, 0);
 
+	_xScale = (float)tex.getWidth() / pow2width;
+	_yScale = (float)tex.getHeight() / pow2height;
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, pow2width, pow2height, 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)pow2Tex.getData());
 
 	checkForGlError("Set texture parameters");
@@ -259,8 +262,12 @@ GLTexture::GLTexture(const Texture8& tex) : _texName(0)
 
 GLTexture::GLTexture(GLTexture&& other)
 	: _texName(other._texName)
+	, _xScale(other._xScale)
+	, _yScale(other._yScale)
 {
 	other._texName = 0;
+	other._xScale = 1.f;
+	other._yScale = 1.f;
 }
 
 GLTexture::~GLTexture()
@@ -272,8 +279,12 @@ GLTexture& GLTexture::operator=(GLTexture&& other)
 {
 	clear();
 	_texName = other._texName;
+	_xScale = other._xScale;
+	_yScale = other._yScale;
 
 	other._texName = 0;
+	other._xScale = 1.f;
+	other._yScale = 1.f;
 
 	return *this;
 }
@@ -285,11 +296,23 @@ void GLTexture::clear()
 		glDeleteTextures(1, &_texName);
 		_texName = 0;
 	}
+	_xScale = 1.f;
+	_yScale = 1.f;
 }
 
 GLuint GLTexture::getName() const
 {
 	return _texName;
+}
+
+float GLTexture::getXScale() const
+{
+	return _xScale;
+}
+
+float GLTexture::getYScale() const
+{
+	return _yScale;
 }
 
 void GLTexture::bindTo(GLenum target) const
