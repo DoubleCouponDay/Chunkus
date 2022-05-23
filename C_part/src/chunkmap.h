@@ -6,6 +6,10 @@
 #include "utility/vec.h"
 #include "entrypoint.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct chunkshape; //allows circular reference
 
 typedef struct 
@@ -37,7 +41,7 @@ typedef struct chunkshape {
     struct chunkshape* next;
 } chunkshape;
 
-typedef struct 
+typedef struct chunkmap
 {
     pixelchunk** groups_array_2d;
     chunkshape* shape_list;
@@ -58,3 +62,7 @@ int count_shapes(chunkshape* first);
 
 vector2 create_vector_between_chunks(pixelchunk* initial, pixelchunk* final);
 float calculate_angle_between(pixelchunk* eligible, pixelchunk* subject, pixelchunk* previous);
+
+#ifdef __cplusplus
+};
+#endif

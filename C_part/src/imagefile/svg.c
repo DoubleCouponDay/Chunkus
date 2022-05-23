@@ -34,9 +34,9 @@ void finish_file(FILE* output, char* template) {
     fclose(output);
 }
 
-bool write_svg_file(NSVGimage* input) {
+bool write_svg_file(NSVGimage* input, const char* filename) {
     LOG_INFO("create a file for read/write and destroy contents if already exists");
-    FILE* output = fopen(OUTPUT_PATH, "w+"); 
+    FILE* output = fopen(filename, "w+"); 
 
     LOG_INFO("open the template as a string");
     char* template = gettemplate(input->width, input->height);
