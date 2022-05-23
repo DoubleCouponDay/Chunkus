@@ -4,7 +4,7 @@
             "name": "windows",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${default}"
+                "${workspaceFolder}/**"
             ],
             "defines": [
                 "_DEBUG",
@@ -13,15 +13,25 @@
             ],
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "intelliSenseMode": "msvc-x64",
-            "configurationProvider": "ms-vscode.cmake-tools"
+            "intelliSenseMode": "windows-gcc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "compilerArgs": [],
+            "mergeConfigurations": false,
+            "compilerPath": "C:/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin/g++.exe",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/**",
+                    "${workspaceFolder}/**"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
         },
         {
             "name": "linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${default}",
-                "~/.conan/data/**"
+                "${workspaceFolder}/**",
+                "C:\\Users\\joshu/.conan/data/**"
             ],
             "defines": [
                 "_DEBUG",
@@ -30,8 +40,19 @@
             ],
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "intelliSenseMode": "gcc-x64",
-            "configurationProvider": "ms-vscode.cmake-tools"
+            "intelliSenseMode": "linux-gcc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "compilerArgs": [],
+            "mergeConfigurations": false,
+            "compilerPath": "/usr/bin/g++",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/**",
+                    "${workspaceFolder}/**",
+                    "C:\\Users\\joshu/.conan/data/**"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
         }
     ],
     "version": 4

@@ -155,14 +155,7 @@ Threshold is a number between 0 and 441.67 (The square root of 255^2 * 3 (vector
 `!vp or !vectorizerparams [chunksize] [threshold]` eg. 
 
     !params 2 50  
-You should receive a confirmation message telling you what you set the parameters to  
-  
-### Set Algorithm: Sets which algorithm is used for shape identification  
-Currently only values of 0 and 1 are supported  
-- Value 0 means linked-list aggregation algorithm  
-- Value 1 means image-sweep algorithm  
-
-`!va or !vectorizeralgorithm [algorithm_num]`
+You should receive a confirmation message telling you what you set the parameters to.
 
 ## C Tests
 
@@ -170,7 +163,7 @@ The C code contains a test suite (based on MUnit). Run the `test` binary created
 
 ## Rust Tests
 
-Because there are end to end tests which require access to the bot token, the Rust tests must be run in series.
+The Rust tests must be run in series.
 
 ```
 cargo test -- --test-threads 1
