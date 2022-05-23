@@ -80,7 +80,7 @@ conan profile new default --detect
 conan profile update settings.compiler.libcxx=libstdc++11 default
 ```
 
-Then continue with cross-platform instructions:
+Then continue with cross-platform instructions using a terminal with administrator privileges:
 
 ```
     conan install ../ --build=libpng --build=zlib --build=libjpeg
