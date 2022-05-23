@@ -9,14 +9,15 @@ it has a Rust component and a C component.
 
 Set the `VECTORIZER`, `TRAMPOLINE` and `CHANNELID` environment variables to the value of your two discord bot's secret tokens.
 
-For windows there are some extra steps:
+If you are on windows:
 
-+ install visual studio
+    + install chocolatey
 
-+ add msbuild.exe to your PATH environment variable
+    + use choco to install mingw
 
-    `C:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin`
+    + add the choco path to the `PATH` environment variable
 
+        `C:\ProgramData\chocolatey\bin`
 
 Install Rust lang so that you can use the `cargo` tool to work with the rust part.
 
@@ -46,14 +47,19 @@ disclaimer: conan no longer works with python2 and pip2 as it is using python3 s
 
 # Building the C Code
 
-To build on windows, clone freeglut from https://github.com/FreeGLUTProject/freeglut into Cpp_part/freeglut.
-You will also need lunasvg from https://github.com/sammycage/lunasvg cloned into Cpp_part/lunasvg. (cmake will try and find it installed but it's likely not in any package repo)
-
 On linux install the following:
 
 	sudo apt-get install mesa-common-dev
 		
 	sudo apt-get install freeglut3-dev
+
+On Windows, clone these repos into the Cpp_part folder:
+
+    https://github.com/FreeGLUTProject/freeglut
+
+    https://github.com/sammycage/lunasvg
+
+Cmake will know where to find these projects when linking.
 
 Also have an placeholder.bmp in the binary folder (wherever you build or install) if you want a placeholder image for non-existant images
 
@@ -79,8 +85,8 @@ Then continue with cross-platform instructions:
 ```
     conan install ../ --build=libpng --build=zlib --build=libjpeg
     cd ../
-    cmake -B build
-    cmake --build build
+    cmake -B build -G "MinGW Makefiles"
+    cmake --build build -j4
     cmake --install build --prefix build
 ```
 
