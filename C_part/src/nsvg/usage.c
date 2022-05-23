@@ -80,60 +80,6 @@ NSVGimage* dcdfill_for_nsvg(image input, vectorize_options options) {
     return output;
 }
 
-NSVGimage* bobsweep_for_nsvg(image input, vectorize_options options) {
-    quantize_image(&input, options.num_colours);
-
-	if(isBadError()) {
-		LOG_ERR("quantize_image failed with %d", getLastError());
-		return NULL;
-	}
-
-    chunkmap* map = generate_chunkmap(input, options);
-
-    if (isBadError()) {
-        LOG_ERR("generate_chunkmap failed with code: %d ", getLastError());
-        free_chunkmap(map);
-        return NULL;
-    }
-    sweepfill_chunkmap(map, options.shape_colour_threshhold);
-
-    if (isBadError())
-    {
-        LOG_ERR("bobsweep failed with error: %d", getLastError());
-        free_chunkmap(map);
-        return NULL;
-    }
-    //sort_boundary(map);
-
-    if(isBadError()) {
-        LOG_ERR("sort_boundary failed with code %d", getLastError());
-        free_chunkmap(map);
-        return NULL;
-    }
-
-    write_chunkmap_to_png(map, "chunkmap.png");
-    if (isBadError())
-    {
-        LOG_ERR("Writing Chunkmap to png failed %d", getLastError());
-        free_chunkmap(map);
-        return NULL;
-    }
-
-    NSVGimage* nsvg = create_nsvgimage(map->map_width, map->map_height);
-    parse_map_into_nsvgimage(map, nsvg);
-
-    if (isBadError())
-    {
-        LOG_ERR("mapparser failed with error: %d", getLastError());
-        free_chunkmap(map);
-        free_nsvg(nsvg);
-        return NULL;
-    }
-    free_chunkmap(map);
-    return nsvg;
-}
-
-
 void free_nsvg(NSVGimage* input) {
     if(!input) {
         LOG_INFO("input is null");

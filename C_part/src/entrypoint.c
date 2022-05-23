@@ -39,7 +39,7 @@ int execute_program(vectorize_options options) {
 		LOG_ERR("vectorize_image failed with code: %d", code);
 		return getAndResetErrorCode();
 	}
-	bool result = write_svg_file(nsvg);
+	bool result = write_svg_file(nsvg, OUTPUT_PATH);
 	code = getLastError();
 
 	if(result == false || isBadError()) {
