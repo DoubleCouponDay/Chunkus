@@ -83,7 +83,7 @@ conan profile update settings.compiler.libcxx=libstdc++11 default
 Then continue with cross-platform instructions using a terminal with administrator privileges:
 
 ```
-    conan install ../ --build=libpng --build=zlib --build=libjpeg
+    conan install ../ --build=libpng --build=zlib --build=nanosvg
     cd ../
     cmake -B build -G "MinGW Makefiles"
     cmake --build build -j4
