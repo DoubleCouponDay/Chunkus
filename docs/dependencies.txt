@@ -1,0 +1,11 @@
+https://github.com/rockcarry/ffjpeg
+
+https://github.com/LuaDist/libpng
+
+https://github.com/sammycage/lunasvg
+
+https://github.com/madler/zlib
+
+https://github.com/FreeGLUTProject/freeglut
+
+https://github.com/memononen/nanosvg

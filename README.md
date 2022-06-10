@@ -50,16 +50,22 @@ disclaimer: conan no longer works with python2 and pip2 as it is using python3 s
 On linux install the following:
 
 	sudo apt-get install mesa-common-dev
-		
-	sudo apt-get install freeglut3-dev
 
-On Windows, clone these repos into the Cpp_part folder:
+Clone these repos into folders adjacent to the root folder:
 
-    https://github.com/FreeGLUTProject/freeglut
+    https://github.com/rockcarry/ffjpeg
+
+    https://github.com/LuaDist/libpng
 
     https://github.com/sammycage/lunasvg
 
-Cmake will know where to find these projects when linking.
+    https://github.com/madler/zlib
+
+    https://github.com/FreeGLUTProject/freeglut
+
+    https://github.com/memononen/nanosvg
+
+Cmake will know where to find these projects when linking. (WE HOPE)
 
 Also have an placeholder.bmp in the binary folder (wherever you build or install) if you want a placeholder image for non-existant images
 
@@ -73,24 +79,16 @@ From the root folder, run the following commands:
     cd build
 ```
 
-If on linux, run this line:
+continue with cross-platform instructions using a terminal with administrator privileges:
 
 ```
-conan profile new default --detect
-conan profile update settings.compiler.libcxx=libstdc++11 default
-```
-
-Then continue with cross-platform instructions using a terminal with administrator privileges:
-
-```
-    conan install ../ --build=libpng --build=zlib --build=nanosvg
     cd ../
     cmake -B build -G "MinGW Makefiles"
     cmake --build build -j4
     cmake --install build --prefix build
 ```
 
-The C code is now build into `/build/bin/vec.lib`
+The C code is now build into the build folder.
 
 ---
 
