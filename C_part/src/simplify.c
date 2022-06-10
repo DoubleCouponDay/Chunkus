@@ -32,7 +32,7 @@ byte quantize_int(int subject, int divisions) {
 void quantize_image(image* subject, int num_colours) {
     if(num_colours < 0 ||
         num_colours > TOTAL_COLOURS) {
-        LOG_ERR("num colours out of bounds!");
+        LOG_ERR("num colours out of bounds!", "");
         setError(BAD_ARGUMENT_ERROR);
         return;
     }

@@ -50,9 +50,7 @@
             "program": "${workspaceFolder}\\Cpp_part\\build\\Vectorizer_GUI",
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}\\Cpp_part\\build",
-            "environment": [],
-            "console": "internalConsole",
-            "requireExactSource": false
+            "environment": []
         },
         {
             "type": "lldb",
@@ -71,9 +69,7 @@
             "args": ["true"],
             "program": "${workspaceFolder}/Cpp_part/build/Vectorizer_GUI",
             "cwd": "${workspaceFolder}/Cpp_part/build",
-            "stopOnEntry": false,
-            "MIMode": "gdb",
-            "sourceLanguages": ["cpp"]
+            "MIMode": "gdb"
         },
     ]
 }

@@ -16,7 +16,6 @@ FILE* openfile(char* fileaddress) {
     if (!file_p) {
         LOG_ERR("Could not open file '%s' for reading", fileaddress);
         setError(ASSUMPTION_WRONG);
-        fclose(file_p);
         return NULL;
     }
     return file_p;
@@ -113,7 +112,7 @@ image create_image(int width, int height)
 void free_image_contents(image img)
 {
     if (!img.pixels_array_2d) {
-        LOG_ERR("image has null pointers");
+        LOG_ERR("image has null pointers", "");
         return;
     }
     
@@ -126,7 +125,7 @@ void free_image_contents(image img)
         }
 
         else
-            LOG_ERR("pixel is null");
+            LOG_ERR("pixel is null", "");
     }
 
     if(img.pixels_array_2d) {
@@ -134,6 +133,6 @@ void free_image_contents(image img)
     }
 
     else {
-        LOG_ERR("pixel collection is null");
+        LOG_ERR("pixel collection is null", "");
     }
 }

@@ -69,7 +69,6 @@ int main(int argc, char** argv) {
   MunitTest melon = { "png_to_nsvg", can_vectorize_image, test6setup, test6teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest cherry = { "chunkmap_to_png", can_write_chunkmap_shapes_to_file, test69setup, test69teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest banana = { "dcdfill", can_write_to_svgfile, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest yo_mama = { "bobsweep", can_do_speedy_vectorize, speedy_vectorize_setup, speedy_vectorize_teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest run = { "run", just_run, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest pineapple = { "jpeg_to_image", JPEG_to_image, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest apricot = { "jpeg_to_bmp", can_convert_jpeg_to_bmp, jpeg_to_bmp_setup, jpeg_to_bmp_teardown, MUNIT_TEST_OPTION_NONE, test_params };
@@ -80,7 +79,7 @@ int main(int argc, char** argv) {
   //date
 
   enum { 
-    NUM_TESTS = 12 //UPDATE THIS WHEN YOU ADD NEW TESTS
+    NUM_TESTS = 11 //UPDATE THIS WHEN YOU ADD NEW TESTS
   }; 
 
   namedtest tests[NUM_TESTS] = {
@@ -91,7 +90,6 @@ int main(int argc, char** argv) {
     {melon.name, melon},
     {cherry.name, cherry},
     {banana.name, banana},
-    {yo_mama.name, yo_mama},
     {run.name, run},
     {pineapple.name, pineapple},
     {apricot.name, apricot},

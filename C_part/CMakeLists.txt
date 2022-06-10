@@ -16,6 +16,13 @@ file(GLOB sourceglob
     "${PROJECT_SOURCE_DIR}/src/utility/*.c"
     "${PROJECT_SOURCE_DIR}/src/nsvg/*.c")
 
+file(GLOB testglob
+        "${PROJECT_SOURCE_DIR}/test/*.c")
+    
+set(TEST_SRCS ${testglob} ${sourceglob})
+
+add_executable(vec_tests ${TEST_SRCS})
+
 if(BUILD_SHARED_LIBS)
     message("Building vec as shared library")
     add_library(vec SHARED ${sourceglob} ${headersglob})
@@ -36,6 +43,7 @@ endif(DEFINED CONAN_CMAKE_DIR)
 conan_basic_setup(TARGETS)
 
 target_link_libraries(vec CONAN_PKG::libpng CONAN_PKG::nanosvg CONAN_PKG::libjpeg)
+target_link_libraries(vec_tests CONAN_PKG::libpng CONAN_PKG::nanosvg CONAN_PKG::libjpeg)
 
 
 set_target_properties(vec PROPERTIES PUBLIC_HEADER "./src/entrypoint.h")

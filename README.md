@@ -9,14 +9,15 @@ it has a Rust component and a C component.
 
 Set the `VECTORIZER`, `TRAMPOLINE` and `CHANNELID` environment variables to the value of your two discord bot's secret tokens.
 
-For windows there are some extra steps:
+If you are on windows:
 
-+ install visual studio
+    + install chocolatey
 
-+ add msbuild.exe to your PATH environment variable
+    + use choco to install mingw
 
-    `C:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin`
+    + add the choco path to the `PATH` environment variable
 
+        `C:\ProgramData\chocolatey\bin`
 
 Install Rust lang so that you can use the `cargo` tool to work with the rust part.
 
@@ -46,14 +47,19 @@ disclaimer: conan no longer works with python2 and pip2 as it is using python3 s
 
 # Building the C Code
 
-To build on windows, clone freeglut from https://github.com/FreeGLUTProject/freeglut into Cpp_part/freeglut.
-You will also need lunasvg from https://github.com/sammycage/lunasvg cloned into Cpp_part/lunasvg. (cmake will try and find it installed but it's likely not in any package repo)
-
 On linux install the following:
 
 	sudo apt-get install mesa-common-dev
 		
 	sudo apt-get install freeglut3-dev
+
+On Windows, clone these repos into the Cpp_part folder:
+
+    https://github.com/FreeGLUTProject/freeglut
+
+    https://github.com/sammycage/lunasvg
+
+Cmake will know where to find these projects when linking.
 
 Also have an placeholder.bmp in the binary folder (wherever you build or install) if you want a placeholder image for non-existant images
 
@@ -74,13 +80,13 @@ conan profile new default --detect
 conan profile update settings.compiler.libcxx=libstdc++11 default
 ```
 
-Then continue with cross-platform instructions:
+Then continue with cross-platform instructions using a terminal with administrator privileges:
 
 ```
-    conan install ../ --build=libpng --build=zlib --build=libjpeg
+    conan install ../ --build=libpng --build=zlib --build=nanosvg
     cd ../
-    cmake -B build
-    cmake --build build
+    cmake -B build -G "MinGW Makefiles"
+    cmake --build build -j4
     cmake --install build --prefix build
 ```
 
@@ -149,14 +155,7 @@ Threshold is a number between 0 and 441.67 (The square root of 255^2 * 3 (vector
 `!vp or !vectorizerparams [chunksize] [threshold]` eg. 
 
     !params 2 50  
-You should receive a confirmation message telling you what you set the parameters to  
-  
-### Set Algorithm: Sets which algorithm is used for shape identification  
-Currently only values of 0 and 1 are supported  
-- Value 0 means linked-list aggregation algorithm  
-- Value 1 means image-sweep algorithm  
-
-`!va or !vectorizeralgorithm [algorithm_num]`
+You should receive a confirmation message telling you what you set the parameters to.
 
 ## C Tests
 
@@ -164,7 +163,7 @@ The C code contains a test suite (based on MUnit). Run the `test` binary created
 
 ## Rust Tests
 
-Because there are end to end tests which require access to the bot token, the Rust tests must be run in series.
+The Rust tests must be run in series.
 
 ```
 cargo test -- --test-threads 1

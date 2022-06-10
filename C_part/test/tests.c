@@ -174,7 +174,7 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   stuff->nsvg_image = dcdfill_for_nsvg(stuff->img, options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  bool outcome = write_svg_file(stuff->nsvg_image);
+  bool outcome = write_svg_file(stuff->nsvg_image, OUTPUT_PATH);
   
   if(outcome)
     LOG_INFO("svg writing outcome: %s", "succeeded");
@@ -185,45 +185,6 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
   FILE* fp = fopen(OUTPUT_PATH, "r"); //check it at least creates a file every time
-  munit_assert_ptr_not_null(fp);
-  fclose(fp);
-
-  return MUNIT_OK;
-}
-
-MunitResult can_do_speedy_vectorize(const MunitParameter params[], void* userdata)
-{
-  speedy_vectorize_stuff* stuff = userdata;
-
-  char* fileaddress = params[0].value;
-
-  char* chunk_size_str = params[1].value;
-  int chunk_size = atoi(chunk_size_str);
-
-  char* threshold_str = params[2].value;
-  float threshold = atof(threshold_str);
-  
-  char* out_fileaddress = params[3].value;
-  int num_colours = atoi(params[4].value);
-
-  vectorize_options options = {
-    fileaddress,
-    chunk_size,
-    threshold,
-    num_colours
-  };
-
-  stuff->img = convert_png_to_image(fileaddress);
-  munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
-  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
-
-  stuff->nsvg_image = bobsweep_for_nsvg(stuff->img, options);
-  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
-
-  munit_assert(write_svg_file(stuff->nsvg_image));
-  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
-  
-  FILE* fp = fopen(OUTPUT_PATH, "r");
   munit_assert_ptr_not_null(fp);
   fclose(fp);
 
@@ -297,7 +258,7 @@ MunitResult jpeg_dcd(const MunitParameter params[], void* userdata) {
   stuff->nsvg_image = dcdfill_for_nsvg(stuff->img, options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  bool outcome = write_svg_file(stuff->nsvg_image);
+  bool outcome = write_svg_file(stuff->nsvg_image, OUTPUT_PATH);
   
   if(outcome)
     LOG_INFO("svg writing outcome: %s", "succeeded");
