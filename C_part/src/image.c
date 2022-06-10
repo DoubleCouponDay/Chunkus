@@ -16,7 +16,6 @@ FILE* openfile(char* fileaddress) {
     if (!file_p) {
         LOG_ERR("Could not open file '%s' for reading", fileaddress);
         setError(ASSUMPTION_WRONG);
-        fclose(file_p);
         return NULL;
     }
     return file_p;
