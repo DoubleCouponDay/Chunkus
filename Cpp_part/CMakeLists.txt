@@ -33,11 +33,11 @@ find_package(OpenGL REQUIRED)
 find_package(GLUT QUIET)
 
 if (NOT GLUT_FOUND)
-	message("Using freeglut that should be in ./freeglut")
+	message("Using freeglut that should be in ../../freeglut")
 
-	add_subdirectory(freeglut)
+	add_subdirectory(../../freeglut ./freeglut)
 	
-	target_include_directories(Vectorizer_GUI PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/freeglut/include")
+	target_include_directories(Vectorizer_GUI PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}../../freeglut/include")
 	target_link_libraries(Vectorizer_GUI PRIVATE freeglut)
 else()
 	message("Found Freeglut installation: dirs: ${GLUT_INCLUDE_DIRS} libs: ${GLUT_LIBRARIES}")
@@ -50,12 +50,12 @@ target_link_libraries(Vectorizer_GUI PRIVATE ${OPENGL_LIBRARIES})
 find_package(LUNASVG QUIET)
 
 if (NOT LUNASVG_FOUND)
-	message("Did not find lunasvg package installed, looking for clone in ${CMAKE_CURRENT_SOURCE_DIR}/lunasvg")
+	message("Using lunasvg that should be in ../../lunasvg")
 
 	if (BUILD_SHARED_LIBS)
 		set(BUILD_SHARED_LIBS ON CACHE BOOL "Force Build Shared Libs on" FORCE)
 	endif()
-	add_subdirectory(lunasvg)
+	add_subdirectory(../../lunasvg ./lunasvg)
 
 	target_include_directories(Vectorizer_GUI PRIVATE $<TARGET_PROPERTY:lunasvg,INTERFACE_INCLUDE_DIRECTORIES>)
 	target_link_libraries(Vectorizer_GUI PRIVATE lunasvg)
