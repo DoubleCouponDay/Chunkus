@@ -33,30 +33,29 @@ else()
     add_compile_definitions(vec VEC_NOEXPORTDLL)
 endif()
 
-
 message("Using nanosvg that should be in ../../nanosvg")
-add_subdirectory(../../nanosvg ./nanosvg)
-target_include_directories(vec PRIVATE $<TARGET_PROPERTY:nanosvg,INTERFACE_INCLUDE_DIRECTORIES>)
-target_link_libraries(vec PRIVATE nanosvg)
-target_include_directories(vec_tests PRIVATE $<TARGET_PROPERTY:nanosvg,INTERFACE_INCLUDE_DIRECTORIES>)
-target_link_libraries(vec_tests PRIVATE nanosvg)
+    target_include_directories(vec PUBLIC "../../nanosvg/install/include/nanosvg")
+    target_include_directories(vec_tests PUBLIC "../../nanosvg/install/include/nanosvg")
 
 message("Using zlib that should be in ../../zlib")
-add_subdirectory(../../zlib ./zlib)
-target_include_directories(vec PRIVATE $<TARGET_PROPERTY:zlibstatic,INTERFACE_INCLUDE_DIRECTORIES>)
-target_link_libraries(vec PRIVATE zlibstatic)
-target_include_directories(vec_tests PRIVATE $<TARGET_PROPERTY:zlibstatic,INTERFACE_INCLUDE_DIRECTORIES>)
-target_link_libraries(vec_tests PRIVATE zlibstatic)
+
+    set(ZLIB_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../../zlib/install/include")
+
+    add_library(zlibstaticimport STATIC IMPORTED)
+    set_property(TARGET zlibstaticimport PROPERTY
+        IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/../../zlib/install/lib/libzlibstatic.a")
+
+    set(ZLIB_LIBRARIES "zlibstaticimport")
 
 message("Using libpng that should be in ../../libpng")
-add_subdirectory(../../libpng ./libpng)
-target_include_directories(vec PRIVATE $<TARGET_PROPERTY:png,INTERFACE_INCLUDE_DIRECTORIES>)
-target_link_libraries(vec PRIVATE png)
-target_include_directories(vec_tests PRIVATE $<TARGET_PROPERTY:png,INTERFACE_INCLUDE_DIRECTORIES>)
-target_link_libraries(vec_tests PRIVATE png)
+    set(PNG_BUILD_ZLIB ON CACHE BOOL "Prevent libpng from building zlib" FORCE)
+    add_subdirectory(../../libpng ./libpng)
+    target_include_directories(vec PRIVATE "../../libpng")
+    target_link_libraries(vec PRIVATE png)
+    target_include_directories(vec_tests PRIVATE "../../libpng")
+    target_link_libraries(vec_tests PRIVATE png)
 
 target_include_directories(vec INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-
 set_target_properties(vec PROPERTIES PUBLIC_HEADER "./src/entrypoint.h")
 
 install(
