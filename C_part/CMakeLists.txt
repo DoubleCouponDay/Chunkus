@@ -23,8 +23,6 @@ set(TEST_SRCS ${testglob} ${sourceglob})
 
 add_executable(vec_tests ${TEST_SRCS})
 
-
-
 if(BUILD_SHARED_LIBS)
     message("Building vec as shared library")
     add_library(vec SHARED ${sourceglob} ${headersglob})
@@ -45,17 +43,17 @@ target_link_libraries(vec_tests PRIVATE nanosvg)
 
 message("Using zlib that should be in ../../zlib")
 add_subdirectory(../../zlib ./zlib)
-target_include_directories(vec PRIVATE $<TARGET_PROPERTY:zlib,INTERFACE_INCLUDE_DIRECTORIES>)
-target_link_libraries(vec PRIVATE zlib)
-target_include_directories(vec_tests PRIVATE $<TARGET_PROPERTY:zlib,INTERFACE_INCLUDE_DIRECTORIES>)
-target_link_libraries(vec_tests PRIVATE zlib)
+target_include_directories(vec PRIVATE $<TARGET_PROPERTY:zlibstatic,INTERFACE_INCLUDE_DIRECTORIES>)
+target_link_libraries(vec PRIVATE zlibstatic)
+target_include_directories(vec_tests PRIVATE $<TARGET_PROPERTY:zlibstatic,INTERFACE_INCLUDE_DIRECTORIES>)
+target_link_libraries(vec_tests PRIVATE zlibstatic)
 
 message("Using libpng that should be in ../../libpng")
 add_subdirectory(../../libpng ./libpng)
-target_include_directories(vec PRIVATE $<TARGET_PROPERTY:libpng,INTERFACE_INCLUDE_DIRECTORIES>)
-target_link_libraries(vec PRIVATE libpng)
-target_include_directories(vec_tests PRIVATE $<TARGET_PROPERTY:libpng,INTERFACE_INCLUDE_DIRECTORIES>)
-target_link_libraries(vec_tests PRIVATE libpng)
+target_include_directories(vec PRIVATE $<TARGET_PROPERTY:png,INTERFACE_INCLUDE_DIRECTORIES>)
+target_link_libraries(vec PRIVATE png)
+target_include_directories(vec_tests PRIVATE $<TARGET_PROPERTY:png,INTERFACE_INCLUDE_DIRECTORIES>)
+target_link_libraries(vec_tests PRIVATE png)
 
 target_include_directories(vec INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
@@ -71,3 +69,4 @@ install(
 install(FILES "../template.svg" DESTINATION bin)
 
 file(COPY "../template.svg" DESTINATION "./bin")
+

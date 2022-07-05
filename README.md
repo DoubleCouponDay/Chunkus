@@ -57,6 +57,10 @@ Clone these repos into folders adjacent to the root folder:
 
     https://github.com/LuaDist/libpng
 
+        check out this commit to get a fixed release version (1.2.12). This helped us to avoid error messages.
+
+        git checkout --detach 21767c654d31d2dccdde4330529775c6c5fd5389
+
     https://github.com/sammycage/lunasvg
 
     https://github.com/madler/zlib
