@@ -55,17 +55,19 @@ Clone these repos into folders adjacent to the root folder:
 
     https://github.com/rockcarry/ffjpeg
 
+        git checkout --detach 3dddf985fac209db78f3e2189f8285de80f8992b
+
     https://github.com/glennrp/libpng
 
-        check out this commit to get a fixed release version (1.2.12). This helped us to avoid error messages.
-
-        git checkout --detach c17d164b4467f099b4484dfd4a279da0bc1dbd4a
+        git checkout libpng16
 
     https://github.com/sammycage/lunasvg
 
+        git checkout --detach e612abda858b53160041381a23422cd2b4f42fbd
+
     https://github.com/madler/zlib
 
-        run these command inside the zlib folder
+        git checkout --detach 21767c654d31d2dccdde4330529775c6c5fd5389
 
         cmake -B build -G "MinGW Makefiles" --install-prefix "C:\YOUR_PATH_HERE\zlib\install" 
         cmake --build build -j4
@@ -73,7 +75,13 @@ Clone these repos into folders adjacent to the root folder:
 
     https://github.com/FreeGLUTProject/freeglut
 
+        git checkout --detach e3aa3d74f3c6a93b26fd66f81152d9c55506a6c6
+
     https://github.com/memononen/nanosvg
+
+        cmake -B build -G "MinGW Makefiles" --install-prefix "C:\YOUR_PATH_HERE\nanosvg\install" 
+        cmake --build build -j4
+        cmake --install build
 
 Cmake will know where to find these projects when linking. (WE HOPE)
 
