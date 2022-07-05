@@ -55,15 +55,21 @@ Clone these repos into folders adjacent to the root folder:
 
     https://github.com/rockcarry/ffjpeg
 
-    https://github.com/LuaDist/libpng
+    https://github.com/glennrp/libpng
 
         check out this commit to get a fixed release version (1.2.12). This helped us to avoid error messages.
 
-        git checkout --detach 21767c654d31d2dccdde4330529775c6c5fd5389
+        git checkout --detach c17d164b4467f099b4484dfd4a279da0bc1dbd4a
 
     https://github.com/sammycage/lunasvg
 
     https://github.com/madler/zlib
+
+        run these command inside the zlib folder
+
+        cmake -B build -G "MinGW Makefiles" --install-prefix "C:\YOUR_PATH_HERE\zlib\install" 
+        cmake --build build -j4
+        cmake --install build
 
     https://github.com/FreeGLUTProject/freeglut
 
@@ -86,10 +92,9 @@ From the root folder, run the following commands:
 continue with cross-platform instructions using a terminal with administrator privileges:
 
 ```
-    cd ../
     cmake -B build -G "MinGW Makefiles"
     cmake --build build -j4
-    cmake --install build --prefix build
+    cmake --install build
 ```
 
 The C code is now build into the build folder.
