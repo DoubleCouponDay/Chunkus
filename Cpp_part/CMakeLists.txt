@@ -37,7 +37,7 @@ if (NOT GLUT_FOUND)
 
 	add_subdirectory(../../freeglut ./freeglut)
 	
-	target_include_directories(Vectorizer_GUI PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}../../freeglut/include")
+	target_include_directories(Vectorizer_GUI PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../freeglut/include")
 	target_link_libraries(Vectorizer_GUI PRIVATE freeglut)
 else()
 	message("Found Freeglut installation: dirs: ${GLUT_INCLUDE_DIRS} libs: ${GLUT_LIBRARIES}")
