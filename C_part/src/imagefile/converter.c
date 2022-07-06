@@ -29,7 +29,7 @@ image convert_file_to_image(char* fileaddress) {
     }
 
     LOG_INFO("checking if file is JPEG type");
-    bool isjpg = file_is_jpeg(fileaddress);
+    bool isjpg = false;//file_is_jpeg(fileaddress);
 
     if(isBadError()) {
         LOG_ERR("file_is_jpeg failed");
@@ -37,7 +37,7 @@ image convert_file_to_image(char* fileaddress) {
     }
 
     if(isjpg) {
-        return convert_jpeg_to_image(fileaddress);
+        return (image){ 0 };//convert_jpeg_to_image(fileaddress);
     }
 
     if(isBadError()) {
