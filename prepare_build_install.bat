@@ -2,7 +2,7 @@ cd ../
 git clone https://github.com/madler/zlib.git
 git clone https://github.com/glennrp/libpng.git
 git clone https://github.com/sammycage/lunasvg.git
-git clone https://github.com/FreeGLUTProject/freeflut.git
+git clone https://github.com/FreeGLUTProject/freeglut.git
 git clone https://github.com/memononen/nanosvg.git
 
 # Build zlib
