@@ -56,6 +56,26 @@ install(
   RUNTIME DESTINATION bin
 )
 
+install(
+    TARGETS vec_tests
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION bin
+    RUNTIME DESTINATION bin
+)
+
+if (WIN32)
+    # Eventually make these not hard-coded to pre-built windows dlls
+    set(ZLIB_SHARED_LIB "../../zlib/install/bin/libzlib.dll")
+    set(PNG_SHARED_LIB "../../libpng/png-install/bin/libpng16.dll")
+
+    install(
+        FILES
+        ${ZLIB_SHARED_LIB}
+        ${PNG_SHARED_LIB}
+        DESTINATION bin
+    )
+endif()
+
 install(FILES "../template.svg" DESTINATION bin)
 
 file(COPY "../template.svg" DESTINATION "./bin")
