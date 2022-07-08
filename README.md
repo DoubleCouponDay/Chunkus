@@ -115,7 +115,7 @@ The C code is now built into the build folder, and the final product has been in
 
 ---
 
-You can easily build all components by executing the build script. It must be executed from the root directory. (Not currently working)
+You can easily build all components by executing the build script build_cpart_cpppart.(sh/bat) . It must be executed from the root directory. (Not currently working)
 
   
 ## Building the Rust code
