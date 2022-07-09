@@ -33,7 +33,7 @@ struct MsgUpdate;
 pub struct DefaultHandler;
 
 #[group]
-#[commands(vectorize, vectorizeralgorithm, vectorizerparams)]
+#[commands(vectorize, vectorizerparams)]
 struct General;
 
 pub async fn create_vec_bot(token: &str, shouldcrash: bool) -> Client
@@ -236,42 +236,6 @@ async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandRe
 
     else if let Err(why) = msg.reply(&ctx.http, "incorrect arguments given").await {
         eprintln!("Error sending params reply: {:?}", why);
-    }
-    Ok(())
-}
-
-#[command]
-#[aliases("va")]
-pub async fn vectorizeralgorithm(ctx: &Context, msg: &Message, args: Args) -> CommandResult
-{
-    println!("Setting algorithm");
-    let potential_algo = args.rest().parse::<String>();
-    if potential_algo.is_err()
-    {
-        if let Err(why) = msg.reply(&ctx.http, "Invalid input given!").await
-        {
-            eprintln!("Failed to reply to set_algorithm: {}", why);
-            return Ok(());
-        }
-    }
-    let betweenstep = potential_algo.unwrap();
-    let algorithm: &str = betweenstep.as_str();
-
-    let c_error = super::core::set_algorithm(algorithm);
-
-    if c_error != constants::FfiResult::SuccessCode
-    {
-        if let Err(why) = msg.reply(&ctx.http, format!("An error occurred: {}", c_error)).await
-        {
-            eprintln!("Failed to send an error message: {}", why);
-        }
-    }
-    else
-    {
-        if let Err(why) = msg.reply(&ctx.http, format!("Successfully set algorithm to: {}", algorithm)).await
-        {
-            eprintln!("Failed to reply to set_algorithm call: {}", why);
-        }
     }
     Ok(())
 }
