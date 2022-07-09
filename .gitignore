@@ -4,11 +4,8 @@ Rust_part/template.svg
 **/*.lib
 /C_part/lib/
 /C_part/bin/
-conaninfo.txt
 graph_info.json
-conanbuildinfo.cmake
 **/log.txt
-**/conanbuildinfo.txt
 C_Part/build/
 
 # Discord token
@@ -85,13 +82,11 @@ Mkfile.old
 dkms.conf
 build/linux/x86_64/release/Rasterizer
 .xmake/linux/x86_64/project.lock
-conan.lock
 .xmake/linux/x86_64/xmake.conf
 .xmake/linux/x86_64/cache/requires
 .xmake/linux/x86_64/cache/history
 .xmake/linux/x86_64/cache/detect
 .xmake/linux/x86_64/cache/config
-.vscode/.conan_tools/conanInfo.dot
 .xmake/linux/x86_64/xmake.conf
 
 *.lock

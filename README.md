@@ -27,22 +27,6 @@ Install Rust lang so that you can use the `cargo` tool to work with the rust par
 
 Install docker and docker compose (for the release build)
 
-Install python3 and python3-pip (for installing conan)
-
-    it can only be run from cmd, not powershell. Windows defender antivirus may nuke your conan.exe so you will have to add the folder in the exclusions.
-
-```
-    apt-get install python3
-    apt-get install python3-pip
-    python3 -m pip install --upgrade pip
-    python3 -m pip install conan
-```
-
-Set the `CONAN` environment variable to the directory containing your conan packages. on windows it's: `C:\Users\(YOU))\.conan\data`. On linux it's: ~/.conan/data
-
-disclaimer: conan no longer works with python2 and pip2 as it is using python3 syntax. If you didn't install conan from the correct place, your build will fail.
-
-  
 ---
 
 # Building the C Code

@@ -1,6 +1,0 @@
-[requires]
-libpng/1.6.37
-nanosvg/20190405
-    
-[generators]
-cmake

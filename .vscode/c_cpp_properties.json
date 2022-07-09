@@ -31,7 +31,6 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/**",
-                "${userHome}/.conan/data/**"
             ],
             "defines": [
                 "_DEBUG",
@@ -49,7 +48,6 @@
                 "path": [
                     "${workspaceFolder}/**",
                     "${workspaceFolder}/**",
-                    "${userHome}/.conan/data/**"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             }
