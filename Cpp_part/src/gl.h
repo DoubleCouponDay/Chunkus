@@ -17,7 +17,7 @@ public:
 
 char const* glErrorString(GLenum const err) noexcept;
 
-bool checkForGlError(std::string description);
+void checkForGlError(std::string description);
 
 class GLException : public std::exception
 {

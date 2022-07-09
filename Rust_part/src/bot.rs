@@ -1,15 +1,15 @@
-use std::{collections::{HashSet, HashMap}, fs::File, io::Write, ops::Add, path::Path, process::exit, time::{Duration, Instant}};
+use std::{collections::{HashSet, HashMap}, fs::File, io::Write, ops::Add, path::Path, time::{Duration, Instant}};
 use serenity::{async_trait, client::{
         Client, ClientBuilder, Context, EventHandler
-    }, framework::{Framework, standard::{
+    }, framework::{standard::{
         CommandResult,
         Args,
         StandardFramework,
         macros::{
             group, command,
         },
-    }}, http::Http, model::{id::UserId, prelude::{Message, MessageId, MessageUpdateEvent}}, prelude::{
-        TypeMapKey, TypeMap
+    }}, model::{prelude::{Message, MessageId, MessageUpdateEvent}}, prelude::{
+        TypeMapKey, TypeMap, GatewayIntents
     }};
 use tokio::sync::RwLockWriteGuard;
 use crate::core::{
@@ -33,38 +33,8 @@ struct MsgUpdate;
 pub struct DefaultHandler;
 
 #[group]
-#[commands(vectorize, vectorizeralgorithm, vectorizerparams)]
+#[commands(vectorize, vectorizerparams)]
 struct General;
-
-pub async fn generate_bot_id(token: &str) -> UserId {
-    println!("generating bot info");
-    let http = Http::new_with_token(token);
-
-    let (_, bot_id) = match http.get_current_application_info().await {
-        Ok(info) => {
-            let mut owners = HashSet::new();
-            owners.insert(info.owner.id);
-
-            (owners, info.id)
-        },
-        Err(why) => panic!("Could not access application info: {:?}", why),
-    };    
-    bot_id
-}
-
-pub async fn create_bot_with_handle<H: EventHandler + 'static>(token: &str, handler: H, framework: StandardFramework, shouldcrash: bool) -> Client {    
-    println!("creating bot with handle...");
-
-    let client = ClientBuilder::new(token)
-        .event_handler(handler)
-        .framework(framework) //I set standardframework as a requirement in the toml
-        .await
-        .expect("Error creating client");
-
-    initialize_bot(&client, shouldcrash).await;
-
-    client
-}
 
 pub async fn create_vec_bot(token: &str, shouldcrash: bool) -> Client
 {
@@ -74,7 +44,7 @@ pub async fn create_vec_bot(token: &str, shouldcrash: bool) -> Client
         .with_whitespace(true))
         .group(&GENERAL_GROUP);
 
-    let client = ClientBuilder::new(token)
+    let client = ClientBuilder::new(token, GatewayIntents::default())
         .event_handler(DefaultHandler)
         .framework(framework)
         .await
@@ -266,42 +236,6 @@ async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandRe
 
     else if let Err(why) = msg.reply(&ctx.http, "incorrect arguments given").await {
         eprintln!("Error sending params reply: {:?}", why);
-    }
-    Ok(())
-}
-
-#[command]
-#[aliases("va")]
-pub async fn vectorizeralgorithm(ctx: &Context, msg: &Message, args: Args) -> CommandResult
-{
-    println!("Setting algorithm");
-    let potential_algo = args.rest().parse::<String>();
-    if potential_algo.is_err()
-    {
-        if let Err(why) = msg.reply(&ctx.http, "Invalid input given!").await
-        {
-            eprintln!("Failed to reply to set_algorithm: {}", why);
-            return Ok(());
-        }
-    }
-    let betweenstep = potential_algo.unwrap();
-    let algorithm: &str = betweenstep.as_str();
-
-    let c_error = super::core::set_algorithm(algorithm);
-
-    if c_error != constants::FfiResult::SuccessCode
-    {
-        if let Err(why) = msg.reply(&ctx.http, format!("An error occurred: {}", c_error)).await
-        {
-            eprintln!("Failed to send an error message: {}", why);
-        }
-    }
-    else
-    {
-        if let Err(why) = msg.reply(&ctx.http, format!("Successfully set algorithm to: {}", algorithm)).await
-        {
-            eprintln!("Failed to reply to set_algorithm call: {}", why);
-        }
     }
     Ok(())
 }

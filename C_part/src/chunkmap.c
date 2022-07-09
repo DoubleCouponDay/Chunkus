@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <errno.h>
@@ -102,8 +103,8 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
     }    
     chunkmap* output = calloc(1, sizeof(chunkmap));
     output->input = input;
-    output->map_width = (int)ceilf((float)input.width / (float)options.chunk_size);
-    output->map_height = (int)ceilf((float)input.height / (float)options.chunk_size);
+    output->map_width = (int)ceil((float)input.width / (float)options.chunk_size);
+    output->map_height = (int)ceil((float)input.height / (float)options.chunk_size);
     
     LOG_INFO("creating pixelchunk");
     pixelchunk** newarray = calloc(1, sizeof(pixelchunk*) * output->map_width);

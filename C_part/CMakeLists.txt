@@ -37,23 +37,14 @@ message("Using nanosvg that should be in ../../nanosvg")
     target_include_directories(vec PUBLIC "../../nanosvg/install/include/nanosvg")
     target_include_directories(vec_tests PUBLIC "../../nanosvg/install/include/nanosvg")
 
-message("Using zlib that should be in ../../zlib")
+message("Using libpng that should be in ../../libpng (and installed to ../../libpng/png-install)")
 
-    set(ZLIB_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../../zlib/install/include")
+    target_include_directories(vec PUBLIC "../../libpng/png-install/include")
+    target_include_directories(vec_tests PUBLIC "../../libpng/png-install/include")
 
-    add_library(zlibstaticimport STATIC IMPORTED)
-    set_property(TARGET zlibstaticimport PROPERTY
-        IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/../../zlib/install/lib/libzlibstatic.a")
-
-    set(ZLIB_LIBRARIES "zlibstaticimport")
-
-message("Using libpng that should be in ../../libpng")
-    set(PNG_BUILD_ZLIB ON CACHE BOOL "Prevent libpng from building zlib" FORCE)
-    add_subdirectory(../../libpng ./libpng)
-    target_include_directories(vec PRIVATE "../../libpng")
-    target_link_libraries(vec PRIVATE png)
-    target_include_directories(vec_tests PRIVATE "../../libpng")
-    target_link_libraries(vec_tests PRIVATE png)
+    find_library(LIBPNG_LIB NAMES png libpng PATHS "../../libpng/png-install/lib" REQUIRED)
+    target_link_libraries(vec PUBLIC ${LIBPNG_LIB} m) #link with linbpng and math.h
+    target_link_libraries(vec_tests PUBLIC ${LIBPNG_LIB} m)
 
 target_include_directories(vec INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set_target_properties(vec PROPERTIES PUBLIC_HEADER "./src/entrypoint.h")
@@ -65,7 +56,36 @@ install(
   RUNTIME DESTINATION bin
 )
 
+install(
+    TARGETS vec_tests
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION bin
+    RUNTIME DESTINATION bin
+)
+
+if (WIN32)
+    # Eventually make these not hard-coded to pre-built windows dlls
+    set(ZLIB_SHARED_LIB "../../zlib/install/lib/libzlibstatic.a")
+    set(PNG_SHARED_LIB "../../libpng/png-install/lib/libpng16.a") #the windows build only produces libpng16, not libpng
+
+    install(
+        FILES
+        ${ZLIB_SHARED_LIB}
+        ${PNG_SHARED_LIB}
+        DESTINATION lib
+    )
+
+else()
+    set(ZLIB_SHARED_LIB "../../zlib/install/lib/libz.a")
+    set(PNG_SHARED_LIB "../../libpng/png-install/lib/libpng16.a") #match windows in order to reduce complexity while rust linking
+    install(
+        FILES
+        ${ZLIB_SHARED_LIB}
+        ${PNG_SHARED_LIB}
+        DESTINATION lib
+    )
+
+endif()
+
 install(FILES "../template.svg" DESTINATION bin)
-
 file(COPY "../template.svg" DESTINATION "./bin")
-

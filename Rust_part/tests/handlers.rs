@@ -2,7 +2,6 @@ use serenity::client::{
     Context, EventHandler
 };
 use serenity::framework::StandardFramework;
-use serenity::framework::standard::Configuration;
 use serenity::model::id::ChannelId;
 use serenity::{
     async_trait,
@@ -67,14 +66,9 @@ impl EventHandler for ReceiveImageEmbedMessageHandler
 #[async_trait]
 impl EventHandler for ReceiveMessageHandler
 {
-    async fn message(&self, _ctx: Context, msg: Message)
+    async fn message(&self, _ctx: Context, _msg: Message)
     {
         self.worked.store(true, Ordering::SeqCst);
-        
-        // if msg.content == RECEIVE_CONTENT
-        // {
-            
-        // }
     }
 }
 
@@ -92,7 +86,7 @@ pub async fn get_test_framework(channelid: u64) -> StandardFramework {
         a.prefixes(vec!["", "!"])
         .case_insensitivity(true) //dont care about case
         .ignore_bots(false) //dont ignore bot messages from automated tests
-        .with_whitespace(true); //release all cares whatsoever 
+        .with_whitespace(true);
 
         let mut set = HashSet::<ChannelId>::new();
 

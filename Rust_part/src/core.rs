@@ -9,13 +9,11 @@ mod ffimodule
 {
     use libc::{c_int};
 
-    //if no kind given, defaults to dynamic
     #[link(name = "zlib", kind = "static")]
-    #[link(name = "png16", kind = "static")]
+    #[link(name = "libpng", kind = "static")]
     #[link(name = "vec", kind = "static")] 
-    extern {        
+    extern "C" {        
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
-        pub fn set_algorithm(algo: *mut u8) -> c_int;
         pub fn just_crash() -> c_int;
     }
 }
@@ -38,22 +36,6 @@ fn call_entrypoint(input: &mut CString, output: &mut CString, chunk: &mut CStrin
         let between: i32 = cint;
         result = FfiResult::from(between);
     };
-    result
-}
-
-pub fn set_algorithm(algorithm: &str) -> FfiResult
-{
-    let result: FfiResult;
-    let algo_copy = algorithm.clone();
-    let algo_cstring = CString::new(algo_copy).unwrap();
-    
-    unsafe
-    {
-        println!("{}", algorithm);
-        let formatted = algo_cstring.as_ptr() as *mut u8;
-        let output = ffimodule::set_algorithm(formatted);
-        result = FfiResult::from(output);
-    }
     result
 }
 

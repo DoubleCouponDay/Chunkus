@@ -5,7 +5,7 @@ This was a group project by Samuel, Joshua, Matthew.
 
 ## Building Requirements
 
-it has a Rust component and a C component.
+it has a C component, a CPP component, and a Rust component.
 
 Set the `VECTORIZER`, `TRAMPOLINE` and `CHANNELID` environment variables to the value of your two discord bot's secret tokens.
 
@@ -19,30 +19,33 @@ If you are on windows:
 
         `C:\ProgramData\chocolatey\bin`
 
-Install Rust lang so that you can use the `cargo` tool to work with the rust part.
+Install Rust lang:
 
-```
-    rustup target add x86_64-unknown-linux-musl
-```
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-Install docker and docker compose (for the release build)
+if you are on windows:
 
-Install python3 and python3-pip (for installing conan)
+    rustup toolchain install stable-x86_64-pc-windows-gnu
+	
+	rustup default stable-x86_64-pc-windows-gnu
 
-    it can only be run from cmd, not powershell. Windows defender antivirus may nuke your conan.exe so you will have to add the folder in the exclusions.
+else
 
-```
-    apt-get install python3
-    apt-get install python3-pip
-    python3 -m pip install --upgrade pip
-    python3 -m pip install conan
-```
+    rustup default stable
+	
+### Rust installation on windows
+	
+install vc++ build tools from a vs installer
 
-Set the `CONAN` environment variable to the directory containing your conan packages. on windows it's: `C:\Users\(YOU))\.conan\data`. On linux it's: ~/.conan/data
+	
+### Rust installation on linux
+		
+    sudo apt install build-essential libssl-dev -y	
+		
 
-disclaimer: conan no longer works with python2 and pip2 as it is using python3 syntax. If you didn't install conan from the correct place, your build will fail.
 
-  
+Install docker and docker compose for testing the production build.
+
 ---
 
 # Building the C Code
@@ -53,35 +56,31 @@ On linux install the following:
 
 Clone these repos into folders adjacent to the root folder:
 
-    https://github.com/rockcarry/ffjpeg
+    https://github.com/madler/zlib
 
-        git checkout --detach 3dddf985fac209db78f3e2189f8285de80f8992b
+        pinned commit: v1.2.12
+
+        cmake -B build -G "MinGW Makefiles" -D CMAKE_INSTALL_PREFIX="install" 
+        cmake --build build -j4
+        cmake --install build
 
     https://github.com/glennrp/libpng
 
-        git checkout libpng16
+        pinned commit: v1.6.35
+
+        # Ensure zlib is built and installed first
 
     https://github.com/sammycage/lunasvg
 
-        git checkout --detach e612abda858b53160041381a23422cd2b4f42fbd
-
-    https://github.com/madler/zlib
-
-        git checkout --detach 21767c654d31d2dccdde4330529775c6c5fd5389
-
-        cmake -B build -G "MinGW Makefiles" --install-prefix "C:\YOUR_PATH_HERE\zlib\install" 
-        cmake --build build -j4
-        cmake --install build
+        pinned commit: v2.3.1
 
     https://github.com/FreeGLUTProject/freeglut
 
-        git checkout --detach e3aa3d74f3c6a93b26fd66f81152d9c55506a6c6
+        pinned commit: v3.2.2
 
     https://github.com/memononen/nanosvg
 
-        cmake -B build -G "MinGW Makefiles" --install-prefix "C:\YOUR_PATH_HERE\nanosvg\install" 
-        cmake --build build -j4
-        cmake --install build
+        pinned commit: 3bcdf2f3cdc1bf9197c2dce81368bfc6f99205a7
 
 Cmake will know where to find these projects when linking. (WE HOPE)
 
@@ -89,52 +88,21 @@ Also have an placeholder.bmp in the binary folder (wherever you build or install
 
 The C code builds to `C_part\build`
 
-From the root folder, run the following commands:
+Continue with cross-platform instructions using a terminal with administrator privileges.
+Execute the .SH or .BAT build script depending on your operating system. It must be executed from the root directory.
 
-```
-    cd C_part
-    mkdir build
-    cd build
-```
+    ./build_cpart_cpppart.sh
 
-continue with cross-platform instructions using a terminal with administrator privileges:
-
-```
-    cmake -B build -G "MinGW Makefiles"
-    cmake --build build -j4
-    cmake --install build
-```
-
-The C code is now build into the build folder.
-
----
-
-You can easily build all components by executing the build script. It must be executed from the root directory.
+    .\build_cpart_cpppart.bat
 
   
-## Building the Rust code
+## Building the Rust code 
 
-Now to build the Rust Component  
+The rust component links to the C code, which depends on libpng, which depends on zlib.
 
-The rust component links to the C code, which in turn depends on libpng (which depends on zlib)
-
-Now in the `discord-v` folder, run:
+In the `discord-v` folder, run:
 
     cargo build
-
-To link against the release build define the environment variable `releasebuild` as true
-
-in windows:
-
-    $env:releasebuild = "true" //powershell
-
-    set releasebuild=true //cmd
-
-    then log back in
-
-in linux:
-
-    you need to update your `~/.pam_environment` file to have this persist
 
 This sets the environment variable for this single terminal instance (the variable is lost with the terminal)
 
@@ -188,8 +156,6 @@ cargo test -- --test-threads 1
 you can run the bot on your computer or inside a docker container.
 
 build C code, then Rust code, then run `sudo docker build` on a Linux machine. once the image is built, deploy it to your docker hub registration.
-
-Create a `releasebuild` environment variable and set it to true.
 
 to use docker-compose on your computer, You will need to install OPENSSL 1.1.1
 
