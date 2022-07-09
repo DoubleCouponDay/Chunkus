@@ -92,7 +92,7 @@ pub async fn get_test_framework(channelid: u64) -> StandardFramework {
         a.prefixes(vec!["", "!"])
         .case_insensitivity(true) //dont care about case
         .ignore_bots(false) //dont ignore bot messages from automated tests
-        .with_whitespace(true); //release all cares whatsoever 
+        .with_whitespace(true);
 
         let mut set = HashSet::<ChannelId>::new();
 
