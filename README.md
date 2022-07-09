@@ -37,10 +37,6 @@ On linux install the following:
 
 Clone these repos into folders adjacent to the root folder:
 
-    https://github.com/rockcarry/ffjpeg
-
-        pinned commit: v1.0.0
-
     https://github.com/madler/zlib
 
         pinned commit: v1.2.12

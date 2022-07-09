@@ -1,9 +1,9 @@
 cd ../
 git clone https://github.com/madler/zlib.git
 git clone https://github.com/glennrp/libpng.git
-git clone https://github.com/sammycage/lunasvg.git
-git clone https://github.com/FreeGLUTProject/freeglut.git
 git clone https://github.com/memononen/nanosvg.git
+git clone https://github.com/FreeGLUTProject/freeglut.git
+git clone https://github.com/sammycage/lunasvg.git
 
 :: Build zlib
 cd zlib
@@ -28,10 +28,6 @@ git checkout 3bcdf2f3cdc1bf9197c2dce81368bfc6f99205a7
 cmake -B build -G "MinGW Makefiles"
 cmake --build build -j4
 cmake --install build --prefix install
-
-:: config ffjpeg
-cd ../ffjpeg
-git checkout v1.0.0
 
 :: build freeglut
 cd ../freeglut
