@@ -39,7 +39,7 @@ cmake --install build --prefix install
 
 :: build lunasvg
 cd ../lunasvg
-git checkout v1.6.35
+git checkout v2.3.1
 
 cmake -B build -G "MinGW Makefiles"
 cmake --build build -j4
