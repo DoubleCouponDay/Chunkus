@@ -29,6 +29,7 @@ sudo cmake --install build --prefix install
 echo "Building freeglut..."
 cd ../freeglut
 git checkout v3.2.2
+sudo apt install libxi-dev -y
 sudo cmake -B build -G "Unix Makefiles"
 sudo cmake --build build -j4
 sudo cmake --install build --prefix install
