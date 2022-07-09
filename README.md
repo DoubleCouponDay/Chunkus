@@ -22,8 +22,16 @@ If you are on windows:
 Install Rust lang:
 
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+if you are on windows:
+
+    rustup toolchain install stable-x86_64-pc-windows-gnu
 	
-	rustup default stable
+	rustup default stable-x86_64-pc-windows-gnu
+
+else
+
+    rustup default stable
 	
 ### Rust installation on windows
 	
