@@ -43,8 +43,8 @@ message("Using libpng that should be in ../../libpng (and installed to ../../lib
     target_include_directories(vec_tests PUBLIC "../../libpng/png-install/include")
 
     find_library(LIBPNG_LIB NAMES png libpng PATHS "../../libpng/png-install/lib" REQUIRED)
-    target_link_libraries(vec PUBLIC ${LIBPNG_LIB})
-    target_link_libraries(vec_tests PUBLIC ${LIBPNG_LIB})
+    target_link_libraries(vec PUBLIC ${LIBPNG_LIB} m) #link with linbpng and math.h
+    target_link_libraries(vec_tests PUBLIC ${LIBPNG_LIB} m)
 
 target_include_directories(vec INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set_target_properties(vec PROPERTIES PUBLIC_HEADER "./src/entrypoint.h")
@@ -79,4 +79,3 @@ endif()
 install(FILES "../template.svg" DESTINATION bin)
 
 file(COPY "../template.svg" DESTINATION "./bin")
-

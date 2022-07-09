@@ -336,7 +336,7 @@ void find_shapes(chunkmap* map, pixelchunk* current, list_holder* holder, int ma
 void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     //create set of shapes
     LOG_INFO("Fill chunkmap with threshold: %f", options->shape_colour_threshhold);
-    int tenth_of_map = (int)floorf(map->map_width * map->map_height / 10.f);
+    int tenth_of_map = (int)floor(map->map_width * map->map_height / 10.f);
     list_holder holder = (list_holder){ map->shape_list };
     int count = 0;
     int tenth_count = 0;
