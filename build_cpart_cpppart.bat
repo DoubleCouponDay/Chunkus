@@ -7,7 +7,7 @@ git clone https://github.com/memononen/nanosvg.git
 
 :: Build zlib
 cd zlib
-git checkout --detach 21767c654d31d2dccdde4330529775c6c5fd5389
+git checkout v1.2.12
 
 cmake -B build -G "MinGW Makefiles" -D CMAKE_INSTALL_PREFIX="install"
 cmake --build build -j4
@@ -15,7 +15,7 @@ cmake --install build
 
 :: build libpng
 cd ../libpng
-git checkout libpng16
+git checkout v1.6.35
 
 cmake -B build -G "MinGW Makefiles" -D ZLIB_ROOT="../zlib/install"
 cmake --build build -j4
@@ -23,6 +23,27 @@ cmake --install build --prefix png-install
 
 :: build nanosvg
 cd ../nanosvg
+git checkout 3bcdf2f3cdc1bf9197c2dce81368bfc6f99205a7
+
+cmake -B build -G "MinGW Makefiles"
+cmake --build build -j4
+cmake --install build --prefix install
+
+:: config ffjpeg
+cd ../ffjpeg
+git checkout v1.0.0
+
+:: build freeglut
+cd ../freeglut
+git checkout v3.2.2
+
+cmake -B build -G "MinGW Makefiles"
+cmake --build build -j4
+cmake --install build --prefix install
+
+:: build lunasvg
+cd ../lunasvg
+git checkout v1.6.35
 
 cmake -B build -G "MinGW Makefiles"
 cmake --build build -j4
