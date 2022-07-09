@@ -41,7 +41,7 @@ char const* glErrorString(GLenum const err) noexcept
     }
 }
 
-bool checkForGlError(std::string description)
+void checkForGlError(std::string description)
 {
     auto err = glGetError();
 
