@@ -39,11 +39,11 @@ Clone these repos into folders adjacent to the root folder:
 
     https://github.com/rockcarry/ffjpeg
 
-        git checkout --detach 3dddf985fac209db78f3e2189f8285de80f8992b
+        pinned commit: v1.0.0
 
     https://github.com/madler/zlib
 
-        git checkout --detach 21767c654d31d2dccdde4330529775c6c5fd5389
+        pinned commit: v1.2.12
 
         cmake -B build -G "MinGW Makefiles" -D CMAKE_INSTALL_PREFIX="install" 
         cmake --build build -j4
@@ -51,27 +51,21 @@ Clone these repos into folders adjacent to the root folder:
 
     https://github.com/glennrp/libpng
 
-        git checkout libpng16
+        pinned commit: v1.6.35
 
         # Ensure zlib is built and installed first
 
-        cmake -B build -G "MinGW Makefiles" -D ZLIB_ROOT="../zlib/install"
-        cmake --build build -j4
-        cmake --install build --prefix png-install
-
     https://github.com/sammycage/lunasvg
 
-        git checkout --detach e612abda858b53160041381a23422cd2b4f42fbd
+        pinned commit: v2.3.1
 
     https://github.com/FreeGLUTProject/freeglut
 
-        git checkout --detach e3aa3d74f3c6a93b26fd66f81152d9c55506a6c6
+        pinned commit: v3.2.2
 
     https://github.com/memononen/nanosvg
 
-        cmake -B build -G "MinGW Makefiles"
-        cmake --build build -j4
-        cmake --install build --prefix install
+        pinned commit: 3bcdf2f3cdc1bf9197c2dce81368bfc6f99205a7
 
 Cmake will know where to find these projects when linking. (WE HOPE)
 
@@ -79,27 +73,12 @@ Also have an placeholder.bmp in the binary folder (wherever you build or install
 
 The C code builds to `C_part\build`
 
-From the root folder, run the following commands:
+Continue with cross-platform instructions using a terminal with administrator privileges.
+Execute the .SH or .BAT build script depending on your operating system. It must be executed from the root directory.
 
-```
-    cd C_part
-    mkdir build
-    cd build
-```
+    ./build_cpart_cpppart.sh
 
-continue with cross-platform instructions using a terminal with administrator privileges:
-
-```
-    cmake -B build -G "MinGW Makefiles"
-    cmake --build build -j4
-    cmake --install build --prefix install
-```
-
-The C code is now built into the build folder, and the final product has been installed into the install folder.
-
----
-
-You can easily build all components by executing the build script build_cpart_cpppart.(sh/bat) . It must be executed from the root directory. (Not currently working)
+    .\build_cpart_cpppart.bat
 
   
 ## Building the Rust code
