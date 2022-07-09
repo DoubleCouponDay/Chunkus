@@ -65,19 +65,19 @@ install(
 
 if (WIN32)
     # Eventually make these not hard-coded to pre-built windows dlls
-    set(ZLIB_SHARED_LIB "../../zlib/install/bin/libzlib.dll")
-    set(PNG_SHARED_LIB "../../libpng/png-install/bin/libpng.dll")
+    set(ZLIB_SHARED_LIB "../../zlib/install/lib/libzlibstatic.a")
+    set(PNG_SHARED_LIB "../../libpng/png-install/lib/libpng16.a") #the windows build only produces libpng16, not libpng
 
     install(
         FILES
         ${ZLIB_SHARED_LIB}
         ${PNG_SHARED_LIB}
-        DESTINATION bin
+        DESTINATION lib
     )
 
 else()
     set(ZLIB_SHARED_LIB "../../zlib/install/lib/libz.a")
-    set(PNG_SHARED_LIB "../../libpng/png-install/lib/libpng.a")
+    set(PNG_SHARED_LIB "../../libpng/png-install/lib/libpng16.a") #match windows in order to reduce complexity while rust linking
     install(
         FILES
         ${ZLIB_SHARED_LIB}
@@ -89,5 +89,3 @@ endif()
 
 install(FILES "../template.svg" DESTINATION bin)
 file(COPY "../template.svg" DESTINATION "./bin")
-
-install(FILES "../template.svg" DESTINATION bin)
