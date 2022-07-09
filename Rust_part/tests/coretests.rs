@@ -2,7 +2,7 @@
 #[cfg(test)]
 mod tests {
     use vecbot::{
-        core::{set_algorithm, do_vectorize},
+        core::{do_vectorize},
         options::ParsedOptions,
         constants::FfiResult
     };

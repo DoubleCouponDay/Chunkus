@@ -7,7 +7,3 @@ pub fn gettoken() -> String {
 pub fn getwatchertoken() -> String {
     var("TRAMPOLINE").unwrap()
 }
-
-pub fn getchannelid() -> u64 {
-    var("CHANNELID").unwrap()
-}

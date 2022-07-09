@@ -11,7 +11,7 @@ mod ffimodule
 
     //if no kind given, defaults to dynamic
     #[link(name = "zlib", kind = "static")]
-    #[link(name = "png16", kind = "static")]
+    #[link(name = "libpng", kind = "static")]
     #[link(name = "vec", kind = "static")] 
     extern {        
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;

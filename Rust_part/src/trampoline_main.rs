@@ -5,10 +5,9 @@ use serenity::{
     }
 };
 use vecbot::{
-    secrettoken::getwatchertoken,
     trampoline::{
         create_trampoline_bot
-    }
+    }, secrettoken::getwatchertoken
 };
 use std::env::args;
 

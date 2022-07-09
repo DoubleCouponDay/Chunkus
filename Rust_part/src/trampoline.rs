@@ -1,8 +1,6 @@
 use std::{
-    env::current_dir, 
     fmt, 
     io::Error, 
-    io::prelude::*, 
     path::Path, 
     process::{
         Child,
@@ -119,7 +117,7 @@ pub async fn create_trampoline_bot(token: &str, shouldcrash: bool, framework_may
     let handler = TrampolineHandler {
         data: shared.clone()
     };
-    let intent = GatewayIntents::new();
+    let intent = GatewayIntents::default();
 
     // Login with a bot token from the environment
     let client = ClientBuilder::new(&token, intent)
@@ -297,7 +295,7 @@ impl EventHandler for TrampolineHandler {
         let content_contains_end = new_message.content.contains(END_MESSAGE);
 
         if new_message.author.name == "Vectorizer" || new_message.author.name == "Staging1" || new_message.author.name == "Staging2" {
-            if(contentcontainsstart) {
+            if contentcontainsstart {
                 set_state(&ctx.data, false).await;
                 println!("vectorizer was commanded.");                
 
