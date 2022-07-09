@@ -17,10 +17,15 @@ use serenity::
         macros::{
             group, command,
         },
-    }, http::AttachmentType, model::{prelude::Message, id::ChannelId}, prelude::{
+    }, 
+    model::{
+        channel::{AttachmentType, Message},
+        id::ChannelId}, 
+        prelude::{
         TypeMapKey,
         RwLock,
-        TypeMap
+        TypeMap, GatewayIntents,
+        
     }};
 use tokio::{
     time::sleep,
@@ -114,9 +119,10 @@ pub async fn create_trampoline_bot(token: &str, shouldcrash: bool, framework_may
     let handler = TrampolineHandler {
         data: shared.clone()
     };
+    let intent = GatewayIntents::new();
 
     // Login with a bot token from the environment
-    let client = ClientBuilder::new(&token)
+    let client = ClientBuilder::new(&token, intent)
         .event_handler(handler)
         .framework(framework)
         .type_map_insert::<TrampolineProcessKey>(somenewwhatever)
