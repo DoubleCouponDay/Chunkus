@@ -9,7 +9,7 @@ git clone https://github.com/memononen/nanosvg.git
 cd zlib
 git checkout --detach 21767c654d31d2dccdde4330529775c6c5fd5389
 
-cmake -B build -G "MinGW Makefiles" -D CMAKE_INSTALL_PREFIX="install"
+cmake -B build -G "Unix Makefiles" -D CMAKE_INSTALL_PREFIX="install"
 cmake --build build -j4
 cmake --install build
 
@@ -17,14 +17,14 @@ cmake --install build
 cd ../libpng
 git checkout libpng16
 
-cmake -B build -G "MinGW Makefiles" -D ZLIB_ROOT="../zlib/install"
+cmake -B build -G "Unix Makefiles" -D ZLIB_ROOT="../zlib/install"
 cmake --build build -j4
 cmake --install build --prefix png-install
 
 # build nanosvg
 cd ../nanosvg
 
-cmake -B build -G "MinGW Makefiles"
+cmake -B build -G "Unix Makefiles"
 cmake --build build -j4
 cmake --install build --prefix install
 
@@ -33,6 +33,6 @@ cmake --install build --prefix install
 # --------------------------------
 cd ../Vectorizer
 
-cmake -B build -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Debug
+cmake -B build -G "Unix Makefiles" -D CMAKE_INSTALL_PREFIX="install" -D CMAKE_BUILD_TYPE="Debug"
 cmake --build build -j4
 cmake --install build --prefix install

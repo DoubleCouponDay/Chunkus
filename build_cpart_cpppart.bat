@@ -33,6 +33,6 @@ cmake --install build --prefix install
 # --------------------------------
 cd ../Vectorizer
 
-cmake -B build -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Debug
+cmake -B build -G "MinGW Makefiles" -D CMAKE_INSTALL_PREFIX="install" -D CMAKE_BUILD_TYPE="Debug"
 cmake --build build -j4
 cmake --install build --prefix install
