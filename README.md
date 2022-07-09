@@ -5,7 +5,7 @@ This was a group project by Samuel, Joshua, Matthew.
 
 ## Building Requirements
 
-it has a Rust component and a C component.
+it has a C component, a CPP component, and a Rust component.
 
 Set the `VECTORIZER`, `TRAMPOLINE` and `CHANNELID` environment variables to the value of your two discord bot's secret tokens.
 
@@ -19,11 +19,22 @@ If you are on windows:
 
         `C:\ProgramData\chocolatey\bin`
 
-Install Rust lang so that you can use the `cargo` tool to work with the rust part.
+Install Rust lang:
 
-```
-    rustup target add x86_64-unknown-linux-musl
-```
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+	
+	rustup default stable
+	
+### Rust installation on windows
+	
+install vc++ build tools from a vs installer
+
+	
+### Rust installation on linux
+		
+    sudo apt install build-essential libssl-dev -y	
+		
+
 
 Install docker and docker compose (for the release build)
 
