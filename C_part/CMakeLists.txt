@@ -74,8 +74,20 @@ if (WIN32)
         ${PNG_SHARED_LIB}
         DESTINATION bin
     )
+
+else()
+    set(ZLIB_SHARED_LIB "../../zlib/install/lib/libz.a")
+    set(PNG_SHARED_LIB "../../libpng/png-install/lib/libpng16.a")
+    install(
+        FILES
+        ${ZLIB_SHARED_LIB}
+        ${PNG_SHARED_LIB}
+        DESTINATION lib
+    )
+
 endif()
 
 install(FILES "../template.svg" DESTINATION bin)
-
 file(COPY "../template.svg" DESTINATION "./bin")
+
+install(FILES "../template.svg" DESTINATION bin)
