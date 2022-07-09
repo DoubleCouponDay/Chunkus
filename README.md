@@ -36,7 +36,7 @@ install vc++ build tools from a vs installer
 		
 
 
-Install docker and docker compose (for the release build)
+Install docker and docker compose for testing the production build.
 
 ---
 
@@ -88,29 +88,13 @@ Execute the .SH or .BAT build script depending on your operating system. It must
     .\build_cpart_cpppart.bat
 
   
-## Building the Rust code
+## Building the Rust code 
 
-Now to build the Rust Component  
+The rust component links to the C code, which depends on libpng, which depends on zlib.
 
-The rust component links to the C code, which in turn depends on libpng (which depends on zlib)
-
-Now in the `discord-v` folder, run:
+In the `discord-v` folder, run:
 
     cargo build
-
-To link against the release build define the environment variable `releasebuild` as true
-
-in windows:
-
-    $env:releasebuild = "true" //powershell
-
-    set releasebuild=true //cmd
-
-    then log back in
-
-in linux:
-
-    you need to update your `~/.pam_environment` file to have this persist
 
 This sets the environment variable for this single terminal instance (the variable is lost with the terminal)
 
@@ -164,8 +148,6 @@ cargo test -- --test-threads 1
 you can run the bot on your computer or inside a docker container.
 
 build C code, then Rust code, then run `sudo docker build` on a Linux machine. once the image is built, deploy it to your docker hub registration.
-
-Create a `releasebuild` environment variable and set it to true.
 
 to use docker-compose on your computer, You will need to install OPENSSL 1.1.1
 

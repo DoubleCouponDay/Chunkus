@@ -19,7 +19,6 @@ COPY ./ /home/sjsui/vectorizer/
 
 # set environment variables
 ENV CONAN /root/.conan/data/
-ENV releasebuild true
 ENV PATH $PATH:/home/sjsui/vectorizer/Rust_part/target/release
 
 # initialize build tools
