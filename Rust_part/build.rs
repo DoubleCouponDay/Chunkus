@@ -14,24 +14,26 @@ use std::fs::{
     copy,
     rename
 };
-use std::env::var;
+use std::env::{var, self};
 
 fn main() {
    stop_if_unknown_os();
-   let link_path = "../install/lib/";
-   println!("searching path for libraries: {}", link_path);
-   println!("cargo:rustc-link-search={}", link_path);
-   println!("linking static library: vec");
+   let dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+   let cwd = Path::new(&dir);
+
+   println!("cargo:rustc-link-search=native={}", cwd.display());
+   println!("cargo:rustc-link-search=native=../install/lib");
+   println!("cargo:rustc-link-lib=static=z");
+   println!("cargo:rustc-link-lib=static=png16");
    println!("cargo:rustc-link-lib=static=vec");
-   println!("linking static library: zlib");
-   println!("cargo:rustc-link-lib=static=zlib");
-   println!("linking static library: libpng");
-   println!("cargo:rustc-link-lib=static=libpng");
+   println!("cargo:rerun-if-changed=build.rs");
 }
 
 fn stop_if_unknown_os() {
     if cfg!(target_os = "linux") == false
         && cfg!(target_os = "windows") == false {
-        panic!("This project is not for you, macintosh!");
+        panic!("This operating system is not supported.");
     }
 }
+
+

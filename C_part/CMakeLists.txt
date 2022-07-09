@@ -66,7 +66,7 @@ install(
 if (WIN32)
     # Eventually make these not hard-coded to pre-built windows dlls
     set(ZLIB_SHARED_LIB "../../zlib/install/bin/libzlib.dll")
-    set(PNG_SHARED_LIB "../../libpng/png-install/bin/libpng16.dll")
+    set(PNG_SHARED_LIB "../../libpng/png-install/bin/libpng.dll")
 
     install(
         FILES
@@ -77,7 +77,7 @@ if (WIN32)
 
 else()
     set(ZLIB_SHARED_LIB "../../zlib/install/lib/libz.a")
-    set(PNG_SHARED_LIB "../../libpng/png-install/lib/libpng16.a")
+    set(PNG_SHARED_LIB "../../libpng/png-install/lib/libpng.a")
     install(
         FILES
         ${ZLIB_SHARED_LIB}
