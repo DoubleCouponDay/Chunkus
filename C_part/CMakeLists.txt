@@ -37,12 +37,20 @@ message("Using nanosvg that should be in ../../nanosvg")
     target_include_directories(vec PUBLIC "../../nanosvg/install/include/nanosvg")
     target_include_directories(vec_tests PUBLIC "../../nanosvg/install/include/nanosvg")
 
+message("linking zlib")
+    target_include_directories(vec PUBLIC "../../zlib/install/include")
+    target_include_directories(vec_tests PUBLIC "../../zlib/install/include")
+
+    find_library(z NAMES zlib z libzstatic libzlibstatic PATHS "../../zlib/install/lib" REQUIRED)
+    target_link_libraries(vec PUBLIC z)
+    target_link_libraries(vec_tests PUBLIC z)
+
 message("Using libpng that should be in ../../libpng (and installed to ../../libpng/png-install)")
 
     target_include_directories(vec PUBLIC "../../libpng/png-install/include")
     target_include_directories(vec_tests PUBLIC "../../libpng/png-install/include")
 
-    find_library(LIBPNG_LIB NAMES png libpng PATHS "../../libpng/png-install/lib" REQUIRED)
+    find_library(LIBPNG_LIB NAMES png libpng libpng16 PATHS "../../libpng/png-install/lib" REQUIRED)
     target_link_libraries(vec PUBLIC ${LIBPNG_LIB} m) #link with linbpng and math.h
     target_link_libraries(vec_tests PUBLIC ${LIBPNG_LIB} m)
 
