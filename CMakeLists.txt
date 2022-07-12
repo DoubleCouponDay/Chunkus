@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.13.4)
 
 cmake_policy(SET CMP0079 NEW)
+cmake_policy(SET CMP0074 NEW)
 
 project("Vectorizer")
 
