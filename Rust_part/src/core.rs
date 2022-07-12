@@ -9,9 +9,9 @@ mod ffimodule
 {
     use libc::{c_int};
 
-    #[link(name = "zlib", kind = "static")]
-    #[link(name = "libpng", kind = "static")]
     #[link(name = "vec", kind = "static")] 
+    #[link(name = "png16", kind = "static")]
+    #[link(name = "zlib", kind = "static")]
     extern "C" {        
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
         pub fn just_crash() -> c_int;

@@ -123,6 +123,10 @@
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled",
     "cmake.autoSelectActiveFolder": false,
-    "cmake.sourceDirectory": "${workspaceFolder}/C_part",
-    "cmake.buildDirectory": "${workspaceFolder}/C_part/build"
+    "cmake.sourceDirectory": "${workspaceFolder}",
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.installPrefix": "${workspaceFolder}/install",
+    "cmake.buildArgs": ["-DCMAKE_BUILD_TYPE=Debug", "-DCMAKE_INSTALL_PREFIX=\"${workspaceFolder}/install\""],
+    "cmake.generator": "MinGW Makefiles",
+    "cmake.configureOnEdit": false,
 }
