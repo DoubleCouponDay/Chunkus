@@ -9,13 +9,17 @@ mod ffimodule
 {
     use libc::{c_int};
 
-    #[link(name = "zlib", kind = "static")]
-    #[link(name = "libpng", kind = "static")]
     #[link(name = "vec", kind = "static")] 
     extern "C" {        
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
         pub fn just_crash() -> c_int;
     }
+
+    #[link(name = "png16", kind = "static")]
+    extern "C" {}
+
+    #[link(name = "zlib", kind = "static")]
+    extern "C" {}
 }
 
 fn call_entrypoint(input: &mut CString, output: &mut CString, chunk: &mut CString, threshold: &mut CString, numcolours: &mut CString) -> FfiResult

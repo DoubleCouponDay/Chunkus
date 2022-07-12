@@ -41,9 +41,13 @@ message("linking zlib")
     target_include_directories(vec PUBLIC "../../zlib/install/include")
     target_include_directories(vec_tests PUBLIC "../../zlib/install/include")
 
-    find_library(z NAMES zlib z libzstatic libzlibstatic PATHS "../../zlib/install/lib" REQUIRED)
-    target_link_libraries(vec PUBLIC z)
-    target_link_libraries(vec_tests PUBLIC z)
+    if (WIN32)
+        find_library(ZLIB_LIB NAMES zlibstatic libzlibstatic PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
+    else()
+        find_library(ZLIB_LIB NAMES zlib z "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
+    endif()
+    target_link_libraries(vec PUBLIC ${ZLIB_LIB})
+    target_link_libraries(vec_tests PUBLIC ${ZLIB_LIB})
 
 message("Using libpng that should be in ../../libpng (and installed to ../../libpng/png-install)")
 
@@ -71,26 +75,47 @@ install(
     RUNTIME DESTINATION bin
 )
 
+install(FILES ${COMBINED_LIB} DESTINATION lib)
+
 if (WIN32)
     # Eventually make these not hard-coded to pre-built windows dlls
-    set(ZLIB_SHARED_LIB "../../zlib/install/lib/libzlibstatic.a")
-    set(PNG_SHARED_LIB "../../libpng/png-install/lib/libpng16.a") #the windows build only produces libpng16, not libpng
+    set(ZLIB_LIB "../../zlib/install/lib/libzlibstatic.a")
+    set(PNG_LIB "../../libpng/png-install/lib/libpng16.a") #the windows build only produces libpng16, not libpng
 
+    set(LIB_EXTENSION ".a") # Setting a variable in case we ever need to change it
+    
     install(
         FILES
-        ${ZLIB_SHARED_LIB}
-        ${PNG_SHARED_LIB}
+        ${ZLIB_LIB}
         DESTINATION lib
+        RENAME libzlib${LIB_EXTENSION}
+        )
+        
+    install(
+        FILES
+        ${PNG_LIB}
+        DESTINATION lib
+        RENAME libpng16${LIB_EXTENSION}
+        )
+        
+else()
+    set(ZLIB_LIB "../../zlib/install/lib/libz.a")
+    set(PNG_LIB "../../libpng/png-install/lib/libpng16.a") #match windows in order to reduce complexity while rust linking
+    
+    set(LIB_EXTENSION ".a") # Setting a variable in case we ever need to change it
+    
+    install(
+        FILES
+        ${ZLIB_LIB}
+        DESTINATION lib
+        RENAME libzlib${LIB_EXTENSION}
     )
 
-else()
-    set(ZLIB_SHARED_LIB "../../zlib/install/lib/libz.a")
-    set(PNG_SHARED_LIB "../../libpng/png-install/lib/libpng16.a") #match windows in order to reduce complexity while rust linking
     install(
         FILES
-        ${ZLIB_SHARED_LIB}
-        ${PNG_SHARED_LIB}
+        ${PNG_LIB}
         DESTINATION lib
+        RENAME libpng16${LIB_EXTENSION}
     )
 
 endif()
