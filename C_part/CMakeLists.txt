@@ -33,24 +33,31 @@ else()
     add_compile_definitions(vec VEC_NOEXPORTDLL)
 endif()
 
+message("including math.h")
+target_link_libraries(vec PUBLIC m)
+target_link_libraries(vec_tests PUBLIC m)
+
 message("linking nanosvg")
     target_include_directories(vec PUBLIC "../../nanosvg/install/include/nanosvg")
     target_include_directories(vec_tests PUBLIC "../../nanosvg/install/include/nanosvg")
 
 message("linking zlib")
-    target_include_directories(vec PUBLIC "../../zlib/install/include")
-    target_include_directories(vec_tests PUBLIC "../../zlib/install/include")
+target_include_directories(vec PUBLIC "../../zlib/install/include")
+target_include_directories(vec_tests PUBLIC "../../zlib/install/include")
 
-    if (WIN32)
-        set(ZLIB_LIB "../../zlib/install/lib/libzlibstatic.a")
-        find_library(ZLIB_LIB NAMES zlibstatic libzlibstatic PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
-    else()
-        set(ZLIB_LIB "../../zlib/install/lib/libz.a")
-        find_library(ZLIB_LIB NAMES zlib z "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
-    endif()
+if (WIN32)
+    set(ZLIB_LIB "../../zlib/install/lib/libzlibstatic.a")
+    set(ZLIB_NAME "libzlibstatic.a")
+    find_library(ZLIB_LIB NAMES zlibstatic libzlibstatic PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
+else()
+    set(ZLIB_LIB "../../zlib/install/lib/libz.a")
+    find_library(ZLIB_LIB NAMES zlib z "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
+    set(ZLIB_NAME "libz.a")
 
-    target_link_libraries(vec PUBLIC ${ZLIB_LIB})
-    target_link_libraries(vec_tests PUBLIC ${ZLIB_LIB})
+endif()
+
+target_link_libraries(vec PUBLIC ${ZLIB_NAME})
+target_link_libraries(vec_tests PUBLIC ${ZLIB_NAME})
 
 message("linking libpng")
     set(PNG_LIB "../../libpng/png-install/lib/libpng16.a")
@@ -59,8 +66,8 @@ message("linking libpng")
     target_include_directories(vec_tests PUBLIC "../../libpng/png-install/include")
 
     find_library(LIBPNG_LIB NAMES png libpng libpng16 PATHS "../../libpng/png-install/lib" REQUIRED) #the windows build only produces libpng16, not libpng
-    target_link_libraries(vec PUBLIC ${LIBPNG_LIB} m) #link with linbpng and math.h
-    target_link_libraries(vec_tests PUBLIC ${LIBPNG_LIB} m)
+    target_link_libraries(vec PUBLIC ${LIBPNG_LIB})
+    target_link_libraries(vec_tests PUBLIC ${LIBPNG_LIB})
 
 target_include_directories(vec INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set_target_properties(vec PROPERTIES PUBLIC_HEADER "./src/entrypoint.h")
@@ -79,43 +86,21 @@ install(
     RUNTIME DESTINATION bin
 )
 
-install(FILES ${COMBINED_LIB} DESTINATION lib)
+set(LIB_EXTENSION ".a") # Setting a variable in case we ever need to change it
 
-if (WIN32)
-    set(LIB_EXTENSION ".a") # Setting a variable in case we ever need to change it
-    
-    install(
-        FILES
-        ${ZLIB_LIB}
-        DESTINATION lib
-        RENAME libzlib${LIB_EXTENSION}
-        )
-        
-    install(
-        FILES
-        ${PNG_LIB}
-        DESTINATION lib
-        RENAME libpng16${LIB_EXTENSION}
-        )
-        
-else()
-    set(LIB_EXTENSION ".a") # Setting a variable in case we ever need to change it
-    
-    install(
-        FILES
-        ${ZLIB_LIB}
-        DESTINATION lib
-        RENAME libzlib${LIB_EXTENSION}
-    )
+install(
+    FILES
+    ${ZLIB_LIB}
+    DESTINATION lib
+    RENAME libzlib${LIB_EXTENSION}
+)
 
-    install(
-        FILES
-        ${PNG_LIB}
-        DESTINATION lib
-        RENAME libpng16${LIB_EXTENSION}
-    )
-
-endif()
+install(
+    FILES
+    ${PNG_LIB}
+    DESTINATION lib
+    RENAME libpng16${LIB_EXTENSION}
+)
 
 install(FILES "../template.svg" DESTINATION bin)
 file(COPY "../template.svg" DESTINATION "./bin")
