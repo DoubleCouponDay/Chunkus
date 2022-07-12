@@ -45,14 +45,17 @@ message("linking zlib")
 target_include_directories(vec PUBLIC "../../zlib/install/include")
 target_include_directories(vec_tests PUBLIC "../../zlib/install/include")
 
-if (WIN32)
+if(WIN32)
+    set(ZLIB_LIB "../../zlib/install/lib/libzlibstatic.a")
     find_library(ZLIB_LIB NAMES zlibstatic libzlibstatic PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
+    target_link_libraries(vec PUBLIC ${ZLIB_LIB})
+    target_link_libraries(vec_tests PUBLIC ${ZLIB_LIB})
 else()
+    set(ZLIB_LIB "../../zlib/install/lib/libz.a")
     find_library(ZLIB_LIB NAMES zlib z "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
+    target_link_libraries(vec PUBLIC "libz.a") #dont ask I have no idea why it only works this way. probably differences between gcc and mingw
+    target_link_libraries(vec_tests PUBLIC "libz.a")
 endif()
-
-target_link_libraries(vec PUBLIC ${ZLIB_LIB})
-target_link_libraries(vec_tests PUBLIC ${ZLIB_LIB})
 
 message("linking libpng")
     set(PNG_LIB "../../libpng/png-install/lib/libpng16.a")
@@ -84,11 +87,8 @@ install(
 
 set(LIB_EXTENSION ".a") # Setting a variable in case we ever need to change it
 
-if(WIN32)
-    set(ZLIB_LIB "../../zlib/install/lib/libzlibstatic.a")
-else()
-    set(ZLIB_LIB "../../zlib/install/lib/libz.a")
-endif()
+
+
 
 install(
     FILES
