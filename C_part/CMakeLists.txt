@@ -33,7 +33,7 @@ else()
     add_compile_definitions(vec VEC_NOEXPORTDLL)
 endif()
 
-message("Using nanosvg that should be in ../../nanosvg")
+message("linking nanosvg")
     target_include_directories(vec PUBLIC "../../nanosvg/install/include/nanosvg")
     target_include_directories(vec_tests PUBLIC "../../nanosvg/install/include/nanosvg")
 
@@ -42,19 +42,23 @@ message("linking zlib")
     target_include_directories(vec_tests PUBLIC "../../zlib/install/include")
 
     if (WIN32)
+        set(ZLIB_LIB "../../zlib/install/lib/libzlibstatic.a")
         find_library(ZLIB_LIB NAMES zlibstatic libzlibstatic PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
     else()
+        set(ZLIB_LIB "../../zlib/install/lib/libz.a")
         find_library(ZLIB_LIB NAMES zlib z "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
     endif()
+
     target_link_libraries(vec PUBLIC ${ZLIB_LIB})
     target_link_libraries(vec_tests PUBLIC ${ZLIB_LIB})
 
-message("Using libpng that should be in ../../libpng (and installed to ../../libpng/png-install)")
+message("linking libpng")
+    set(PNG_LIB "../../libpng/png-install/lib/libpng16.a")
 
     target_include_directories(vec PUBLIC "../../libpng/png-install/include")
     target_include_directories(vec_tests PUBLIC "../../libpng/png-install/include")
 
-    find_library(LIBPNG_LIB NAMES png libpng libpng16 PATHS "../../libpng/png-install/lib" REQUIRED)
+    find_library(LIBPNG_LIB NAMES png libpng libpng16 PATHS "../../libpng/png-install/lib" REQUIRED) #the windows build only produces libpng16, not libpng
     target_link_libraries(vec PUBLIC ${LIBPNG_LIB} m) #link with linbpng and math.h
     target_link_libraries(vec_tests PUBLIC ${LIBPNG_LIB} m)
 
@@ -78,10 +82,6 @@ install(
 install(FILES ${COMBINED_LIB} DESTINATION lib)
 
 if (WIN32)
-    # Eventually make these not hard-coded to pre-built windows dlls
-    set(ZLIB_LIB "../../zlib/install/lib/libzlibstatic.a")
-    set(PNG_LIB "../../libpng/png-install/lib/libpng16.a") #the windows build only produces libpng16, not libpng
-
     set(LIB_EXTENSION ".a") # Setting a variable in case we ever need to change it
     
     install(
@@ -99,9 +99,6 @@ if (WIN32)
         )
         
 else()
-    set(ZLIB_LIB "../../zlib/install/lib/libz.a")
-    set(PNG_LIB "../../libpng/png-install/lib/libpng16.a") #match windows in order to reduce complexity while rust linking
-    
     set(LIB_EXTENSION ".a") # Setting a variable in case we ever need to change it
     
     install(
