@@ -67,6 +67,9 @@ message("linking libpng")
     target_link_libraries(vec PUBLIC ${LIBPNG_LIB})
     target_link_libraries(vec_tests PUBLIC ${LIBPNG_LIB})
 
+message("linking libjpg-turbo")
+    
+
 target_include_directories(vec INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set_target_properties(vec PROPERTIES PUBLIC_HEADER "./src/entrypoint.h")
 

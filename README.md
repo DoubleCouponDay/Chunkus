@@ -82,6 +82,10 @@ Clone these repos into folders adjacent to the root folder:
 
         pinned commit: 3bcdf2f3cdc1bf9197c2dce81368bfc6f99205a7
 
+    https://github.com/winlibs/libjpeg
+        
+        pinned commit: libjpeg-turbo-2.1.0
+
 Cmake will know where to find these projects when linking. (WE HOPE)
 
 Also have an placeholder.bmp in the binary folder (wherever you build or install) if you want a placeholder image for non-existant images
