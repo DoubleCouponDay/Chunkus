@@ -4,6 +4,7 @@ git clone https://github.com/glennrp/libpng.git
 git clone https://github.com/memononen/nanosvg.git
 git clone https://github.com/FreeGLUTProject/freeglut.git
 git clone https://github.com/sammycage/lunasvg.git
+git clone https://github.com/winlibs/libjpeg.git
 
 echo "Building zlib..."
 cd zlib
@@ -40,6 +41,13 @@ git checkout v2.3.1
 sudo cmake -B build -G "Unix Makefiles"
 sudo cmake --build build -j4
 sudo cmake --install build --prefix install
+
+echo "Building libjpg-turbo..."
+cd ../libjpeg
+git checkout libjpeg-turbo-2.1.0
+cmake -B build -G "MinGW Makefiles"
+cmake --build build -j4
+cmake --install build --prefix install
 
 echo "building Vectorizer..."
 cd ../Vectorizer
