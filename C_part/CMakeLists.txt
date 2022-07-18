@@ -32,8 +32,8 @@ else()
 endif()
 
 message("including math.h")
-target_link_libraries(vec PUBLIC m)
-target_link_libraries(vec_tests PUBLIC m)
+    target_link_libraries(vec PUBLIC m)
+    target_link_libraries(vec_tests PUBLIC m)
 
 message("linking nanosvg")
     target_include_directories(vec PUBLIC "../../nanosvg/install/include/nanosvg")
@@ -59,18 +59,14 @@ message("linking zlib")
     endif()
 
 message("linking libpng")
-set(PNG_LIB "../../libpng/png-install/lib/libpng16.a")
-
-target_include_directories(vec PUBLIC "../../libpng/png-install/include")
-target_include_directories(vec_tests PUBLIC "../../libpng/png-install/include")
-
-get_filename_component(REAL_PNG_LIB "${PNG_LIB}" REALPATH)
-
-target_link_libraries(vec PUBLIC "${REAL_PNG_LIB}")
-target_link_libraries(vec_tests PRIVATE "${REAL_PNG_LIB}")
-
-target_link_libraries(vec PUBLIC "pthread")
-target_link_libraries(vec_tests PRIVATE "pthread")
+    set(PNG_LIB "../../libpng/png-install/lib/libpng16.a")
+    target_include_directories(vec PUBLIC "../../libpng/png-install/include")
+    target_include_directories(vec_tests PUBLIC "../../libpng/png-install/include")
+    get_filename_component(REAL_PNG_LIB "${PNG_LIB}" REALPATH)
+    target_link_libraries(vec PUBLIC "${REAL_PNG_LIB}")
+    target_link_libraries(vec_tests PRIVATE "${REAL_PNG_LIB}")
+    target_link_libraries(vec PUBLIC "pthread")
+    target_link_libraries(vec_tests PRIVATE "pthread")
 
 message("linking libjpg-turbo")
     target_include_directories(vec PUBLIC "../../libjpeg/install/include/lib")
