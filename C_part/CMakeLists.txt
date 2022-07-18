@@ -33,9 +33,11 @@ else()
     add_compile_definitions(vec VEC_NOEXPORTDLL)
 endif()
 
+if (NOT WIN32)
 message("including math.h")
 target_link_libraries(vec PUBLIC m)
 target_link_libraries(vec_tests PUBLIC m)
+endif()
 
 message("linking nanosvg")
     target_include_directories(vec PUBLIC "../../nanosvg/install/include/nanosvg")
@@ -47,25 +49,28 @@ target_include_directories(vec_tests PUBLIC "../../zlib/install/include")
 
 if (WIN32)
     set(ZLIB_LIB "../../zlib/install/lib/libzlibstatic.a")
-    find_library(ZLIB_LIB NAMES zlibstatic libzlibstatic PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
-    get_filename_component(ZLIB_NAME ${ZLIB_LIB} REALPATH)
+    get_filename_component(ZLIB_NAME "${ZLIB_LIB}" REALPATH)
 else()
     set(ZLIB_NAME "libz.a")
 
 endif()
 
-target_link_libraries(vec PUBLIC ${ZLIB_NAME})
-target_link_libraries(vec_tests PUBLIC ${ZLIB_NAME})
 
 message("linking libpng")
-    set(PNG_LIB "../../libpng/png-install/lib/libpng16.a")
+set(PNG_LIB "../../libpng/png-install/lib/libpng16.a")
 
-    target_include_directories(vec PUBLIC "../../libpng/png-install/include")
-    target_include_directories(vec_tests PUBLIC "../../libpng/png-install/include")
+target_include_directories(vec PUBLIC "../../libpng/png-install/include")
+target_include_directories(vec_tests PUBLIC "../../libpng/png-install/include")
 
-    find_library(LIBPNG_LIB NAMES png libpng libpng16 PATHS "../../libpng/png-install/lib" REQUIRED) #the windows build only produces libpng16, not libpng
-    target_link_libraries(vec PUBLIC ${LIBPNG_LIB})
-    target_link_libraries(vec_tests PUBLIC ${LIBPNG_LIB})
+find_library(LIBPNG_LIB NAMES png libpng libpng16 PATHS "../../libpng/png-install/lib" REQUIRED) #the windows build only produces libpng16, not libpng
+get_filename_component(PNG_LIB ${PNG_LIB} REALPATH)
+message("Png at: ${PNG_LIB}")
+target_link_libraries(vec PUBLIC ${PNG_LIB})
+target_link_libraries(vec_tests PUBLIC ${PNG_LIB})
+
+message("Zlib at: ${ZLIB_NAME}")
+target_link_libraries(vec PUBLIC ${ZLIB_NAME})
+target_link_libraries(vec_tests PRIVATE ${ZLIB_NAME})
 
 message("linking turbojpeg...")
     if(WIN32)
