@@ -5,13 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "gdb",
+            "request": "attach",
+            "name": "(gdb) Debug Remote Server",
+            "target": "localhost:16970",
+            "remote": true,
+            "cwd": "${workspaceRoot}\\build\\C_part",
+            "executable": "${workspaceRoot}\\build\\C_part\\vec_tests.exe",
+            "valuesFormatting": "parseText"
+        },
+
+    
+        {
             "name": "(Windows) Launch Tests",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\C_part\\build\\bin\\tests.exe",
+            "program": "${workspaceFolder}\\build\\C_part\\vec_tests.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}\\C_part\\build\\bin",
+            "cwd": "${workspaceFolder}\\build\\C_part",
             "environment": [],
             "console": "internalConsole",
             "requireExactSource": false,
@@ -33,9 +45,9 @@
             "MIMode": "gdb",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\C_part\\build\\bin\\tests",
-            "args": ["jpeg_dcd"],
-            "cwd": "${workspaceFolder}\\C_part\\build\\bin",
+            "program": "${workspaceFolder}\\build\\C_part\\vec_tests",
+            "args": [],
+            "cwd": "${workspaceFolder}\\build\\C_part",
             "externalConsole": false,
             "internalConsoleOptions": "neverOpen",
             "symbolLoadInfo": {
