@@ -116,5 +116,12 @@ install(
     RENAME libpng16${LIB_EXTENSION}
 )
 
+install(
+    FILES
+    ${PNG_LIB}
+    DESTINATION lib
+    RENAME libturbjpeg${LIB_EXTENSION}
+)
+
 install(FILES "../template.svg" DESTINATION bin)
 file(COPY "../template.svg" DESTINATION "./bin")
