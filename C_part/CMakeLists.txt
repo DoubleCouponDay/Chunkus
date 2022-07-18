@@ -47,8 +47,8 @@ target_include_directories(vec_tests PUBLIC "../../zlib/install/include")
 
 if (WIN32)
     set(ZLIB_LIB "../../zlib/install/lib/libzlibstatic.a")
-    set(ZLIB_NAME "libzlibstatic.a")
     find_library(ZLIB_LIB NAMES zlibstatic libzlibstatic PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
+    get_filename_component(ZLIB_NAME ${ZLIB_LIB} REALPATH)
 else()
     set(ZLIB_NAME "libz.a")
 
