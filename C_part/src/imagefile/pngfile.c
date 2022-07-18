@@ -38,6 +38,21 @@ image convert_png_to_image(char* fileaddress) {
 		LOG_ERR("openfile failed");
 		return (image){0, 0, NULL};
 	}
+
+    unsigned char header[8];
+    if (fread(header, 1, 8, file_p) != 8)
+    {
+        LOG_ERR("Failed to read png header");
+        setError(READ_FILE_ERROR);
+        return (image){0, 0, NULL};
+    }
+
+    if (png_sig_cmp(header, 0, 8))
+    {
+        LOG_ERR("Not a png file");
+        setError(NOT_PNG_OR_JPEG);
+        return (image){0, 0, NULL};
+    }
     
     /// Prepare and read structs
     LOG_INFO("Creating png_image struct");
