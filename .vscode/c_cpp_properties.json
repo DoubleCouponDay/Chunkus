@@ -1,56 +1,12 @@
 {
     "configurations": [
         {
-            "name": "windows",
-            "includePath": [
-                "${workspaceFolder}/**",
-                "${workspaceFolder}/**"
-            ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
-            ],
-            "cStandard": "c11",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "windows-gcc-x64",
+            "name": "Cmake CPP",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
             "configurationProvider": "ms-vscode.cmake-tools",
-            "compilerArgs": [],
-            "mergeConfigurations": false,
-            "compilerPath": "C:/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin/g++.exe",
-            "browse": {
-                "path": [
-                    "${workspaceFolder}/**",
-                    "${workspaceFolder}/**"
-                ],
-                "limitSymbolsToIncludedHeaders": true
-            }
-        },
-        {
-            "name": "linux",
-            "includePath": [
-                "${workspaceFolder}/**",
-                "${workspaceFolder}/**",
-            ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
-            ],
-            "cStandard": "c11",
+            "cStandard": "c17",
             "cppStandard": "c++17",
-            "intelliSenseMode": "linux-gcc-x64",
-            "configurationProvider": "ms-vscode.cmake-tools",
-            "compilerArgs": [],
-            "mergeConfigurations": false,
-            "compilerPath": "/usr/bin/g++",
-            "browse": {
-                "path": [
-                    "${workspaceFolder}/**",
-                    "${workspaceFolder}/**",
-                ],
-                "limitSymbolsToIncludedHeaders": true
-            }
+            "compilerPath": "C:/ProgramData/chocolatey/bin/g++.exe"
         }
     ],
     "version": 4
