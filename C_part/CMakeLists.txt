@@ -45,11 +45,25 @@ message("linking zlib")
 target_include_directories(vec PUBLIC "../../zlib/install/include")
 target_include_directories(vec_tests PUBLIC "../../zlib/install/include")
 
+message("linking libpng")
+set(PNG_LIB "../../libpng/png-install/lib/libpng16.a")
+
+target_include_directories(vec PUBLIC "../../libpng/png-install/include")
+target_include_directories(vec_tests PUBLIC "../../libpng/png-install/include")
+
+get_filename_component(REAL_PNG_LIB "${PNG_LIB}" REALPATH)
+
+target_link_libraries(vec PUBLIC "${REAL_PNG_LIB}")
+target_link_libraries(vec_tests PRIVATE "${REAL_PNG_LIB}")
+
 if(WIN32)
     find_library(ZLIB_LIB NAMES zlibstatic libzlibstatic PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
-    target_link_libraries(vec PUBLIC ${ZLIB_LIB})
-    target_link_libraries(vec_tests PUBLIC ${ZLIB_LIB})
     set(ZLIB_LIB "../../zlib/install/lib/libzlibstatic.a")
+
+    get_filename_component(REAL_ZLIB_LIB "${ZLIB_LIB}" REALPATH)
+
+    target_link_libraries(vec PUBLIC "${REAL_ZLIB_LIB}")
+    target_link_libraries(vec_tests PRIVATE "${REAL_ZLIB_LIB}")
 else()
     set(ZLIB_LIB "../../zlib/install/lib/libz.a")
     find_library(ZLIB_LIB NAMES zlib z "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
@@ -57,15 +71,8 @@ else()
     target_link_libraries(vec_tests PUBLIC "libz.a")
 endif()
 
-message("linking libpng")
-    set(PNG_LIB "../../libpng/png-install/lib/libpng16.a")
-
-    target_include_directories(vec PUBLIC "../../libpng/png-install/include")
-    target_include_directories(vec_tests PUBLIC "../../libpng/png-install/include")
-
-    find_library(LIBPNG_LIB NAMES png libpng libpng16 PATHS "../../libpng/png-install/lib" REQUIRED) #the windows build only produces libpng16, not libpng
-    target_link_libraries(vec PUBLIC ${LIBPNG_LIB})
-    target_link_libraries(vec_tests PUBLIC ${LIBPNG_LIB})
+target_link_libraries(vec PUBLIC "pthread")
+target_link_libraries(vec_tests PRIVATE "pthread")
 
 message("linking libjpg-turbo")
     target_include_directories(vec PUBLIC "../../libjpeg/install/include/lib")
