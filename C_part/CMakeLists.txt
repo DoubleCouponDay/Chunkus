@@ -73,10 +73,16 @@ target_link_libraries(vec PUBLIC "pthread")
 target_link_libraries(vec_tests PRIVATE "pthread")
 
 message("linking libjpg-turbo")
-    
+    target_include_directories(vec PUBLIC "../../libjpeg/install/include/lib")
+    target_include_directories(vec_tests PUBLIC "../../libjpeg/install/include/lib")
+    find_library(JPEGTURBO_LIB NAMES turbojpeg libturbojpeg PATHS "../../libjpeg/install/lib" NO_DEFAULT_PATH REQUIRED)
+    target_link_libraries(vec PUBLIC ${JPEGTURBO_LIB})
+    target_link_libraries(vec_tests PUBLIC ${JPEGTURBO_LIB})
 
 target_include_directories(vec INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set_target_properties(vec PROPERTIES PUBLIC_HEADER "./src/entrypoint.h")
+install(FILES "../template.svg" DESTINATION bin)
+file(COPY "../template.svg" DESTINATION "./bin")
 
 install(
   TARGETS vec
@@ -95,9 +101,6 @@ install(
 
 set(LIB_EXTENSION ".a") # Setting a variable in case we ever need to change it
 
-
-
-
 install(
     FILES
     ${ZLIB_LIB}
@@ -112,5 +115,11 @@ install(
     RENAME libpng16${LIB_EXTENSION}
 )
 
-install(FILES "../template.svg" DESTINATION bin)
-file(COPY "../template.svg" DESTINATION "./bin")
+install(
+    FILES
+    ${JPEGTURBO_LIB}
+    DESTINATION lib
+    RENAME libturbojpeg${LIB_EXTENSION}
+)
+
+

@@ -1,3 +1,5 @@
+echo on
+
 rmdir build /s /q
 rmdir install /s /q
 

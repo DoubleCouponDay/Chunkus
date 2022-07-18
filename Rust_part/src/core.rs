@@ -12,6 +12,7 @@ mod ffimodule
     #[link(name = "vec", kind = "static")] 
     #[link(name = "png16", kind = "static")]
     #[link(name = "zlib", kind = "static")]
+    #[link(name = "turbojpeg", kind = "static")]
     extern "C" {        
         pub fn entrypoint(argc: c_int, argv: *mut *mut u8) -> c_int;
         pub fn just_crash() -> c_int;

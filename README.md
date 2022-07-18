@@ -146,7 +146,8 @@ You should receive a confirmation message telling you what you set the parameter
 
 ## C Tests
 
-The C code contains a test suite (based on MUnit). Run the `test` binary created in `C_part/build`. an single test name can be taken as argument, otherwise it runs all tests.
+The C code contains a test suite (based on MUnit). Run the `test` binary created in `C_part/build` in a shell with administrator privileges. 
+A single test name can be taken as argument, otherwise it runs all tests.
 
 ## Rust Tests
 
