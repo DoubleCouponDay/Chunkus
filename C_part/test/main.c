@@ -32,12 +32,14 @@ int main(int argc, char** argv) {
     LOG_INFO("%s, ", argv[i]);
   }
 
-  char* param1[] = { "../../test/test.png", NULL };
+  scanf("%s", NULL);
+
+  char* param1[] = { "test.png", NULL };
   char* param2[] = { "1", NULL };
   char* param3[] = { "1", NULL }; //max threshhold 440
   char* param4[] = { "./chunkmap.png", NULL };
   char* param5[] = { "256", NULL }; //max colours 256
-  char* param6[] = { "../../test/test.jpeg", NULL };
+  char* param6[] = { "test.jpeg", NULL };
   char* testname = argv[1];
 
   MunitParameterEnum test_params[] = { 
