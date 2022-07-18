@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.13.4)
 
-project("vec" "C")
-
-set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+project("vec" C)
 
 file(GLOB headersglob 
     "${PROJECT_SOURCE_DIR}/src/*.h"  
