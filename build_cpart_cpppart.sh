@@ -45,7 +45,7 @@ sudo cmake --install build --prefix install
 echo "Building libjpg-turbo..."
 cd ../libjpeg
 git checkout libjpeg-turbo-2.1.0
-cmake -B build -G "MinGW Makefiles"
+cmake -B build -G "Unix Makefiles"
 cmake --build build -j4
 cmake --install build --prefix install
 
