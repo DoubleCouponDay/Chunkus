@@ -32,64 +32,62 @@ else()
     add_library(vec STATIC ${sourceglob} ${headersglob})
     add_compile_definitions(vec VEC_NOEXPORTDLL)
 endif()
+    
+# Include directories v
+target_include_directories(vec PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-if (NOT WIN32)
-message("including math.h")
-target_link_libraries(vec PUBLIC m)
-target_link_libraries(vec_tests PUBLIC m)
-endif()
+target_include_directories(vec       PUBLIC "../../nanosvg/install/include/nanosvg")
+target_include_directories(vec_tests PUBLIC "../../nanosvg/install/include/nanosvg")
 
-message("linking nanosvg")
-    target_include_directories(vec PUBLIC "../../nanosvg/install/include/nanosvg")
-    target_include_directories(vec_tests PUBLIC "../../nanosvg/install/include/nanosvg")
-
-message("linking zlib")
-target_include_directories(vec PUBLIC "../../zlib/install/include")
+target_include_directories(vec       PUBLIC "../../zlib/install/include")
 target_include_directories(vec_tests PUBLIC "../../zlib/install/include")
 
-if (WIN32)
-    set(ZLIB_LIB "../../zlib/install/lib/libzlibstatic.a")
-    get_filename_component(ZLIB_NAME "${ZLIB_LIB}" REALPATH)
-else()
-    set(ZLIB_NAME "libz.a")
-
-endif()
-
-
-message("linking libpng")
-set(PNG_LIB "../../libpng/png-install/lib/libpng16.a")
-
-target_include_directories(vec PUBLIC "../../libpng/png-install/include")
+target_include_directories(vec       PUBLIC "../../libpng/png-install/include")
 target_include_directories(vec_tests PUBLIC "../../libpng/png-install/include")
 
-find_library(LIBPNG_LIB NAMES png libpng libpng16 PATHS "../../libpng/png-install/lib" REQUIRED) #the windows build only produces libpng16, not libpng
-get_filename_component(PNG_LIB ${PNG_LIB} REALPATH)
-message("Png at: ${PNG_LIB}")
-target_link_libraries(vec PUBLIC ${PNG_LIB})
-target_link_libraries(vec_tests PUBLIC ${PNG_LIB})
+if (WIN32)
+    target_include_directories(vec       PUBLIC "../../libjpeg/install/include/lib")
+    target_include_directories(vec_tests PUBLIC "../../libjpeg/install/include/lib")
+else()
+    target_include_directories(vec       PUBLIC "../../libjpeg/install/lib64")
+    target_include_directories(vec_tests PUBLIC "../../libjpeg/install/lib64")        
+endif()
 
-message("Zlib at: ${ZLIB_NAME}")
-target_link_libraries(vec PUBLIC ${ZLIB_NAME})
-target_link_libraries(vec_tests PRIVATE ${ZLIB_NAME})
+# Libraries v
+# Most dependant first (most dependancies)
+
+message("linking libpng...")
+    find_library(LIBPNG_LIB NAMES libpng16.a png16.a libpng.a png.a libpng16.lib png16.lib libpng.lib png.lib png libpng libpng16 png16 PATHS "../../libpng/png-install/lib" REQUIRED) #the windows build only produces libpng16, not libpng
+
+    target_link_libraries(vec PUBLIC ${LIBPNG_LIB})
+    target_link_libraries(vec_tests PUBLIC ${LIBPNG_LIB})
+    message("Png at: ${LIBPNG_LIB}")
 
 message("linking turbojpeg...")
-    if(WIN32)
-        target_include_directories(vec PUBLIC "../../libjpeg/install/include/lib")
-        target_include_directories(vec_tests PUBLIC "../../libjpeg/install/include/lib")
-        find_library(TURBOJPEG_LIB NAMES turbojpeg libturbojpeg PATHS "../../libjpeg/install/lib" NO_DEFAULT_PATH REQUIRED)
-        target_link_libraries(vec PUBLIC ${TURBOJPEG_LIB})
-        target_link_libraries(vec_tests PRIVATE ${TURBOJPEG_LIB})
-    else()
-        target_include_directories(vec PUBLIC "../../libjpeg/install/lib64")
-        target_include_directories(vec_tests PUBLIC "../../libjpeg/install/lib64")        
-        set(TURBOJPEG_LIB "../../libjpeg/install/lib64/libturbojpeg.a")
-        get_filename_component(REAL_TURBOJPEG_LIB ${TURBOJPEG_LIB} REALPATH)
-        target_link_libraries(vec PUBLIC ${REAL_TURBOJPEG_LIB})
-        target_link_libraries(vec_tests PRIVATE ${REAL_TURBOJPEG_LIB})
-    endif()
+    find_library(TURBOJPEG_LIB NAMES turbojpeg.a libturbojpeg.a turbojpeg.lib libturbojpeg.lib turbojpeg libturbojpeg PATHS "../../libjpeg/install/lib" NO_DEFAULT_PATH REQUIRED)
+    target_link_libraries(vec       PUBLIC  ${TURBOJPEG_LIB})
+    target_link_libraries(vec_tests PRIVATE ${TURBOJPEG_LIB})
+    message("Turbojpeg at: ${TURBOJPEG_LIB}")
 
-target_include_directories(vec INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+message("linking zlib...")
+    find_library(ZLIB_LIB NAMES libzlib.a zlib.a libz.a libzlibstatic.a zlibstatic.a libzlib.lib libzlibstatic.lib libz.lib zlib.lib zlibstatic.lib z.lib zlib z libz zlibstatic PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
+    
+    target_link_libraries(vec       PUBLIC  ${ZLIB_LIB})
+    target_link_libraries(vec_tests PRIVATE ${ZLIB_LIB})
+    message("Zlib at: ${ZLIB_LIB}")
+
+
+if (NOT WIN32)
+    message("linking math...")
+    target_link_libraries(vec       PUBLIC m)
+    target_link_libraries(vec_tests PUBLIC m)
+endif()
+
+# Public header v
+
 set_target_properties(vec PROPERTIES PUBLIC_HEADER "./src/entrypoint.h")
+
+# Install files v
 
 install(
   TARGETS vec
@@ -116,17 +114,17 @@ install(
 
 install(
     FILES
-    ${PNG_LIB}
+    ${LIBPNG_LIB}
     DESTINATION lib
     RENAME libpng16${LIB_EXTENSION}
 )
 
 install(
     FILES
-    ${PNG_LIB}
+    ${TURBOJPEG_LIB}
     DESTINATION lib
     RENAME libturbjpeg${LIB_EXTENSION}
 )
 
 install(FILES "../template.svg" DESTINATION bin)
-file(COPY "../template.svg" DESTINATION "./bin")
+install(FILES "../test.png" DESTINATION bin)
