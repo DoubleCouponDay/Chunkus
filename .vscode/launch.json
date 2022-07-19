@@ -19,10 +19,10 @@
             "name": "(Windows) Launch Tests",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\build\\C_part\\vec_tests.exe",
+            "program": "${workspaceFolder}\\install\\bin\\vec_tests.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}\\build\\C_part",
+            "cwd": "${workspaceFolder}\\install\\bin\\",
             "environment": [],
             "console": "internalConsole",
             "requireExactSource": false,
@@ -31,7 +31,7 @@
             "name": "(Windows) Launch one test",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\C_part\\build\\bin\\tests.exe",
+            "program": "${workspaceFolder}\\install\\bin\\vec_tests.exe",
             "args": ["jpeg_dcd"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}\\C_part\\build\\bin",
@@ -40,7 +40,7 @@
             "requireExactSource": false
         },
         {
-            "name": "(Linux) Launch test",
+            "name": "(Linux) Launch tests",
             "MIMode": "gdb",
             "type": "cppdbg",
             "request": "launch",
@@ -64,6 +64,15 @@
             "environment": []
         },
         {
+            "type": "cppdbg",
+            "request": "launch",
+            "name": "(Windows) Launch Vectorizer_GUI",
+            "args": ["true"],
+            "program": "${workspaceFolder}/Cpp_part/build/Vectorizer_GUI",
+            "cwd": "${workspaceFolder}/Cpp_part/build",
+            "MIMode": "gdb"
+        },
+        {
             "type": "lldb",
             "request": "launch",
             "name": "Launch trampoline (Linux)",
@@ -72,15 +81,6 @@
             "cwd": "${workspaceFolder}/Rust_part",
             "stopOnEntry": false,
             "sourceLanguages": ["rust"]
-        },
-        {
-            "type": "cppdbg",
-            "request": "launch",
-            "name": "Launch the fkin GUI",
-            "args": ["true"],
-            "program": "${workspaceFolder}/Cpp_part/build/Vectorizer_GUI",
-            "cwd": "${workspaceFolder}/Cpp_part/build",
-            "MIMode": "gdb"
         },
     ]
 }
