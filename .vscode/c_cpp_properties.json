@@ -2,7 +2,6 @@
     "configurations": [
         {
             "name": "Cmake CPP",
-            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
             "configurationProvider": "ms-vscode.cmake-tools",
             "cStandard": "c17",
             "cppStandard": "c++17",
