@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "type": "gdb",
             "request": "attach",
@@ -14,8 +15,6 @@
             "executable": "${workspaceRoot}\\build\\C_part\\vec_tests.exe",
             "valuesFormatting": "parseText"
         },
-
-    
         {
             "name": "(Windows) Launch Tests",
             "type": "cppvsdbg",
@@ -45,9 +44,9 @@
             "MIMode": "gdb",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\build\\C_part\\vec_tests",
+            "program": "${workspaceFolder}\\install\\bin\\vec_tests",
             "args": [],
-            "cwd": "${workspaceFolder}\\build\\C_part",
+            "cwd": "${workspaceFolder}\\install\\bin",
             "externalConsole": false,
             "internalConsoleOptions": "neverOpen",
             "symbolLoadInfo": {
