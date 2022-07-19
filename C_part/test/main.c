@@ -32,8 +32,6 @@ int main(int argc, char** argv) {
     LOG_INFO("%s, ", argv[i]);
   }
 
-  scanf("%s", NULL);
-
   char* param1[] = { "test.png", NULL };
   char* param2[] = { "1", NULL };
   char* param3[] = { "1", NULL }; //max threshhold 440
