@@ -40,6 +40,9 @@ int main(int argc, char** argv) {
   char* param6[] = { "test.jpeg", NULL };
   char* testname = argv[1];
 
+  printf("Press any key to continue...");
+  getchar();
+
   MunitParameterEnum test_params[] = { 
     { 
       "filename", param1,
