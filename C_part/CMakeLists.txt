@@ -46,8 +46,9 @@ set(LIBPNG_PATH "../../libpng/png-install")
 target_include_directories(vec       PUBLIC "${LIBPNG_PATH}/include")
 target_include_directories(vec_tests PUBLIC "${LIBPNG_PATH}/include")
 
-target_include_directories(vec       PUBLIC "../../libjpeg/install/include")
-target_include_directories(vec_tests PUBLIC "../../libjpeg/install/include")
+set(TURBOJPEG_PATH "../../libjpeg/install")
+target_include_directories(vec       PUBLIC "${TURBOJPEG_PATH}/include")
+target_include_directories(vec_tests PUBLIC "${TURBOJPEG_PATH}/include")
 
 # Libraries v
 # Most dependant first (most dependancies)
@@ -62,13 +63,13 @@ message("linking libpng...")
     message("Png header at: ${LIBPNG_HEADER}")
 
 message("linking turbojpeg...")
-    find_library(TURBOJPEG_LIB NAMES turbojpeg.a libturbojpeg.a PATHS "../../libjpeg/install/lib" "../../libjpeg/install/lib64" NO_DEFAULT_PATH REQUIRED)
-    find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${LIBPNG_PATH}/include" NO_DEFAULT_PATH REQUIRED)
+    find_library(TURBOJPEG_LIB NAMES turbojpeg.a libturbojpeg.a PATHS "${TURBOJPEG_PATH}/lib" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
+    find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${TURBOJPEG_PATH}/include" NO_DEFAULT_PATH REQUIRED)
     
     target_link_libraries(vec       PUBLIC  ${TURBOJPEG_LIB})
     target_link_libraries(vec_tests PRIVATE ${TURBOJPEG_LIB})
     message("Turbojpeg at: ${TURBOJPEG_LIB}")
-    message("turbojpeg header at: ${LIBPNG_HEADER}")
+    message("turbojpeg header at: ${TURBOJPEG_HEADER}")
 
 message("linking zlib...")
     find_library(ZLIB_LIB NAMES libzlib.a zlib.a libz.a libzlibstatic.a zlibstatic.a PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
@@ -131,6 +132,12 @@ install(
     ${TURBOJPEG_LIB}
     DESTINATION lib
     RENAME libturbojpeg${LIB_EXTENSION}
+)
+
+install(
+    FILES
+    ${TURBOJPEG_HEADER}
+    DESTINATION include
 )
 
 install(FILES "../template.svg" DESTINATION bin)
