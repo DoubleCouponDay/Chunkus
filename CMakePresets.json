@@ -2,7 +2,7 @@
     "version": 2,
     "configurePresets": [
         {
-            "name": "Windows",
+            "name": "ninja-gcc",
             "displayName": "Gcc with Ninja",
             "description": "Sets Ninja generator, build and install directory",
             "generator": "Ninja",

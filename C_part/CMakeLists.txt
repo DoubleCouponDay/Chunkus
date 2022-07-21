@@ -142,3 +142,4 @@ install(
 
 install(FILES "../template.svg" DESTINATION bin)
 install(FILES "../test.png" DESTINATION bin)
+install(FILES "src/entrypoint.h" DESTINATION include)
