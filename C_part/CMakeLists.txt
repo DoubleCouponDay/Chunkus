@@ -42,36 +42,36 @@ target_include_directories(vec_tests PUBLIC "../../nanosvg/install/include/nanos
 target_include_directories(vec       PUBLIC "../../zlib/install/include")
 target_include_directories(vec_tests PUBLIC "../../zlib/install/include")
 
-target_include_directories(vec       PUBLIC "../../libpng/png-install/include")
-target_include_directories(vec_tests PUBLIC "../../libpng/png-install/include")
+set(LIBPNG_PATH "../../libpng/png-install")
+target_include_directories(vec       PUBLIC "${LIBPNG_PATH}/include")
+target_include_directories(vec_tests PUBLIC "${LIBPNG_PATH}/include")
 
-if (WIN32)
-    target_include_directories(vec       PUBLIC "../../libjpeg/install/include/lib")
-    target_include_directories(vec_tests PUBLIC "../../libjpeg/install/include/lib")
-else()
-    target_include_directories(vec       PUBLIC "../../libjpeg/install/lib64")
-    target_include_directories(vec_tests PUBLIC "../../libjpeg/install/lib64")        
-endif()
+target_include_directories(vec       PUBLIC "../../libjpeg/install/include")
+target_include_directories(vec_tests PUBLIC "../../libjpeg/install/include")
 
 # Libraries v
 # Most dependant first (most dependancies)
 
 message("linking libpng...")
-    find_library(LIBPNG_LIB NAMES libpng16.a png16.a libpng.a png.a libpng16.lib png16.lib libpng.lib png.lib png libpng libpng16 png16 PATHS "../../libpng/png-install/lib" REQUIRED) #the windows build only produces libpng16, not libpng
+    find_library(LIBPNG_LIB NAMES libpng16.a png16.a libpng.a png.a PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
+    find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_PATH}/include" NO_DEFAULT_PATH REQUIRED)
 
     target_link_libraries(vec PUBLIC ${LIBPNG_LIB})
     target_link_libraries(vec_tests PUBLIC ${LIBPNG_LIB})
     message("Png at: ${LIBPNG_LIB}")
+    message("Png header at: ${LIBPNG_HEADER}")
 
 message("linking turbojpeg...")
-    find_library(TURBOJPEG_LIB NAMES turbojpeg.a libturbojpeg.a turbojpeg.lib libturbojpeg.lib turbojpeg libturbojpeg PATHS "../../libjpeg/install/lib" "../../libjpeg/install/lib64" NO_DEFAULT_PATH REQUIRED)
+    find_library(TURBOJPEG_LIB NAMES turbojpeg.a libturbojpeg.a PATHS "../../libjpeg/install/lib" "../../libjpeg/install/lib64" NO_DEFAULT_PATH REQUIRED)
+    find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${LIBPNG_PATH}/include" NO_DEFAULT_PATH REQUIRED)
     
     target_link_libraries(vec       PUBLIC  ${TURBOJPEG_LIB})
     target_link_libraries(vec_tests PRIVATE ${TURBOJPEG_LIB})
     message("Turbojpeg at: ${TURBOJPEG_LIB}")
+    message("turbojpeg header at: ${LIBPNG_HEADER}")
 
 message("linking zlib...")
-    find_library(ZLIB_LIB NAMES libzlib.a zlib.a libz.a libzlibstatic.a zlibstatic.a libzlib.lib libzlibstatic.lib libz.lib zlib.lib zlibstatic.lib z.lib zlib z libz zlibstatic PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
+    find_library(ZLIB_LIB NAMES libzlib.a zlib.a libz.a libzlibstatic.a zlibstatic.a PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
     
     target_link_libraries(vec       PUBLIC  ${ZLIB_LIB})
     target_link_libraries(vec_tests PRIVATE ${ZLIB_LIB})
@@ -118,6 +118,12 @@ install(
     ${LIBPNG_LIB}
     DESTINATION lib
     RENAME libpng16${LIB_EXTENSION}
+)
+
+install(
+    FILES
+    ${LIBPNG_HEADER}
+    DESTINATION include
 )
 
 install(
