@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include "turbojpeg.h"
+#include <turbojpeg.h>
 
 #include "../image.h"
 #include "../utility/error.h"
