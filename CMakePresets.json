@@ -2,7 +2,7 @@
     "version": 2,
     "configurePresets": [
         {
-            "name": "ninja-gcc",
+            "name": "Windows",
             "displayName": "Gcc with Ninja",
             "description": "Sets Ninja generator, build and install directory",
             "generator": "Ninja",
@@ -14,6 +14,19 @@
                 "CMAKE_INSTALL_PREFIX": "install",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }
+        },
+        {
+            "name": "Linux",
+            "displayName": "GCC 9.4.0 x86_64-linux-gnu",
+            "description": "Using compilers: C = /usr/bin/c89-gcc",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
         }
+    ],
+    "buildPresets": [
     ]
 }
