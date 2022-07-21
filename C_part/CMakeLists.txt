@@ -130,7 +130,7 @@ install(
     FILES
     ${TURBOJPEG_LIB}
     DESTINATION lib
-    RENAME libturbjpeg${LIB_EXTENSION}
+    RENAME libturbojpeg${LIB_EXTENSION}
 )
 
 install(FILES "../template.svg" DESTINATION bin)
