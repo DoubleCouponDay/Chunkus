@@ -93,9 +93,13 @@ The C code builds to `C_part\build`
 Continue with cross-platform instructions using a terminal with administrator privileges.
 Execute the .SH or .BAT build script depending on your operating system. It must be executed from the root directory.
 
-    ./build_cpart_cpppart.sh
+linux
 
-    .\build_cpart_cpppart.bat
+    ./build.sh
+
+windows
+
+    .\build.bat
 
   
 ## Building the Rust code 
