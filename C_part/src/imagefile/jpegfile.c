@@ -9,6 +9,7 @@
 #include "../image.h"
 #include "../utility/error.h"
 #include "../utility/logger.h"
+#include "../utility/defines.h"
 
 bool file_is_jpeg(char* fileaddress) {
 	char current = fileaddress[0];
@@ -28,4 +29,139 @@ bool file_is_jpeg(char* fileaddress) {
 		return true;
 
 	return false;
+}
+
+image convert_jpeg_to_image(char* fileaddress) {
+	LOG_INFO("opening jpeg file...");
+
+	FILE* file = openfile(fileaddress);
+
+	if(isBadError()) {
+		LOG_ERR("error opening jpeg file");
+		return (image){0, 0, NULL};
+	}
+	LOG_INFO("setting filestream seek position...");
+	int sizeTest1 = fseek(file, 0, SEEK_END);
+	int sizeTest2 = ftell(file);
+	int sizeTest3 = fseek(file, 0, SEEK_SET);
+
+	if(sizeTest1 < 0 || sizeTest2 < 0 || sizeTest3 < 0) {
+		LOG_ERR("error setting jpeg file stream position");
+		setError(READ_FILE_ERROR);
+		return (image){0, 0, NULL};
+	}
+	LOG_INFO("allocating jpegBuffer...");
+	unsigned long jpegSize = (unsigned long)sizeTest2;
+	unsigned char* jpegBuffer = (unsigned char*)tjAlloc(jpegSize);
+
+	if(jpegBuffer == NULL) {
+		LOG_ERR("error allocating jpeg buffer");
+		setError(ASSUMPTION_WRONG);
+		return (image){0, 0, NULL};
+	}
+	LOG_INFO("reading file into buffer...");
+	size_t tryRead = fread(jpegBuffer, jpegSize, 1, file);
+
+	if(tryRead < 1) {
+		LOG_ERR("error reading jpeg file");
+		setError(READ_FILE_ERROR);
+		return (image){0, 0, NULL};
+	}
+	fclose(file);
+	file = NULL;
+	LOG_INFO("initializing jpeg decompression");
+
+	int width = NOT_FILLED;
+	int height = NOT_FILLED;
+	int chrominance = NOT_FILLED;
+	int colorspace = NOT_FILLED;
+	tjhandle handle = tjInitDecompress();
+
+	if(handle == NULL) {
+		LOG_ERR("error initializing jpeg decompressor");
+		setError(ASSUMPTION_WRONG);
+		return (image){0, 0, NULL};
+	}
+	LOG_INFO("decompressing jpeg header...");
+
+	int decompression = tjDecompressHeader3(
+		handle, 
+		jpegBuffer,
+		jpegSize,
+		&width,
+		&height,
+		&chrominance,
+		&colorspace);
+
+	char* possibleError = tjGetErrorStr2(handle);
+
+	if(possibleError != "No error" ||
+		decompression < 0 ||
+		jpegSize == NOT_FILLED ||
+		width == NOT_FILLED ||
+		height == NOT_FILLED) {
+		LOG_ERR("error in tjDecompressHeader3: %s", possibleError);
+		return (image){0, 0, NULL};
+	}
+	LOG_INFO("getting scaling factors...");
+	int numScalingFactors = NOT_FILLED;
+	tjscalingfactor* scalingFactors = tjGetScalingFactors(&numScalingFactors);
+
+	if(scalingFactors == NULL ||
+		numScalingFactors == NOT_FILLED) {
+		LOG_ERR("error getting jpeg scaling factors");
+		return (image){0, 0, NULL};
+	}
+	LOG_INFO("decompressing jpeg content...");
+	tjscalingfactor scalingFactor = scalingFactors[8]; //{1, 1}
+	float scaledWidth = TJSCALED(width, scalingFactor);
+	float scaledHeight = TJSCALED(height, scalingFactor);
+	int pixelFormat = TJPF_RGB;
+	int pitch = tjPixelSize[pixelFormat];
+	int flags = TJFLAG_ACCURATEDCT; //use the most accurate IDCT algorithm
+
+	char* scaledBuffer = (unsigned char*)tjAlloc(scaledWidth * scaledHeight * pitch);
+
+	if(scaledBuffer == NULL) {
+		LOG_ERR("error allocating jpeg scaled buffer");
+		setError(ASSUMPTION_WRONG);
+		return (image){0, 0, NULL};
+	}
+
+	tjDecompress2(
+		handle,
+		jpegBuffer,
+		jpegSize,
+		scaledBuffer,
+		scaledWidth,
+		pitch,
+		scaledHeight,
+		pixelFormat,
+		flags);
+
+	char* possibleError2 = tjGetErrorStr2(handle);
+
+	if(possibleError2 != NULL) {
+		LOG_ERR("error in tjDecompress2: %s", possibleError2);
+		return (image){0, 0, NULL};
+	}
+	LOG_INFO("converting buffer to image...");
+	image output = create_image(scaledWidth, scaledHeight);
+
+	for(int y = 0; y < output.height; ++y) {
+		for(int x = 0; x < output.width; ++x) {
+			int index = (y * output.width + x) * 3;
+			output.pixels_array_2d[y][x].r = scaledBuffer[index];
+			output.pixels_array_2d[y][x].g = scaledBuffer[index + 1];
+			output.pixels_array_2d[y][x].b = scaledBuffer[index + 2];
+		}
+	}
+
+	LOG_INFO("cleaning up conversion...");
+	tjFree(jpegBuffer);
+	tjFree(scaledBuffer);
+	tjDestroy(handle);
+	handle = NULL;
+	LOG_INFO("jpeg file converted to image");
+	return output;
 }

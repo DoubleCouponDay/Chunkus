@@ -50,8 +50,6 @@ void logger(const char* tag, const char* message, ...) {
     timeinfo = localtime(&now);
     strftime(time_buffer, 100, "%b %e %T", timeinfo);
 
-
-
     //print to log file
     fprintf(logfile, "%s [%s]: ", time_buffer, tag);
     vfprintf(logfile, message, args); 

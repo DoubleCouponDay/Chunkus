@@ -8,4 +8,3 @@ project("Vectorizer" C CXX)
 
 add_subdirectory(C_part)
 add_subdirectory(Cpp_part)
-

@@ -86,8 +86,6 @@ Clone these repos into folders adjacent to the root folder:
         
         pinned commit: libjpeg-turbo-2.1.0
 
-Cmake will know where to find these projects when linking. (WE HOPE)
-
 Also have an placeholder.bmp in the binary folder (wherever you build or install) if you want a placeholder image for non-existant images
 
 The C code builds to `C_part\build`
@@ -95,9 +93,13 @@ The C code builds to `C_part\build`
 Continue with cross-platform instructions using a terminal with administrator privileges.
 Execute the .SH or .BAT build script depending on your operating system. It must be executed from the root directory.
 
-    ./build_cpart_cpppart.sh
+linux
 
-    .\build_cpart_cpppart.bat
+    ./build.sh
+
+windows
+
+    .\build.bat
 
   
 ## Building the Rust code 
