@@ -4,51 +4,57 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
-        {
-            "type": "gdb",
-            "request": "attach",
-            "name": "(gdb) Debug Remote Server",
-            "target": "localhost:16970",
-            "remote": true,
-            "cwd": "${workspaceRoot}\\build\\C_part",
-            "executable": "${workspaceRoot}\\build\\C_part\\vec_tests.exe",
-            "valuesFormatting": "parseText"
-        },
         {
             "name": "(Windows) Launch Tests",
-            "type": "cppvsdbg",
+            "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\install\\bin\\vec_tests.exe",
+            "program": "${workspaceFolder}/install/bin/vec_tests.exe",
             "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}\\install\\bin\\",
+            "stopAtEntry": true,
+            "cwd": "${fileDirname}",
             "environment": [],
-            "console": "internalConsole",
-            "requireExactSource": false,
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe",
+            "preLaunchTask": "build"
         },
         {
             "name": "(Windows) Launch one test",
-            "type": "cppvsdbg",
+            "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\install\\bin\\vec_tests.exe",
-            "args": ["jpeg_dcd"],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}\\C_part\\build\\bin",
-            "environment": [],
-            "console": "internalConsole",
-            "requireExactSource": false
+            "program": "${workspaceFolder}/install/bin/vec_tests.exe",
+            "args": ["jpeg_to_image"],
+            "stopAtEntry": true,
+            "cwd": "${fileDirname}",
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe",
+            "preLaunchTask": "build"
         },
         {
             "name": "(Linux) Launch tests",
             "MIMode": "gdb",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\install\\bin\\vec_tests",
+            "program": "${workspaceFolder}/install/bin/vec_tests",
             "args": [],
-            "cwd": "${workspaceFolder}\\install\\bin",
+            "cwd": "${workspaceFolder}/install/bin",
             "externalConsole": false,
             "internalConsoleOptions": "neverOpen",
+            "symbolLoadInfo": {
+                "loadAll": true,
+                "exceptionList": ""
+            }
+        },
+        {
+            "name": "(Linux) Launch one test",
+            "MIMode": "gdb",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/install/bin/vec_tests",
+            "args": ["jpeg_to_image"],
+            "cwd": "${workspaceFolder}/install/bin",
+            "externalConsole": false,
             "symbolLoadInfo": {
                 "loadAll": true,
                 "exceptionList": ""
@@ -64,23 +70,13 @@
             "environment": []
         },
         {
+            "name": "(Windows) Launch Vectorizer_GUI",
             "type": "cppdbg",
             "request": "launch",
-            "name": "(Windows) Launch Vectorizer_GUI",
             "args": ["true"],
             "program": "${workspaceFolder}/Cpp_part/build/Vectorizer_GUI",
             "cwd": "${workspaceFolder}/Cpp_part/build",
             "MIMode": "gdb"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Launch trampoline (Linux)",
-            "args": ["true"],
-            "program": "${workspaceFolder}/Rust_part/target/debug/trampoline",
-            "cwd": "${workspaceFolder}/Rust_part",
-            "stopOnEntry": false,
-            "sourceLanguages": ["rust"]
-        },
+        }
     ]
 }

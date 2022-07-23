@@ -4,9 +4,15 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "linux build tests",
-            "type": "shell",
-            "command": "xmake -b tests.exe",
+            "label": "build",
+            "type": "process",
+            "command": "build.bat",
+            "windows": {
+                "command": "./build.bat"
+            },
+            "linux": {
+                "command": "./build.sh"
+            },
             "options": {
                 "cwd": "${workspaceFolder}"
             },

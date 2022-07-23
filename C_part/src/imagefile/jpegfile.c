@@ -94,15 +94,20 @@ image convert_jpeg_to_image(char* fileaddress) {
 		&colorspace);
 
 	char* possibleError = tjGetErrorStr2(handle);
+	LOG_INFO("%s \n", possibleError);
+	LOG_INFO("%d \n", decompression);
 
-	if(possibleError != "No error" ||
-		decompression < 0 ||
-		jpegSize == NOT_FILLED ||
-		width == NOT_FILLED ||
-		height == NOT_FILLED) {
+	if(strcmp(possibleError, "No error") != 0 ||
+		decompression < 0) {
 		LOG_ERR("error in tjDecompressHeader3: %s", possibleError);
 		return (image){0, 0, NULL};
 	}
+
+	if(width == NOT_FILLED || height == NOT_FILLED) {
+		LOG_ERR("error in tjDecompressHeader3: width or height not filled");
+		return (image){0, 0, NULL};
+	}
+
 	LOG_INFO("getting scaling factors...");
 	int numScalingFactors = NOT_FILLED;
 	tjscalingfactor* scalingFactors = tjGetScalingFactors(&numScalingFactors);
@@ -141,7 +146,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 
 	char* possibleError2 = tjGetErrorStr2(handle);
 
-	if(possibleError2 != NULL) {
+	if(strcmp(possibleError2, "No error") != 0) {
 		LOG_ERR("error in tjDecompress2: %s", possibleError2);
 		return (image){0, 0, NULL};
 	}
