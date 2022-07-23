@@ -16,4 +16,8 @@
 #define _USE_MATH_DEFINES 1
 #endif
 
+#ifndef NOT_FILLED
+#define NOT_FILLED -1
+#endif
+
 float getpi();
