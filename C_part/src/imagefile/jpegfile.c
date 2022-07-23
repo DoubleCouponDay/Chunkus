@@ -146,7 +146,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 
 	char* possibleError2 = tjGetErrorStr2(handle);
 
-	if(possibleError2 != NULL) {
+	if(strcmp(possibleError2, "No error") != 0) {
 		LOG_ERR("error in tjDecompress2: %s", possibleError2);
 		return (image){0, 0, NULL};
 	}
