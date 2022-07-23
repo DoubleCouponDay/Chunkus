@@ -250,7 +250,7 @@ MunitResult jpeg_dcd(const MunitParameter params[], void* userdata) {
     num_colours
   };
 
-  //stuff->img = convert_jpeg_to_image(inputjpeg);
+  stuff->img = convert_jpeg_to_image(inputjpeg);
   LOG_INFO("asserting pixels_array_2d not null");
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
