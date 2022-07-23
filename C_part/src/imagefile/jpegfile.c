@@ -98,8 +98,8 @@ image convert_jpeg_to_image(char* fileaddress) {
 	if(possibleError != "No error" ||
 		decompression < 0 ||
 		jpegSize == NOT_FILLED ||
-		chrominance == NOT_FILLED ||
-		colorspace == NOT_FILLED) {
+		width == NOT_FILLED ||
+		height == NOT_FILLED) {
 		LOG_ERR("error in tjDecompressHeader3: %s", possibleError);
 		return (image){0, 0, NULL};
 	}
