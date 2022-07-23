@@ -86,8 +86,6 @@ Clone these repos into folders adjacent to the root folder:
         
         pinned commit: libjpeg-turbo-2.1.0
 
-Cmake will know where to find these projects when linking. (WE HOPE)
-
 Also have an placeholder.bmp in the binary folder (wherever you build or install) if you want a placeholder image for non-existant images
 
 The C code builds to `C_part\build`
