@@ -105,7 +105,9 @@ image convert_png_to_image(char* fileaddress) {
     png_read_info(read_struct, info_p);
 
     LOG_INFO("Reading image width/height and allocating image space");
-    image output = create_image(png_get_image_width(read_struct, info_p), png_get_image_height(read_struct, info_p));
+    int imageWidth = png_get_image_width(read_struct, info_p);
+    int imageHeight = png_get_image_height(read_struct, info_p);
+    image output = create_image(imageWidth, imageHeight);
 
     color_type = png_get_color_type(read_struct, info_p);
     if (color_type != PNG_COLOR_TYPE_RGB && color_type != PNG_COLOR_TYPE_RGBA)
