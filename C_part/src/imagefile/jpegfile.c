@@ -154,9 +154,12 @@ image convert_jpeg_to_image(char* fileaddress) {
 	for(int y = 0; y < output.height; ++y) {
 		for(int x = 0; x < output.width; ++x) {
 			int index = (y * output.width + x) * 3;
-			output.pixels_array_2d[y][x].r = scaledBuffer[index];
-			output.pixels_array_2d[y][x].g = scaledBuffer[index + 1];
-			output.pixels_array_2d[y][x].b = scaledBuffer[index + 2];
+			int scaledR = scaledBuffer[index];
+			int scaledG = scaledBuffer[index + 1];
+			int scaledB = scaledBuffer[index + 2];
+			output.pixels_array_2d[y][x].r = scaledR;
+			output.pixels_array_2d[y][x].g = scaledG;
+			output.pixels_array_2d[y][x].b = scaledB;
 		}
 	}
 
