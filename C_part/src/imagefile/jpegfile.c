@@ -94,8 +94,6 @@ image convert_jpeg_to_image(char* fileaddress) {
 		&colorspace);
 
 	char* possibleError = tjGetErrorStr2(handle);
-	LOG_INFO("%s \n", possibleError);
-	LOG_INFO("%d \n", decompression);
 
 	if(strcmp(possibleError, "No error") != 0 ||
 		decompression < 0) {
