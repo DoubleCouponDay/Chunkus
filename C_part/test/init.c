@@ -10,11 +10,11 @@
 const int ONE_TEST_SIZE = 2;
 
 MunitTest* filtertests(namedtest* tests_array, int arraylength, char* testname) {
-  LOG_INFO("filtering tests for '%s'", testname);
   MunitTest* output;
   MunitTest endofarray = { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL };
 
   if(testname != NULL) {
+    LOG_INFO("filtering tests for '%s'", testname);
     output = calloc(1, sizeof(MunitTest) * ONE_TEST_SIZE);
     output[1] = endofarray;
     
@@ -34,6 +34,7 @@ MunitTest* filtertests(namedtest* tests_array, int arraylength, char* testname) 
   }
 
   else {
+    LOG_INFO("running all tests");
     output = calloc(1, sizeof(MunitTest) * (arraylength + 1));
 
     for(int i = 0; i < arraylength; ++i) {
