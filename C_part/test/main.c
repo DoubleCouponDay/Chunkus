@@ -62,38 +62,34 @@ int main(int argc, char** argv) {
     { NULL, NULL} 
   };
 
-  MunitTest apple = { "can_pass", aTestCanPass, NULL, NULL, MUNIT_TEST_OPTION_NONE };
-  MunitTest orange = { "read_png", can_read_png, test2setup, test2teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest mango = { "png_to_chunkmap", can_convert_png_to_chunkmap, test4setup, test4teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest peach = { "png_to_bmp", opensPngAndOutputsBmp, test5setup, test5teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest melon = { "png_to_nsvg", can_vectorize_image, test6setup, test6teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest cherry = { "chunkmap_to_png", can_write_chunkmap_shapes_to_file, test69setup, test69teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest banana = { "dcdfill", can_write_to_svgfile, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest can_pass = { "can_pass", aTestCanPass, NULL, NULL, MUNIT_TEST_OPTION_NONE };
+  MunitTest read_png = { "read_png", can_read_png, test2setup, test2teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest png_to_chunkmap = { "png_to_chunkmap", can_convert_png_to_chunkmap, test4setup, test4teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest png_to_bmp = { "png_to_bmp", opensPngAndOutputsBmp, test5setup, test5teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest png_to_nsvg = { "png_to_nsvg", can_vectorize_image, test6setup, test6teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest chunkmap_to_png = { "chunkmap_to_png", can_write_chunkmap_shapes_to_file, test69setup, test69teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest dcdfill = { "dcdfill", can_write_to_svgfile, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest run = { "run", just_run, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest pineapple = { "jpeg_to_image", JPEG_to_image, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest apricot = { "jpeg_to_bmp", can_convert_jpeg_to_bmp, jpeg_to_bmp_setup, jpeg_to_bmp_teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest dragonfruit = { "jpeg_dcd", jpeg_dcd, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  //passionfruit
-  //guava
-  //mandarin
-  //date
+  MunitTest jpeg_to_image = { "jpeg_to_image", can_convert_jpeg_to_image, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest jpeg_to_bmp = { "jpeg_to_bmp", can_convert_jpeg_to_bmp, jpeg_to_bmp_setup, jpeg_to_bmp_teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest jpeg_to_dcd = { "jpeg_to_dcd", can_vectorize_jpeg, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
 
   enum { 
     NUM_TESTS = 11 //UPDATE THIS WHEN YOU ADD NEW TESTS
   }; 
 
   namedtest tests[NUM_TESTS] = {
-    {apple.name, apple},
-    {orange.name, orange},
-    {mango.name, mango},
-    {peach.name, peach},
-    {melon.name, melon},
-    {cherry.name, cherry},
-    {banana.name, banana},
+    {can_pass.name, can_pass},
+    {read_png.name, read_png},
+    {png_to_chunkmap.name, png_to_chunkmap},
+    {png_to_bmp.name, png_to_bmp},
+    {png_to_nsvg.name, png_to_nsvg},
+    {chunkmap_to_png.name, chunkmap_to_png},
+    {dcdfill.name, dcdfill},
     {run.name, run},
-    {pineapple.name, pineapple},
-    {apricot.name, apricot},
-    {dragonfruit.name, dragonfruit}
+    {jpeg_to_image.name, jpeg_to_image},
+    {jpeg_to_bmp.name, jpeg_to_bmp},
+    {jpeg_to_dcd.name, jpeg_to_dcd}
   };
   MunitTest* filteredtests = filtertests(tests, NUM_TESTS, testname);
   MunitSuite suite = { "tests.", filteredtests };

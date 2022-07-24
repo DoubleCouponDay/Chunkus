@@ -32,7 +32,7 @@ MunitResult can_vectorize_image(const MunitParameter params[], void* userdata);
 MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], void* userdata);
 MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata);
 MunitResult just_run(const MunitParameter params[], void* userdata);
-MunitResult JPEG_to_image(const MunitParameter params[], void* userdata);
+MunitResult can_convert_jpeg_to_image(const MunitParameter params[], void* userdata);
 MunitResult can_convert_jpeg_to_bmp(const MunitParameter params[], void* userdata);
-MunitResult jpeg_dcd(const MunitParameter params[], void* userdata);
+MunitResult can_vectorize_jpeg(const MunitParameter params[], void* userdata);
 

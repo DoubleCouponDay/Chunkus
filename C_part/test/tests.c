@@ -196,7 +196,7 @@ MunitResult just_run(const MunitParameter params[], void* userdata) {
   return MUNIT_OK;
 }
 
-MunitResult JPEG_to_image(const MunitParameter params[], void* userdata) {
+MunitResult can_convert_jpeg_to_image(const MunitParameter params[], void* userdata) {
   char* inputjpeg = params[5].value;
   image result = convert_file_to_image(inputjpeg);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
@@ -229,7 +229,7 @@ MunitResult can_convert_jpeg_to_bmp(const MunitParameter params[], void* userdat
   return MUNIT_OK;
 }
 
-MunitResult jpeg_dcd(const MunitParameter params[], void* userdata) {
+MunitResult can_vectorize_jpeg(const MunitParameter params[], void* userdata) {
     test8stuff* stuff = userdata;
 
   char* inputjpeg = params[5].value;
