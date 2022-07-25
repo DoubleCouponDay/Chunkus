@@ -157,9 +157,9 @@ image convert_jpeg_to_image(char* fileaddress) {
 			int scaledR = scaledBuffer[index];
 			int scaledG = scaledBuffer[index + 1];
 			int scaledB = scaledBuffer[index + 2];
-			output.pixels_array_2d[y][x].r = scaledR;
-			output.pixels_array_2d[y][x].g = scaledG;
-			output.pixels_array_2d[y][x].b = scaledB;
+			output.pixels_array_2d[x][y].r = scaledR;
+			output.pixels_array_2d[x][y].g = scaledG;
+			output.pixels_array_2d[x][y].b = scaledB;
 		}
 	}
 
