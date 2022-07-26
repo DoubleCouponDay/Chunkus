@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include <nanosvg.h>
+#include <pthread.h>
 
 #include "../image.h"
 #include "../chunkmap.h"
@@ -333,6 +334,10 @@ void find_shapes(chunkmap* map, pixelchunk* current, list_holder* holder, int ma
     }
 }
 
+int find_highest_multiple() {
+
+}
+
 void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     //create set of shapes
     LOG_INFO("Fill chunkmap with threshold: %f", options->shape_colour_threshhold);
@@ -340,6 +345,71 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     list_holder holder = (list_holder){ map->shape_list };
     int count = 0;
     int tenth_count = 0;
+    
+    int remainderWidth = map->map_width % 4;
+    int remainderHeight = map->map_Height % 4;
+    
+    int quadrant1x = 0;
+    int quadrant1y = 0;
+    int quadrant1xend;
+    int quadrant1yend;
+
+    int quadrant2x;
+    int quadrant2y;
+    int quadrant2xend;
+    int quadrant2yend;
+
+    int quadrant3x;
+    int quadrant3y;
+    int quadrant3xend;
+    int quadrant3yend;
+
+    int quadrant4x;
+    int quadrant4y;
+    int quadrant4xend;
+    int quadrant4yend;
+
+    if(remainderWidth != 0) {
+        int findingmultiple;
+        bool multiplefound = false;
+        int chosenmultiple;
+
+        do {
+            chosenmultiple = map->map_width - 1 
+            findingmultiple = (map->map_width - 1) / 4;
+
+            multiplefound = (findingmultiple % 4 == 0 && map->map_width > 0)
+                true : false;
+        }
+
+        while(multiplefound == false);
+        quadrant1x
+    }
+
+    else {
+
+    }
+
+    quadrant_arguments quadrant1 = {
+        map, options,
+        0, 0, quadrant1x, quadrant1y
+    };
+
+    quadrant_arguments quadrant2 = {
+        map, options,
+        
+    };
+
+    quadrant_arguments quadrant3 = {
+        map, options,
+        
+    };
+
+    quadrant_arguments quadrant4 = {};
+    quadrant_args->map = map;
+    qudrant_args->options = options;
+    int quadrantHeight = (floor)
+
 
     for(int map_y = 0; map_y < map->map_height; ++map_y)
     {

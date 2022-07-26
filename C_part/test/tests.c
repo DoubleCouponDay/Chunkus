@@ -21,7 +21,7 @@
 #include "../src/utility/error.h"
 #include "../src/imagefile/svg.h"
 #include "../src/imagefile/converter.h"
-#include "../src/nsvg/dcdfiller.h"
+#include "../src/nsvg/algorithm.h"
 #include "../src/utility/logger.h"
 #include "../src/imagefile/jpegfile.h"
 

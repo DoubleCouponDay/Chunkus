@@ -14,7 +14,7 @@
 #include "mapping.h"
 #include "../sort.h"
 #include "mapparser.h"
-#include "dcdfiller.h"
+#include "algorithm.h"
 #include "../imagefile/pngfile.h"
 #include "../utility/logger.h"
 
