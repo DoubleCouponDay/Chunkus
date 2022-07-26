@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <GL/freeglut.h>
 
 #include "color.h"
@@ -71,10 +72,26 @@ struct Button
 	}
 };
 
+struct SidebarButton
+{
+	Button Button;
+	Color32 GroupColor;
+};
+
+struct Sidebar
+{
+	std::vector<SidebarButton> Buttons;
+	Box Bounds;
+};
+
 void renderString(int x, int y, void* font, std::string str, Color32 color);
 void renderString(Box box, void* font, std::string str, Color32 color);
 
 void renderButton(const Button& button);
+
+void renderSidebar(const Sidebar& sidebar);
+
+void renderArea(Box box, Color32 color);
 
 Vector2i windowToGL(Vector2i windowCoords);
 

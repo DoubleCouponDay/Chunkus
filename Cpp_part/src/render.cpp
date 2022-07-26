@@ -38,10 +38,10 @@ void renderButton(const Button& button)
 
 		glBegin(GL_QUADS);
 		// Counter Clockwise order
-		glVertex3i(button.position.x + 0, button.position.y + 0, 0); // Lower Left
-		glVertex3i(button.position.x + button.dimensions.x, button.position.y + 0, 0); // Lower Right
+		glVertex3i(button.position.x + 0                  , button.position.y + 0                  , 0); // Lower Left
+		glVertex3i(button.position.x + button.dimensions.x, button.position.y + 0                  , 0); // Lower Right
 		glVertex3i(button.position.x + button.dimensions.x, button.position.y + button.dimensions.y, 0); // Upper Right
-		glVertex3i(button.position.x + 0, button.position.y + button.dimensions.y, 0); // Upper Left
+		glVertex3i(button.position.x + 0                  , button.position.y + button.dimensions.y, 0); // Upper Left
 
 		glEnd();
 	}
@@ -51,6 +51,39 @@ void renderButton(const Button& button)
 	renderString(button.position.x + xMargin, button.position.y + yMargin, GLUT_BITMAP_HELVETICA_18, button.text, Colors::White32);
 
 	glScissor(0, 0, myData.windowSize.x, myData.windowSize.y);
+}
+
+void renderSidebar(const Sidebar& sidebar)
+{
+	glScissor(sidebar.Bounds.lower.x, sidebar.Bounds.lower.y, sidebar.Bounds.width(), sidebar.Bounds.height()); // Clip stuff drawn outside bounds
+	
+	constexpr float BORDER_OFFSET = 4.f;
+	constexpr float COLOR_THING_SIZE = 32.f;
+
+	for (auto& sidbutton : sidebar.Buttons)
+	{
+		auto& button = sidbutton.Button;
+		renderButton(button);
+		float rightEdge = button.position.x + button.dimensions.x - BORDER_OFFSET;
+		float topEdge = button.position.y + BORDER_OFFSET;
+		renderArea(Box{ Vector2i{ rightEdge - COLOR_THING_SIZE, topEdge }, Vector2i{ COLOR_THING_SIZE, COLOR_THING_SIZE } }, sidbutton.GroupColor);
+	}
+}
+
+void renderArea(Box box, Color32 color)
+{
+	auto mat = GLMatrix(GL_MODELVIEW);
+
+	glColor3f(color.R, color.G, color.B);
+
+	glBegin(GL_QUADS);
+
+	glVertex3i(box.lower.x, box.lower.y, 0);
+	glVertex3i(box.upper.x, box.lower.y, 0);
+	glVertex3i(box.upper.x, box.upper.y, 0);
+	glVertex3i(box.lower.x, box.upper.y, 0);
+
+	glEnd();
 }
 
 Vector2i windowToGL(Vector2i windowCoords)
