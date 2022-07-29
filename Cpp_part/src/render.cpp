@@ -53,20 +53,22 @@ void renderButton(const Button& button)
 	glScissor(0, 0, myData.windowSize.x, myData.windowSize.y);
 }
 
-void renderSidebar(const Sidebar& sidebar)
+void Sidebar::render() const
 {
-	glScissor(sidebar.Bounds.lower.x, sidebar.Bounds.lower.y, sidebar.Bounds.width(), sidebar.Bounds.height()); // Clip stuff drawn outside bounds
+	glScissor(Bounds.lower.x, Bounds.lower.y, Bounds.width(), Bounds.height()); // Clip stuff drawn outside bounds
 	
 	constexpr float BORDER_OFFSET = 4.f;
 	constexpr float COLOR_THING_SIZE = 32.f;
 
-	for (auto& sidbutton : sidebar.Buttons)
+	Vector2i pos = Bounds.lower + Vector2i{ margin, margin };
+
+	for (auto& button : Buttons)
 	{
-		auto& button = sidbutton.Button;
-		renderButton(button);
-		float rightEdge = button.position.x + button.dimensions.x - BORDER_OFFSET;
-		float topEdge = button.position.y + BORDER_OFFSET;
-		renderArea(Box{ Vector2i{ rightEdge - COLOR_THING_SIZE, topEdge }, Vector2i{ COLOR_THING_SIZE, COLOR_THING_SIZE } }, sidbutton.GroupColor);
+		renderButton(button.asButton(pos));
+		float rightEdge = pos.x + button.dimensions.x - BORDER_OFFSET;
+		float topEdge = pos.y + BORDER_OFFSET;
+		renderArea(Box(Vector2i{ rightEdge - (int)COLOR_THING_SIZE, (int)topEdge }, Vector2u{ (unsigned int)COLOR_THING_SIZE, (unsigned int)COLOR_THING_SIZE }), button.GroupColor);
+		pos.y += button.dimensions.y + margin;
 	}
 }
 
