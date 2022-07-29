@@ -1,14 +1,12 @@
 #pragma once
 #include <nanosvg.h>
 #include "../chunkmap.h"
+#include "../image.h"
 
-typedef struct quadrant_arguments {
+typedef struct {
     chunkmap* map;
     vectorize_options* options;
-    int startingX;
-    int startingY;
-    int endingX;
-    int endingY;
-} quadrant_arguments;
+    Rectangle bounds;
+} Quadrant;
 
 void fill_chunkmap(chunkmap* map, vectorize_options* options);

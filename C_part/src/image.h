@@ -6,6 +6,13 @@ extern "C" {
 #include <stdbool.h>
 #include <stdio.h>
 
+typedef struct {
+    int startingX;
+    int startingY;
+    int endingX;
+    int endingY;
+} Rectangle;
+
 typedef struct colour
 {
     unsigned char r, g, b;
