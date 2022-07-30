@@ -20,6 +20,7 @@
 
 
 NSVGimage* dcdfill_for_nsvg(image input, vectorize_options options) {
+    LOG_INFO("quantizing image to %d colours", options.num_colours);
 	quantize_image(&input, options.num_colours);
 
 	if(isBadError()) {
