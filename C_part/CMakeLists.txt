@@ -96,6 +96,7 @@ install(
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION bin
   RUNTIME DESTINATION bin
+  PUBLIC_HEADER DESTINATION include
 )
 
 install(
@@ -140,7 +141,6 @@ install(
     DESTINATION include
 )
 
-install(FILES "src/entrypoint.h" DESTINATION include)
 install(FILES "../template.svg" DESTINATION bin)
 install(FILES "test/test.png" DESTINATION bin)
 install(FILES "test/test2.png" DESTINATION bin)
