@@ -69,7 +69,7 @@ void doVectorize(std::string image_path)
 			{
 				myData.vectorizedTexture	= WomboTexture(bitmap);
 			}
-			myData.inputTexture			= WomboTexture("placeholder.bmp", false);
+			myData.inputTexture		   = WomboTexture("placeholder.bmp", false);
 			myData.intermediateTexture = WomboTexture(Texture8{ Colors::Orange8, 369, 342 });
 			return;
 		}
