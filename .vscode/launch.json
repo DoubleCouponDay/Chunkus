@@ -73,9 +73,9 @@
             "name": "(Windows) Launch Vectorizer_GUI",
             "type": "cppdbg",
             "request": "launch",
-            "args": ["true"],
-            "program": "${workspaceFolder}/Cpp_part/build/Vectorizer_GUI",
-            "cwd": "${workspaceFolder}/Cpp_part/build",
+            "args": ["peach.bmp"],
+            "program": "${workspaceFolder}/install/bin/Vectorizer_GUI.exe",
+            "cwd": "${workspaceFolder}/install/bin",
             "MIMode": "gdb"
         }
     ]

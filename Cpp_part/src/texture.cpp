@@ -24,8 +24,8 @@ Texture<ColorT>::Texture()
 template<class ColorT>
 Texture<ColorT>::Texture(std::string fileName, bool flipY)
 {
-	_width = -1;
-	_height = -1;
+	_width = 0;
+	_height = 0;
 	// Data read from the header of the BMP file
 	unsigned char header[54];
 	unsigned int dataPos;
