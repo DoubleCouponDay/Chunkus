@@ -1,3 +1,5 @@
+#include "algorithm.h"
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -334,8 +336,12 @@ void find_shapes(chunkmap* map, pixelchunk* current, list_holder* holder, int ma
     }
 }
 
-int find_highest_multiple() {
+int find_highest_multiple(chunkmap* map) {
+    int chosenmultiple;
 
+    for(int findingmultiple = map->map_width; (findingmultiple - 1) % 4 > 0; --findingmultiple) {
+        chosenmultiple = findingmultiple;
+    }
 }
 
 void fill_chunkmap(chunkmap* map, vectorize_options* options) {
@@ -346,43 +352,35 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     int count = 0;
     int tenth_count = 0;
     
+    Quadrant quadrant1 = {
+        map, options, {
+            0, 0
+        }
+    };
+
+    Quadrant quadrant2 = {
+        map, options, {}
+    };
+
+    Quadrant quadrant3 = {
+        map, options, {
+
+        }
+    };
+
+    Quadrant quadrant4 = {
+        map, options, {
+            
+        }
+    };
+
     int remainderWidth = map->map_width % 4;
-    int remainderHeight = map->map_height % 4;
-    
-    int quadrant1x = 0;
-    int quadrant1y = 0;
-    int quadrant1xend;
-    int quadrant1yend;
-
-    int quadrant2x;
-    int quadrant2y;
-    int quadrant2xend;
-    int quadrant2yend;
-
-    int quadrant3x;
-    int quadrant3y;
-    int quadrant3xend;
-    int quadrant3yend;
-
-    int quadrant4x;
-    int quadrant4y;
-    int quadrant4xend;
-    int quadrant4yend;
+    int remainderHeight = map->map_height % 4; 
 
     if(remainderWidth != 0) {
-        int findingmultiple;
-        bool multiplefound = false;
-        int chosenmultiple;
-
-        do {
-            chosenmultiple = map->map_width - 1;
-            findingmultiple = (map->map_width - 1) / 4;
-
-            multiplefound = (findingmultiple % 4 == 0 && map->map_width > 0) ?
-                true : false;
-        }
-
-        while(multiplefound == false);
+        int width = find_highest_multiple(map);
+        quadrant1.bounds.endingX = width;
+        quadrant3.bounds.endingX = width;
     }
 
     else {
