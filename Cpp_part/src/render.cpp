@@ -65,9 +65,11 @@ void Sidebar::render() const
 	for (auto& button : Buttons)
 	{
 		renderButton(button.asButton(pos));
+		checkForGlError("Render sidebar button");
 		float rightEdge = pos.x + button.dimensions.x - BORDER_OFFSET;
 		float topEdge = pos.y + BORDER_OFFSET;
 		renderArea(Box(Vector2i{ rightEdge - (int)COLOR_THING_SIZE, (int)topEdge }, Vector2u{ (unsigned int)COLOR_THING_SIZE, (unsigned int)COLOR_THING_SIZE }), button.GroupColor);
+		checkForGlError("Render sidebar color");
 		pos.y += button.dimensions.y + margin;
 	}
 }
@@ -128,4 +130,22 @@ void drawVecTextureArea(const GLTexture& tex, int texWidth, int texHeight, Vecto
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glScissor(0, 0, myData.windowSize.x, myData.windowSize.y);
+}
+
+Sidebar::Sidebar(std::vector<SidebarButton> buttons)
+	: Buttons(buttons)
+{
+}
+
+Sidebar::Sidebar(Box bounds, std::vector<SidebarButton> buttons, int margin, int spacing)
+	: Bounds(bounds)
+	, Buttons(buttons)
+	, margin(margin)
+	, spacing(spacing)
+{
+}
+
+void Sidebar::addButton(SidebarButton button)
+{
+	Buttons.push_back(button);
 }

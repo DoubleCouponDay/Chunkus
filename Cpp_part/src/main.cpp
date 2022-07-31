@@ -39,7 +39,7 @@ void doVectorize(std::string image_path)
 
 	else
 	{
-		Texture8 tex = Texture8{ "input.png", false };
+		Texture8 tex = Texture8{ image_path, false };
 		if (tex.getBytes() == nullptr)
 		{
 			using namespace lunasvg;
@@ -124,6 +124,11 @@ void my_init()
 
 	myData.buttons.insert(myData.buttons.begin(), buttons.begin(), buttons.end());
 
+	myData.sidebar = Sidebar{ Box{ windowToGL(Vector2i{ 10, 20 }), windowToGL(Vector2i{ 90, 300 }) } };
+	myData.sidebar.addButton(
+		SidebarButton{ Vector2u{ 50, 32 }, "Example", Colors::Orange32, Colors::Pink32 }
+	);
+
 	checkForGlError("Post Init");
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
@@ -174,10 +179,11 @@ void display()
 		int activeTexStrLen = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)myData.getCurrentText());
 		int fontHeight = glutBitmapHeight(GLUT_BITMAP_HELVETICA_18);
 		renderString(Box{ Vector2i{ myData.windowSize.x / 2 - activeTexStrLen / 2, textureAreaStart - buttonSize * 2 - fontHeight - 3 }, Vector2u{ (unsigned int)activeTexStrLen, (unsigned int)fontHeight + 6 } }, GLUT_BITMAP_HELVETICA_18, myData.getCurrentText(), Colors::White32);
-
+		checkForGlError("Render active texture string");
 
 		// Draw status string
 		renderString(5, 5, GLUT_BITMAP_HELVETICA_18, myData.statusString, Colors::White32);
+		checkForGlError("Render status string");
 
 		// Draw file string
 		std::string vectorizeString;
@@ -187,12 +193,15 @@ void display()
 			vectorizeString = std::string("Not vectorizing anything");
 		auto statusLen = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)vectorizeString.c_str());
 		renderString(myData.windowSize.x / 2 - (statusLen / 2), myData.windowSize.y - fontHeight, GLUT_BITMAP_HELVETICA_18, vectorizeString, Colors::Grey32);
+		checkForGlError("Render vectorizing string");
 
 		// Draw buttons
 		for (auto& button : myData.buttons)
 			renderButton(*button);
+		checkForGlError("Render buttons");
 
-		checkForGlError("Rendered string");
+		myData.sidebar.render();
+		checkForGlError("Render sidebar");
 	}
 
 

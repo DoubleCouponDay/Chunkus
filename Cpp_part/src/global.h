@@ -40,6 +40,7 @@ struct GUIData
 	std::string statusString = "";
 
 	std::vector<Button*> buttons;
+	Sidebar sidebar;
 
 	inline WomboTexture& getActiveTexture()
 	{

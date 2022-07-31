@@ -95,6 +95,9 @@ class Sidebar
 	void UpdateBounds();
 public:
 	Sidebar(std::vector<SidebarButton> buttons = {});
+	Sidebar(Box bounds, std::vector<SidebarButton> buttons = {}, int margin = 5, int spacing = 4);
+
+	void addButton(SidebarButton button);
 
 	inline bool isWithin(Vector2i pos) const
 	{
@@ -104,7 +107,7 @@ public:
 			&& pos.y < Bounds.upper.y;
 	}
 
-	inline int GroupClicked(Vector2i pos) const
+	inline int GetButtonClicked(Vector2i pos) const
 	{
 		auto runningPos = Bounds.lower + Vector2i{ margin, margin };
 
