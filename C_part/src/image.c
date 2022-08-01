@@ -10,8 +10,6 @@
 #include "utility/logger.h"
 #include "utility/error.h"
 
-const image EMPTY_IMAGE = {0, 0, NULL}; 
-
 FILE* openfile(char* fileaddress) {
     FILE* file_p = fopen(fileaddress, "rb");
 
