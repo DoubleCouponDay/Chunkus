@@ -6,7 +6,7 @@
 typedef struct {
     chunkmap* map;
     vectorize_options* options;
-    Rectangle bounds;
+    square bounds;
 } Quadrant;
 
 void fill_chunkmap(chunkmap* map, vectorize_options* options);

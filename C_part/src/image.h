@@ -11,7 +11,7 @@ typedef struct {
     int startingY;
     int endingX;
     int endingY;
-} Rectangle;
+} square;
 
 typedef struct colour
 {
