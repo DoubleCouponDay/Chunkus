@@ -7,6 +7,7 @@
 #include "color.h"
 #include "texture.h"
 
+struct Vector2u;
 
 struct Vector2i
 {
@@ -16,8 +17,10 @@ struct Vector2i
 	int y;
 
 	inline Vector2i operator-() const { return { -x, -y }; }
-	inline Vector2i operator-(const Vector2i& other) const { return { x - other.x, y - other.y }; }
-	inline Vector2i operator+(const Vector2i& other) const { return { x + other.x, y + other.y }; }
+	inline Vector2i operator-(const Vector2i& other) const { return Vector2i{ x - other.x, y - other.y }; }
+	inline Vector2i operator+(const Vector2i& other) const { return Vector2i{ x + other.x, y + other.y }; }
+	Vector2i operator-(const Vector2u& other) const;
+	Vector2i operator+(const Vector2u& other) const;
 };
 
 struct Vector2u
@@ -25,6 +28,9 @@ struct Vector2u
 	unsigned int x;
 	unsigned int y;
 };
+
+inline Vector2i Vector2i::operator-(const Vector2u& other) const { return Vector2i{ x - other.x, y - other.y }; }
+inline Vector2i Vector2i::operator+(const Vector2u& other) const { return Vector2i{ x + other.x, y + other.y }; }
 
 struct Vector3i
 {
@@ -81,7 +87,7 @@ struct SidebarButton
 
 	inline Button asButton(Vector2i pos) const
 	{
-		return { pos, dimensions, text, textColor };
+		return { pos, Vector2u{ dimensions.x - 37, dimensions.y }, text, textColor };
 	}
 };
 
@@ -89,13 +95,14 @@ class Sidebar
 {
 	std::vector<SidebarButton> Buttons;
 	Box Bounds;
+	Color32 BackgroundColor;
 	int margin = 5;
 	int spacing = 4;
 
 	void UpdateBounds();
 public:
 	Sidebar(std::vector<SidebarButton> buttons = {});
-	Sidebar(Box bounds, std::vector<SidebarButton> buttons = {}, int margin = 5, int spacing = 4);
+	Sidebar(Box bounds, std::vector<SidebarButton> buttons = {}, Color32 backgroundColor = Colors::Black32, int margin = 5, int spacing = 4);
 
 	void addButton(SidebarButton button);
 
@@ -107,13 +114,13 @@ public:
 			&& pos.y < Bounds.upper.y;
 	}
 
-	inline int GetButtonClicked(Vector2i pos) const
+	inline int getButtonClicked(Vector2i pos) const
 	{
-		auto runningPos = Bounds.lower + Vector2i{ margin, margin };
+		auto runningPos = Vector2i{ Bounds.lower.x, Bounds.upper.y } + Vector2i{ margin, -margin };
 
 		auto withinButton = [](const SidebarButton& b, Vector2i p, Vector2i runningPos)
 		{
-			return p.x >= runningPos.x && p.y >= runningPos.y && p.x < runningPos.x + b.dimensions.x && p.y < runningPos.y + b.dimensions.y;
+			return p.x >= runningPos.x && p.y >= (runningPos.y - b.dimensions.y) && p.x < (runningPos.x + b.dimensions.x) && p.y < runningPos.y;
 		};
 
 		for (int i = 0; i < Buttons.size(); i++)
@@ -122,7 +129,7 @@ public:
 			{
 				return i;
 			}
-			runningPos.y += Buttons[i].dimensions.y + spacing;
+			runningPos.y -= Buttons[i].dimensions.y + spacing;
 		}
 		return -1;
 	}

@@ -124,9 +124,9 @@ void my_init()
 
 	myData.buttons.insert(myData.buttons.begin(), buttons.begin(), buttons.end());
 
-	myData.sidebar = Sidebar{ Box{ windowToGL(Vector2i{ 10, 20 }), windowToGL(Vector2i{ 90, 300 }) } };
+	myData.sidebar = Sidebar{ Box{ windowToGL(Vector2i{ 5, 400 }), windowToGL(Vector2i{ 120, 20 }) }, std::vector<SidebarButton>(), Colors::Grey32 };
 	myData.sidebar.addButton(
-		SidebarButton{ Vector2u{ 50, 32 }, "Example", Colors::Orange32, Colors::Pink32 }
+		SidebarButton{ Vector2u{ 105, 32 + 10 }, "Example", Colors::Orange32, Colors::Pink32 }
 	);
 
 	checkForGlError("Post Init");
@@ -259,6 +259,7 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 	bool withinInter = myData.switchInterButton.isWithin(glCoords);
 	bool withinVector = myData.switchVectorButton.isWithin(glCoords);
 	bool withinWrite = myData.writeToBmpButton.isWithin(glCoords);
+	bool withinSidebar = myData.sidebar.isWithin(glCoords);
 
 	if (button == GLUT_LEFT_BUTTON)
 	{
@@ -291,6 +292,15 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 			{
 				std::cout << "Write to BMP was clicked" << std::endl;
 				myData.getActiveTexture().getCpuTex().writeToBmp("test.bmp");
+			}
+			if (withinSidebar)
+			{
+				std::cout << "Sidebar clicked" << std::endl;
+				int button = myData.sidebar.getButtonClicked(glCoords);
+				if (button != -1)
+				{
+					std::cout << "Sidebar button " << button << " clicked" << std::endl;
+				}
 			}
 		}
 	}

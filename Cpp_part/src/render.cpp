@@ -28,6 +28,7 @@ void renderString(Box box, void* font, std::string str, Color32 color)
 
 void renderButton(const Button& button)
 {
+	checkForGlError("Before button rendering");
 	glScissor(button.position.x, button.position.y, button.dimensions.x, button.dimensions.y); // Scissor Rect
 
 	{
@@ -44,33 +45,39 @@ void renderButton(const Button& button)
 		glVertex3i(button.position.x + 0                  , button.position.y + button.dimensions.y, 0); // Upper Left
 
 		glEnd();
+		checkForGlError("After button rendering");
 	}
 
 	int yMargin = (button.dimensions.y - glutBitmapHeight(GLUT_BITMAP_HELVETICA_18));
 	int xMargin = (button.dimensions.x - glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)button.text.c_str())) / 2;
 	renderString(button.position.x + xMargin, button.position.y + yMargin, GLUT_BITMAP_HELVETICA_18, button.text, Colors::White32);
+	checkForGlError("After button string");
 
 	glScissor(0, 0, myData.windowSize.x, myData.windowSize.y);
 }
 
 void Sidebar::render() const
 {
+	checkForGlError("Before sidebar rendering");
 	glScissor(Bounds.lower.x, Bounds.lower.y, Bounds.width(), Bounds.height()); // Clip stuff drawn outside bounds
+	checkForGlError("Sidebar scissor");
+	renderArea(Bounds, BackgroundColor);
+	checkForGlError("Sidebar background");
 	
-	constexpr float BORDER_OFFSET = 4.f;
-	constexpr float COLOR_THING_SIZE = 32.f;
+	constexpr int BORDER_OFFSET = 4;
+	constexpr int COLOR_THING_SIZE = 32;
 
-	Vector2i pos = Bounds.lower + Vector2i{ margin, margin };
+	Vector2i pos = Vector2i{ Bounds.lower.x, Bounds.upper.y } + Vector2i{ margin, -margin };
 
 	for (auto& button : Buttons)
 	{
-		renderButton(button.asButton(pos));
+		renderButton(button.asButton(pos - Vector2u{ 0, button.dimensions.y }));
 		checkForGlError("Render sidebar button");
-		float rightEdge = pos.x + button.dimensions.x - BORDER_OFFSET;
-		float topEdge = pos.y + BORDER_OFFSET;
-		renderArea(Box(Vector2i{ rightEdge - (int)COLOR_THING_SIZE, (int)topEdge }, Vector2u{ (unsigned int)COLOR_THING_SIZE, (unsigned int)COLOR_THING_SIZE }), button.GroupColor);
+		int rightEdge = pos.x + button.dimensions.x - BORDER_OFFSET;
+		int topEdge = pos.y - BORDER_OFFSET;
+		renderArea(Box(Vector2i{ rightEdge - COLOR_THING_SIZE, topEdge - COLOR_THING_SIZE }, Vector2u{ (unsigned int)COLOR_THING_SIZE, (unsigned int)COLOR_THING_SIZE }), button.GroupColor);
 		checkForGlError("Render sidebar color");
-		pos.y += button.dimensions.y + margin;
+		pos.y -= button.dimensions.y + spacing;
 	}
 }
 
@@ -137,9 +144,10 @@ Sidebar::Sidebar(std::vector<SidebarButton> buttons)
 {
 }
 
-Sidebar::Sidebar(Box bounds, std::vector<SidebarButton> buttons, int margin, int spacing)
+Sidebar::Sidebar(Box bounds, std::vector<SidebarButton> buttons, Color32 backgroundColor, int margin, int spacing)
 	: Bounds(bounds)
 	, Buttons(buttons)
+	, BackgroundColor(backgroundColor)
 	, margin(margin)
 	, spacing(spacing)
 {
