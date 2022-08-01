@@ -91,7 +91,7 @@ MunitResult can_vectorize_image(const MunitParameter params[], void* userdata)
   };
   
   stuff->img = convert_png_to_image(options.file_path);
-  stuff->nsvg_image = dcdfill_for_nsvg(stuff->img, options);
+  stuff->nsvg_image = vectorize(stuff->img, options);
 
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
   munit_assert_ptr_not_null(stuff->nsvg_image);
@@ -171,7 +171,7 @@ MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) 
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  stuff->nsvg_image = dcdfill_for_nsvg(stuff->img, options);
+  stuff->nsvg_image = vectorize(stuff->img, options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
   bool outcome = write_svg_file(stuff->nsvg_image, OUTPUT_PATH);
@@ -255,7 +255,7 @@ MunitResult can_vectorize_jpeg(const MunitParameter params[], void* userdata) {
   munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
-  stuff->nsvg_image = dcdfill_for_nsvg(stuff->img, options);
+  stuff->nsvg_image = vectorize(stuff->img, options);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
 
   bool outcome = write_svg_file(stuff->nsvg_image, OUTPUT_PATH);

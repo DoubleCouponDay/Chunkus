@@ -17,10 +17,6 @@ const int DEFAULT_CHUNKSIZE = 1;
 const int DEFAULT_THRESHOLD = 1;
 const int DEFAULT_COLOURS = 256;
 
-typedef NSVGimage* (*algorithm)(image, vectorize_options);
-typedef void (*algorithm_debug)(image, vectorize_options, char*,char*);
-algorithm target_algorithm = dcdfill_for_nsvg;
-
 int execute_program(vectorize_options options) {
 	image img = convert_file_to_image(options.file_path);
 
@@ -30,7 +26,7 @@ int execute_program(vectorize_options options) {
 		return getAndResetErrorCode();
 	}
 
-	NSVGimage* nsvg = target_algorithm(img, options);
+	NSVGimage* nsvg = vectorize(img, options);
 	int code = getLastError();
 
 	if(isBadError() || nsvg == NULL) {

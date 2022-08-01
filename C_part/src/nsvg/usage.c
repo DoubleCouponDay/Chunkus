@@ -17,9 +17,9 @@
 #include "algorithm.h"
 #include "../imagefile/pngfile.h"
 #include "../utility/logger.h"
+#include "../simplify.h"
 
-
-NSVGimage* dcdfill_for_nsvg(image input, vectorize_options options) {
+NSVGimage* vectorize(image input, vectorize_options options) {
     LOG_INFO("quantizing image to %d colours", options.num_colours);
 	quantize_image(&input, options.num_colours);
 
