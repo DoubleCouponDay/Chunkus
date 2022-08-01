@@ -36,7 +36,7 @@ image convert_png_to_image(char* fileaddress) {
 
     if(isBadError()) {
 		LOG_ERR("openfile failed");
-		return (image){0, 0, NULL};
+		return EMPTY_IMAGE;
 	}
 
     unsigned char header[8];
@@ -44,14 +44,14 @@ image convert_png_to_image(char* fileaddress) {
     {
         LOG_ERR("Failed to read png header");
         setError(READ_FILE_ERROR);
-        return (image){0, 0, NULL};
+        return EMPTY_IMAGE;
     }
 
     if (png_sig_cmp(header, 0, 8))
     {
         LOG_ERR("Not a png file");
         setError(NOT_PNG_OR_JPEG);
-        return (image){0, 0, NULL};
+        return EMPTY_IMAGE;
     }
     
     /// Prepare and read structs
@@ -74,7 +74,7 @@ image convert_png_to_image(char* fileaddress) {
         LOG_ERR("Failed to create png read struct");
         setError(READ_FILE_ERROR);
         fclose(file_p);
-        return (image){0, 0, NULL};
+        return EMPTY_IMAGE;
     }
     
     LOG_INFO("Creating pnglib info struct...");
@@ -115,14 +115,14 @@ image convert_png_to_image(char* fileaddress) {
         LOG_ERR("Only RGB/A PNGs are supported for import, format: %d", color_type);
         setError(BAD_ARGUMENT_ERROR);
         fclose(file_p);
-        return (image){0, 0, NULL};
+        return EMPTY_IMAGE;
     }
     bit_depth = png_get_bit_depth(read_struct, info_p);
     if (bit_depth != 8) {
         LOG_ERR("Only 24bit PNGs are supported, depth: %d", bit_depth * 3);
         setError(BAD_ARGUMENT_ERROR);
         fclose(file_p);
-        return (image){0, 0, NULL};
+        return EMPTY_IMAGE;
     }
 
     png_read_update_info(read_struct, info_p);
@@ -132,7 +132,7 @@ image convert_png_to_image(char* fileaddress) {
         setError(READ_FILE_ERROR);
         png_destroy_read_struct(read_struct, info_p, NULL);
         fclose(file_p);
-        return (image){0, 0, NULL};
+        return EMPTY_IMAGE;
     }
 
     LOG_INFO("Allocating row pointers...");
