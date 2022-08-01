@@ -85,7 +85,7 @@ image convert_png_to_image(char* fileaddress) {
         LOG_ERR("Error: png_create_info_struct failed");
         setError(READ_FILE_ERROR);
         fclose(file_p);
-        return (image) { NULL, 0, 0 };
+        return EMPTY_IMAGE;
     }
 
     if (setjmp(png_jmpbuf(read_struct)))
@@ -93,7 +93,7 @@ image convert_png_to_image(char* fileaddress) {
         LOG_ERR("Error during init_io");
         png_destroy_read_struct(read_struct, info_p, NULL);
         fclose(file_p);
-        return (image) { NULL, 0, 0 };
+        return (image){ 0, 0, NULL };
     }
 
     LOG_INFO("Beginning PNG Reading");
