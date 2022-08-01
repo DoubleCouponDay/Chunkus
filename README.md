@@ -1,5 +1,5 @@
 # Vectorizer
-converts png files to svg files!
+converts png and jpeg to svg.
 
 This was a group project by Samuel, Joshua, Matthew.
 

@@ -64,6 +64,10 @@ typedef struct
     pixel** pixels_array_2d;
 } image;
 
+#ifndef EMPTY_IMAGE
+#define EMPTY_IMAGE (image){0, 0, NULL};
+#endif
+
 pixel convert_colorf_to_pixel(pixelF input);
 
 pixelF convert_pixel_to_colorf(pixel input);

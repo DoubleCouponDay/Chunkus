@@ -38,7 +38,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 
 	if(isBadError()) {
 		LOG_ERR("error opening jpeg file");
-		return (image){0, 0, NULL};
+		return EMPTY_IMAGE;
 	}
 	LOG_INFO("setting filestream seek position...");
 	int sizeTest1 = fseek(file, 0, SEEK_END);
@@ -48,7 +48,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 	if(sizeTest1 < 0 || sizeTest2 < 0 || sizeTest3 < 0) {
 		LOG_ERR("error setting jpeg file stream position");
 		setError(READ_FILE_ERROR);
-		return (image){0, 0, NULL};
+		return EMPTY_IMAGE;
 	}
 	LOG_INFO("allocating jpegBuffer...");
 	unsigned long jpegSize = (unsigned long)sizeTest2;
@@ -57,7 +57,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 	if(jpegBuffer == NULL) {
 		LOG_ERR("error allocating jpeg buffer");
 		setError(ASSUMPTION_WRONG);
-		return (image){0, 0, NULL};
+		return EMPTY_IMAGE;
 	}
 	LOG_INFO("reading file into buffer...");
 	size_t tryRead = fread(jpegBuffer, jpegSize, 1, file);
@@ -65,7 +65,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 	if(tryRead < 1) {
 		LOG_ERR("error reading jpeg file");
 		setError(READ_FILE_ERROR);
-		return (image){0, 0, NULL};
+		return EMPTY_IMAGE;
 	}
 	fclose(file);
 	file = NULL;
@@ -80,7 +80,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 	if(handle == NULL) {
 		LOG_ERR("error initializing jpeg decompressor");
 		setError(ASSUMPTION_WRONG);
-		return (image){0, 0, NULL};
+		return EMPTY_IMAGE;
 	}
 	LOG_INFO("decompressing jpeg header...");
 
@@ -98,12 +98,12 @@ image convert_jpeg_to_image(char* fileaddress) {
 	if(strcmp(possibleError, "No error") != 0 ||
 		decompression < 0) {
 		LOG_ERR("error in tjDecompressHeader3: %s", possibleError);
-		return (image){0, 0, NULL};
+		return EMPTY_IMAGE;
 	}
 
 	if(width == NOT_FILLED || height == NOT_FILLED) {
 		LOG_ERR("error in tjDecompressHeader3: width or height not filled");
-		return (image){0, 0, NULL};
+		return EMPTY_IMAGE;
 	}
 
 	LOG_INFO("getting scaling factors...");
@@ -113,7 +113,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 	if(scalingFactors == NULL ||
 		numScalingFactors == NOT_FILLED) {
 		LOG_ERR("error getting jpeg scaling factors");
-		return (image){0, 0, NULL};
+		return EMPTY_IMAGE;
 	}
 	LOG_INFO("decompressing jpeg content...");
 	tjscalingfactor scalingFactor = scalingFactors[8]; //{1, 1}
@@ -128,7 +128,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 	if(scaledBuffer == NULL) {
 		LOG_ERR("error allocating jpeg scaled buffer");
 		setError(ASSUMPTION_WRONG);
-		return (image){0, 0, NULL};
+		return EMPTY_IMAGE;
 	}
 
 	tjDecompress2(
@@ -146,7 +146,7 @@ image convert_jpeg_to_image(char* fileaddress) {
 
 	if(strcmp(possibleError2, "No error") != 0) {
 		LOG_ERR("error in tjDecompress2: %s", possibleError2);
-		return (image){0, 0, NULL};
+		return EMPTY_IMAGE;
 	}
 	LOG_INFO("converting buffer to image...");
 	image output = create_image(scaledWidth, scaledHeight);
