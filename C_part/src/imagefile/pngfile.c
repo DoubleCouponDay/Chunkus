@@ -21,7 +21,7 @@ bool file_is_png(char* fileaddress) {
     return (bool)png_sig_cmp(header, 0, 8) == 0;
 }
 
-/// Takes a filename (assumed to be a png file), and creates an image struct full of the png's pixels
+/// Takes a filname and creates an image struct full of the png's pixels
 /// 
 /// Steps involve:
 /// Open the file for reading
