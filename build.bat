@@ -39,7 +39,7 @@ cmake --install build --prefix install
 echo "Building lunasvg..."
 cd ../lunasvg
 git checkout v2.3.1
-cmake -B build -G "MinGW Makefiles"
+cmake -B build -G "MinGW Makefiles" -D CMAKE_INSTALL_PREFIX="install"
 cmake --build build -j4
 cmake --install build --prefix install
 
