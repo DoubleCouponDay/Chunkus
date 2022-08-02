@@ -9,6 +9,15 @@
 
 #include "color.h"
 
+struct RawPixelData
+{
+	std::vector<unsigned char> data;
+	int width;
+	int height;
+};
+
+RawPixelData loadPixelsFromC(const std::string& filename);
+
 template<class ColorT>
 class Texture
 {
@@ -94,6 +103,9 @@ public:
 	inline const GLTexture& getGLTex() const { return _glTex; }
 
 	inline GLuint getName() const { return _glTex.getName(); }
+
+	inline GLuint getWidth() const { return _cpuTex.getWidth(); }
+	inline GLuint getHeight() const { return _cpuTex.getHeight(); }
 
 	inline void bindTo(GLenum target) const { _glTex.bindTo(target); }
 
