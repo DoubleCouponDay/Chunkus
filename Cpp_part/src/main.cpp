@@ -24,17 +24,20 @@ interop platform{};
 
 void doVectorize(std::string image_path)
 {
+	std::cout << "About to vectorize: " << image_path << std::endl;
 	vectorizer_data data;
 	data.chunk_size = 1;
 	data.filename = image_path.c_str();
 	data.outputfilename = "output.svg";
 	data.threshold = 100.f;
 
-	int code = 0;
+	std::cout << "Vectorizing '" << image_path << "' to " << data.outputfilename << " with chunk size: " << data.chunk_size << ", threshold: " << data.threshold << " and num colors: " << 256 << std::endl;
+	int code = do_vectorize(data.filename, data.outputfilename, data.chunk_size, data.threshold, 256);
 
 	if (code != SUCCESS_CODE)
 	{
-
+		std::cout << "Error when vectorizing: " << code << std::endl;
+		glutExit();
 	}
 
 	else
@@ -73,7 +76,25 @@ void doVectorize(std::string image_path)
 			myData.intermediateTexture = WomboTexture(Texture8{ Colors::Orange8, 369, 342 });
 			return;
 		}
-		myData.inputTexture = WomboTexture(std::move(tex));
+		else
+		{
+			myData.inputTexture = WomboTexture(std::move(tex));
+			myData.intermediateTexture = WomboTexture(Texture8{ Colors::Orange8, 369, 342 });
+
+			auto doc = lunasvg::Document::loadFromFile("output.svg");
+
+			auto bitmap = doc->renderToBitmap((uint32_t)myData.inputTexture.getWidth(), (uint32_t)myData.inputTexture.getHeight());
+
+			if (!bitmap.valid())
+			{
+				std::cout << "Failed to render the svg output" << std::endl;
+				myData.vectorizedTexture.clear();
+			}
+			else
+			{
+				myData.vectorizedTexture = WomboTexture(bitmap);
+			}
+		}
 	}
 }
 
@@ -124,9 +145,12 @@ void my_init()
 
 	myData.buttons.insert(myData.buttons.begin(), buttons.begin(), buttons.end());
 
-	myData.sidebar = Sidebar{ Box{ windowToGL(Vector2i{ 5, 400 }), windowToGL(Vector2i{ 120, 20 }) }, std::vector<SidebarButton>(), Colors::Grey32 };
+	myData.sidebar = Sidebar{ Box{ windowToGL(Vector2i{ 5, 400 }), windowToGL(Vector2i{ 150, 20 }) }, std::vector<SidebarButton>(), Colors::Grey32 };
 	myData.sidebar.addButton(
-		SidebarButton{ Vector2u{ 105, 32 + 10 }, "Example", Colors::Orange32, Colors::Pink32 }
+		SidebarButton{ Vector2u{ 135, 32 + 10 }, "150", Colors::Orange32, Colors::Pink32 }
+	);
+	myData.sidebar.addButton(
+		SidebarButton{ Vector2u{ 135, 32 + 10 }, "32", Colors::Yellow32, Colors::Green32 }
 	);
 
 	checkForGlError("Post Init");
@@ -292,6 +316,14 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 			{
 				std::cout << "Write to BMP was clicked" << std::endl;
 				myData.getActiveTexture().getCpuTex().writeToBmp("test.bmp");
+			}
+			if (withinLeft)
+			{
+				std::cout << "Left button clicked" << std::endl;
+			}
+			if (withinRight)
+			{
+				std::cout << "Right button clicked" << std::endl;
 			}
 			if (withinSidebar)
 			{

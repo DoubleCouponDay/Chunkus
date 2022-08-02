@@ -6,6 +6,15 @@ struct Color8
 	unsigned char R;
 	unsigned char G;
 	unsigned char B;
+
+	inline static Color8 fromRGB(unsigned char R, unsigned char G, unsigned char B)
+	{
+		Color8 color;
+		color.R = R;
+		color.G = G;
+		color.B = B;
+		return color;
+	}
 };
 
 struct Color32
@@ -13,6 +22,15 @@ struct Color32
 	float R;
 	float G;
 	float B;
+
+	inline static Color32 fromRGB(unsigned char R, unsigned char G, unsigned char B)
+	{
+		Color32 color;
+		color.R = (float)R / 255.f;
+		color.G = (float)G / 255.f;
+		color.B = (float)B / 255.f;
+		return color;
+	}
 };
 
 namespace Colors
@@ -29,5 +47,7 @@ namespace Colors
 	constexpr Color32 Grey32 = { 0.5f, 0.5f, 0.5f };
 	constexpr Color32 Orange32 = { 0.7f, 0.2f, 0.05f };
 	constexpr Color32 Pink32 = { 0.7f, 0.2f, 0.5f };
+	constexpr Color32 Red32 = { 1.f, 0.f, 0.f };
+	constexpr Color32 Yellow32 = { 0.8f, 0.8f, 0.f };
 	constexpr Color32 Green32 = { 0.f, 1.f, 0.f };
 }

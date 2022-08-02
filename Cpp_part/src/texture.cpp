@@ -8,9 +8,66 @@
 
 #include <imagefile/bmp.h>
 #include <image.h>
+#include <imagefile/converter.h>
 
 #include "gl.h"
 
+class wrapped_c_img
+{
+	image c_img;
+public:
+	wrapped_c_img() = default;
+	wrapped_c_img(image&& img) : c_img(img) {}
+	wrapped_c_img(wrapped_c_img&& other) : c_img(other.c_img) { other.c_img.pixels_array_2d = nullptr; }
+	~wrapped_c_img()
+	{
+		reset();
+	}
+
+	inline void reset()
+	{
+		if (c_img.pixels_array_2d)
+		{
+			free_image_contents(c_img);
+			c_img.pixels_array_2d = nullptr;
+		}
+	}
+
+	inline operator const image&() const { return c_img; }
+	inline const image& get() const { return c_img; }
+	inline operator bool() const { return c_img.pixels_array_2d != nullptr; }
+};
+
+RawPixelData loadPixelsFromC(const std::string& filename)
+{
+	RawPixelData data;
+	data.data.resize(0);
+	data.width = 0;
+	data.height = 0;
+
+	wrapped_c_img c_img(convert_file_to_image(filename.c_str()));
+	if (!c_img)
+	{
+		throw std::runtime_error("Failed to load image" + filename);
+	}
+
+	data.width = c_img.get().width;
+	data.height = c_img.get().height;
+	data.data.resize(data.width * data.height * 3);
+
+	for (int x = 0; x < data.width; ++x)
+	{
+		for (int y = 0; y < data.height; ++y)
+		{
+			pixel p = c_img.get().pixels_array_2d[x][y];
+			data.data[(y * data.width + x) * 3 + 0] = p.r;
+			data.data[(y * data.width + x) * 3 + 1] = p.g;
+			data.data[(y * data.width + x) * 3 + 2] = p.b;
+		}
+	}
+
+	return data;
+}
 
 template<class ColorT>
 Texture<ColorT>::Texture()
@@ -24,62 +81,19 @@ Texture<ColorT>::Texture()
 template<class ColorT>
 Texture<ColorT>::Texture(std::string fileName, bool flipY)
 {
-	_width = 0;
-	_height = 0;
-	// Data read from the header of the BMP file
-	unsigned char header[54];
-	unsigned int dataPos;
-	unsigned int imageSize;
+	auto rawdata = loadPixelsFromC(fileName);
 
+	_width = rawdata.width;
+	_height = rawdata.height;
 
-	FILE* file = fopen(fileName.c_str(), "rb");
-	if (!file) { printf("Image could not be opened\n"); return; }
-
-
-	if (fread(header, 1, 54, file) != 54) {
-		printf("Not a correct BMP file\n");
-		return;
-	}
-
-	if (header[0] != 'B' || header[1] != 'M') {
-		printf("Not a correct BMP file\n");
-		return;
-	}
-	if (*(int*)&(header[0x1E]) != 0) { printf("Not a correct BMP file\n");		return; }
-	if (*(int*)&(header[0x1C]) != 24) { printf("Not a correct BMP file\n");		return; }
-
-
-	dataPos = *(int*)&(header[10]);
-	imageSize = *(int*)&(header[34]);
-	_width = *(int*)&(header[18]);
-	_height = *(int*)&(header[22]);
-
-	// Some BMP files are misformatted, guess missing information
-	if (imageSize == 0)    imageSize = _width * _height * 3; // 3 Bytes for red, green and blue
-	if (dataPos == 0)      dataPos = 54; // The BMP header is done that way
-
-	// Create a buffer
-	_data.resize((size_t)_width * _height); // Divide by 3 as our ColorT type should contain all 3 colors
-
-	// Read the actual data from the file into the buffer
-	fread(_data.data(), 1, imageSize, file);
-
-	// Everything is in memory now, the file wan be closed
-	fclose(file);
-
-	if (flipY) {
-		// swap y-axis
-		unsigned char* tmpBuffer = new unsigned char[_width * 3];
-		int size = _width * 3;
-		for (int i = 0; i < _height / 2; i++) {
-
-			memcpy(tmpBuffer, _data.data() + _width * 3 * i, size);
-
-			memcpy(_data.data() + _width * 3 * i, _data.data() + _width * 3 * (_height - i - 1), size);
-
-			memcpy(_data.data() + _width * 3 * (_height - i - 1), tmpBuffer, size);
+	_data.resize(_width * _height);
+	
+	for (int x = 0; x < _width; ++x)
+	{
+		for (int y = 0; y < _height; ++y)
+		{
+			_data[(y * _width + x)] = ColorT::fromRGB(rawdata.data[(y * _width + x) * 3 + 0], rawdata.data[(y * _width + x) * 3 + 1], rawdata.data[(y * _width + x) * 3 + 2]);
 		}
-		delete[] tmpBuffer;
 	}
 }
 
@@ -357,7 +371,7 @@ WomboTexture::WomboTexture(const lunasvg::Bitmap& bitmap)
 			if (data[3] == 0)
 				_cpuTex.setPixel(x, y, Colors::Black8);
 			else
-				_cpuTex.setPixel(x, y, Color8{ (unsigned char)data[2], (unsigned char)data[1], (unsigned char)data[0] });
+				_cpuTex.setPixel(x, y, Color8{ (unsigned char)data[0], (unsigned char)data[1], (unsigned char)data[2] });
 			data += 4;
 		}
 		rowData += stride;

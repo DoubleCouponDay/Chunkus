@@ -7,7 +7,7 @@
 #include "pngfile.h"
 #include "jpegfile.h"
 
-image convert_file_to_image(char* fileaddress) {
+image convert_file_to_image(const char* fileaddress) {
     LOG_INFO("picking image converter...");
 
     if (fileaddress == NULL) {

@@ -183,3 +183,41 @@ void free_gui_images(gui_images* input) {
     }
     free(input);
 }
+
+int do_vectorize(const char* input_file_path, const char* output_svg, int chunksize, float shape_colour_threshold, int num_colours)
+{
+	image img = convert_file_to_image(input_file_path);
+
+	if (isBadError())
+	{
+		LOG_ERR("convert_file_to_image failed with: %d", getLastError());
+		return getAndResetErrorCode();
+	}
+
+	vectorize_options opts = {
+		input_file_path,
+		chunksize,
+		shape_colour_threshold,
+		num_colours
+	};
+
+	NSVGimage* nsvg = vectorize(img, opts);
+
+	if(isBadError() || nsvg == NULL) {
+		free_image_contents(img);
+		free_nsvg(nsvg);
+		LOG_ERR("vectorize_image failed with code: %d", getLastError());
+		return getAndResetErrorCode();
+	}
+
+	bool result = write_svg_file(nsvg, output_svg);
+
+	if(result == false || isBadError()) {
+		free_image_contents(img);
+		free_nsvg(nsvg);
+		LOG_ERR("write_svg_file failed with code: %d", getLastError());
+		return getAndResetErrorCode();
+	}
+
+	return 0;
+}
