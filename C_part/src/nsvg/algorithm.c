@@ -62,11 +62,14 @@ pixelchunk_list* add_chunk_to_list(chunkshape* shape, pixelchunk* chunk, pixelch
     return new;
 }
 
-chunkshape* add_new_shape(chunkmap* map, chunkshape* shape_list) {
+chunkshape* add_new_shape(
+    char* name,
+    chunkmap* map, 
+    chunkshape* shape_list) {
     chunkshape* new = calloc(1, sizeof(chunkshape));
 
     if (!new) {
-        LOG_ERR("allocation failed");        
+        LOG_ERR("%s: allocation failed", name);        
         setError(ASSUMPTION_WRONG);
         return NULL;
     }
@@ -90,19 +93,19 @@ chunkshape* add_new_shape(chunkmap* map, chunkshape* shape_list) {
     return new;
 }
 
-//returns the shape its in. else, NULL
-chunkshape* big_chungus_already_in_shape(chunkmap* map, pixelchunk* chungus) {
-    return chungus->shape_chunk_in;
-}
-
 typedef struct list_holder
 {
     chunkshape* list;
 } list_holder;
 
-chunkshape* merge_shapes(chunkmap* map, list_holder* holder, chunkshape* first, chunkshape* second) {
+chunkshape* merge_shapes(
+    char* name,
+    chunkmap* map, 
+    list_holder* holder, 
+    chunkshape* first, 
+    chunkshape* second) {
     // Find smallest shape
-    LOG_INFO("Merging shapes");
+    LOG_INFO("%s: merging shapes", name);
     chunkshape* smaller = (first->chunks_amount < second->chunks_amount ? first : second);
     chunkshape* larger = (smaller == first ? second : first);
 
@@ -182,12 +185,19 @@ chunkshape* merge_shapes(chunkmap* map, list_holder* holder, chunkshape* first, 
     return larger;
 }
 
-void enlarge_border(chunkmap* map, pixelchunk* current, list_holder* holder, chunkshape* currentinshape, chunkshape* adjacentinshape, pixelchunk* adjacent) {
+void enlarge_border(
+    char* name,
+    chunkmap* map, 
+    pixelchunk* current, 
+    list_holder* holder, 
+    chunkshape* currentinshape, 
+    chunkshape* adjacentinshape, 
+    pixelchunk* adjacent) {
     chunkshape* chosenshape;
     zip_border_seam(current, adjacent);
 
     if(isBadError()) {
-        LOG_ERR("zip_border failed with code: %d", getLastError());
+        LOG_ERR("%s: zip_border failed with code: %d", name, getLastError());
         return;
     }
 
@@ -195,7 +205,7 @@ void enlarge_border(chunkmap* map, pixelchunk* current, list_holder* holder, chu
         chosenshape = map->shape_list;
         chosenshape->filled = true;
         ++map->shape_count;
-        LOG_INFO("Using first shape to add a boundary to");
+        LOG_INFO("%s: using first shape to add a boundary to", name);
     }
 
     else if(currentinshape) { //set shape for boundary manipulation
@@ -203,7 +213,7 @@ void enlarge_border(chunkmap* map, pixelchunk* current, list_holder* holder, chu
     }
 
     else { //current is not in a shape
-        chosenshape = holder->list = add_new_shape(map, holder->list);
+        chosenshape = holder->list = add_new_shape(name, map, holder->list);
     }
     
     //add to boundary
@@ -221,7 +231,7 @@ void enlarge_border(chunkmap* map, pixelchunk* current, list_holder* holder, chu
     if (chosenshape->chunks->chunk_p == NULL) { 
         chosenshape->chunks->chunk_p = current;
         if (chosenshape->chunks_amount)
-            LOG_WARN("A shape's chunk_p was null but chunks_amount was not");
+            LOG_WARN("%s: A shape's chunk_p was null but chunks_amount was not", name);
         ++chosenshape->chunks_amount;
         current->shape_chunk_in = chosenshape;
     }
@@ -233,7 +243,14 @@ void enlarge_border(chunkmap* map, pixelchunk* current, list_holder* holder, chu
     chosenshape->colour = current->average_colour;
 }
 
-void enlarge_shape(chunkmap* map, pixelchunk* current, list_holder* holder, chunkshape* currentinshape, chunkshape* adjacentinshape, pixelchunk* adjacent) {
+void enlarge_shape(
+    char* name,
+    chunkmap* map, 
+    pixelchunk* current, 
+    list_holder* holder, 
+    chunkshape* currentinshape, 
+    chunkshape* adjacentinshape, 
+    pixelchunk* adjacent) {
     chunkshape* chosenshape;
 
     if(currentinshape == NULL && adjacentinshape == NULL) {
@@ -241,19 +258,19 @@ void enlarge_shape(chunkmap* map, pixelchunk* current, list_holder* holder, chun
             chosenshape = map->shape_list;
             map->shape_list->filled = true;
             ++map->shape_count;
-            LOG_INFO("Using first shape as neither current nor adjacent have shapes, and first is unfilled");
+            LOG_INFO("%s: Using first shape", name);
         }
 
         else {
-            chosenshape = holder->list = add_new_shape(map, holder->list);
-            LOG_INFO("Creating new shape because current and adjacent aren't in shapes");
+            chosenshape = holder->list = add_new_shape(map, holder->list, name);
+            LOG_INFO("%s: Creating new shape", name);
         }
 
         if (chosenshape->chunks->chunk_p == NULL) // If list hasn't been started, manually set the first one to current
         {
             chosenshape->chunks->chunk_p = current;
             if (chosenshape->chunks_amount)
-                LOG_INFO("A shape's chunk_p was null but chunks_amount was not");
+                LOG_INFO("%s: A shape's chunk_p was null but chunks_amount was not", name);
             ++chosenshape->chunks_amount;
             current->shape_chunk_in = chosenshape;
         }
@@ -281,7 +298,7 @@ void enlarge_shape(chunkmap* map, pixelchunk* current, list_holder* holder, chun
     }
 
     else { // Merge the two shapes        
-        chosenshape = merge_shapes(map, holder, currentinshape, adjacentinshape);
+        chosenshape = merge_shapes(name, map, holder, currentinshape, adjacentinshape);
     }
     chosenshape->colour = current->average_colour;
     chosenshape->filled = true;
@@ -319,21 +336,21 @@ void find_shapes(
                 if(map_x == quadrant->bounds.startingX || map_x == (quadrant->bounds.endingX - 1) ||
                     map_y == quadrant->bounds.startingY || map_y == (quadrant->bounds.endingY - 1)) 
                 {
-                    enlarge_border(map, current, holder, currentinshape, adjacentinshape, adjacent);
+                    enlarge_border(quadrant->name, map, current, holder, currentinshape, adjacentinshape, adjacent);
 
                     if(isBadError()) {
-                        LOG_ERR("enlarge_border failed with code: %d", getLastError());
+                        LOG_ERR("%s enlarge_border failed with code: %d", quadrant->name, getLastError());
                         return;
                     }
                 }
-                enlarge_shape(map, current, holder, currentinshape, adjacentinshape, adjacent);
+                enlarge_shape(quadrant->name, map, current, holder, currentinshape, adjacentinshape, adjacent);
             }
 
             else {
-                enlarge_border(map, current, holder, currentinshape, adjacentinshape, adjacent);
+                enlarge_border(quadrant-> name, map, current, holder, currentinshape, adjacentinshape, adjacent);
 
                 if(isBadError()) {
-                    LOG_ERR("enlarge_border failed with code: %d", getLastError());
+                    LOG_ERR("%s enlarge_border failed with code: %d", quadrant->name, getLastError());
                     return;
                 }
             }
@@ -376,6 +393,7 @@ void* fill_quadrant(void* arg) {
             }
         }
     }
+    pthread_exit(NULL);
 }
 
 void fill_chunkmap(chunkmap* map, vectorize_options* options) {
