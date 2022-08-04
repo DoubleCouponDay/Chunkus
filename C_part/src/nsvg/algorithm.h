@@ -3,7 +3,8 @@
 #include "../chunkmap.h"
 #include "../image.h"
 
-typedef struct {
+typedef struct Quadrant {
+    char* name;
     chunkmap* map;
     vectorize_options* options;
     square bounds;
