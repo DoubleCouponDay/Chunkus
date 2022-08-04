@@ -404,39 +404,30 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     int middle_width = floor(map->map_width / 2);
     int middle_height = floor(map->map_height / 2);
 
-    LOG_INFO("creating shapes mutex");
-    pthread_mutex_t* shapes_mutex;
-    pthread_mutex_init(&shapes_mutex, NULL);
-
     LOG_INFO("creating quadrants");
-    
     Quadrant quadrant1 = {"bottom-left", map, options};
     quadrant1.bounds.startingX = 0;
     quadrant1.bounds.startingY = 0;
     quadrant1.bounds.endingX = middle_width;
     quadrant1.bounds.endingY = middle_height;
-    quadrant1.shapes_mutex = shapes_mutex;
 
     Quadrant quadrant2 = {"bottom-right", map, options};
     quadrant2.bounds.startingX = middle_width + 1;
     quadrant2.bounds.startingY = 0;
     quadrant2.bounds.endingX = map->map_width;
-    quadrant2.bounds.endingY = middle_height;
-    quadrant2.shapes_mutex = shapes_mutex;    
+    quadrant2.bounds.endingY = middle_height; 
 
     Quadrant quadrant3 = {"top-left", map, options};
     quadrant3.bounds.startingX = 0;
     quadrant3.bounds.startingY = middle_height + 1;
     quadrant3.bounds.endingX = middle_width;
     quadrant3.bounds.endingY = map->map_height;
-    quadrant3.shapes_mutex = shapes_mutex;
 
     Quadrant quadrant4 = {"top-right", map, options};
     quadrant4.bounds.startingX = middle_width + 1;
     quadrant4.bounds.startingY = middle_height + 1;
     quadrant4.bounds.endingX = map->map_width;
     quadrant4.bounds.endingY = map->map_height;
-    quadrant4.shapes_mutex = shapes_mutex;
 
     LOG_INFO("creating threads");
     pthread_t thread1;
@@ -456,7 +447,6 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     LOG_INFO("waiting for thread4");
     pthread_join(thread4, NULL);
     LOG_INFO("destroying mutex");
-    pthread_mutex_destroy(&shapes_mutex);
-
+    
     windback_lists(map->shape_list);
 }
