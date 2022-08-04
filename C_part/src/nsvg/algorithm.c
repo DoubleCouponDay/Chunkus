@@ -186,7 +186,7 @@ chunkshape* merge_shapes(
 }
 
 void enlarge_border(
-    char* name,
+    Quadrant* quadrant,
     chunkmap* map, 
     pixelchunk* current, 
     list_holder* holder, 
@@ -197,7 +197,7 @@ void enlarge_border(
     zip_border_seam(current, adjacent);
 
     if(isBadError()) {
-        LOG_ERR("%s: zip_border failed with code: %d", name, getLastError());
+        LOG_ERR("%s: zip_border failed with code: %d", quadrant->name, getLastError());
         return;
     }
 
@@ -205,7 +205,7 @@ void enlarge_border(
         chosenshape = map->shape_list;
         chosenshape->filled = true;
         ++map->shape_count;
-        LOG_INFO("%s: using first shape to add a boundary to", name);
+        LOG_INFO("%s: using first shape to add a boundary to", quadrant->name);
     }
 
     else if(currentinshape) { //set shape for boundary manipulation
@@ -213,7 +213,7 @@ void enlarge_border(
     }
 
     else { //current is not in a shape
-        chosenshape = holder->list = add_new_shape(name, map, holder->list);
+        chosenshape = holder->list = add_new_shape(quadrant->name, map, holder->list);
     }
     
     //add to boundary
@@ -231,7 +231,7 @@ void enlarge_border(
     if (chosenshape->chunks->chunk_p == NULL) { 
         chosenshape->chunks->chunk_p = current;
         if (chosenshape->chunks_amount)
-            LOG_WARN("%s: A shape's chunk_p was null but chunks_amount was not", name);
+            LOG_WARN("%s: A shape's chunk_p was null but chunks_amount was not", quadrant->name);
         ++chosenshape->chunks_amount;
         current->shape_chunk_in = chosenshape;
     }
@@ -244,7 +244,7 @@ void enlarge_border(
 }
 
 void enlarge_shape(
-    char* name,
+    Quadrant* quadrant,
     chunkmap* map, 
     pixelchunk* current, 
     list_holder* holder, 
@@ -255,22 +255,23 @@ void enlarge_shape(
 
     if(currentinshape == NULL && adjacentinshape == NULL) {
         if(map->shape_list->filled == false) {
+            LOG_INFO("%s: Using first shape", quadrant->name);
             chosenshape = map->shape_list;
             map->shape_list->filled = true;
             ++map->shape_count;
-            LOG_INFO("%s: Using first shape", name);
+            
         }
 
         else {
-            chosenshape = holder->list = add_new_shape(map, holder->list, name);
-            LOG_INFO("%s: Creating new shape", name);
+            LOG_INFO("%s: Creating new shape", quadrant->name);
+            chosenshape = holder->list = add_new_shape(map, holder->list, quadrant->name);
         }
 
         if (chosenshape->chunks->chunk_p == NULL) // If list hasn't been started, manually set the first one to current
         {
             chosenshape->chunks->chunk_p = current;
             if (chosenshape->chunks_amount)
-                LOG_INFO("%s: A shape's chunk_p was null but chunks_amount was not", name);
+                LOG_INFO("%s: A shape's chunk_p was null but chunks_amount was not", quadrant->name);
             ++chosenshape->chunks_amount;
             current->shape_chunk_in = chosenshape;
         }
@@ -298,7 +299,7 @@ void enlarge_shape(
     }
 
     else { // Merge the two shapes        
-        chosenshape = merge_shapes(name, map, holder, currentinshape, adjacentinshape);
+        chosenshape = merge_shapes(quadrant->name, map, holder, currentinshape, adjacentinshape);
     }
     chosenshape->colour = current->average_colour;
     chosenshape->filled = true;
@@ -402,31 +403,42 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
 
     int middle_width = floor(map->map_width / 2);
     int middle_height = floor(map->map_height / 2);
+
+    LOG_INFO("creating shapes mutex");
+    pthread_mutex_t* shapes_mutex;
+    pthread_mutex_init(&shapes_mutex, NULL);
+
+    LOG_INFO("creating quadrants");
     
     Quadrant quadrant1 = {"bottom-left", map, options};
     quadrant1.bounds.startingX = 0;
     quadrant1.bounds.startingY = 0;
     quadrant1.bounds.endingX = middle_width;
     quadrant1.bounds.endingY = middle_height;
+    quadrant1.shapes_mutex = shapes_mutex;
 
     Quadrant quadrant2 = {"bottom-right", map, options};
     quadrant2.bounds.startingX = middle_width + 1;
     quadrant2.bounds.startingY = 0;
     quadrant2.bounds.endingX = map->map_width;
-    quadrant2.bounds.endingY = middle_height;        
+    quadrant2.bounds.endingY = middle_height;
+    quadrant2.shapes_mutex = shapes_mutex;    
 
     Quadrant quadrant3 = {"top-left", map, options};
     quadrant3.bounds.startingX = 0;
     quadrant3.bounds.startingY = middle_height + 1;
     quadrant3.bounds.endingX = middle_width;
     quadrant3.bounds.endingY = map->map_height;
+    quadrant3.shapes_mutex = shapes_mutex;
 
     Quadrant quadrant4 = {"top-right", map, options};
     quadrant4.bounds.startingX = middle_width + 1;
     quadrant4.bounds.startingY = middle_height + 1;
     quadrant4.bounds.endingX = map->map_width;
     quadrant4.bounds.endingY = map->map_height;
+    quadrant4.shapes_mutex = shapes_mutex;
 
+    LOG_INFO("creating threads");
     pthread_t thread1;
     pthread_t thread2;
     pthread_t thread3;
@@ -435,9 +447,16 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     pthread_create(&thread2, NULL, fill_quadrant, &quadrant2);
     pthread_create(&thread3, NULL, fill_quadrant, &quadrant3);
     pthread_create(&thread4, NULL, fill_quadrant, &quadrant4);
+    LOG_INFO("waiting for thread1");
     pthread_join(thread1, NULL);
+    LOG_INFO("waiting for thread2");
     pthread_join(thread2, NULL);
+    LOG_INFO("waiting for thread3");
     pthread_join(thread3, NULL);
+    LOG_INFO("waiting for thread4");
     pthread_join(thread4, NULL);
+    LOG_INFO("destroying mutex");
+    pthread_mutex_destroy(&shapes_mutex);
+
     windback_lists(map->shape_list);
 }
