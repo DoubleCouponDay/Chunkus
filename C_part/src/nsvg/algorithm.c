@@ -351,42 +351,32 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     list_holder holder = (list_holder){ map->shape_list };
     int count = 0;
     int tenth_count = 0;
+    int middle_width = floor(map->map_width / 2);
+    int middle_height = floor(map->map_height / 2);
     
-    Quadrant quadrant1 = {
-        map, options, {
-            0, 0
-        }
-    };
+    Quadrant quadrant1 = {map, options}; //bottom left
+    quadrant1.bounds.startingX = 0;
+    quadrant1.bounds.startingY = 0;
+    quadrant1.bounds.endingX = middle_width;
+    quadrant1.bounds.endingY = middle_height;
 
-    Quadrant quadrant2 = {
-        map, options, {}
-    };
+    Quadrant quadrant2 = {map, options}; //bottom right
+    quadrant2.bounds.startingX = middle_width + 1;
+    quadrant2.bounds.startingY = 0;
+    quadrant2.bounds.endingX = map->map_width;
+    quadrant2.bounds.endingY = middle_height;        
 
-    Quadrant quadrant3 = {
-        map, options, {
+    Quadrant quadrant3 = {map, options}; //top left
+    quadrant3.bounds.startingX = 0;
+    quadrant3.bounds.startingY = middle_height + 1;
+    quadrant3.bounds.endingX = middle_width;
+    quadrant3.bounds.endingY = map->map_height;
 
-        }
-    };
-
-    Quadrant quadrant4 = {
-        map, options, {
-            
-        }
-    };
-
-    int remainderWidth = map->map_width % 4;
-    int remainderHeight = map->map_height % 4; 
-
-    if(remainderWidth != 0) {
-        int width = find_highest_multiple(map);
-        quadrant1.bounds.endingX = width;
-        quadrant3.bounds.endingX = width;
-    }
-
-    else {
-
-    }
-
+    Quadrant quadrant4 = {map, options}; //top right
+    quadrant4.bounds.startingX = middle_width + 1;
+    quadrant4.bounds.startingY = middle_height + 1;
+    quadrant4.bounds.endingX = map->map_width;
+    quadrant4.bounds.endingY = map->map_height;
 
     for(int map_y = 0; map_y < map->map_height; ++map_y)
     {
