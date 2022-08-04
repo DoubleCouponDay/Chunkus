@@ -21,6 +21,42 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "rebuild",
+            "type": "process",
+            "command": "rebuild_c_cpp.bat",
+            "windows": {
+                "command": "./rebuild_c_cpp.bat"
+            },
+            "linux": {
+                "command": "./rebuild.sh"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "label": "rebuild_keep",
+            "type": "process",
+            "command": "rebuild_keep.bat",
+            "windows": {
+                "command": "./rebuild_keep.bat"
+            },
+            "linux": {
+                "command": "./rebuild_keep.sh"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build"
+            }
         }
     ]
 }

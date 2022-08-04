@@ -33,6 +33,9 @@ struct Color32
 	}
 };
 
+Color32 Convert8to32(Color8 color);
+Color8 Convert32to8(Color32 color);
+
 namespace Colors
 {
 	constexpr Color8 White8 = { 0xff, 0xff, 0xff };

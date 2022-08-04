@@ -73,10 +73,11 @@
             "name": "(Windows) Launch Vectorizer_GUI",
             "type": "cppdbg",
             "request": "launch",
-            "args": ["peach.bmp"],
+            "args": ["test.png"],
             "program": "${workspaceFolder}/install/bin/Vectorizer_GUI.exe",
             "cwd": "${workspaceFolder}/install/bin",
-            "MIMode": "gdb"
+            "MIMode": "gdb",
+            "preLaunchTask": "rebuild_keep"
         }
     ]
 }
