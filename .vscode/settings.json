@@ -119,7 +119,8 @@
         "image.h": "c",
         "image.c": "c",
         "defines.h": "c",
-        "pthread.h": "c"
+        "pthread.h": "c",
+        "map": "c"
     },
     "C_Cpp.default.intelliSenseMode": "windows-gcc-x64",
     "C_Cpp.intelliSenseEngineFallback": "Enabled",
