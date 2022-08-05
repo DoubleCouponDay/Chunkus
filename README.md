@@ -173,8 +173,8 @@ Fill in the blanks in the dockercompose.yml file to pass the environment variabl
 
 ## Debugging the C Algorithm
 
-You can use the Vectorizer_GUI to pause frame on a current iteration of the vectorizer algorithm.
+You can use `vec_step` GUI to step through frames on a specified iteration count of the vectorizer algorithm.
 
 First you must build using cmake from the root directory, then open the Desktop App by running this:
 
-    ./build/bin/Vectorizer_GUI
+    ./build/bin/vec_step
