@@ -264,7 +264,7 @@ void enlarge_shape(
 
         else {
             LOG_INFO("%s: Creating new shape", quadrant->name);
-            chosenshape = holder->list = add_new_shape(map, holder->list, quadrant->name);
+            chosenshape = holder->list = add_new_shape(quadrant->name, map, holder->list);
         }
 
         if (chosenshape->chunks->chunk_p == NULL) // If list hasn't been started, manually set the first one to current
@@ -337,18 +337,18 @@ void find_shapes(
                 if(map_x == quadrant->bounds.startingX || map_x == (quadrant->bounds.endingX - 1) ||
                     map_y == quadrant->bounds.startingY || map_y == (quadrant->bounds.endingY - 1)) 
                 {
-                    enlarge_border(quadrant->name, map, current, holder, currentinshape, adjacentinshape, adjacent);
+                    enlarge_border(quadrant, map, current, holder, currentinshape, adjacentinshape, adjacent);
 
                     if(isBadError()) {
                         LOG_ERR("%s enlarge_border failed with code: %d", quadrant->name, getLastError());
                         return;
                     }
                 }
-                enlarge_shape(quadrant->name, map, current, holder, currentinshape, adjacentinshape, adjacent);
+                enlarge_shape(quadrant, map, current, holder, currentinshape, adjacentinshape, adjacent);
             }
 
             else {
-                enlarge_border(quadrant-> name, map, current, holder, currentinshape, adjacentinshape, adjacent);
+                enlarge_border(quadrant, map, current, holder, currentinshape, adjacentinshape, adjacent);
 
                 if(isBadError()) {
                     LOG_ERR("%s enlarge_border failed with code: %d", quadrant->name, getLastError());
