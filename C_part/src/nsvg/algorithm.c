@@ -401,8 +401,8 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     //create set of shapes
     LOG_INFO("Filling chunkmap");
 
-    int middle_width = floor(map->map_width / 2);
-    int middle_height = floor(map->map_height / 2);
+    int middle_width = (int)floor((float)map->map_width / (float)2); //int divisions return 0 by default. use float division
+    int middle_height = (int)floor((float)map->map_height / (float)2);
 
     LOG_INFO("creating quadrants");
     Quadrant quadrant1 = {"bottom-left", map, options};
