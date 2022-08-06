@@ -137,4 +137,5 @@
     ],
     "cmake.generator": "Ninja",
     "cmake.configureOnEdit": false,
+    "cmake.buildBeforeRun": false,
 }
