@@ -273,7 +273,7 @@ MunitResult can_vectorize_jpeg(const MunitParameter params[], void* userdata) {
 MunitResult can_convert_jpeg_to_svg(const MunitParameter params[], void* userdata) {
   test8stuff* stuff = userdata;
 
-  char* inputjpeg = params[5].value;
+  char* jpegaddress = params[5].value;
 
   char* chunk_size_str = params[1].value;
   int chunk_size = atoi(chunk_size_str);
@@ -281,13 +281,36 @@ MunitResult can_convert_jpeg_to_svg(const MunitParameter params[], void* userdat
   char* threshold_str = params[2].value;
   float threshold = atof(threshold_str);
   
-  char* out_fileaddress = params[3].value;
   int num_colours = atoi(params[4].value);
 
   vectorize_options options = {
-    inputjpeg,
+    jpegaddress,
     chunk_size,
     threshold,
     num_colours
   };
+
+  stuff->img = convert_jpeg_to_image(jpegaddress);
+  LOG_INFO("asserting pixels_array_2d not null");
+  munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
+
+  stuff->nsvg_image = vectorize(stuff->img, options);
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
+
+  bool outcome = write_svg_file(stuff->nsvg_image, OUTPUT_PATH);
+  
+  if(outcome)
+    LOG_INFO("svg writing outcome: %s", "succeeded");
+
+  else 
+    LOG_INFO("svg writing outcome: %s", "failed");
+    
+  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
+
+  FILE* fp = fopen(OUTPUT_PATH, "r"); //check it at least creates a file every time
+  munit_assert_ptr_not_null(fp);
+  fclose(fp);
+
+  return MUNIT_OK;
 }
