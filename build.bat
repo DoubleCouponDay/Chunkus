@@ -52,6 +52,6 @@ cmake --install build --prefix install
 
 echo "building Vectorizer..."
 cd ../Vectorizer
-cmake -B build -G "MinGW Makefiles" -D CMAKE_INSTALL_PREFIX="install" -D CMAKE_BUILD_TYPE="Debug"
+cmake -B build -G "MinGW Makefiles" -D CMAKE_INSTALL_PREFIX="install" -D CMAKE_BUILD_TYPE="Debug" -DCMAKE_C_COMPILER="gcc"
 cmake --build build -j4
 cmake --install build --prefix install
