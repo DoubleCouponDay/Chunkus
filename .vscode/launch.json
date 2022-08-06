@@ -77,7 +77,14 @@
             "program": "${workspaceFolder}/install/bin/Vectorizer_GUI.exe",
             "cwd": "${workspaceFolder}/install/bin",
             "MIMode": "gdb",
-            "preLaunchTask": "rebuild_keep"
+            "preLaunchTask": "rebuild_keep",
+            "setupCommands": [
+                {
+                    "description": "Enable break on all exceptions",
+                    "text": "catch throw",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ]
 }
