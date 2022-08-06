@@ -217,7 +217,6 @@ int count_shapes(chunkshape* first)
     return count;
 }
 
-
 vector2 create_vector_between_chunks(pixelchunk* initial, pixelchunk* final) {
     int x_diff = final->location.x - initial->location.x;
     int y_diff = final->location.y - initial->location.y;

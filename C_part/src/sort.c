@@ -117,7 +117,7 @@ void convert_array_to_boundary_list(pixelchunk** array, pixelchunk_list* output,
     for(unsigned long i = 0; i < length; ++i) {
         current->chunk_p = array[i];
         current = current->next;
-    }    
+    }
 }
 
 void sort_boundary(chunkmap* map) {
@@ -133,7 +133,7 @@ void sort_boundary(chunkmap* map) {
             return;
         }
         convert_array_to_boundary_list(array, shape->boundaries, shape->boundaries_length);
-        prune_boundary(shape->boundaries);       
+        prune_boundary(shape->boundaries);
         shape = shape->next;
         free(array);
     }
