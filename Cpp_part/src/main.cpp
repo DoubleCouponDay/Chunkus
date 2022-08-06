@@ -32,7 +32,13 @@ void doVectorize(std::string image_path)
 	data.threshold = 100.f;
 
 	std::cout << "Vectorizing '" << image_path << "' to " << data.outputfilename << " with chunk size: " << data.chunk_size << ", threshold: " << data.threshold << " and num colors: " << 256 << std::endl;
-	int code = do_vectorize(data.filename, data.outputfilename, data.chunk_size, data.threshold, 256);
+	myData.data = data;
+	int code = 0;//do_vectorize(data.filename, data.outputfilename, data.chunk_size, data.threshold, 256);
+	std::cout << "Vectorized with code: " << code << std::endl;
+
+	myData.algorithmData = get_algorithm_data();
+	myData.visuals = generate_visuals(myData.algorithmData);
+	myData.sidebar.updateFromVisuals(myData.visuals);
 
 	if (code != SUCCESS_CODE)
 	{
@@ -82,8 +88,9 @@ void doVectorize(std::string image_path)
 			myData.intermediateTexture = WomboTexture(Texture8{ Colors::Orange8, 369, 342 });
 
 			auto doc = lunasvg::Document::loadFromFile("output.svg");
-
-			auto bitmap = doc->renderToBitmap((uint32_t)myData.inputTexture.getWidth(), (uint32_t)myData.inputTexture.getHeight());
+			lunasvg::Bitmap bitmap{};
+			if (doc)
+				bitmap = doc->renderToBitmap((uint32_t)myData.inputTexture.getWidth(), (uint32_t)myData.inputTexture.getHeight());
 
 			if (!bitmap.valid())
 			{
@@ -196,8 +203,16 @@ void display()
 
 		// Draw active texture
 		glColor3f(myData.texColor.R, myData.texColor.G, myData.texColor.B);
-		auto& tex = myData.getActiveTexture();
-		drawVecTextureArea(tex.getGLTex(), tex.getCpuTex().getWidth(), tex.getCpuTex().getHeight(), { 0,0,0 }, pow(1.1, myData.scrollage), myData.textureArea);
+		if (myData.activeTexture == ActiveTexture::INTERMEDIATE)
+		{
+			auto& tex = myData.getActiveTexture();
+			renderAlgorithm(myData.visuals, pow(1.1, myData.scrollage), myData.textureArea, myData.selectedGroup);
+		}
+		else
+		{
+			auto& tex = myData.getActiveTexture();
+			drawVecTextureArea(tex.getGLTex(), tex.getCpuTex().getWidth(), tex.getCpuTex().getHeight(), { 0,0,0 }, pow(1.1, myData.scrollage), myData.textureArea);
+		}
 
 		// Draw active texture string
 		int activeTexStrLen = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)myData.getCurrentText());
@@ -333,6 +348,7 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 				{
 					std::cout << "Sidebar button " << button << " clicked" << std::endl;
 				}
+				myData.selectedGroup = button;
 			}
 		}
 	}

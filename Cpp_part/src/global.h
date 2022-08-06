@@ -5,6 +5,7 @@
 #include "color.h"
 #include "texture.h"
 #include "render.h"
+#include "c_wrappers.h"
 
 enum class ActiveTexture
 {
@@ -35,6 +36,9 @@ struct GUIData
 
 	vectorizer_data data;
 	algorithm_progress progress;
+	algorithm_data algorithmData;
+	visual_algorithm_data visuals;
+	int selectedGroup = -1;
 	int scrollage = 0;
 	ActiveTexture activeTexture = ActiveTexture::INPUT;
 	std::string statusString = "";

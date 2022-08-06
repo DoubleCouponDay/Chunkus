@@ -37,6 +37,8 @@ struct SidebarButton
 	}
 };
 
+struct visual_algorithm_data;
+
 class Sidebar
 {
 	std::vector<SidebarButton> Buttons;
@@ -60,27 +62,10 @@ public:
 			&& pos.y < Bounds.upper.y;
 	}
 
-	inline int getButtonClicked(Vector2i pos) const
-	{
-		auto runningPos = Vector2i{ Bounds.lower.x, Bounds.upper.y } + Vector2i{ margin, -margin };
-
-		auto withinButton = [](const SidebarButton& b, Vector2i p, Vector2i runningPos)
-		{
-			return p.x >= runningPos.x && p.y >= (runningPos.y - b.dimensions.y) && p.x < (runningPos.x + b.dimensions.x) && p.y < runningPos.y;
-		};
-
-		for (int i = 0; i < Buttons.size(); i++)
-		{
-			if (withinButton(Buttons[i], pos, runningPos))
-			{
-				return i;
-			}
-			runningPos.y -= Buttons[i].dimensions.y + spacing;
-		}
-		return -1;
-	}
+	int getButtonClicked(Vector2i pos) const;
 
 	void render() const;
+	void updateFromVisuals(const visual_algorithm_data& data);
 };
 
 void renderString(int x, int y, void* font, std::string str, Color32 color);
@@ -89,6 +74,8 @@ void renderString(Box box, void* font, std::string str, Color32 color);
 void renderButton(const Button& button);
 
 void renderArea(Box box, Color32 color);
+
+void renderAlgorithm(const visual_algorithm_data& data, float scale, Box box, int selectedGroup);
 
 Vector2i windowToGL(Vector2i windowCoords);
 
