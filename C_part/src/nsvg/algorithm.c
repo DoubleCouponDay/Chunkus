@@ -380,7 +380,7 @@ void* fill_quadrant(void* arg) {
                 currentchunk_p, 
                 &holder, 
                 map_x, map_y, 
-                quadrant->options->shape_colour_threshhold);            
+                quadrant->options->threshold);            
             int code = getLastError();
 
             if (isBadError())

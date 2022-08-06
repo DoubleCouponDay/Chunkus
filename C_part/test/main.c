@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
       "chunk_size", param2
     },
     {
-      "shape_colour_threshhold", param3
+      "threshold", param3
     },
     { 
       "output_filename", param4 
