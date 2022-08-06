@@ -79,19 +79,6 @@ void test8teardown(void* fixture) {
   free(fixture);
 }
 
-void* speedy_vectorize_setup(const MunitParameter params[], void* userdata)
-{
-  return calloc(1, sizeof(speedy_vectorize_stuff));
-}
-
-void speedy_vectorize_teardown(void* fixture)
-{
-  speedy_vectorize_stuff* stuff = fixture;
-  free_image_contents(stuff->img);
-  free_nsvg(stuff->nsvg_image);
-  free(fixture);
-}
-
 void* jpeg_to_bmp_setup(const MunitParameter params[], void* userdata) {
   return calloc(1, sizeof(jpeg_bmp_stuff));
 }
