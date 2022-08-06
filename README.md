@@ -159,9 +159,15 @@ You should receive a confirmation message telling you what you set the parameter
 
 ## C Tests
 
-The C code contains a test suite (based on MUnit). `vec_tests.exe` can run all C tests or just one, when given a test name. The test names can be found in `C_part/tests/main.c`. The test executable requires administrative privileges to allocate buffers.
+The C code contains a test suite (based on MUnit). `vec_tests.exe` can run all C tests or just one, when given a test name. The test names can be found in `C_part/tests/main.c`.
 
-You can easily debug the tests in VSCode if it was opened with Administrive privileges. in the `Run and Debug` side menu, select the launch task `(Windows) Launch Tests`, or the Linux equivalent if required. It will run the build task automatically before running the tests.
+Requirements: 
+
++ administrative shell
+
++ current work directory set to `.\install\bin`
+
+You can easily debug the tests with VSCode if it was opened with Administrive privileges. in the `Run and Debug` side menu, select the launch task `(Windows) Launch Tests`, or the Linux equivalent if required. It will run the build task automatically before running the tests.
 
 ## Rust Tests
 
