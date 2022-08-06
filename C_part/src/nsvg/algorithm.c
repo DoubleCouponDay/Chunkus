@@ -375,12 +375,14 @@ void* fill_quadrant(void* arg) {
                 LOG_INFO("%s progress: %d0%%", quadrant->name, tenth_count);
             }
             pixelchunk* currentchunk_p = &(quadrant->map->groups_array_2d[map_x][map_y]);
+            
             find_shapes(
                 quadrant, 
                 currentchunk_p, 
                 &holder, 
                 map_x, map_y, 
                 quadrant->options->threshold);            
+            
             int code = getLastError();
 
             if (isBadError())
@@ -407,19 +409,22 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     quadrant1.bounds.endingX = middle_width;
     quadrant1.bounds.endingY = middle_height;
 
-    Quadrant quadrant2 = {"bottom-right", map, options};
+    chunkmap* map2 = generate_chunkmap(map->input, *options);
+    Quadrant quadrant2 = {"bottom-right", map2, options};
     quadrant2.bounds.startingX = middle_width + 1;
     quadrant2.bounds.startingY = 0;
     quadrant2.bounds.endingX = map->map_width;
     quadrant2.bounds.endingY = middle_height; 
 
-    Quadrant quadrant3 = {"top-left", map, options};
+    chunkmap* map3 = generate_chunkmap(map->input, *options);
+    Quadrant quadrant3 = {"top-left", map3, options};
     quadrant3.bounds.startingX = 0;
     quadrant3.bounds.startingY = middle_height + 1;
     quadrant3.bounds.endingX = middle_width;
     quadrant3.bounds.endingY = map->map_height;
 
-    Quadrant quadrant4 = {"top-right", map, options};
+    chunkmap* map4 = generate_chunkmap(map->input, *options);
+    Quadrant quadrant4 = {"top-right", map4, options};
     quadrant4.bounds.startingX = middle_width + 1;
     quadrant4.bounds.startingY = middle_height + 1;
     quadrant4.bounds.endingX = map->map_width;
@@ -442,7 +447,20 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     pthread_join(thread3, NULL);
     LOG_INFO("waiting for thread4");
     pthread_join(thread4, NULL);
-    LOG_INFO("destroying mutex");
+    
+    LOG_INFO("appending shapes from threads");
+
+    windback_lists(map4->shape_list);
+    map3->shape_list->next = map4->shape_list;
+    map3->shape_count += map4->shape_count;
+
+    windback_lists(map3->shape_list);
+    map2->shape_list->next = map3->shape_list;
+    map2->shape_count += map3->shape_count;
+
+    windback_lists(map2->shape_list);
+    map->shape_list->next = map2->shape_list;
+    map->shape_count += map2->shape_count;
     
     windback_lists(map->shape_list);
 }
