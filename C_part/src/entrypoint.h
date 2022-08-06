@@ -29,7 +29,7 @@ struct chunkmap;
 typedef struct {
     char* file_path;
     int chunk_size;
-    float shape_colour_threshhold;
+    float threshold;
     int num_colours;
 } vectorize_options;
 
@@ -37,7 +37,7 @@ int entrypoint(int argc, char* argv[]);
 int set_algorithm(char* argv);
 int just_crash();
 
-int do_vectorize(const char* input_img_path, const char* output_svg, int chunk_size, float shape_colour_threshhold, int num_colours);
+int do_vectorize(const char* input_img_path, const char* output_svg, int chunk_size, float threshold, int num_colours);
 
 extern const char* format1_p;
 extern const char* format2_p;

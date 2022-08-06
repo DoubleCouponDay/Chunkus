@@ -23,7 +23,7 @@ void prune_boundary(pixelchunk_list* boundary) {
             previous->next = current->next;
             pixelchunk_list* tmp = current;
             current = current->next;
-            free(tmp); //memory leak averted
+            free(tmp); //not using freepixelchunklist because we only want to remove this single item
             continue;
         }
 

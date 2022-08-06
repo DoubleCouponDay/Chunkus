@@ -126,17 +126,28 @@ Cargo must find bot.exe so add to the PATH environment variable with the Rust bu
 
 `(REPO CLONE FOLDER)/Rust_part/target/debug`
 
-Commands to use the bot:
-### Vectorize: Goes through all attachments of the command message, executes the algorithm on them and returns the output  
+---
+## Commands 
+### Vectorize: 
+Goes through all attachments of the command message, executes the algorithm on them and returns the output  
+
 `!v or !vectorize` with an attachment or url eg.  
 
     !v https://cdn.discordapp.com/attachments/787470274261549056/807847299752394773/ginormous.png  
 
 You should receive a message with `output.svg` and a preview png attached
   
-### Params: Sets the parameters to use with the algorithm, first item is chunk_size, second item is threshold  
-Chunk Size is a reverse scale for the image, higher number improve speed while reducing quality (and losing information)  
-Threshold is a number between 0 and 441.67 (The square root of 255^2 * 3 (vector math))  
+### Params: 
+Sets the parameters to use with the algorithm
+
+### Chunk Size 
+Chunk size is amount of width and height in the algorithm's smallest image unit. An image is broken up into chunks, where a higher number improves speed while reducing quality (and losing information). 
+
+### Threshold 
+Threshold is a float between 0 and 441.67. This is the magnitude of the difference between colours with 3 components (RGB). You can use the pythagorean theorem in 3 dimensions to calculate this by:
+    
+    mag3 = sqrt(255^2 * 3)
+
 - The threshold determines how easily another colour is considered a separate shape  
 - A Threshold of 0 means any color that is not EXACTLY the same will be considered separate  
 - A threshold of 441.67 means the only color values considered different are rgb(0,0,0) and rgb(255,255,255) (white and black)  
@@ -148,9 +159,15 @@ You should receive a confirmation message telling you what you set the parameter
 
 ## C Tests
 
-The C code contains a test suite (based on MUnit). `vec_tests.exe` can run all C tests or just one, when given a test name. The test names can be found in `C_part/tests/main.c`. The test executable requires administrative privileges to allocate buffers.
+The C code contains a test suite (based on MUnit). `vec_tests.exe` can run all C tests or just one, when given a test name. The test names can be found in `C_part/tests/main.c`.
 
-You can easily debug the tests in VSCode if it was opened with Administrive privileges. in the `Run and Debug` side menu, select the launch task `(Windows) Launch Tests`, or the Linux equivalent if required. It will run the build task automatically before running the tests.
+Requirements: 
+
++ administrative shell
+
++ current work directory set to `.\install\bin`
+
+You can easily debug the tests with VSCode if it was opened with Administrive privileges. in the `Run and Debug` side menu, select the launch task `(Windows) Launch Tests`, or the Linux equivalent if required. It will run the build task automatically before running the tests.
 
 ## Rust Tests
 
@@ -173,8 +190,8 @@ Fill in the blanks in the dockercompose.yml file to pass the environment variabl
 
 ## Debugging the C Algorithm
 
-You can use the Vectorizer_GUI to pause frame on a current iteration of the vectorizer algorithm.
+You can use `vec_step` GUI to step through frames on a specified iteration count of the vectorizer algorithm.
 
 First you must build using cmake from the root directory, then open the Desktop App by running this:
 
-    ./build/bin/Vectorizer_GUI
+    ./build/bin/vec_step

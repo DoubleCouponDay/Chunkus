@@ -56,7 +56,7 @@ MunitResult can_convert_png_to_chunkmap(const MunitParameter params[], void* use
   return MUNIT_OK;
 }
 
-MunitResult opensPngAndOutputsBmp(const MunitParameter params[], void* userdata) {
+MunitResult can_convert_png_to_bmp(const MunitParameter params[], void* userdata) {
   test5stuff* stuff = userdata;
   // Use constant input/output path
   char* in_file = params[0].value;
@@ -78,7 +78,7 @@ MunitResult opensPngAndOutputsBmp(const MunitParameter params[], void* userdata)
   return MUNIT_OK;
 }
 
-MunitResult can_vectorize_image(const MunitParameter params[], void* userdata)
+MunitResult can_vectorize_png(const MunitParameter params[], void* userdata)
 {
   test6stuff* stuff = userdata;
   int num_colours = atoi(params[4].value);
@@ -145,7 +145,7 @@ MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], voi
   return MUNIT_OK;
 }
 
-MunitResult can_write_to_svgfile(const MunitParameter params[], void* userdata) {
+MunitResult can_convert_png_to_svg(const MunitParameter params[], void* userdata) {
   test8stuff* stuff = userdata;
 
   char* fileaddress = params[0].value;
