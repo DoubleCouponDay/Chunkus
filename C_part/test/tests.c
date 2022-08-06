@@ -25,13 +25,13 @@
 #include "../src/utility/logger.h"
 #include "../src/imagefile/jpegfile.h"
 
-MunitResult aTestCanPass(const MunitParameter params[], void* data) {
+MunitResult can_test(const MunitParameter params[], void* data) {
   LOG_INFO("test 1 passed");
   return MUNIT_OK;
 }
 
 MunitResult can_read_png(const MunitParameter params[], void* userdata) {
-  test2stuff* stuff = userdata;
+  tear1* stuff = userdata;
   char* filepath = params[0].value;
   image subject = convert_png_to_image(filepath);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
@@ -40,7 +40,7 @@ MunitResult can_read_png(const MunitParameter params[], void* userdata) {
 }
 
 MunitResult can_convert_png_to_chunkmap(const MunitParameter params[], void* userdata) {
-  test4stuff* stuff = userdata;
+  tear2* stuff = userdata;
   int num_colours = atoi(params[4].value);
   
   vectorize_options options = {
@@ -57,10 +57,10 @@ MunitResult can_convert_png_to_chunkmap(const MunitParameter params[], void* use
 }
 
 MunitResult can_convert_png_to_bmp(const MunitParameter params[], void* userdata) {
-  test5stuff* stuff = userdata;
+  tear3* stuff = userdata;
   // Use constant input/output path
   char* in_file = params[0].value;
-  char* out_file = "peach.bmp";
+  char* out_file = params[6].value;
 
   // Delete output file
   remove(out_file);
@@ -80,7 +80,7 @@ MunitResult can_convert_png_to_bmp(const MunitParameter params[], void* userdata
 
 MunitResult can_vectorize_png(const MunitParameter params[], void* userdata)
 {
-  test6stuff* stuff = userdata;
+  tear4* stuff = userdata;
   int num_colours = atoi(params[4].value);
 
   vectorize_options options = {
@@ -99,9 +99,9 @@ MunitResult can_vectorize_png(const MunitParameter params[], void* userdata)
   return MUNIT_OK;
 }
 
-MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], void* userdata)
+MunitResult can_write_chunkmap_to_png(const MunitParameter params[], void* userdata)
 {
-  test69stuff* stuff = userdata;
+  tear2* stuff = userdata;
 
   char* fileaddress = params[0].value;
 
@@ -146,7 +146,7 @@ MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], voi
 }
 
 MunitResult can_convert_png_to_svg(const MunitParameter params[], void* userdata) {
-  test8stuff* stuff = userdata;
+  tear4* stuff = userdata;
 
   char* fileaddress = params[0].value;
 
@@ -191,22 +191,22 @@ MunitResult can_convert_png_to_svg(const MunitParameter params[], void* userdata
   return MUNIT_OK;
 }
 
-MunitResult can_convert_jpeg_to_image(const MunitParameter params[], void* userdata) {
+MunitResult can_read_jpeg(const MunitParameter params[], void* userdata) {
   char* inputjpeg = params[5].value;
-  image result = convert_file_to_image(inputjpeg);
+  tear1* stuff = userdata;
+  stuff->img = convert_file_to_image(inputjpeg);
   munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
-  munit_assert(result.width != 0);
-  munit_assert(result.height != 0);
-  munit_assert_ptr_not_null(result.pixels_array_2d);
-  free_image_contents(result);
+  munit_assert(stuff->img.width != 0);
+  munit_assert(stuff->img.height != 0);
+  munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
   return MUNIT_OK;
 }
 
 MunitResult can_convert_jpeg_to_bmp(const MunitParameter params[], void* userdata){
-  jpeg_bmp_stuff* stuff = userdata;
+  tear3* stuff = userdata;
   // Use constant input/output path
   char* in_file = params[5].value;
-  char* out_file = "peach.bmp";
+  char* out_file = params[6].value;
 
   // Delete output file
   remove(out_file);
@@ -225,7 +225,7 @@ MunitResult can_convert_jpeg_to_bmp(const MunitParameter params[], void* userdat
 }
 
 MunitResult can_vectorize_jpeg(const MunitParameter params[], void* userdata) {
-  test8stuff* stuff = userdata;
+  tear4* stuff = userdata;
 
   char* inputjpeg = params[5].value;
 
@@ -271,7 +271,7 @@ MunitResult can_vectorize_jpeg(const MunitParameter params[], void* userdata) {
 }
 
 MunitResult can_convert_jpeg_to_svg(const MunitParameter params[], void* userdata) {
-  test8stuff* stuff = userdata;
+  tear4* stuff = userdata;
 
   char* jpegaddress = params[5].value;
 

@@ -35,9 +35,10 @@ int main(int argc, char** argv) {
   char* param1[] = { "test.png", NULL };
   char* param2[] = { "1", NULL };
   char* param3[] = { "1", NULL }; //max threshhold 440
-  char* param4[] = { "./chunkmap.png", NULL };
+  char* param4[] = { "output.png", NULL };
   char* param5[] = { "256", NULL }; //max colours 256
   char* param6[] = { "test.jpeg", NULL };
+  char* param7[] = { "output.bmp", NULL };
   char* testname = argv[1];
 
   MunitParameterEnum test_params[] = { 
@@ -51,7 +52,7 @@ int main(int argc, char** argv) {
       "threshold", param3
     },
     { 
-      "output_filename", param4 
+      "png_output", param4 
     },
     {
       "num_colours", param5
@@ -59,21 +60,25 @@ int main(int argc, char** argv) {
     {
       "jpeg", param6
     },
+    {
+      "bmp_output", param7
+    },
     { NULL, NULL} 
   };
 
-  MunitTest can_pass = { "can_pass", aTestCanPass, NULL, NULL, MUNIT_TEST_OPTION_NONE };
-  MunitTest read_png = { "read_png", can_read_png, test2setup, test2teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest png_to_chunkmap = { "png_to_chunkmap", can_convert_png_to_chunkmap, test4setup, test4teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest png_to_bmp = { "png_to_bmp", can_convert_png_to_bmp, test5setup, test5teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest png_to_nsvg = { "png_to_nsvg", can_vectorize_png, test6setup, test6teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest chunkmap_to_png = { "chunkmap_to_png", can_write_chunkmap_shapes_to_file, test69setup, test69teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest png_to_svg = { "png_to_svg", can_convert_png_to_svg, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest can_pass = { "empty", can_test, NULL, NULL, MUNIT_TEST_OPTION_NONE };
+  
+  MunitTest read_png = { "read_png", can_read_png, tear1setup, tear1teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest png_to_chunkmap = { "png_to_chunkmap", can_convert_png_to_chunkmap, tear2setup, tear2teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest png_to_bmp = { "png_to_bmp", can_convert_png_to_bmp, tear3setup, tear3teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest png_to_nsvg = { "png_to_nsvg", can_vectorize_png, tear4setup, tear4teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest chunkmap_to_png = { "chunkmap_to_png", can_write_chunkmap_to_png, tear2setup, tear2teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest png_to_svg = { "png_to_svg", can_convert_png_to_svg, tear4setup, tear4teardown, MUNIT_TEST_OPTION_NONE, test_params };
 
-  MunitTest jpeg_to_image = { "jpeg_to_image", can_convert_jpeg_to_image, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest jpeg_to_bmp = { "jpeg_to_bmp", can_convert_jpeg_to_bmp, jpeg_to_bmp_setup, jpeg_to_bmp_teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest jpeg_to_nsvg = { "jpeg_to_nsvg", can_vectorize_jpeg, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest jpeg_to_svg = { "jpeg_to_svg", can_convert_jpeg_to_svg, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params};
+  MunitTest jpeg_to_image = { "jpeg_to_image", can_read_jpeg, tear1setup, tear1teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest jpeg_to_bmp = { "jpeg_to_bmp", can_convert_jpeg_to_bmp, tear3setup, tear3teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest jpeg_to_nsvg = { "jpeg_to_nsvg", can_vectorize_jpeg, tear4setup, tear4teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest jpeg_to_svg = { "jpeg_to_svg", can_convert_jpeg_to_svg, tear4setup, tear4teardown, MUNIT_TEST_OPTION_NONE, test_params};
 
   enum { 
     NUM_TESTS = 11 //UPDATE THIS WHEN YOU ADD NEW TESTS
