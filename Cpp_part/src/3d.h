@@ -10,6 +10,23 @@ T vec_max(T a, T b)
 
 struct Vector2u;
 
+struct Vector2f
+{
+	Vector2f() = default;
+	Vector2f(float x, float y) : x(x), y(y) {}
+	Vector2f(const Vector2f& other) = default;
+
+	inline Vector2f operator+(const Vector2f& other) const { return Vector2f(x + other.x, y + other.y); }
+	inline Vector2f operator-(const Vector2f& other) const { return Vector2f(x - other.x, y - other.y); }
+	inline Vector2f operator*(const Vector2f& other) const { return Vector2f(x * other.x, y * other.y); }
+	inline Vector2f operator/(const Vector2f& other) const { return Vector2f(x / other.x, y / other.y); }
+	inline Vector2f operator*(float scalar) const { return Vector2f(x * scalar, y * scalar); }
+	inline Vector2f operator/(float scalar) const { return Vector2f(x / scalar, y / scalar); }
+
+	float x;
+	float y;
+};
+
 struct Vector2i
 {
 	Vector2i() = default;
