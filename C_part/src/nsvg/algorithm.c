@@ -308,7 +308,7 @@ void find_shapes(
     pixelchunk* current, 
     list_holder* holder, 
     int map_x, int map_y, 
-    float shape_colour_threshold) {    
+    float threshold) {    
     for (int adjacent_y = -1; adjacent_y < 2; ++adjacent_y)
     {
         for (int adjacent_x = -1; adjacent_x < 2; ++adjacent_x)
@@ -330,7 +330,7 @@ void find_shapes(
             chunkshape* currentinshape = current->shape_chunk_in;
             chunkshape* adjacentinshape = adjacent->shape_chunk_in;
 
-            if (colours_are_similar(current->average_colour, adjacent->average_colour, shape_colour_threshold)) {
+            if (colours_are_similar(current->average_colour, adjacent->average_colour, threshold)) {
                 if(map_x == quadrant->bounds.startingX || map_x == (quadrant->bounds.endingX - 1) ||
                     map_y == quadrant->bounds.startingY || map_y == (quadrant->bounds.endingY - 1)) 
                 {
