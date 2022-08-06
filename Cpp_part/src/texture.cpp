@@ -239,11 +239,19 @@ unsigned int nextPow2(unsigned int v)
 	return v;
 }
 
-GLTexture::GLTexture() : _texName(0)
+GLTexture::GLTexture() 
+	: _texName(0)
+	, _xScale(0)
+	, _yScale(0)
+	, _alphaTag(false)
 {
 }
 
-GLTexture::GLTexture(const Texture8& tex) : _texName(0)
+GLTexture::GLTexture(const Texture8& tex, bool alpha) 
+	: _texName(0)
+	, _xScale(0)
+	, _yScale(0)
+	, _alphaTag(alpha)
 {
 	if (tex.getData() == nullptr || tex.getWidth() < 1 || tex.getHeight() < 1)
 		return;
@@ -258,6 +266,8 @@ GLTexture::GLTexture(const Texture8& tex) : _texName(0)
 	checkForGlError("Bound texture");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	auto pow2width = nextPow2(tex.getWidth());
 	auto pow2height = nextPow2(tex.getHeight());
 
@@ -266,8 +276,28 @@ GLTexture::GLTexture(const Texture8& tex) : _texName(0)
 
 	_xScale = (float)tex.getWidth() / pow2width;
 	_yScale = (float)tex.getHeight() / pow2height;
+	
+	if (_alphaTag)
+	{
+		std::vector<unsigned char> data(pow2width * pow2height * 4);
+		for (int x = 0; x < pow2width; ++x)
+		{
+			for (int y = 0; y < pow2height; ++y)
+			{
+				auto color = pow2Tex.getPixel(x, y);
+				data[(long long)y * pow2width * 4 + x * 4 + 0] = color.R;
+				data[(long long)y * pow2width * 4 + x * 4 + 1] = color.G;
+				data[(long long)y * pow2width * 4 + x * 4 + 2] = color.B;
+				data[(long long)y * pow2width * 4 + x * 4 + 3] = (color.R > 0 && color.G > 0 && color.B > 0) ? 255 : 0;
+			}
+		}
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, pow2width, pow2height, 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)pow2Tex.getData());
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pow2width, pow2height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)data.data());
+	}
+	else
+	{	
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, pow2width, pow2height, 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)pow2Tex.getData());
+	}
 
 	checkForGlError("Set texture parameters");
 
@@ -278,10 +308,12 @@ GLTexture::GLTexture(GLTexture&& other)
 	: _texName(other._texName)
 	, _xScale(other._xScale)
 	, _yScale(other._yScale)
+	, _alphaTag(other._alphaTag)
 {
 	other._texName = 0;
 	other._xScale = 1.f;
 	other._yScale = 1.f;
+	other._alphaTag = false;
 }
 
 GLTexture::~GLTexture()
@@ -350,9 +382,9 @@ WomboTexture::WomboTexture(GLTexture&& glTex, Texture8&& cpuTex)
 {
 }
 
-WomboTexture::WomboTexture(Texture8&& cpuTex)
+WomboTexture::WomboTexture(Texture8&& cpuTex, bool isAlpha)
 	: _cpuTex(std::move(cpuTex))
-	, _glTex(_cpuTex)
+	, _glTex(_cpuTex, isAlpha)
 {
 }
 
@@ -418,7 +450,26 @@ void WomboTexture::updateImage(const Texture8& src, int xoffset, int yoffset, in
 
 	_glTex.bindTo(GL_TEXTURE_2D);
 	//glTexSubImage2D(GL_TEXTURE_2D, 0, xoffset, yoffset, width, height, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)src.getData());
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _cpuTex.getWidth(), _cpuTex.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)_cpuTex.getData());
+	if (_glTex.isAlphaTag())
+	{
+		std::vector<unsigned char> data(width * height * 4);
+
+		for (int y = 0; y < height; ++y)
+		{
+			for (int x = 0; x < width; ++x)
+			{
+				auto color = src.getPixel(x, y);
+				data[(long long)y * width * 4 + x * 4 + 0] = color.R;
+				data[(long long)y * width * 4 + x * 4 + 1] = color.G;
+				data[(long long)y * width * 4 + x * 4 + 2] = color.B;
+				data[(long long)y * width * 4 + x * 4 + 3] = (color.R > 0 && color.G > 0 && color.B > 0) ? 255 : 0;
+			}
+		}
+
+		glTexSubImage2D(GL_TEXTURE_2D, 0, xoffset, yoffset, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)data.data());
+	}
+	else
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _cpuTex.getWidth(), _cpuTex.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)_cpuTex.getData());
 }
 
 void WomboTexture::setPixel(int x, int y, Color8 color)
@@ -429,7 +480,16 @@ void WomboTexture::setPixel(int x, int y, Color8 color)
 	_cpuTex.setPixel(x, y, color);
 
 	_glTex.bindTo(GL_TEXTURE_2D);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, &color);
+
+	if (_glTex.isAlphaTag())
+	{
+		unsigned char dat[4] = { color.R, color.G, color.B, (color.R > 0 || color.G > 0 || color.B > 0) ? 255 : 0 };
+		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)dat);
+	}
+	else
+	{
+		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, &color);
+	}
 }
 
 void WomboTexture::setArea(int x, int y, int width, int height, Color8 color)

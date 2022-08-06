@@ -58,10 +58,11 @@ class GLTexture
 	GLuint _texName;
 	float _xScale = 1.f;
 	float _yScale = 1.f;
+	bool _alphaTag = false;
 
 public:
 	GLTexture();
-	GLTexture(const Texture8& tex);
+	GLTexture(const Texture8& tex, bool alphaTag = false);
 	GLTexture(GLTexture&& other);
 	GLTexture(const GLTexture& other) = delete;
 	~GLTexture();
@@ -76,6 +77,7 @@ public:
 	float getYScale() const;
 
 	void bindTo(GLenum target) const;
+	inline bool isAlphaTag() const { return _alphaTag; };
 };
 
 /// <summary>
@@ -90,7 +92,7 @@ public:
 	WomboTexture();
 	WomboTexture(std::string fileName, bool flipY);
 	WomboTexture(GLTexture&& glTex, Texture8&& cpuTex);
-	WomboTexture(Texture8&& cpuTex);
+	WomboTexture(Texture8&& cpuTex, bool isAlphaTag = false);
 	WomboTexture(const lunasvg::Bitmap& bitmap);
 	WomboTexture(WomboTexture&& other);
 	WomboTexture(const WomboTexture& other) = delete;
@@ -117,6 +119,7 @@ public:
 
 	void updateImage(const Texture8& src, int xoffset, int yoffset);
 	void updateImage(const Texture8& src, int xoffset, int yoffset, int width, int height);
+	void updateImage(); // Updates OpenGL texture with data from cpu texture
 
 	void setPixel(int x, int y, Color8 color);
 	void setArea(int x, int y, int width, int height, Color8 color);
