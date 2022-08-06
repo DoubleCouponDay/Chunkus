@@ -136,7 +136,7 @@ You should receive a message with `output.svg` and a preview png attached
   
 ### Params: Sets the parameters to use with the algorithm, first item is chunk_size, second item is threshold  
 Chunk Size is a reverse scale for the image, higher number improve speed while reducing quality (and losing information)  
-Threshold is a number between 0 and 441.67 (The square root of 255^2 * 3 (vector math))  
+Threshold is a float between 0 and 441.67 (The square root of 255^2 * 3 (vector math))  
 - The threshold determines how easily another colour is considered a separate shape  
 - A Threshold of 0 means any color that is not EXACTLY the same will be considered separate  
 - A threshold of 441.67 means the only color values considered different are rgb(0,0,0) and rgb(255,255,255) (white and black)  
