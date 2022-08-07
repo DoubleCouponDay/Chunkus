@@ -69,15 +69,6 @@ int entrypoint(int argc, char* argv[]) {
 	// Grab input file path
 	char* input_file_path = firstargument_p;
 
-	// Grag output file path
-	char* output_file_p;
-
-	// If no output path given use default one
-	if (argc > 2)
-		output_file_p = "output.svg";
-	else
-		output_file_p = argv[2];
-
 	int chunk_size = DEFAULT_CHUNKSIZE;
 
 	if (argc > 3)
@@ -106,13 +97,13 @@ int entrypoint(int argc, char* argv[]) {
 		num_colours = 1;
 
 	// Halt execution if either path is bad
-	if (input_file_path == NULL || output_file_p == NULL)
+	if (input_file_path == NULL)
 	{
 		LOG_ERR("Empty input or output file");
 		return SUCCESS_CODE;
 	}
 
-	LOG_INFO("Vectorizing with input: '%s' output: '%s' chunk size: '%d' threshold: '%f', colours: %d", input_file_path, output_file_p, chunk_size, threshold, num_colours);
+	LOG_INFO("Vectorizing with input: '%s', chunk size: '%d', threshold: '%f', colours: %d", input_file_path, chunk_size, threshold, num_colours);
 
 	vectorize_options options = {
 		input_file_path,

@@ -361,7 +361,7 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
         let outputname = String::from(constants::OUTPUT_SVG_FILE);
         println!("Vectorizing....");
-        let result = do_vectorize(&inputname, &outputname, options);
+        let result = do_vectorize(&inputname, options);
 
         let possibleerror: &str = result.into();
 
