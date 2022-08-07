@@ -52,6 +52,6 @@ cmake --install build --prefix install
 echo "building Vectorizer..."
 cd ../Vectorizer
 mkdir build
-sudo cmake -B build -G "Unix Makefiles" -D CMAKE_INSTALL_PREFIX=install -D CMAKE_BUILD_TYPE=Debug
+sudo cmake -B build -G "Ninja" -D CMAKE_INSTALL_PREFIX=install -D CMAKE_BUILD_TYPE=Debug
 sudo cmake --build build -j4
 sudo cmake --install build --prefix install
