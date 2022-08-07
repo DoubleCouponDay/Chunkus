@@ -24,15 +24,16 @@
 #include "../src/imagefile/svg.h"
 #include "../src/imagefile/converter.h"
 
-MunitResult aTestCanPass(const MunitParameter params[], void* data);
+MunitResult can_test(const MunitParameter params[], void* data);
+
 MunitResult can_read_png(const MunitParameter params[], void* userdata);
 MunitResult can_convert_png_to_chunkmap(const MunitParameter params[], void* userdata);
 MunitResult can_convert_png_to_bmp(const MunitParameter params[], void* userdata);
 MunitResult can_vectorize_png(const MunitParameter params[], void* userdata);
-MunitResult can_write_chunkmap_shapes_to_file(const MunitParameter params[], void* userdata);
+MunitResult can_write_chunkmap_to_png(const MunitParameter params[], void* userdata);
 MunitResult can_convert_png_to_svg(const MunitParameter params[], void* userdata);
 
-MunitResult can_convert_jpeg_to_image(const MunitParameter params[], void* userdata);
+MunitResult can_read_jpeg(const MunitParameter params[], void* userdata);
 MunitResult can_convert_jpeg_to_bmp(const MunitParameter params[], void* userdata);
 MunitResult can_vectorize_jpeg(const MunitParameter params[], void* userdata);
-
+MunitResult can_convert_jpeg_to_svg(const MunitParameter params[], void* userdata);

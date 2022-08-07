@@ -5,100 +5,52 @@
 #include "../src/nsvg/usage.h"
 #include "../src/utility/logger.h"
 
-void* test2setup(const MunitParameter params[], void* userdata) {
-  return calloc(1, sizeof(test2stuff));
+void* tear1setup(const MunitParameter params[], void* userdata) {
+  return calloc(1, sizeof(tear1));
 };
 
-void test2teardown(void* fixture) {
-  test2stuff* stuff = fixture;
+void tear1teardown(void* fixture) {
+  tear1* stuff = fixture;
   free_image_contents(stuff->img);
   free(stuff);
 }
 
-void* test4setup(const MunitParameter params[], void* userdata) {
-  return calloc(1, sizeof(test4stuff));
+void* tear2setup(const MunitParameter params[], void* userdata) {
+  return calloc(1, sizeof(tear2));
 };
 
-void test4teardown(void* fixture) {
+void tear2teardown(void* fixture) {
   LOG_INFO("freeing test 4");
-  test4stuff* stuff = fixture;
+  tear2* stuff = fixture;
   free_image_contents(stuff->img);
   free_chunkmap(stuff->map);
   free(fixture);
 }
 
-void* test5setup(const MunitParameter params[], void* userdata) {
-  return calloc(1, sizeof(test5stuff));
+void* tear3setup(const MunitParameter params[], void* userdata) {
+  return calloc(1, sizeof(tear3));
 };
 
-void test5teardown(void* fixture) {
+void tear3teardown(void* fixture) {
   LOG_INFO("freeing test 5");
-  test5stuff* stuff = fixture;
+  tear3* stuff = fixture;
   fclose(stuff->fp);
   free_image_contents(stuff->img);
   free(fixture);
 }
 
-void* test6setup(const MunitParameter params[], void* userdata)
+void* tear4setup(const MunitParameter params[], void* userdata)
 {
-  return calloc(1, sizeof(test6stuff));
+  return calloc(1, sizeof(tear4));
 }
 
-void test6teardown(void* fixture)
+void tear4teardown(void* fixture)
 {
-  test6stuff* stuff = fixture;
+  tear4* stuff = fixture;
   LOG_INFO("freeing image contents");
   free_image_contents(stuff->img);
   LOG_INFO("freeing image");
   free_nsvg(stuff->nsvg_image);  
   LOG_INFO("freeing test6stuff");
-  free(stuff);
-}
-
-void* test69setup(const MunitParameter params[], void* userdata)
-{
-  return calloc(1, sizeof(test69stuff));
-}
-
-void test69teardown(void* fixture)
-{
-  test69stuff* stuff = fixture;
-  free_image_contents(stuff->img);
-  free_chunkmap(stuff->map);
-  free(fixture);
-}
-
-void* test8setup(const MunitParameter params[], void* userdata) {
-  return calloc(1, sizeof(test8stuff));
-}
-
-void test8teardown(void* fixture) {
-  test8stuff* stuff = fixture;
-  free_image_contents(stuff->img);
-  free_nsvg(stuff->nsvg_image);
-  free(fixture);
-}
-
-void* speedy_vectorize_setup(const MunitParameter params[], void* userdata)
-{
-  return calloc(1, sizeof(speedy_vectorize_stuff));
-}
-
-void speedy_vectorize_teardown(void* fixture)
-{
-  speedy_vectorize_stuff* stuff = fixture;
-  free_image_contents(stuff->img);
-  free_nsvg(stuff->nsvg_image);
-  free(fixture);
-}
-
-void* jpeg_to_bmp_setup(const MunitParameter params[], void* userdata) {
-  return calloc(1, sizeof(jpeg_bmp_stuff));
-}
-
-void jpeg_to_bmp_teardown(void* fixture) {
-  jpeg_bmp_stuff* stuff = fixture;
-  free_image_contents(stuff->img);
-  free(stuff->fp);
   free(stuff);
 }
