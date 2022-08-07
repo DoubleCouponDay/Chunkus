@@ -29,7 +29,7 @@ void doVectorize(std::string image_path)
 	data.chunk_size = 1;
 	data.filename = image_path.c_str();
 	data.outputfilename = "output.svg";
-	data.threshold = 100.f;
+	data.threshold = 1.f;
 
 	std::cout << "Vectorizing '" << image_path << "' to " << data.outputfilename << " with chunk size: " << data.chunk_size << ", threshold: " << data.threshold << " and num colors: " << 256 << std::endl;
 	myData.data = data;
