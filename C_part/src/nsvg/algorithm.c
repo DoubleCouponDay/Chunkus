@@ -390,6 +390,11 @@ void* fill_quadrant(void* arg) {
                 LOG_ERR("%s find_shapes failed with code: %d", quadrant->name, code);
                 pthread_exit(NULL);
             }
+
+            if(quadrant->options->step_index > 0 && quadrant->options->step_index >= count) {
+                LOG_INFO("step_index reached: %d\n", count);
+                pthread_exit(NULL);
+            }
         }
     }
     pthread_exit(NULL);
