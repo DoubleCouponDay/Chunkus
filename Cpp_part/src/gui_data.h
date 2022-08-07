@@ -38,9 +38,7 @@ struct GUIData
 	Button switchVectorButton;
 	Button writeToBmpButton;
 
-	algorithm_data algorithmData;
-	visual_algorithm_data visuals;
-	int selectedGroup = -1;
+	int currentStep = 0;
 	int scrollage = 0;
 	ActiveTexture activeTexture = ActiveTexture::INPUT;
 	std::string statusString = "";

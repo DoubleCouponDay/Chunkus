@@ -23,6 +23,37 @@
 GUIData data{};
 interop platform{};
 
+WomboTexture renderStep(vectorize_options options, int width, int height)
+{
+	int code = execute_program(options);
+
+	if (code != 0)
+	{
+		std::cout << "Error: " << code << std::endl;
+		return WomboTexture{};
+	}
+	
+	std::string expected_output_path = "REPLACE WITH REAL OUTPUT.svg";
+
+	auto doc = lunasvg::Document::loadFromFile(expected_output_path);
+
+	if (!doc)
+	{
+		std::cout << "Error: Failed to load document" << std::endl;
+		return WomboTexture{};
+	}
+
+	lunasvg::Bitmap bitmap = doc->renderToBitmap(width, height);
+
+	if (!bitmap.valid())
+	{
+		std::cout << "Error: Failed to render document" << std::endl;
+		return WomboTexture{};
+	}
+
+	return WomboTexture(bitmap);
+}
+
 void doVectorize(std::string image_path, GUIData& guiData)
 {
 	std::cout << "About to vectorize: " << image_path << std::endl;
@@ -30,66 +61,39 @@ void doVectorize(std::string image_path, GUIData& guiData)
 	options.chunk_size = 1;
 	options.file_path = (char*)image_path.c_str();
 	options.threshold = 1.f;
+	options.step_index = 0;
 
 	std::cout << "Vectorizing '" << image_path << "' with chunk size: " << options.chunk_size << ", threshold: " << options.threshold << " and num colors: " << 256 << std::endl;
-	int code = 0;//do_vectorize(data.filename, data.outputfilename, data.chunk_size, data.threshold, 256);
-	std::cout << "Vectorized with code: " << code << std::endl;
 
-	guiData.algorithmData = get_algorithm_data();
-	guiData.visuals = generate_visuals(data.algorithmData);
-	guiData.sidebar.updateFromVisuals(data.visuals);
-
-	if (code != SUCCESS_CODE)
-	{
-		std::cout << "Error when vectorizing: " << code << std::endl;
-		glutExit();
-	}
-
-	else
-	{
 		Texture8 tex = Texture8{ image_path, false };
 		if (tex.getBytes() == nullptr)
 		{
 			std::cout << "Input image was not loaded correctly" << std::endl;
 			return;
 		}
-		else
-		{
-			data.inputTexture = WomboTexture(std::move(tex));
-			data.intermediateTexture = WomboTexture(Texture8{ Colors::Orange8, 369, 342 });
-
-			auto doc = lunasvg::Document::loadFromFile("output.svg");
-			lunasvg::Bitmap bitmap{};
-			if (doc)
-				bitmap = doc->renderToBitmap((uint32_t)data.inputTexture.getWidth(), (uint32_t)data.inputTexture.getHeight());
-
-			if (!bitmap.valid())
-			{
-				std::cout << "Failed to render the svg output" << std::endl;
-				data.vectorizedTexture.clear();
-			}
-			else
-			{
-				data.vectorizedTexture = WomboTexture(bitmap);
-			}
-		}
-	}
+		
+	guiData.inputTexture = WomboTexture{ std::move(tex) };
+	options.step_index = 1;
+	guiData.intermediateTexture = WomboTexture{ renderStep(options, guiData.inputTexture.getWidth(), guiData.inputTexture.getHeight()) };
+	options.step_index = 0;
+	guiData.outputTexture = WomboTexture{ renderStep(options, guiData.inputTexture.getWidth(), guiData.inputTexture.getHeight()) };
 }
 
 void updateVisuals(GUIData& data)
 {
-	data.visuals = generate_visuals(data.algorithmData);
-	data.sidebar.updateFromVisuals(data.visuals);
+	data.intermediateTexture = renderStep(data.currentStep);
 }
 
 void stepForward(GUIData& data)
 {
-
+	data.currentStep++;
+	updateVisuals(data);
 }
 
 void stepBackward(GUIData& data)
 {
-
+	data.currentStep = std::max(0, data.currentStep - 1);
+	updateVisuals(data);
 }
 
 constexpr int textureAreaStart = 150;
@@ -190,16 +194,9 @@ void display()
 
 		// Draw active texture
 		glColor3f(data.texColor.R, data.texColor.G, data.texColor.B);
-		if (data.activeTexture == ActiveTexture::INTERMEDIATE)
-		{
-			auto& tex = data.getActiveTexture();
-			renderAlgorithm(data.visuals, pow(1.1, data.scrollage), data.textureArea, data.selectedGroup, data.windowSize);
-		}
-		else
-		{
-			auto& tex = data.getActiveTexture();
-			drawVecTextureArea(tex.getGLTex(), tex.getCpuTex().getWidth(), tex.getCpuTex().getHeight(), { 0,0,0 }, pow(1.1, data.scrollage), data.textureArea, data.windowSize);
-		}
+		
+		auto& tex = data.getActiveTexture();
+		drawVecTextureArea(tex.getGLTex(), tex.getCpuTex().getWidth(), tex.getCpuTex().getHeight(), { 0,0,0 }, pow(1.1, data.scrollage), data.textureArea, data.windowSize);
 
 		// Draw active texture string
 		int activeTexStrLen = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)data.getCurrentText());
@@ -321,16 +318,6 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 			{
 				std::cout << "Right button clicked" << std::endl;
 				stepForward(guiData);
-			}
-			if (withinSidebar)
-			{
-				std::cout << "Sidebar clicked" << std::endl;
-				int button = guiData.sidebar.getButtonClicked(glCoords);
-				if (button != -1)
-				{
-					std::cout << "Sidebar button " << button << " clicked" << std::endl;
-				}
-				guiData.selectedGroup = button;
 			}
 		}
 	}
