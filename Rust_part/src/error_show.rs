@@ -1,8 +1,7 @@
 #[cfg(target_os = "windows")]
 use winapi::{
     shared::{
-        minwindef,
-        ntdef::ULONG
+        minwindef
     },
 };
 
