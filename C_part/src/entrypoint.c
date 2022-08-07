@@ -50,7 +50,6 @@ int execute_program(vectorize_options options) {
 	return getAndResetErrorCode();
 }
 
-//PUBLIC FACING
 int entrypoint(int argc, char* argv[]) {
 	clear_logfile();
 	LOG_INFO("entrypoint with: ");
@@ -125,99 +124,10 @@ int entrypoint(int argc, char* argv[]) {
 	return execute_program(options);
 }
 
-//PUBLIC FACING
 int just_crash() {
 	clear_logfile();
 	LOG_ERR("crashing this plane; with no survivors");
 	void* crash = (void*)1;
 	free(crash);
-	return 0;
-}
-
-gui_images* gui_vectorize(vectorizer_data input)
-{
-	image input_img = convert_png_to_image(input.filename);
-
-	if (input_img.pixels_array_2d == NULL)
-	{
-		free_image_contents(input_img);
-		return NULL;
-	}
-
-	vectorize_options options = {
-		input.filename,
-		input.chunk_size,
-		input.threshold,
-		256
-	};
-	gui_images* gui_output = NULL; // eventually set it to target_algorithm(input_img, options); when the algorithms can output gui_images linked lists
-
-	if (isBadError() || gui_output == NULL)
-	{
-		free_gui_images(gui_output);
-		free_image_contents(input_img);
-		return NULL;
-	}
-
-	if (isBadError())
-	{
-		free_gui_images(gui_output);
-		free_image_contents(input_img);
-		return NULL;
-	}
-
-	return gui_output;
-}
-
-void free_gui_images(gui_images* input) {
-    if(!input) {
-        LOG_INFO("input is null");
-        return;
-    }
-
-    while(input->next != NULL) {
-		gui_images* next_image = input->next;
-		free_nsvg(input->current);
-		free(input);
-		input = next_image;
-    }
-    free(input);
-}
-
-int do_vectorize(const char* input_file_path, const char* output_svg, int chunksize, float shape_colour_threshold, int num_colours)
-{
-	image img = convert_file_to_image(input_file_path);
-
-	if (isBadError())
-	{
-		LOG_ERR("convert_file_to_image failed with: %d", getLastError());
-		return getAndResetErrorCode();
-	}
-
-	vectorize_options opts = {
-		input_file_path,
-		chunksize,
-		shape_colour_threshold,
-		num_colours
-	};
-
-	NSVGimage* nsvg = vectorize(img, opts);
-
-	if(isBadError() || nsvg == NULL) {
-		free_image_contents(img);
-		free_nsvg(nsvg);
-		LOG_ERR("vectorize_image failed with code: %d", getLastError());
-		return getAndResetErrorCode();
-	}
-
-	bool result = write_svg_file(nsvg, output_svg);
-
-	if(result == false || isBadError()) {
-		free_image_contents(img);
-		free_nsvg(nsvg);
-		LOG_ERR("write_svg_file failed with code: %d", getLastError());
-		return getAndResetErrorCode();
-	}
-
 	return 0;
 }
