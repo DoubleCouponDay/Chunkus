@@ -9,28 +9,64 @@
 
 #include <lunasvg.h>
 
-class gui_image_data
+#include "render.h"
+#include "3d.h"
+#include "c_wrappers.h"
+
+enum class ActiveTexture
 {
-	gui_imagesp _imagesStart;
+	INPUT = 0,
+	INTERMEDIATE,
+	VECTORIZED,
+};
 
-	gui_imagesp _current;
+struct GUIData
+{
+	Vector2i windowSize = { 800, 600 };
+	Vector3i lowLeft = { 0, 0, 0 }, lowRight = { 0, 0, 0, }, upRight = { 0, 0, 0 }, upLeft = { 0, 0, 0 };
+	WomboTexture inputTexture;
+	WomboTexture intermediateTexture;
+	WomboTexture vectorizedTexture;
+	Box textureArea;
+	Color32 texColor = Colors::White32;
 
-	int _currentIndex = 0;
+	Button quitButton;
+	Button leftButton;
+	Button rightButton;
+	Button switchInputButton;
+	Button switchInterButton;
+	Button switchVectorButton;
+	Button writeToBmpButton;
 
-	std::filesystem::path _fileDirectory;
-	std::unordered_map<NSVGimage*, std::string> _svgFiles;
+	algorithm_data algorithmData;
+	visual_algorithm_data visuals;
+	int selectedGroup = -1;
+	int scrollage = 0;
+	ActiveTexture activeTexture = ActiveTexture::INPUT;
+	std::string statusString = "";
 
-	std::string pathForStep(int stepNo);
+	std::vector<Button*> buttons;
+	Sidebar sidebar;
 
-public:
-	gui_image_data(gui_imagesp images);
-	~gui_image_data();
+	inline WomboTexture& getActiveTexture()
+	{
+		switch (activeTexture)
+		{
+		default:
+		case ActiveTexture::INPUT: return inputTexture;
+		case ActiveTexture::INTERMEDIATE: return intermediateTexture;
+		case ActiveTexture::VECTORIZED: return vectorizedTexture;
+		}
+	}
 
-	std::unique_ptr<lunasvg::Document> getCurrent();
-
-	void prev();
-	void next();
-
-	bool isPrev();
-	bool isNext();
+	inline const char* getCurrentText() const
+	{
+		switch (activeTexture)
+		{
+		default:
+		case ActiveTexture::INPUT: return "Input Image";
+		case ActiveTexture::INTERMEDIATE: return "Intermediate";
+		case ActiveTexture::VECTORIZED: return "Vectorized Output";
+		}
+	}
 };

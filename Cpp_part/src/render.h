@@ -64,20 +64,20 @@ public:
 
 	int getButtonClicked(Vector2i pos) const;
 
-	void render() const;
+	void render(Vector2i windowSize) const;
 	void updateFromVisuals(const visual_algorithm_data& data);
 };
 
 void renderString(int x, int y, void* font, std::string str, Color32 color);
 void renderString(Box box, void* font, std::string str, Color32 color);
 
-void renderButton(const Button& button);
+void renderButton(const Button& button, Vector2i windowSize);
 
 void renderArea(Box box, Color32 color);
 
-void renderAlgorithm(const visual_algorithm_data& data, float scale, Box box, int selectedGroup);
+void renderAlgorithm(const visual_algorithm_data& data, float scale, Box box, int selectedGroup, Vector2i windowSize);
 
-Vector2i windowToGL(Vector2i windowCoords);
+Vector2i windowToGL(Vector2i windowCoords, Vector2i windowSize);
 
-void drawVecTextureArea(const GLTexture& tex, int texWidth, int texHeight, Vector3i translate, float scale, Box box);
+void drawVecTextureArea(const GLTexture& tex, int texWidth, int texHeight, Vector3i translate, float scale, Box box, Vector2i windowSize);
 

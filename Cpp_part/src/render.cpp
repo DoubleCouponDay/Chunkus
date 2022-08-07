@@ -2,7 +2,7 @@
 
 #include "gl.h"
 
-#include "global.h"
+#include "gui_data.h"
 #include "c_wrappers.h"
 
 void renderString(int x, int y, void* font, std::string str, Color32 color)
@@ -27,7 +27,7 @@ void renderString(Box box, void* font, std::string str, Color32 color)
 	renderString(box.lower.x + xMargin / 2, box.lower.y + yMargin / 2, font, str, color);
 }
 
-void renderButton(const Button& button)
+void renderButton(const Button& button, Vector2i windowSize)
 {
 	checkForGlError("Before button rendering");
 	glScissor(button.position.x, button.position.y, button.dimensions.x, button.dimensions.y); // Scissor Rect
@@ -56,7 +56,7 @@ void renderButton(const Button& button)
 	renderString(button.position.x + xMargin, button.position.y + yMargin, GLUT_BITMAP_HELVETICA_18, button.text, Colors::White32);
 	checkForGlError("After button string");
 
-	glScissor(0, 0, myData.windowSize.x, myData.windowSize.y);
+	glScissor(0, 0, windowSize.x, windowSize.y);
 }
 
 int Sidebar::getButtonClicked(Vector2i pos) const
@@ -82,7 +82,7 @@ int Sidebar::getButtonClicked(Vector2i pos) const
 constexpr int BORDER_OFFSET = 4;
 constexpr int COLOR_THING_SIZE = 32;
 
-void Sidebar::render() const
+void Sidebar::render(Vector2i windowSize) const
 {
 	checkForGlError("Before sidebar rendering");
 	glScissor(Bounds.lower.x, Bounds.lower.y, Bounds.width(), Bounds.height()); // Clip stuff drawn outside bounds
@@ -94,7 +94,7 @@ void Sidebar::render() const
 
 	for (auto& button : Buttons)
 	{
-		renderButton(button.asButton(pos - Vector2u{ 0, button.dimensions.y }));
+		renderButton(button.asButton(pos - Vector2u{ 0, button.dimensions.y }), windowSize);
 		checkForGlError("Render sidebar button");
 		int rightEdge = pos.x + button.dimensions.x - BORDER_OFFSET;
 		int topEdge = pos.y - BORDER_OFFSET;
@@ -131,16 +131,16 @@ void renderArea(Box box, Color32 color)
 	glEnd();
 }
 
-Vector2i windowToGL(Vector2i windowCoords)
+Vector2i windowToGL(Vector2i windowCoords, Vector2i windowSize)
 {
-	return Vector2i{ windowCoords.x, myData.windowSize.y - windowCoords.y };
+	return Vector2i{ windowCoords.x, windowSize.y - windowCoords.y };
 }
 
-void drawVecTextureArea(const GLTexture& tex, int texWidth, int texHeight, Vector3i translate, float scale, Box box)
+void drawVecTextureArea(const GLTexture& tex, int texWidth, int texHeight, Vector3i translate, float scale, Box box, Vector2i windowSize)
 {
 	glScissor(box.lower.x, box.lower.y, box.width(), box.height());
 	auto mat = GLMatrix(GL_MODELVIEW);
-	glTranslatef((float)myData.windowSize.x * 0.5f, myData.windowSize.y, 0.f);
+	glTranslatef((float)windowSize.x * 0.5f, windowSize.y, 0.f);
 	glScalef(scale, scale, scale);
 	glTranslatef(0.f, -((float)texHeight) * 0.5f, 0.f);
 
@@ -150,22 +150,22 @@ void drawVecTextureArea(const GLTexture& tex, int texWidth, int texHeight, Vecto
 	tex.bindTo(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 
-	myData.lowLeft = { -halfWidth, -halfHeight, 0 };  // Bottom Left Of The Texture and Quad
-	myData.lowRight = { +halfWidth, -halfHeight, 0 };  // Bottom Right Of The Texture and Quad
-	myData.upRight = { +halfWidth, +halfHeight, 0 };  // Top Right Of The Texture and Quad
-	myData.upLeft = { -halfWidth, +halfHeight, 0 };  // Top Left Of The Texture and Quad
+	Vector3i lowLeft = { -halfWidth, -halfHeight, 0 };
+	Vector3i lowRight = { halfWidth, -halfHeight, 0 };
+	Vector3i upRight = { halfWidth, halfHeight, 0 };
+	Vector3i upLeft = { -halfWidth, halfHeight, 0 };
 
 	auto xScale = tex.getXScale();
 	auto yScale = tex.getYScale();
 
-	glTexCoord2f(0.0f * xScale, 0.0f * yScale); glVertex3i(myData.lowLeft.x, myData.lowLeft.y, myData.lowLeft.z);  // Bottom Left
-	glTexCoord2f(1.0f * xScale, 0.0f * yScale); glVertex3i(myData.lowRight.x, myData.lowRight.y, myData.lowRight.z);  // Bottom Right
-	glTexCoord2f(1.0f * xScale, 1.0f * yScale); glVertex3i(myData.upRight.x, myData.upRight.y, myData.upRight.z);  // Top Right
-	glTexCoord2f(0.0f * xScale, 1.0f * yScale); glVertex3i(myData.upLeft.x, myData.upLeft.y, myData.upLeft.z);  // Top Left
+	glTexCoord2f(0.0f * xScale, 0.0f * yScale); glVertex3i(lowLeft.x, lowLeft.y, lowLeft.z);  // Bottom Left
+	glTexCoord2f(1.0f * xScale, 0.0f * yScale); glVertex3i(lowRight.x, lowRight.y, lowRight.z);  // Bottom Right
+	glTexCoord2f(1.0f * xScale, 1.0f * yScale); glVertex3i(upRight.x, upRight.y, upRight.z);  // Top Right
+	glTexCoord2f(0.0f * xScale, 1.0f * yScale); glVertex3i(upLeft.x, upLeft.y, upLeft.z);  // Top Left
 
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glScissor(0, 0, myData.windowSize.x, myData.windowSize.y);
+	glScissor(0, 0, windowSize.x, windowSize.y);
 }
 
 Sidebar::Sidebar(std::vector<SidebarButton> buttons)
@@ -187,7 +187,7 @@ void Sidebar::addButton(SidebarButton button)
 	Buttons.push_back(button);
 }
 
-void renderAlgorithm(const visual_algorithm_data& data, float scale, Box box, int selectedGroup)
+void renderAlgorithm(const visual_algorithm_data& data, float scale, Box box, int selectedGroup, Vector2i windowSize)
 {
 	checkForGlError("Before rendering algorithm");
 
@@ -196,7 +196,7 @@ void renderAlgorithm(const visual_algorithm_data& data, float scale, Box box, in
 	glScissor(box.lower.x, box.lower.y, box.width(), box.height());
 	{
 		auto mat = GLMatrix(GL_MODELVIEW);
-		glTranslatef((float)myData.windowSize.x * 0.5f, myData.windowSize.y, 0.f);
+		glTranslatef((float)windowSize.x * 0.5f, (float)windowSize.y, 0.f);
 		glScalef(scale, scale, scale);
 		glTranslatef(0.f, -((float)texHeight) * 0.5f, 0.f);
 
@@ -206,10 +206,10 @@ void renderAlgorithm(const visual_algorithm_data& data, float scale, Box box, in
 		data.complete_texture.bindTo(GL_TEXTURE_2D);
 		glBegin(GL_QUADS);
 
-		myData.lowLeft = { -halfWidth, -halfHeight, 0 };  // Bottom Left Of The Texture and Quad
-		myData.lowRight = { +halfWidth, -halfHeight, 0 };  // Bottom Right Of The Texture and Quad
-		myData.upRight = { +halfWidth, +halfHeight, 0 };  // Top Right Of The Texture and Quad
-		myData.upLeft = { -halfWidth, +halfHeight, 0 };  // Top Left Of The Texture and Quad
+		Vector3i lowLeft = { -halfWidth, -halfHeight, 0 };  // Bottom Left Of The Texture and Quad
+		Vector3i lowRight = { +halfWidth, -halfHeight, 0 };  // Bottom Right Of The Texture and Quad
+		Vector3i upRight = { +halfWidth, +halfHeight, 0 };  // Top Right Of The Texture and Quad
+		Vector3i upLeft = { -halfWidth, +halfHeight, 0 };  // Top Left Of The Texture and Quad
 
 		auto xScale = data.complete_texture.getGLTex().getXScale();
 		auto yScale = data.complete_texture.getGLTex().getYScale();
@@ -217,10 +217,10 @@ void renderAlgorithm(const visual_algorithm_data& data, float scale, Box box, in
 		if (selectedGroup > -1)
 			glColor3f(0.2f, 0.2f, 0.2f); // Reduce the color of the main texture if we have a selected group
 
-		glTexCoord2f(0.0f * xScale, 0.0f * yScale); glVertex3i(myData.lowLeft.x, myData.lowLeft.y, myData.lowLeft.z);  // Bottom Left
-		glTexCoord2f(1.0f * xScale, 0.0f * yScale); glVertex3i(myData.lowRight.x, myData.lowRight.y, myData.lowRight.z);  // Bottom Right
-		glTexCoord2f(1.0f * xScale, 1.0f * yScale); glVertex3i(myData.upRight.x, myData.upRight.y, myData.upRight.z);  // Top Right
-		glTexCoord2f(0.0f * xScale, 1.0f * yScale); glVertex3i(myData.upLeft.x, myData.upLeft.y, myData.upLeft.z);  // Top Left
+		glTexCoord2f(0.0f * xScale, 0.0f * yScale); glVertex3i(lowLeft.x, lowLeft.y, lowLeft.z);  // Bottom Left
+		glTexCoord2f(1.0f * xScale, 0.0f * yScale); glVertex3i(lowRight.x, lowRight.y, lowRight.z);  // Bottom Right
+		glTexCoord2f(1.0f * xScale, 1.0f * yScale); glVertex3i(upRight.x, upRight.y, upRight.z);  // Top Right
+		glTexCoord2f(0.0f * xScale, 1.0f * yScale); glVertex3i(upLeft.x, upLeft.y, upLeft.z);  // Top Left
 
 
 		glEnd();
@@ -232,7 +232,7 @@ void renderAlgorithm(const visual_algorithm_data& data, float scale, Box box, in
 		auto& cpu = tex.texture.getCpuTex();
 		gl.bindTo(GL_TEXTURE_2D);
 		auto modelMat = GLMatrix(GL_MODELVIEW);
-		glTranslatef((float)myData.windowSize.x * 0.5f, myData.windowSize.y, 0.f);
+		glTranslatef((float)windowSize.x * 0.5f, windowSize.y, 0.f);
 		glScalef(scale, scale, scale);
 
 		auto parentTopMidPoint = Vector2f{ (float)texWidth / 2.f, (float)texHeight };
@@ -262,5 +262,5 @@ void renderAlgorithm(const visual_algorithm_data& data, float scale, Box box, in
 		glEnd();
 	}
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glScissor(0, 0, myData.windowSize.x, myData.windowSize.y);
+	glScissor(0, 0, windowSize.x, windowSize.y);
 }
