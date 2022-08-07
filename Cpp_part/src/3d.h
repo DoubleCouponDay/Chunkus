@@ -47,8 +47,8 @@ struct Vector2u
 	unsigned int y;
 };
 
-inline Vector2i Vector2i::operator-(const Vector2u& other) const { return Vector2i{ x - other.x, y - other.y }; }
-inline Vector2i Vector2i::operator+(const Vector2u& other) const { return Vector2i{ x + other.x, y + other.y }; }
+inline Vector2i Vector2i::operator-(const Vector2u& other) const { return Vector2i{ x - (int)other.x, y - (int)other.y }; }
+inline Vector2i Vector2i::operator+(const Vector2u& other) const { return Vector2i{ x + (int)other.x, y + (int)other.y }; }
 
 struct Vector3i
 {
