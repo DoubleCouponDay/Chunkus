@@ -191,11 +191,6 @@ MunitResult can_convert_png_to_svg(const MunitParameter params[], void* userdata
   return MUNIT_OK;
 }
 
-MunitResult just_run(const MunitParameter params[], void* userdata) {
-  entrypoint(0, NULL);
-  return MUNIT_OK;
-}
-
 MunitResult can_convert_jpeg_to_image(const MunitParameter params[], void* userdata) {
   char* inputjpeg = params[5].value;
   image result = convert_file_to_image(inputjpeg);
@@ -230,7 +225,7 @@ MunitResult can_convert_jpeg_to_bmp(const MunitParameter params[], void* userdat
 }
 
 MunitResult can_vectorize_jpeg(const MunitParameter params[], void* userdata) {
-    test8stuff* stuff = userdata;
+  test8stuff* stuff = userdata;
 
   char* inputjpeg = params[5].value;
 
@@ -273,4 +268,26 @@ MunitResult can_vectorize_jpeg(const MunitParameter params[], void* userdata) {
   fclose(fp);
 
   return MUNIT_OK;
+}
+
+MunitResult can_convert_jpeg_to_svg(const MunitParameter params[], void* userdata) {
+  test8stuff* stuff = userdata;
+
+  char* inputjpeg = params[5].value;
+
+  char* chunk_size_str = params[1].value;
+  int chunk_size = atoi(chunk_size_str);
+
+  char* threshold_str = params[2].value;
+  float threshold = atof(threshold_str);
+  
+  char* out_fileaddress = params[3].value;
+  int num_colours = atoi(params[4].value);
+
+  vectorize_options options = {
+    inputjpeg,
+    chunk_size,
+    threshold,
+    num_colours
+  };
 }

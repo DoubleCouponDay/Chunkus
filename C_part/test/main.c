@@ -72,10 +72,11 @@ int main(int argc, char** argv) {
 
   MunitTest jpeg_to_image = { "jpeg_to_image", can_convert_jpeg_to_image, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest jpeg_to_bmp = { "jpeg_to_bmp", can_convert_jpeg_to_bmp, jpeg_to_bmp_setup, jpeg_to_bmp_teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest jpeg_to_nsvg = { "jpeg_to_svg", can_vectorize_jpeg, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest jpeg_to_nsvg = { "jpeg_to_nsvg", can_vectorize_jpeg, test8setup, test8teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest jpeg_to_svg = { "jpeg_to_svg", };
 
   enum { 
-    NUM_TESTS = 10 //UPDATE THIS WHEN YOU ADD NEW TESTS
+    NUM_TESTS = 11 //UPDATE THIS WHEN YOU ADD NEW TESTS
   }; 
 
   namedtest tests[NUM_TESTS] = {
@@ -88,7 +89,8 @@ int main(int argc, char** argv) {
     {png_to_svg.name, png_to_svg},
     {jpeg_to_image.name, jpeg_to_image},
     {jpeg_to_bmp.name, jpeg_to_bmp},
-    {jpeg_to_nsvg.name, jpeg_to_nsvg}
+    {jpeg_to_nsvg.name, jpeg_to_nsvg},
+    {jpeg_to_svg.name, jpeg_to_svg}
   };
   MunitTest* filteredtests = filtertests(tests, NUM_TESTS, testname);
   MunitSuite suite = { "tests.", filteredtests };
