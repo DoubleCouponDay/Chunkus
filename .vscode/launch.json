@@ -61,30 +61,33 @@
             }
         },
         {
-            "name": "(Linux) Launch Vectorizer_GUI",
+            "name": "(Linux) Launch vec_step",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\Cpp_part\\build\\Vectorizer_GUI",
-            "stopAtEntry": false,
+            "program": "${workspaceFolder}\\Cpp_part\\build\\vec_step",
+            "stopAtEntry": true,
             "cwd": "${workspaceFolder}\\Cpp_part\\build",
             "environment": []
         },
         {
-            "name": "(Windows) Launch Vectorizer_GUI",
+            "name": "(Windows) Launch vec_step",
             "type": "cppdbg",
             "request": "launch",
             "args": ["test.png"],
-            "program": "${workspaceFolder}/install/bin/Vectorizer_GUI.exe",
+            "program": "${workspaceFolder}/install/bin/vec_step.exe",
             "cwd": "${workspaceFolder}/install/bin",
             "MIMode": "gdb",
-            "preLaunchTask": "rebuild_keep",
+            "preLaunchTask": "build",
+            "stopAtEntry": true,
             "setupCommands": [
                 {
                     "description": "Enable break on all exceptions",
                     "text": "catch throw",
-                    "ignoreFailures": true
+                    "ignoreFailures": true,
+                    
                 }
-            ]
+            ],
+
         }
     ]
 }
