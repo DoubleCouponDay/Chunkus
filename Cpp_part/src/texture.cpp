@@ -48,7 +48,7 @@ RawPixelData loadPixelsFromC(const std::string& filename)
 	wrapped_c_img c_img(convert_file_to_image(filename.c_str()));
 	if (!c_img)
 	{
-		throw std::runtime_error("Failed to load image" + filename);
+		throw std::runtime_error("Failed to load image. " + filename);
 	}
 
 	data.width = c_img.get().width;
