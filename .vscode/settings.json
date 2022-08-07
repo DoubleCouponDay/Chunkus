@@ -135,7 +135,7 @@
         "-DCMAKE_INSTALL_PREFIX=\"${workspaceFolder}/install\"",
         "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
     ],
-    "cmake.generator": "MinGW Makefiles",
+    "cmake.generator": "Ninja",
     "cmake.configureOnEdit": false,
     "cmake.buildBeforeRun": false,
 }
