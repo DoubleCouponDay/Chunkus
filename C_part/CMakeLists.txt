@@ -85,6 +85,10 @@ if (NOT WIN32)
     target_link_libraries(vec_tests PUBLIC m)
 endif()
 
+message("linking pthread...")
+    target_link_libraries(vec       PUBLIC  pthread)
+    target_link_libraries(vec_tests PRIVATE pthread)
+
 # Public header v
 
 set_target_properties(vec PROPERTIES PUBLIC_HEADER "./src/entrypoint.h")
