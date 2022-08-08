@@ -7,7 +7,7 @@ extern "C" {
 #include "utility/error.h"
 
 typedef struct {
-    char* file_path;
+    const char* file_path;
     int chunk_size;
     float threshold;
     int num_colours;

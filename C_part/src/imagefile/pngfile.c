@@ -8,7 +8,7 @@
 #include "../utility/error.h"
 #include "../utility/logger.h"
 
-bool file_is_png(char* fileaddress) {
+bool file_is_png(const char* fileaddress) {
     unsigned char header[8];
     FILE* file_p = openfile(fileaddress);
 
@@ -29,7 +29,7 @@ bool file_is_png(char* fileaddress) {
 /// Allocate memory to hold the image contents
 /// Read the image into the memory
 /// Convert the obtained memory into a contiguous format (convert the row pointers from a 2 dimensional array into a single array)
-image convert_png_to_image(char* fileaddress) {
+image convert_png_to_image(const char* fileaddress) {
     LOG_INFO("opening png file...");
 
     FILE* file_p = openfile(fileaddress);
@@ -223,7 +223,7 @@ image convert_png_to_image(char* fileaddress) {
 }
 
 
-void write_image_to_png(image img, char* fileaddress)
+void write_image_to_png(image img, const char* fileaddress)
 {
     if (!img.pixels_array_2d || !fileaddress) {
         LOG_ERR("null arguments given to write_image_to_png");
@@ -310,7 +310,7 @@ void write_image_to_png(image img, char* fileaddress)
     png_destroy_write_struct(&png_ptr, &info_ptr);
 }
 
-void write_bytes_to_png(unsigned char* data, int width, int height, char* fileaddress)
+void write_bytes_to_png(unsigned char* data, int width, int height, const char* fileaddress)
 {
     FILE* fp = fopen(fileaddress, "wb");
 
@@ -413,7 +413,7 @@ void iterate_through_shape(pixelchunk_list* list, png_hashies_iter* udata)
     }    
 }
 
-void write_chunkmap_to_png(chunkmap* map, char* fileaddress) {
+void write_chunkmap_to_png(chunkmap* map, const char* fileaddress) {
     if (map->map_width < 1 || map->map_height < 1)
     {
         LOG_ERR("can not write 0 dimension chunkmap to file");
