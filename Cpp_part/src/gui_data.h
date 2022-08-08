@@ -11,7 +11,6 @@
 
 #include "render.h"
 #include "3d.h"
-#include "c_wrappers.h"
 
 enum class ActiveTexture
 {
@@ -22,11 +21,18 @@ enum class ActiveTexture
 
 struct GUIData
 {
+	// For Vectorizer
+	vectorize_options options;
+
+	// For Rendering
 	Vector2i windowSize = { 800, 600 };
-	Vector3i lowLeft = { 0, 0, 0 }, lowRight = { 0, 0, 0, }, upRight = { 0, 0, 0 }, upLeft = { 0, 0, 0 };
+
+	// 3 Textures, one for ActiveTexture::INPUT, one for ActiveTexture::INTERMEDIATE, one for ActiveTexture::VECTORIZED
 	WomboTexture inputTexture;
 	WomboTexture intermediateTexture;
 	WomboTexture vectorizedTexture;
+	ActiveTexture activeTexture = ActiveTexture::INPUT;
+
 	Box textureArea;
 	Color32 texColor = Colors::White32;
 
@@ -38,9 +44,8 @@ struct GUIData
 	Button switchVectorButton;
 	Button writeToBmpButton;
 
-	int currentStep = 0;
+
 	int scrollage = 0;
-	ActiveTexture activeTexture = ActiveTexture::INPUT;
 	std::string statusString = "";
 
 	std::vector<Button*> buttons;

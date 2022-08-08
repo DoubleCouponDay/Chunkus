@@ -25,6 +25,8 @@ interop platform{};
 
 WomboTexture renderStep(vectorize_options options, int width, int height)
 {
+	// Eventually have this cache the output and avoid rerunning for a cached step
+
 	int code = execute_program(options);
 
 	if (code != 0)
@@ -33,7 +35,7 @@ WomboTexture renderStep(vectorize_options options, int width, int height)
 		return WomboTexture{};
 	}
 	
-	std::string expected_output_path = "REPLACE WITH REAL OUTPUT.svg";
+	std::string expected_output_path = "output.svg"; // TODO: replace with real output path
 
 	auto doc = lunasvg::Document::loadFromFile(expected_output_path);
 
@@ -51,6 +53,7 @@ WomboTexture renderStep(vectorize_options options, int width, int height)
 		return WomboTexture{};
 	}
 
+	std::cout << "Vectorized and rendered step " << options.step_index << std::endl;
 	return WomboTexture(bitmap);
 }
 
@@ -62,6 +65,7 @@ void doVectorize(std::string image_path, GUIData& guiData)
 	options.file_path = (char*)image_path.c_str();
 	options.threshold = 1.f;
 	options.step_index = 0;
+	options.num_colours = 255;
 
 	std::cout << "Vectorizing '" << image_path << "' with chunk size: " << options.chunk_size << ", threshold: " << options.threshold << " and num colors: " << 256 << std::endl;
 
@@ -76,23 +80,23 @@ void doVectorize(std::string image_path, GUIData& guiData)
 	options.step_index = 1;
 	guiData.intermediateTexture = WomboTexture{ renderStep(options, guiData.inputTexture.getWidth(), guiData.inputTexture.getHeight()) };
 	options.step_index = 0;
-	guiData.outputTexture = WomboTexture{ renderStep(options, guiData.inputTexture.getWidth(), guiData.inputTexture.getHeight()) };
+	guiData.vectorizedTexture = WomboTexture{ renderStep(options, guiData.inputTexture.getWidth(), guiData.inputTexture.getHeight()) };
 }
 
 void updateVisuals(GUIData& data)
 {
-	data.intermediateTexture = renderStep(data.currentStep);
+	data.intermediateTexture = renderStep(data.options, data.inputTexture.getWidth(), data.inputTexture.getHeight());
 }
 
 void stepForward(GUIData& data)
 {
-	data.currentStep++;
+	data.options.step_index++;
 	updateVisuals(data);
 }
 
 void stepBackward(GUIData& data)
 {
-	data.currentStep = std::max(0, data.currentStep - 1);
+	data.options.step_index = std::max(0, data.options.step_index - 1);
 	updateVisuals(data);
 }
 
