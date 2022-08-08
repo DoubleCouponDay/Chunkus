@@ -1,13 +1,16 @@
-# Vectorizer
+# Vectorizer #
 converts png and jpeg to svg.
+
+The main algorithm is written in C and is linked to the discord bot in Rust. 
+
+An optional debugger `vec_step` for using an index to step to a specified iteration of the Vectorizer algorithm.
 
 This was a group project by Samuel, Joshua, Matthew.
 
 ## Building Requirements
+---
 
-it has a C component, a CPP component, and a Rust component.
-
-Set the `VECTORIZER`, `TRAMPOLINE` and `CHANNELID` environment variables to the value of your two discord bot's secret tokens.
+Set the `VECTORIZER` environment variable to the value of your two discord bot's secret tokens.
 
 If you are on windows:
 
@@ -29,7 +32,7 @@ if you are on windows:
 	
 	rustup default stable-x86_64-pc-windows-gnu
 
-else
+If you are on linux:
 
     rustup default stable
 	
@@ -41,84 +44,43 @@ install vc++ build tools from a vs installer
 ### Rust installation on linux
 		
     sudo apt install build-essential libssl-dev -y	
-		
-
 
 Install docker and docker compose for testing the production build.
 
+## Building the C Code
 ---
 
-# Building the C Code
+Ensure that git is installed.
 
 On linux install the following:
 
 	sudo apt-get install mesa-common-dev
 
-Clone these repos into folders adjacent to the root folder:
+Use a terminal with Administrator privileges to execute the `build.bat` / `build.sh` depending on your operating system. It must be executed from the root directory.
 
-    https://github.com/madler/zlib
-
-        pinned commit: v1.2.12
-
-        cmake -B build -G "MinGW Makefiles" -D CMAKE_INSTALL_PREFIX="install" 
-        cmake --build build -j4
-        cmake --install build
-
-    https://github.com/glennrp/libpng
-
-        pinned commit: v1.6.35
-
-        # Ensure zlib is built and installed first
-
-    https://github.com/sammycage/lunasvg
-
-        pinned commit: v2.3.1
-
-    https://github.com/FreeGLUTProject/freeglut
-
-        pinned commit: v3.2.2
-
-    https://github.com/memononen/nanosvg
-
-        pinned commit: 3bcdf2f3cdc1bf9197c2dce81368bfc6f99205a7
-
-    https://github.com/winlibs/libjpeg
-        
-        pinned commit: libjpeg-turbo-2.1.0
-
-Also have an placeholder.bmp in the binary folder (wherever you build or install) if you want a placeholder image for non-existant images
-
-The C code builds to `C_part\build`
-
-Continue with cross-platform instructions using a terminal with administrator privileges.
-Execute the .SH or .BAT build script depending on your operating system. It must be executed from the root directory.
-
-linux
+linux:
 
     ./build.sh
 
-windows
+windows:
 
     .\build.bat
 
-  
+The C code builds to `C_part\build`.
+
 ## Building the Rust code 
+---
 
 The rust component links to the C code, which depends on libpng, which depends on zlib.
 
-In the `discord-v` folder, run:
+In the `Rust_part` folder, run:
 
     cargo build
 
-This sets the environment variable for this single terminal instance (the variable is lost with the terminal)
+The rust part builds to `/Rust_part/target/debug/`.
 
-It should succeed
-If it doesn't, you or I have done something wrong
-
-
-The rust part builds to `/discord-v/target/debug/`.
-
-## Running
+## Running Vectorizer
+---
 
 `cargo run --bin trampoline`
 
@@ -126,8 +88,9 @@ Cargo must find bot.exe so add to the PATH environment variable with the Rust bu
 
 `(REPO CLONE FOLDER)/Rust_part/target/debug`
 
----
+
 ## Commands 
+---
 ### Vectorize: 
 Goes through all attachments of the command message, executes the algorithm on them and returns the output  
 
@@ -139,6 +102,12 @@ You should receive a message with `output.svg` and a preview png attached
   
 ### Params: 
 Sets the parameters to use with the algorithm
+
+`!vp or !vectorizerparams [chunksize] [threshold]` eg. 
+
+    !params 2 50  
+
+You should receive a confirmation message telling you what you set the parameters to.
 
 ### Chunk Size 
 Chunk size is amount of width and height in the algorithm's smallest image unit. An image is broken up into chunks, where a higher number improves speed while reducing quality (and losing information). 
@@ -152,24 +121,22 @@ Threshold is a float between 0 and 441.67. This is the magnitude of the differen
 - A Threshold of 0 means any color that is not EXACTLY the same will be considered separate  
 - A threshold of 441.67 means the only color values considered different are rgb(0,0,0) and rgb(255,255,255) (white and black)  
 
-`!vp or !vectorizerparams [chunksize] [threshold]` eg. 
-
-    !params 2 50  
-You should receive a confirmation message telling you what you set the parameters to.
 
 ## C Tests
+---
 
-The C code contains a test suite (based on MUnit). `vec_tests.exe` can run all C tests or just one, when given a test name. The test names can be found in `C_part/tests/main.c`.
+The C code contains a test suite `vec_tests.exe` which can run all C tests or just one, when given a test name. The test names can be found in `C_part/tests/main.c`.
 
 Requirements: 
 
 + administrative shell
 
-+ current work directory set to `.\install\bin`
++ current work directory (CWD) set to `.\install\bin`
 
 You can easily debug the tests with VSCode if it was opened with Administrive privileges. in the `Run and Debug` side menu, select the launch task `(Windows) Launch Tests`, or the Linux equivalent if required. It will run the build task automatically before running the tests.
 
 ## Rust Tests
+---
 
 The Rust tests must be run in series.
 
@@ -178,6 +145,7 @@ cargo test -- --test-threads 1
 ```
 
 ## Running and Deployment
+---
 you can run the bot on your computer or inside a docker container.
 
 build C code, then Rust code, then run `sudo docker build` on a Linux machine. once the image is built, deploy it to your docker hub registration.
@@ -189,6 +157,7 @@ Fill in the blanks in the dockercompose.yml file to pass the environment variabl
 `sudo docker-compose up --build --detach`
 
 ## Debugging the C Algorithm
+---
 
 You can use `vec_step` GUI to step through frames on a specified iteration count of the vectorizer algorithm.
 
