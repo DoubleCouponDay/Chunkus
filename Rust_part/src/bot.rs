@@ -8,7 +8,7 @@ use serenity::{async_trait, client::{
         macros::{
             group, command,
         },
-    }}, model::{prelude::{Message, MessageId, MessageUpdateEvent}}, prelude::{
+    }}, model::{channel::{Message, MessageId, MessageUpdateEvent}}, prelude::{
         TypeMapKey, TypeMap, GatewayIntents
     }};
 use tokio::sync::RwLockWriteGuard;
@@ -205,7 +205,7 @@ async fn wait_for_message_update(msg_id: MessageId, ctx: &Context) -> Result<Mes
 }
 
 #[command]
-#[aliases("vp")]
+#[aliases("params")]
 async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 {
     let mut mutable = args;
@@ -241,7 +241,7 @@ async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandRe
 }
 
 #[command]
-#[aliases("v")]
+#[aliases("")]
 async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
 {   
     let mut embed_urls: Vec<String> = vec![];
