@@ -3,14 +3,14 @@ converts png and jpeg to svg.
 
 The main algorithm is written in C and is linked to the discord bot in Rust. 
 
-An optional debugger `vec_step` for using an index to step to a specified iteration of the Vectorizer algorithm.
+An optional debugger `vec_step` is written in C++ and is for using an index to step to a specified iteration of the Vectorizer algorithm.
 
 This was a group project by Samuel, Joshua, Matthew.
 
 ## Building Requirements
 ---
 
-Set the `VECTORIZER` environment variable to the value of your two discord bot's secret tokens.
+Set the `VECTORIZER` environment variable to the value of your discord bot's secret token.
 
 If you are on windows:
 
@@ -94,18 +94,18 @@ Cargo must find bot.exe so add to the PATH environment variable with the Rust bu
 ### Vectorize: 
 Goes through all attachments of the command message, executes the algorithm on them and returns the output  
 
-`!v or !vectorize` with an attachment or url eg.  
+`@[bots name] [attachment or URL]`  
 
-    !v https://cdn.discordapp.com/attachments/787470274261549056/807847299752394773/ginormous.png  
+    @Vectorizer https://cdn.discordapp.com/attachments/787470274261549056/807847299752394773/ginormous.png  
 
 You should receive a message with `output.svg` and a preview png attached
   
 ### Params: 
 Sets the parameters to use with the algorithm
 
-`!vp or !vectorizerparams [chunksize] [threshold]` eg. 
+`@[bots name] !params [chunksize] [threshold]` eg. 
 
-    !params 2 50  
+    @Vectorizer !params 2 50  
 
 You should receive a confirmation message telling you what you set the parameters to.
 
