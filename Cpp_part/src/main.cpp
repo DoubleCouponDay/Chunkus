@@ -220,7 +220,7 @@ void display()
 			renderButton(*button, data.windowSize);
 		checkForGlError("Render buttons");
 
-		data.sidebar.render(data.windowSize);
+		//data.sidebar.render(data.windowSize);
 		checkForGlError("Render sidebar");
 	}
 
