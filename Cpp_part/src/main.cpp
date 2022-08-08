@@ -20,7 +20,6 @@
 #include "gui_data.h"
 #include "interop.h"
 
-GUIData data{};
 interop platform{};
 
 WomboTexture renderStep(vectorize_options options, int width, int height)
@@ -31,17 +30,19 @@ WomboTexture renderStep(vectorize_options options, int width, int height)
 
 	if (code != 0)
 	{
-		std::cout << "Error: " << code << std::endl;
+		std::cout << "Error vectorizing: " << code << std::endl;
 		return WomboTexture{};
 	}
 	
+	std::cout << "Successfully vectorized to step " << options.step_index << std::endl;
+
 	std::string expected_output_path = "output.svg"; // TODO: replace with real output path
 
 	auto doc = lunasvg::Document::loadFromFile(expected_output_path);
 
 	if (!doc)
 	{
-		std::cout << "Error: Failed to load document" << std::endl;
+		std::cout << "Error: Failed to load document, likely caused by invalid svg or non-existent file" << std::endl;
 		return WomboTexture{};
 	}
 
@@ -103,7 +104,7 @@ void stepBackward(GUIData& data)
 constexpr int textureAreaStart = 150;
 constexpr int buttonSize = 40;
 
-void sizeButtons()
+void sizeButtons(GUIData& data)
 {
 	data.quitButton = Button{ Vector2i{ data.windowSize.x - 50, 0 }, Vector2u{ 50, 32 }, "Quit", Colors::Grey32 };
 	data.leftButton = Button{ Vector2i{ data.windowSize.x / 2 - buttonSize, textureAreaStart - buttonSize }, Vector2u{ buttonSize, buttonSize }, "<", Colors::Grey32 };
@@ -127,29 +128,29 @@ void sizeButtons()
 void my_init(GUIData& guiData)
 {
 	checkForGlError("Beginning of my_init");
-	data.windowSize = { glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT) };
-	data.textureArea = Box{ Vector2i{ 50, textureAreaStart }, Vector2i{ data.windowSize.x - 50, data.windowSize.y } };
+	guiData.windowSize = { glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT) };
+	guiData.textureArea = Box{ Vector2i{ 50, textureAreaStart }, Vector2i{ guiData.windowSize.x - 50, guiData.windowSize.y } };
 
-	sizeButtons();
+	sizeButtons(guiData);
 	checkForGlError("Post make buttons");
 
 	auto buttons = {
-		&data.quitButton, 
-		&data.switchInputButton, 
-		&data.switchInterButton, 
-		&data.switchVectorButton, 
-		&data.leftButton, 
-		&data.rightButton, 
-		&data.writeToBmpButton
+		&guiData.quitButton, 
+		&guiData.switchInputButton, 
+		&guiData.switchInterButton, 
+		&guiData.switchVectorButton, 
+		&guiData.leftButton, 
+		&guiData.rightButton, 
+		&guiData.writeToBmpButton
 	};
 
-	data.buttons.insert(data.buttons.begin(), buttons.begin(), buttons.end());
+	guiData.buttons.insert(guiData.buttons.begin(), buttons.begin(), buttons.end());
 
-	data.sidebar = Sidebar{ Box{ windowToGL(Vector2i{ 5, 400 }, guiData.windowSize), windowToGL(Vector2i{ 150, 20 }, guiData.windowSize) }, std::vector<SidebarButton>(), Colors::Grey32 };
-	data.sidebar.addButton(
+	guiData.sidebar = Sidebar{ Box{ (Vector2i)windowToGLClipped(Vector2i{ 5, 400 }, guiData.windowSize), windowToGLClipped(Vector2i{ 150, 20 }, guiData.windowSize) }, std::vector<SidebarButton>(), Colors::Grey32 };
+	guiData.sidebar.addButton(
 		SidebarButton{ Vector2u{ 135, 32 + 10 }, "150", Colors::Orange32, Colors::Pink32 }
 	);
-	data.sidebar.addButton(
+	guiData.sidebar.addButton(
 		SidebarButton{ Vector2u{ 135, 32 + 10 }, "32", Colors::Yellow32, Colors::Green32 }
 	);
 
@@ -164,11 +165,13 @@ void my_init(GUIData& guiData)
 
 void onResize(int w, int h)
 {
-	data.windowSize.x = w;
-	data.windowSize.y = h;
-	data.textureArea = Box{ Vector2i{ 50, textureAreaStart }, Vector2i{ data.windowSize.x - 50, data.windowSize.y } };
+	auto& guiData = *reinterpret_cast<GUIData*>(glutGetWindowData());
 
-	sizeButtons();
+	guiData.windowSize.x = w;
+	guiData.windowSize.y = h;
+	guiData.textureArea = Box{ Vector2i{ 50, textureAreaStart }, Vector2i{ guiData.windowSize.x - 50, guiData.windowSize.y } };
+
+	sizeButtons(guiData);
 
 	glViewport(0, 0, w, h);
 }
@@ -205,9 +208,9 @@ void display()
 		// Draw active texture string
 		int activeTexStrLen = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)data.getCurrentText());
 		int fontHeight = glutBitmapHeight(GLUT_BITMAP_HELVETICA_18);
-		renderString(Box{ Vector2i{ data.windowSize.x / 2 - activeTexStrLen / 2, textureAreaStart - buttonSize * 2 - fontHeight - 3 }, Vector2u{ (unsigned int)activeTexStrLen, (unsigned int)fontHeight + 6 } }, GLUT_BITMAP_HELVETICA_18, data.getCurrentText(), Colors::White32);
+		renderString(Box{ Vector2i{ data.windowSize.x / 2 - activeTexStrLen / 2, 0 }, Vector2u{ (unsigned int)activeTexStrLen, (unsigned int)fontHeight + 6 } }, GLUT_BITMAP_HELVETICA_18, data.getCurrentText(), Colors::White32);
 		checkForGlError("Render active texture string");
-
+	
 		// Draw status string
 		renderString(5, 5, GLUT_BITMAP_HELVETICA_18, data.statusString, Colors::White32);
 		checkForGlError("Render status string");
@@ -272,14 +275,14 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 	auto& guiData = *reinterpret_cast<GUIData*>(glutGetWindowData());
 
 	auto glCoords = windowToGL({ mouseX, mouseY }, guiData.windowSize);
-	bool withinQuit = data.quitButton.isWithin(glCoords);
-	bool withinLeft = data.leftButton.isWithin(glCoords);
-	bool withinRight = data.rightButton.isWithin(glCoords);
-	bool withinInput = data.switchInputButton.isWithin(glCoords);
-	bool withinInter = data.switchInterButton.isWithin(glCoords);
-	bool withinVector = data.switchVectorButton.isWithin(glCoords);
-	bool withinWrite = data.writeToBmpButton.isWithin(glCoords);
-	bool withinSidebar = data.sidebar.isWithin(glCoords);
+	bool withinQuit = guiData.quitButton.isWithin(glCoords);
+	bool withinLeft = guiData.leftButton.isWithin(glCoords);
+	bool withinRight = guiData.rightButton.isWithin(glCoords);
+	bool withinInput = guiData.switchInputButton.isWithin(glCoords);
+	bool withinInter = guiData.switchInterButton.isWithin(glCoords);
+	bool withinVector = guiData.switchVectorButton.isWithin(glCoords);
+	bool withinWrite = guiData.writeToBmpButton.isWithin(glCoords);
+	bool withinSidebar = guiData.sidebar.isWithin(glCoords);
 
 	if (button == GLUT_LEFT_BUTTON)
 	{
@@ -293,25 +296,25 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 			if (withinInput)
 			{
 				std::cout << "Switch to Input Button clicked" << std::endl;
-				data.activeTexture = ActiveTexture::INPUT;
+				guiData.activeTexture = ActiveTexture::INPUT;
 				glutPostRedisplay();
 			}
 			if (withinInter)
 			{
 				std::cout << "Switch to Intermediate Button clicked" << std::endl;
-				data.activeTexture = ActiveTexture::INTERMEDIATE;
+				guiData.activeTexture = ActiveTexture::INTERMEDIATE;
 				glutPostRedisplay();
 			}
 			if (withinVector)
 			{
 				std::cout << "Switch to Vectorized output Button clicked" << std::endl;
-				data.activeTexture = ActiveTexture::VECTORIZED;
+				guiData.activeTexture = ActiveTexture::VECTORIZED;
 				glutPostRedisplay();
 			}
 			if (withinWrite)
 			{
 				std::cout << "Write to BMP was clicked" << std::endl;
-				data.getActiveTexture().getCpuTex().writeToBmp("test.bmp");
+				guiData.getActiveTexture().getCpuTex().writeToBmp("test.bmp");
 			}
 			if (withinLeft)
 			{
@@ -329,7 +332,9 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 
 void onMouseWheel(int button, int dir, int x, int y)
 {
-	data.scrollage += dir;
+	auto& guiData = *reinterpret_cast<GUIData*>(glutGetWindowData());
+
+	guiData.scrollage += dir;
 	glutPostRedisplay();
 }
 

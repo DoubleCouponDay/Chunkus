@@ -78,6 +78,7 @@ void renderArea(Box box, Color32 color);
 void renderAlgorithm(const visual_algorithm_data& data, float scale, Box box, int selectedGroup, Vector2i windowSize);
 
 Vector2i windowToGL(Vector2i windowCoords, Vector2i windowSize);
+Vector2u windowToGLClipped(Vector2i windowCoords, Vector2i windowSize);
 
 void drawVecTextureArea(const GLTexture& tex, int texWidth, int texHeight, Vector3i translate, float scale, Box box, Vector2i windowSize);
 

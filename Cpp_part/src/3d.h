@@ -45,6 +45,8 @@ struct Vector2u
 {
 	unsigned int x;
 	unsigned int y;
+
+	inline explicit operator Vector2i() const { return Vector2i{ (int)x, (int)y }; }
 };
 
 inline Vector2i Vector2i::operator-(const Vector2u& other) const { return Vector2i{ x - (int)other.x, y - (int)other.y }; }

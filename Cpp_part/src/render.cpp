@@ -124,6 +124,12 @@ Vector2i windowToGL(Vector2i windowCoords, Vector2i windowSize)
 	return Vector2i{ windowCoords.x, windowSize.y - windowCoords.y };
 }
 
+Vector2u windowToGLClipped(Vector2i windowCoords, Vector2i windowSize)
+{
+	auto glCoords = windowToGL(windowCoords, windowSize);
+	return Vector2u{ (unsigned int)std::min(std::max(glCoords.x, 0), windowSize.x), (unsigned int)std::min(std::max(glCoords.y, 0), windowSize.y) };
+}
+
 void drawVecTextureArea(const GLTexture& tex, int texWidth, int texHeight, Vector3i translate, float scale, Box box, Vector2i windowSize)
 {
 	glScissor(box.lower.x, box.lower.y, box.width(), box.height());
@@ -158,6 +164,10 @@ void drawVecTextureArea(const GLTexture& tex, int texWidth, int texHeight, Vecto
 
 Sidebar::Sidebar(std::vector<SidebarButton> buttons)
 	: Buttons(buttons)
+	, Bounds(Vector2i{ 0, 0 }, Vector2u{ 1, 1 })
+	, BackgroundColor(Colors::Black32)
+	, spacing(0)
+	, margin(0)
 {
 }
 
