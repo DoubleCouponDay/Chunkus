@@ -33,7 +33,7 @@ find_package(OpenGL REQUIRED)
 find_package(GLUT QUIET)
 
 if (NOT GLUT_FOUND)
-	message("Using freeglut that should be in ../../freeglut")
+	message("linking freeglut opengl...")
 
 	add_subdirectory(../../freeglut ./freeglut)
 	
@@ -50,7 +50,7 @@ target_link_libraries(vec_step PRIVATE ${OPENGL_LIBRARIES})
 find_package(LUNASVG QUIET)
 
 if (NOT LUNASVG_FOUND)
-	message("Using lunasvg that should be in ../../lunasvg")
+	message("linking lunasvg...")
 
 	if (BUILD_SHARED_LIBS)
 		set(BUILD_SHARED_LIBS ON CACHE BOOL "Force Build Shared Libs on" FORCE)
@@ -60,7 +60,7 @@ if (NOT LUNASVG_FOUND)
 	target_include_directories(vec_step PRIVATE $<TARGET_PROPERTY:lunasvg,INTERFACE_INCLUDE_DIRECTORIES>)
 	target_link_libraries(vec_step PRIVATE lunasvg)
 else()
-	message("Using installed lunasvg")
+	message("Using installed lunasvg...")
 	target_include_directories(vec_step PRIVATE ${LUNASVG_INCLUDE_DIRS})
 	target_link_libraries(vec_step PRIVATE ${LUNASVG_LIBRARIES})
 endif()
