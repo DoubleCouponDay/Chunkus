@@ -51,7 +51,7 @@ target_include_directories(vec       PUBLIC "${TURBOJPEG_PATH}/include")
 target_include_directories(vec_tests PUBLIC "${TURBOJPEG_PATH}/include")
 
 # Libraries v
-# Most dependant first (most dependancies)
+# Most dependent first (most dependencies)
 
 message("linking libpng...")
     find_library(LIBPNG_LIB NAMES libpng16.a png16.a libpng.a png.a PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
