@@ -1,16 +1,32 @@
-use std::{collections::{HashSet, HashMap}, fs::File, io::Write, ops::Add, path::Path, time::{Duration, Instant}};
-use serenity::{async_trait, client::{
+use std::{
+    collections::{HashSet, HashMap}, 
+    fs::File, 
+    io::Write, 
+    ops::Add, 
+    path::Path, 
+    time::{Duration, Instant}};
+
+use serenity::{
+    async_trait, 
+    client::{
         Client, ClientBuilder, Context, EventHandler
-    }, framework::{standard::{
+    }, 
+    framework::{standard::{
         CommandResult,
         Args,
         StandardFramework,
         macros::{
             group, command,
         },
-    }}, model::{channel::{Message, MessageId, MessageUpdateEvent}}, prelude::{
-        TypeMapKey, TypeMap, GatewayIntents
-    }};
+    }},
+    model::{
+        channel::{
+            Message,
+        }, 
+        prelude::{MessageId, MessageUpdateEvent}
+    }, 
+    prelude::{TypeMapKey, TypeMap, GatewayIntents}};
+
 use tokio::sync::RwLockWriteGuard;
 use crate::core::{
     do_vectorize, crashing_this_plane
@@ -208,6 +224,12 @@ async fn wait_for_message_update(msg_id: MessageId, ctx: &Context) -> Result<Mes
 #[aliases("params")]
 async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 {
+    let mentions_me = msg.mentions_me(&ctx).await;
+
+    if mentions_me.unwrap_or_default() == false {
+        println!("message did not mention me.");
+        return Ok(());
+    }
     let mut mutable = args;
     let possiblechunksize = mutable.single::<u32>();
     let possiblethreshold = mutable.single::<u32>();
@@ -244,12 +266,19 @@ async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandRe
 #[aliases("")]
 async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
 {   
+    let mentions_me = msg.mentions_me(&ctx).await;
+
+    if mentions_me.unwrap_or_default() == false {
+        println!("message did not mention me.");
+        return Ok(());
+    }
     let mut embed_urls: Vec<String> = vec![];
     if msg.embeds.len() < 1 && msg.attachments.len() < 1 // No embed, lets wait for an on_update
     {   
         println!("No embeds; waiting for message update");
+        let update: Result<MessageUpdateEvent, String> = wait_for_message_update(msg.id, &ctx).await;
         
-        match wait_for_message_update(msg.id, &ctx).await
+        match update
         {
             Ok(update_data) =>
                 {
