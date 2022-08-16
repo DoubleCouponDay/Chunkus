@@ -61,9 +61,10 @@ WomboTexture renderStep(vectorize_options options, int width, int height)
 void doVectorize(std::string image_path, GUIData& guiData)
 {
 	std::cout << "About to vectorize: " << image_path << std::endl;
-	vectorize_options options;
+	guiData.file_path = image_path;
+	vectorize_options& options = guiData.options;
 	options.chunk_size = 1;
-	options.file_path = (char*)image_path.c_str();
+	options.file_path = guiData.file_path.c_str();
 	options.threshold = 1.f;
 	options.step_index = 0;
 	options.num_colours = 255;
@@ -82,11 +83,13 @@ void doVectorize(std::string image_path, GUIData& guiData)
 	guiData.intermediateTexture = WomboTexture{ renderStep(options, guiData.inputTexture.getWidth(), guiData.inputTexture.getHeight()) };
 	options.step_index = 0;
 	guiData.vectorizedTexture = WomboTexture{ renderStep(options, guiData.inputTexture.getWidth(), guiData.inputTexture.getHeight()) };
+	options.step_index = 1;
 }
 
 void updateVisuals(GUIData& data)
 {
 	data.intermediateTexture = renderStep(data.options, data.inputTexture.getWidth(), data.inputTexture.getHeight());
+	glutPostRedisplay();
 }
 
 void stepForward(GUIData& data)

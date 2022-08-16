@@ -23,6 +23,7 @@ struct GUIData
 {
 	// For Vectorizer
 	vectorize_options options;
+	std::string file_path; // Store a string so that the const char* pointer in options is valid.
 
 	// For Rendering
 	Vector2i windowSize = { 800, 600 };
