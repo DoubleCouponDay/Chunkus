@@ -79,6 +79,7 @@ class TextField
 	Color32 _cursorColor;
 	int _cursorPosition;
 public:
+	TextField() = default;
 	TextField(Vector2i position, Vector2u dimensions, std::string initialText, Color32 color, Color32 textColor, Color32 cursorColor, bool numberOnly = false);
 
 	void render(Vector2i windowSize, bool selected) const;
@@ -86,8 +87,14 @@ public:
 	void update(Vector2i windowSize, Vector2i mousePos, int mouseButton, int mouseState);
 	
 	void insert(unsigned char key);
-	void remove();
 
+	bool isWithin(Vector2i pos) const;
+
+	inline const std::string& getText() const
+	{
+		return _text;
+	}
+	void setText(std::string text);
 };
 
 void renderString(int x, int y, void* font, std::string str, Color32 color);

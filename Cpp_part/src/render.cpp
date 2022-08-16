@@ -200,7 +200,8 @@ void TextField::render(Vector2i windowSize, bool selected) const
 {
 	auto box = Box(_position, _dimensions);
 	renderArea(box, _color);
-	renderString(box, GLUT_BITMAP_HELVETICA_18, _text, _textColor);
+	int height = glutBitmapHeight(GLUT_BITMAP_HELVETICA_18);
+	renderString(_position.x, _position.y + (_dimensions.y - height) / 2, GLUT_BITMAP_HELVETICA_18, _text, _textColor);
 	if (selected)
 	{
 		auto cursorBox = Box(_position, Vector2u{ 2, _dimensions.y });
@@ -210,7 +211,7 @@ void TextField::render(Vector2i windowSize, bool selected) const
 			cursorBox.lower.x += width;
 			cursorBox.upper.x += width;
 		}
-		renderArea(cursorBox, _color);
+		renderArea(cursorBox, _cursorColor);
 	}
 }
 
@@ -237,4 +238,40 @@ void TextField::update(Vector2i windowSize, Vector2i mousePos, int mouseButton, 
 	_cursorPosition = _text.size();
 }
 
+void TextField::insert(unsigned char key)
+{
+	if (key == 8) // 8 is the ASCII 'backspace' control key code
+	{
+		if (_text.size() && _cursorPosition != 0)
+		{
+			_text.erase(_text.begin() + (_cursorPosition < _text.size() ? _cursorPosition : _text.size() - 1));
+			_cursorPosition = std::min(_cursorPosition - 1, (int)_text.size());
+		}
+	}
+	else if (key == 127) // 127 is the ASCII 'Delete' control key code
+	{
+		if (_text.size() && _cursorPosition < (_text.size() + 1))
+		{
+			_text.erase(_text.begin() + _cursorPosition);
+		}
+	}
+	else if (key >= 32 && key <= 126) // 32 is the lowest ASCII character code, and 126 is the highest. everything in between is a printable character.
+	{
+		if (!_numberOnly || (key >= 48 && key <= 57)) // 48 is the lowest ASCII number code, and 57 is the highest. everything in between is a number.
+		{
+			_text.insert(_text.begin() + _cursorPosition, key);
+			_cursorPosition++;
+		}
+	}
+}
+
+bool TextField::isWithin(Vector2i position) const
+{
+	return position.x >= _position.x && position.x <= _position.x + _dimensions.x && position.y >= _position.y && position.y <= _position.y + _dimensions.y;
+}
+
+void TextField::setText(std::string text)
+{
+	_text = text;
+}
 

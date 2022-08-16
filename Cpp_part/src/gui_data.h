@@ -45,6 +45,9 @@ struct GUIData
 	Button switchVectorButton;
 	Button writeToBmpButton;
 
+	TextField inputField;
+	bool inputFieldSelected;
+
 
 	int scrollage = 0;
 	std::string statusString = "";

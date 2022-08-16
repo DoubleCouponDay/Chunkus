@@ -92,6 +92,13 @@ void updateVisuals(GUIData& data)
 	glutPostRedisplay();
 }
 
+void doStep(GUIData& data)
+{
+	data.inputField.setText(std::to_string(data.options.step_index));
+	data.inputFieldSelected = false;
+	updateVisuals(data);
+}
+
 void stepForward(GUIData& data)
 {
 	data.options.step_index++;
@@ -156,6 +163,9 @@ void my_init(GUIData& guiData)
 	guiData.sidebar.addButton(
 		SidebarButton{ Vector2u{ 135, 32 + 10 }, "32", Colors::Yellow32, Colors::Green32 }
 	);
+
+	guiData.inputField = TextField(Vector2i{ 50, 0 }, Vector2u{ 150, 32 }, "0", Colors::Grey32, Colors::White32, Colors::White32, true);
+	checkForGlError("Create TextField");
 
 	checkForGlError("Post Init");
 	glDisable(GL_LIGHTING);
@@ -223,6 +233,10 @@ void display()
 			renderButton(*button, data.windowSize);
 		checkForGlError("Render buttons");
 
+		// Draw text field
+		renderString(0, 5, GLUT_BITMAP_HELVETICA_18, "Step:", Colors::White32);
+		data.inputField.render(data.windowSize, data.inputFieldSelected);
+
 		//data.sidebar.render(data.windowSize);
 		checkForGlError("Render sidebar");
 	}
@@ -246,6 +260,27 @@ void setTexPixel(int value)
 void onKeyboardButton(unsigned char key, int mouseX, int mouseY)
 {
 	auto& data = *reinterpret_cast<GUIData*>(glutGetWindowData());
+
+	if (data.inputFieldSelected)
+	{
+		if (key == 13) // 13 is the ASCII Carriage Return control code
+		{
+			data.inputFieldSelected = false;
+			data.options.step_index = std::stoi(data.inputField.getText());
+			updateVisuals(data);
+			glutPostRedisplay();
+			return;
+		}
+		if (key == 27) // 27 is the ASCII control code for Escape
+		{
+			data.inputFieldSelected = false;
+			return;
+		}
+		data.inputField.insert(key);
+		glutPostRedisplay();
+		return;
+	}
+
 	if (key == 'r')
 	{
 		std::cout << "uwu r key pressed" << std::endl;
@@ -278,6 +313,7 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 	auto& guiData = *reinterpret_cast<GUIData*>(glutGetWindowData());
 
 	auto glCoords = windowToGL({ mouseX, mouseY }, guiData.windowSize);
+	bool withinTextField = guiData.inputField.isWithin(glCoords);
 	bool withinQuit = guiData.quitButton.isWithin(glCoords);
 	bool withinLeft = guiData.leftButton.isWithin(glCoords);
 	bool withinRight = guiData.rightButton.isWithin(glCoords);
@@ -295,6 +331,16 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 			{
 				std::cout << "Quit Button clicked" << std::endl;
 				glutExit();
+			}
+			if (withinTextField)
+			{
+				std::cout << "Text Field clicked" << std::endl;
+				guiData.inputFieldSelected = true;
+				guiData.inputField.update(guiData.windowSize, glCoords, button, state);
+			}
+			else
+			{
+				guiData.inputFieldSelected = false;
 			}
 			if (withinInput)
 			{
