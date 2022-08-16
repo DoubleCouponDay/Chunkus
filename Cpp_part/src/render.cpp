@@ -184,3 +184,57 @@ void Sidebar::addButton(SidebarButton button)
 {
 	Buttons.push_back(button);
 }
+
+TextField::TextField(Vector2i position, Vector2u dimensions, std::string initialText, Color32 color, Color32 textColor, Color32 cursorColor, bool numberOnly)
+	: _position(position)
+	, _dimensions(dimensions)
+	, _text(initialText)
+	, _color(color)
+	, _textColor(textColor)
+	, _numberOnly(numberOnly)
+{
+
+}
+
+void TextField::render(Vector2i windowSize, bool selected) const
+{
+	auto box = Box(_position, _dimensions);
+	renderArea(box, _color);
+	renderString(box, GLUT_BITMAP_HELVETICA_18, _text, _textColor);
+	if (selected)
+	{
+		auto cursorBox = Box(_position, Vector2u{ 2, _dimensions.y });
+		for (int i = 0; i < _cursorPosition && i < _text.size(); i++)
+		{
+			auto width = glutBitmapWidth(GLUT_BITMAP_HELVETICA_18, _text[i]);
+			cursorBox.lower.x += width;
+			cursorBox.upper.x += width;
+		}
+		renderArea(cursorBox, _color);
+	}
+}
+
+void TextField::update(Vector2i windowSize, Vector2i mousePos, int mouseButton, int mouseState)
+{
+	auto textStart = _position;
+	auto mouseRel = mousePos - textStart;
+
+	if (mouseRel.x < 0 || mouseRel.x > _dimensions.x || mouseRel.y < 0 || mouseRel.y > _dimensions.y)
+		return;
+
+	for (int i = 0; i < _text.size(); i++)
+	{
+		auto width = glutBitmapWidth(GLUT_BITMAP_HELVETICA_18, _text[i]);
+		
+		if (mouseRel.x < textStart.x + width)
+		{
+			_cursorPosition = 0;
+			return;
+		}
+
+		textStart.x += width;
+	}
+	_cursorPosition = _text.size();
+}
+
+

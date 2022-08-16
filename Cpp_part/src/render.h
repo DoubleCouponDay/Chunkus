@@ -68,6 +68,28 @@ public:
 	void updateFromVisuals(const visual_algorithm_data& data);
 };
 
+class TextField
+{
+	bool _numberOnly;
+	std::string _text;
+	Vector2i _position;
+	Vector2u _dimensions;
+	Color32 _color;
+	Color32 _textColor;
+	Color32 _cursorColor;
+	int _cursorPosition;
+public:
+	TextField(Vector2i position, Vector2u dimensions, std::string initialText, Color32 color, Color32 textColor, Color32 cursorColor, bool numberOnly = false);
+
+	void render(Vector2i windowSize, bool selected) const;
+
+	void update(Vector2i windowSize, Vector2i mousePos, int mouseButton, int mouseState);
+	
+	void insert(unsigned char key);
+	void remove();
+
+};
+
 void renderString(int x, int y, void* font, std::string str, Color32 color);
 void renderString(Box box, void* font, std::string str, Color32 color);
 
