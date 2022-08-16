@@ -241,8 +241,8 @@ unsigned int nextPow2(unsigned int v)
 
 GLTexture::GLTexture() 
 	: _texName(0)
-	, _xScale(0)
-	, _yScale(0)
+	, _xScale(1)
+	, _yScale(1)
 	, _alphaTag(false)
 {
 }
