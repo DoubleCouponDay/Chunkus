@@ -391,7 +391,7 @@ void* fill_quadrant(void* arg) {
                 pthread_exit(NULL);
             }
 
-            if(quadrant->options->step_index > 0 && quadrant->options->step_index >= count) {
+            if(quadrant->options->step_index > 0 && count >= quadrant->options->step_index) {
                 LOG_INFO("step_index reached: %d\n", count);
                 pthread_exit(NULL);
             }
