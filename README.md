@@ -148,6 +148,8 @@ cargo test -- --test-threads 1
 ---
 you can run the bot on your computer or inside a docker container.
 
+You will need to provide a docker-compose.yml file that fills the `VECTORIZER` environment variable with your discord bot token.
+
 build C code, then Rust code, then run `sudo docker build` on a Linux machine. once the image is built, deploy it to your docker hub registration.
 
 to use docker-compose on your computer, You will need to install OPENSSL 1.1.1
