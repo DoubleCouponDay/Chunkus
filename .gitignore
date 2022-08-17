@@ -1,3 +1,4 @@
+docker-compose.yml
 Rust_part/template.svg
 **/*.a
 **/*.so
