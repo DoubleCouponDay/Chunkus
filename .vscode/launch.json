@@ -23,7 +23,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/install/bin/vec_tests.exe",
-            "args": ["jpeg_to_image"],
+            "args": ["png_to_svg"],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}/install/bin",
             "externalConsole": false,
