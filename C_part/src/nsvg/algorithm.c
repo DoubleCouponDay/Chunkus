@@ -62,14 +62,11 @@ pixelchunk_list* add_chunk_to_list(chunkshape* shape, pixelchunk* chunk, pixelch
     return new;
 }
 
-chunkshape* add_new_shape(
-    char* name,
-    chunkmap* map, 
-    chunkshape* shape_list) {
+chunkshape* add_new_shape(Quadrant* quadrant) {
     chunkshape* new = calloc(1, sizeof(chunkshape));
 
     if (!new) {
-        LOG_ERR("%s: allocation failed", name);        
+        LOG_ERR("%s: allocation failed", quadrant->name);        
         setError(ASSUMPTION_WRONG);
         return NULL;
     }
@@ -83,23 +80,22 @@ chunkshape* add_new_shape(
     boundaries->chunk_p = NULL;
     boundaries->next = NULL;
 
-    new->previous = shape_list;
+    new->previous = quadrant->map->shape_list;
     new->next = NULL;
     new->chunks = chunks;
     new->boundaries = boundaries;
 
-    shape_list->next = new;
-    ++map->shape_count;
+    quadrant->map->shape_list->next = new;
+    ++quadrant->map->shape_count;
     return new;
 }
 
 chunkshape* merge_shapes(
-    char* name,
-    chunkmap* map,
+    Quadrant* quadrant,
     chunkshape* first, 
     chunkshape* second) {
     // Find smallest shape
-    LOG_INFO("%s: merging shapes", name);
+    LOG_INFO("%s: merging shapes", quadrant->name);
     chunkshape* smaller = (first->chunks_amount < second->chunks_amount ? first : second);
     chunkshape* larger = (smaller == first ? second : first);
 
@@ -161,8 +157,8 @@ chunkshape* merge_shapes(
     // Remove smaller from the chunkshape list
     if (smaller->previous) 
     {
-        if (smaller == map->shape_list)
-            map->shape_list = smaller->previous;
+        if (smaller == quadrant->map->shape_list)
+            quadrant->map->shape_list = smaller->previous;
 
         smaller->previous->next = smaller->next;
 
@@ -171,10 +167,10 @@ chunkshape* merge_shapes(
     }
     else
     { //smaller is firstshape
-        map->shape_list = smaller->next;
-        map->shape_list->previous = NULL;
+        quadrant->map->shape_list = smaller->next;
+        quadrant->map->shape_list->previous = NULL;
     }
-    --map->shape_count;
+    --quadrant->map->shape_count;
     free(smaller);
     return larger;
 }
@@ -205,7 +201,7 @@ void enlarge_border(
     }
 
     else { //current is not in a shape
-        chosenshape = add_new_shape(quadrant->name, quadrant->map, quadrant->map->shape_list);
+        chosenshape = add_new_shape(quadrant);
     }
     
     //add to boundary
@@ -254,7 +250,7 @@ void enlarge_shape(
 
         else {
             LOG_INFO("%s: Creating new shape", quadrant->name);
-            chosenshape = add_new_shape(quadrant->name, quadrant->map, quadrant->map->shape_list);
+            chosenshape = add_new_shape(quadrant);
         }
 
         if (chosenshape->chunks->chunk_p == NULL) // If list hasn't been started, manually set the first one to current
@@ -289,7 +285,7 @@ void enlarge_shape(
     }
 
     else { // Merge the two shapes        
-        chosenshape = merge_shapes(quadrant->name, quadrant->map, currentinshape, adjacentinshape);
+        chosenshape = merge_shapes(quadrant, currentinshape, adjacentinshape);
     }
     chosenshape->colour = current->average_colour;
     chosenshape->filled = true;
