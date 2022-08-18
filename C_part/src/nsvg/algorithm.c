@@ -85,7 +85,8 @@ chunkshape* add_new_shape(Quadrant* quadrant) {
     new->chunks = chunks;
     new->boundaries = boundaries;
 
-    quadrant->map->shape_list->next = new;
+    quadrant->map->shape_list->next = new; //links to the previous last item
+    quadrant->map->shape_list = new; //sets the linked list to last item
     ++quadrant->map->shape_count;
     return new;
 }
