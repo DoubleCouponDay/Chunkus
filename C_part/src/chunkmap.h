@@ -25,7 +25,7 @@ typedef struct
 typedef struct pixelchunk_list
 {    
     pixelchunk* chunk_p;
-    struct pixelchunk_list* firstitem;
+    struct pixelchunk_list* first_chunk;
     struct pixelchunk_list* next;
 } pixelchunk_list;
 
