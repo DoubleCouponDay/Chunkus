@@ -4,6 +4,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 #include "utility/error.h"
 
 typedef struct {
@@ -11,7 +13,7 @@ typedef struct {
     int chunk_size;
     float threshold;
     int num_colours;
-	int step_index; //optional argument
+	int64_t step_index; //optional argument
 } vectorize_options;
 
 int execute_program(vectorize_options options);

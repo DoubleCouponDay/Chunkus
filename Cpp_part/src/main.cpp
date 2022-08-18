@@ -6,6 +6,7 @@
 #include <vector>
 #include <cmath>
 #include <array>
+#include <algorithm>
 #include <filesystem>
 
 #include <GL/freeglut.h>
@@ -107,7 +108,7 @@ void stepForward(GUIData& data)
 
 void stepBackward(GUIData& data)
 {
-	data.options.step_index = std::max(0, data.options.step_index - 1);
+	data.options.step_index = std::max((int64_t)0, data.options.step_index - 1);
 	updateVisuals(data);
 }
 
@@ -266,9 +267,14 @@ void onKeyboardButton(unsigned char key, int mouseX, int mouseY)
 		if (key == 13) // 13 is the ASCII Carriage Return control code
 		{
 			data.inputFieldSelected = false;
-			data.options.step_index = std::stoi(data.inputField.getText());
-			updateVisuals(data);
-			glutPostRedisplay();
+			try
+			{
+				data.options.step_index = std::stoll(data.inputField.getText());
+				updateVisuals(data);
+				glutPostRedisplay();
+			}
+			catch (std::exception& e)
+			{}
 			return;
 		}
 		if (key == 27) // 27 is the ASCII control code for Escape
@@ -305,6 +311,25 @@ void onKeyboardButton(unsigned char key, int mouseX, int mouseY)
 
 		data.activeTexture = ActiveTexture::VECTORIZED;
 		glutPostRedisplay();
+	}
+}
+
+void onSpecialKey(int key, int mouseX, int mouseY)
+{
+	auto& data = *reinterpret_cast<GUIData*>(glutGetWindowData());
+
+	if (data.inputFieldSelected)
+	{
+		if (key == GLUT_KEY_LEFT)
+		{
+			data.inputField.moveLeft();
+			glutPostRedisplay();
+		}
+		else if (key == GLUT_KEY_RIGHT)
+		{
+			data.inputField.moveRight();
+			glutPostRedisplay();
+		}
 	}
 }
 
@@ -427,6 +452,7 @@ int main(int argc, char** argv)
 	glutTimerFunc(3000, setTexPixel, 0);
 
 	glutKeyboardFunc(onKeyboardButton);
+	glutSpecialFunc(onSpecialKey);
 	glutMouseFunc(onMouseButton);
 	glutMouseWheelFunc(onMouseWheel);
 	glutReshapeFunc(onResize);

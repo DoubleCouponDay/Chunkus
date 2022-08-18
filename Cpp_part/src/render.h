@@ -87,6 +87,8 @@ public:
 	void update(Vector2i windowSize, Vector2i mousePos, int mouseButton, int mouseState);
 	
 	void insert(unsigned char key);
+	void moveLeft();
+	void moveRight();
 
 	bool isWithin(Vector2i pos) const;
 

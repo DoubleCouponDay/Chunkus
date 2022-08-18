@@ -238,6 +238,22 @@ void TextField::update(Vector2i windowSize, Vector2i mousePos, int mouseButton, 
 	_cursorPosition = _text.size();
 }
 
+void TextField::moveLeft()
+{
+	if (_cursorPosition > 0)
+	{
+		_cursorPosition--;
+	}
+}
+
+void TextField::moveRight()
+{
+	if (_cursorPosition < (_text.size()))
+	{
+		_cursorPosition++;
+	}
+}
+
 void TextField::insert(unsigned char key)
 {
 	if (key == 8) // 8 is the ASCII 'backspace' control key code
