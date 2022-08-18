@@ -129,8 +129,8 @@
     "cmake.buildDirectory": "${workspaceFolder}/build",
     "cmake.installPrefix": "${workspaceFolder}/install",
     "cmake.buildArgs": [
-        "-DCMAKE_CXX_COMPILER=\"C:\\ProgramData\\chocolatey\\bin\\g++.exe\"", 
-        "-DCMAKE_C_COMPILER=\"C:\\ProgramData\\chocolatey\\bin\\gcc.exe\"",
+        "-DCMAKE_CXX_COMPILER=g++", 
+        "-DCMAKE_C_COMPILER=gcc",
         "-DCMAKE_BUILD_TYPE=Debug", 
         "-DCMAKE_INSTALL_PREFIX=\"${workspaceFolder}/install\"",
         "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
