@@ -58,7 +58,7 @@ NSVGimage* vectorize(image input, vectorize_options options) {
     }
 
     LOG_INFO("printing chunkmap");
-    write_chunkmap_to_png(map, "chunkmap.png");
+    write_chunkmap_to_png(map, "output.png");
     
     if(isBadError()) {
         LOG_INFO("write_chunkmap_to_png failed with code: %d", getLastError());
