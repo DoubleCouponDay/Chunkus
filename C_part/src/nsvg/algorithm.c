@@ -439,12 +439,14 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     LOG_INFO("waiting for thread4");
     pthread_join(thread4, NULL);
     
-    LOG_INFO("appending shapes from threads");
+    LOG_INFO("winding back lists");
 
     windback_lists(map->first_shape);
     windback_lists(map2->first_shape);
     windback_lists(map3->first_shape);
     windback_lists(map4->first_shape);
+
+    LOG_INFO("appending shapes from threads");
 
     map3->shape_list->next = map4->first_shape;
     map3->shape_count += map4->shape_count;
