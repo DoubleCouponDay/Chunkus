@@ -36,13 +36,13 @@ void zip_border_seam(pixelchunk* current, pixelchunk* alien) {
     current->border_location.y = current->location.y + get_offset(diff.y);
 }
 
-void windback_lists(chunkshape* firstshape) {
-    chunkshape* current = firstshape;
+void windback_lists(chunkmap* map) {
+    map->shape_list = map->first_shape;
+    chunkshape* current = map->first_shape;
 
     while(current != NULL) {
         current->chunks = current->chunks->first_chunk;
         current->boundaries = current->boundaries->first_chunk;
-
         current = current->next;
     }
 }
@@ -444,10 +444,10 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     
     LOG_INFO("appending shapes from threads");
 
-    windback_lists(map4->first_shape);
-    windback_lists(map3->first_shape);
-    windback_lists(map2->first_shape);
     windback_lists(map->first_shape);
+    windback_lists(map2->first_shape);
+    windback_lists(map3->first_shape);
+    windback_lists(map4->first_shape);
 
     map3->shape_list->next = map4->first_shape;
     map3->shape_count += map4->shape_count;
