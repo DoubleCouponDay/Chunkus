@@ -44,6 +44,7 @@ typedef struct chunkshape {
 typedef struct chunkmap
 {
     pixelchunk** groups_array_2d;
+    chunkshape* first_shape;
     chunkshape* shape_list;
     int shape_count;
     int map_width; 

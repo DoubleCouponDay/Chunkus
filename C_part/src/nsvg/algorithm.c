@@ -93,15 +93,9 @@ chunkshape* add_new_shape(
     return new;
 }
 
-typedef struct list_holder
-{
-    chunkshape* list;
-} list_holder;
-
 chunkshape* merge_shapes(
     char* name,
-    chunkmap* map, 
-    list_holder* holder, 
+    chunkmap* map,
     chunkshape* first, 
     chunkshape* second) {
     // Find smallest shape
@@ -167,8 +161,8 @@ chunkshape* merge_shapes(
     // Remove smaller from the chunkshape list
     if (smaller->previous) 
     {
-        if (smaller == holder->list)
-            holder->list = smaller->previous;
+        if (smaller == map->shape_list)
+            map->shape_list = smaller->previous;
 
         smaller->previous->next = smaller->next;
 
@@ -188,7 +182,6 @@ chunkshape* merge_shapes(
 void enlarge_border(
     Quadrant* quadrant,
     pixelchunk* current, 
-    list_holder* holder, 
     chunkshape* currentinshape, 
     chunkshape* adjacentinshape, 
     pixelchunk* adjacent) {
@@ -212,7 +205,7 @@ void enlarge_border(
     }
 
     else { //current is not in a shape
-        chosenshape = holder->list = add_new_shape(quadrant->name, quadrant->map, holder->list);
+        chosenshape = add_new_shape(quadrant->name, quadrant->map, quadrant->map->shape_list);
     }
     
     //add to boundary
@@ -245,7 +238,6 @@ void enlarge_border(
 void enlarge_shape(
     Quadrant* quadrant,
     pixelchunk* current, 
-    list_holder* holder, 
     chunkshape* currentinshape, 
     chunkshape* adjacentinshape, 
     pixelchunk* adjacent) {
@@ -262,7 +254,7 @@ void enlarge_shape(
 
         else {
             LOG_INFO("%s: Creating new shape", quadrant->name);
-            chosenshape = holder->list = add_new_shape(quadrant->name, quadrant->map, holder->list);
+            chosenshape = add_new_shape(quadrant->name, quadrant->map, quadrant->map->shape_list);
         }
 
         if (chosenshape->chunks->chunk_p == NULL) // If list hasn't been started, manually set the first one to current
@@ -297,7 +289,7 @@ void enlarge_shape(
     }
 
     else { // Merge the two shapes        
-        chosenshape = merge_shapes(quadrant->name, quadrant->map, holder, currentinshape, adjacentinshape);
+        chosenshape = merge_shapes(quadrant->name, quadrant->map, currentinshape, adjacentinshape);
     }
     chosenshape->colour = current->average_colour;
     chosenshape->filled = true;
@@ -305,8 +297,7 @@ void enlarge_shape(
 
 void find_shapes(
     Quadrant* quadrant, 
-    pixelchunk* current, 
-    list_holder* holder, 
+    pixelchunk* current,
     int map_x, int map_y, 
     float threshold) {    
     for (int adjacent_y = -1; adjacent_y < 2; ++adjacent_y)
@@ -334,18 +325,18 @@ void find_shapes(
                 if(map_x == quadrant->bounds.startingX || map_x == (quadrant->bounds.endingX - 1) ||
                     map_y == quadrant->bounds.startingY || map_y == (quadrant->bounds.endingY - 1)) 
                 {
-                    enlarge_border(quadrant, current, holder, currentinshape, adjacentinshape, adjacent);
+                    enlarge_border(quadrant, current, currentinshape, adjacentinshape, adjacent);
 
                     if(isBadError()) {
                         LOG_ERR("%s enlarge_border failed with code: %d", quadrant->name, getLastError());
                         return;
                     }
                 }
-                enlarge_shape(quadrant, current, holder, currentinshape, adjacentinshape, adjacent);
+                enlarge_shape(quadrant, current, currentinshape, adjacentinshape, adjacent);
             }
 
             else {
-                enlarge_border(quadrant, current, holder, currentinshape, adjacentinshape, adjacent);
+                enlarge_border(quadrant, current, currentinshape, adjacentinshape, adjacent);
 
                 if(isBadError()) {
                     LOG_ERR("%s enlarge_border failed with code: %d", quadrant->name, getLastError());
@@ -362,7 +353,6 @@ void* fill_quadrant(void* arg) {
     int count = 0;
     int tenth_count = 0;
     int tenth_of_map = (int)floor(quadrant->map->map_width * quadrant->map->map_height / 10.f);
-    list_holder holder = (list_holder){ quadrant->map->shape_list };
     
     for(int map_y = quadrant->bounds.startingY; map_y < quadrant->bounds.endingY; ++map_y)
     {
@@ -378,8 +368,7 @@ void* fill_quadrant(void* arg) {
             
             find_shapes(
                 quadrant, 
-                currentchunk_p, 
-                &holder, 
+                currentchunk_p,
                 map_x, map_y, 
                 quadrant->options->threshold);            
             
@@ -455,17 +444,17 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     
     LOG_INFO("appending shapes from threads");
 
-    windback_lists(map4->shape_list);
-    map3->shape_list->next = map4->shape_list;
+    windback_lists(map4->first_shape);
+    windback_lists(map3->first_shape);
+    windback_lists(map2->first_shape);
+    windback_lists(map->first_shape);
+
+    map3->shape_list->next = map4->first_shape;
     map3->shape_count += map4->shape_count;
 
-    windback_lists(map3->shape_list);
-    map2->shape_list->next = map3->shape_list;
+    map2->shape_list->next = map3->first_shape;
     map2->shape_count += map3->shape_count;
 
-    windback_lists(map2->shape_list);
-    map->shape_list->next = map2->shape_list;
+    map->shape_list->next = map2->first_shape;
     map->shape_count += map2->shape_count;
-    
-    windback_lists(map->shape_list);
 }
