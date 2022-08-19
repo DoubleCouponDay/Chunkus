@@ -11,7 +11,9 @@ RUN apt-get update && \
     apt-get install cmake -y && \
     apt-get install build-essential && \
     apt-get install mesa-common-dev -y && \
-    rustup target add x86_64-unknown-linux-musl && \
+    apt-get install libxi-dev -y
+
+RUN rustup target add x86_64-unknown-linux-musl && \
     rustup default stable
 
 # initialize build tools
@@ -47,7 +49,6 @@ RUN cmake --install build --prefix install
 RUN echo "Building freeglut..."
 WORKDIR ../freeglut
 RUN git checkout v3.2.2
-RUN apt install libxi-dev -y
 RUN cmake -B build -G "Unix Makefiles"
 RUN cmake --build build -j4
 RUN cmake --install build --prefix install
