@@ -5,13 +5,17 @@ FROM rust:1.63.0
 COPY ./ /Vectorizer/
 
 # set environment variables
-ENV PATH $PATH:/Vectorizer/Rust_part/target/release
+ENV PATH=$PATH:/Vectorizer/Rust_part/target/release
 
-RUN apt-get update && \
-    apt-get install cmake -y && \
-    apt-get install build-essential && \
-    apt-get install mesa-common-dev -y && \
-    apt-get install libxi-dev -y
+RUN apt-get update
+RUN apt-get install cmake -y
+RUN apt-get install build-essential -y
+RUN apt-get install mesa-common-dev -y
+RUN apt-get install libxi-dev -y
+RUN apt-get install libx11-dev -y
+RUN apt-get install libgl1-mesa-dev -y
+    # apt-get install libegl1-mesa-dev -y && \
+    # apt-get install libxkbcommon-dev -y
 
 RUN rustup target add x86_64-unknown-linux-musl && \
     rustup default stable
