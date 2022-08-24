@@ -37,7 +37,6 @@ void zip_border_seam(pixelchunk* current, pixelchunk* alien) {
 }
 
 void windback_lists(chunkmap* map) {
-    map->shape_list = map->first_shape;
     chunkshape* current = map->first_shape;
 
     while(current != NULL) {
@@ -438,22 +437,22 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     pthread_join(thread3, NULL);
     LOG_INFO("waiting for thread4");
     pthread_join(thread4, NULL);
-    
-    LOG_INFO("winding back lists");
-
-    windback_lists(map);
-    windback_lists(map2);
-    windback_lists(map3);
-    windback_lists(map4);
 
     LOG_INFO("appending shapes from threads");
-
+    
     map3->shape_list->next = map4->first_shape;
+    map4->first_shape->previous = map3->shape_list;
     map3->shape_count += map4->shape_count;
 
     map2->shape_list->next = map3->first_shape;
+    map3->first_shape->previous = map2->shape_list;
     map2->shape_count += map3->shape_count;
 
     map->shape_list->next = map2->first_shape;
+    map2->first_shape->previous = map->shape_list;
     map->shape_count += map2->shape_count;
+
+    LOG_INFO("winding back list");
+    map->shape_list = map->first_shape;
+    windback_lists(map);
 }
