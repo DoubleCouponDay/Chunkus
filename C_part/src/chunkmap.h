@@ -30,7 +30,7 @@ typedef struct pixelchunk_list
 } pixelchunk_list;
 
 typedef struct chunkshape {
-    bool filled;
+    bool filled; //whether chunks has at least one item
     int chunks_amount; //chunks_amount also includes boundaries_length
     pixelchunk_list* chunks;
     int boundaries_length;
