@@ -113,8 +113,6 @@ chunkshape* add_new_shape(Quadrant* quadrant) {
     quadrant->map->shape_list->next = new; //links to the previous last item
     quadrant->map->shape_list = new; //sets the linked list to last item
     ++quadrant->map->shape_count;
-
-    zip_quadrant(quadrant, new);
     return new;
 }
 
@@ -210,8 +208,9 @@ void enlarge_border(
     chunkshape* adjacentinshape, 
     pixelchunk* adjacent) {
     chunkshape* chosenshape;
-    zip_border_seam(current, adjacent);
 
+    zip_border_seam(current, adjacent);
+    
     if(isBadError()) {
         LOG_ERR("%s: zip_border failed with code: %d", quadrant->name, getLastError());
         return;
@@ -344,6 +343,13 @@ void find_shapes(
             pixelchunk* adjacent = &(quadrant->map->groups_array_2d[adjacent_index_x][adjacent_index_y]);
             chunkshape* currentinshape = current->shape_chunk_in;
             chunkshape* adjacentinshape = adjacent->shape_chunk_in;
+
+            zip_quadrant(quadrant, current);
+
+            if(isBadError()) {
+                LOG_ERR("%s: zip_quadrant failed with code: %d", quadrant->name, getLastError());
+                return;
+            }
 
             if (colours_are_similar(current->average_colour, adjacent->average_colour, threshold)) {
                 if(map_x == quadrant->bounds.startingX || map_x == (quadrant->bounds.endingX - 1) ||
