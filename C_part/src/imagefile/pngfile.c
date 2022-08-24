@@ -21,7 +21,7 @@ bool file_is_png(const char* fileaddress) {
     return (bool)png_sig_cmp(header, 0, 8) == 0;
 }
 
-/// Takes a filname and creates an image struct full of the png's pixels
+/// Takes a filename and creates an image struct full of the png's pixels
 /// 
 /// Steps involve:
 /// Open the file for reading
@@ -30,7 +30,7 @@ bool file_is_png(const char* fileaddress) {
 /// Read the image into the memory
 /// Convert the obtained memory into a contiguous format (convert the row pointers from a 2 dimensional array into a single array)
 image convert_png_to_image(const char* fileaddress) {
-    LOG_INFO("opening png file...");
+    LOG_INFO("opening png file: ", fileaddress);
 
     FILE* file_p = openfile(fileaddress);
 
