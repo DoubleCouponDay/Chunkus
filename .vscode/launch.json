@@ -24,12 +24,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/install/bin/vec_test.exe",
             "args": ["png_to_svg"],
-            "stopAtEntry": true,
+            "stopAtEntry": false,
             "cwd": "${workspaceFolder}/install/bin",
             "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe",
-            "preLaunchTask": "build"
+            "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe"
+            // ,
+            // "preLaunchTask": "build"
         },
         {
             "name": "(Linux) Launch tests",
