@@ -441,10 +441,10 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     
     LOG_INFO("winding back lists");
 
-    windback_lists(map->first_shape);
-    windback_lists(map2->first_shape);
-    windback_lists(map3->first_shape);
-    windback_lists(map4->first_shape);
+    windback_lists(map);
+    windback_lists(map2);
+    windback_lists(map3);
+    windback_lists(map4);
 
     LOG_INFO("appending shapes from threads");
 
