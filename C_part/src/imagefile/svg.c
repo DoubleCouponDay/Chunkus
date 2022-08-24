@@ -10,8 +10,6 @@
 #include "../chunkmap.h"
 
 const char* OUTPUT_PATH = "output.svg";
-const SHAPE_SIZE = 41;
-const SMALLEST_PATH_SIZE = 4;
 
 #ifdef _WIN32
 const char* NEW_LINE = "\r\n";
