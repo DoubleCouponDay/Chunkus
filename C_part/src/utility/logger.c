@@ -11,7 +11,7 @@
 FILE* logfile = 0;
 const char* LOG_PATH = "log.txt";
 
-void open_log(char* filename)
+void open_log(const char* filename)
 {
     if (logfile)
         fclose(logfile);

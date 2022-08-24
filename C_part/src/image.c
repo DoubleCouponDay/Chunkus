@@ -10,7 +10,7 @@
 #include "utility/logger.h"
 #include "utility/error.h"
 
-FILE* openfile(char* fileaddress) {
+FILE* openfile(const char* fileaddress) {
     FILE* file_p = fopen(fileaddress, "rb");
 
     if (!file_p) {
