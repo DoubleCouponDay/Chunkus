@@ -21,7 +21,7 @@ file(GLOB testglob
     
 set(TEST_SRCS ${testglob} ${sourceglob})
 
-add_executable(vec_tests ${TEST_SRCS})
+add_executable(vec_test ${TEST_SRCS})
 
 if(BUILD_SHARED_LIBS)
     message("Building vec as shared library")
@@ -37,18 +37,18 @@ endif()
 target_include_directories(vec PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 target_include_directories(vec       PUBLIC "../../nanosvg/install/include/nanosvg")
-target_include_directories(vec_tests PUBLIC "../../nanosvg/install/include/nanosvg")
+target_include_directories(vec_test PUBLIC "../../nanosvg/install/include/nanosvg")
 
 target_include_directories(vec       PUBLIC "../../zlib/install/include")
-target_include_directories(vec_tests PUBLIC "../../zlib/install/include")
+target_include_directories(vec_test PUBLIC "../../zlib/install/include")
 
 set(LIBPNG_PATH "../../libpng/png-install")
 target_include_directories(vec       PUBLIC "${LIBPNG_PATH}/include")
-target_include_directories(vec_tests PUBLIC "${LIBPNG_PATH}/include")
+target_include_directories(vec_test PUBLIC "${LIBPNG_PATH}/include")
 
 set(TURBOJPEG_PATH "../../libjpeg/install")
 target_include_directories(vec       PUBLIC "${TURBOJPEG_PATH}/include")
-target_include_directories(vec_tests PUBLIC "${TURBOJPEG_PATH}/include")
+target_include_directories(vec_test PUBLIC "${TURBOJPEG_PATH}/include")
 
 # Libraries v
 # Most dependent first (most dependencies)
@@ -58,7 +58,7 @@ message("linking libpng...")
     find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_PATH}/include" NO_DEFAULT_PATH REQUIRED)
 
     target_link_libraries(vec PUBLIC ${LIBPNG_LIB})
-    target_link_libraries(vec_tests PUBLIC ${LIBPNG_LIB})
+    target_link_libraries(vec_test PUBLIC ${LIBPNG_LIB})
     message("Png at: ${LIBPNG_LIB}")
     message("Png header at: ${LIBPNG_HEADER}")
 
@@ -67,7 +67,7 @@ message("linking turbojpeg...")
     find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${TURBOJPEG_PATH}/include" NO_DEFAULT_PATH REQUIRED)
     
     target_link_libraries(vec       PUBLIC  ${TURBOJPEG_LIB})
-    target_link_libraries(vec_tests PRIVATE ${TURBOJPEG_LIB})
+    target_link_libraries(vec_test PRIVATE ${TURBOJPEG_LIB})
     message("Turbojpeg at: ${TURBOJPEG_LIB}")
     message("turbojpeg header at: ${TURBOJPEG_HEADER}")
 
@@ -75,19 +75,19 @@ message("linking zlib...")
     find_library(ZLIB_LIB NAMES libzlib.a zlib.a libz.a libzlibstatic.a zlibstatic.a PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
     
     target_link_libraries(vec       PUBLIC  ${ZLIB_LIB})
-    target_link_libraries(vec_tests PRIVATE ${ZLIB_LIB})
+    target_link_libraries(vec_test PRIVATE ${ZLIB_LIB})
     message("Zlib at: ${ZLIB_LIB}")
 
 
 if (NOT WIN32)
     message("linking math...")
     target_link_libraries(vec       PUBLIC m)
-    target_link_libraries(vec_tests PUBLIC m)
+    target_link_libraries(vec_test PUBLIC m)
 endif()
 
 message("linking pthread...")
     target_link_libraries(vec       PUBLIC  pthread)
-    target_link_libraries(vec_tests PRIVATE pthread)
+    target_link_libraries(vec_test PRIVATE pthread)
 
 # Public header v
 
@@ -104,7 +104,7 @@ install(
 )
 
 install(
-    TARGETS vec_tests
+    TARGETS vec_test
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION bin
     RUNTIME DESTINATION bin

@@ -75,7 +75,7 @@ colour convert_pixel_to_colour(pixel input);
 colour convert_pixelf_to_colour(pixelF input);
 pixelF convert_colour_to_pixelf(colour input);
 
-FILE* openfile(char* fileaddress); //b mode prevents windows corruption
+FILE* openfile(const char* fileaddress); //b mode prevents windows corruption
 bool pixelf_equal(pixelF a, pixelF b);
 int calculate_int_units(int subject);
 bool colours_are_similar(pixel color_a, pixel color_b, float max_distance);

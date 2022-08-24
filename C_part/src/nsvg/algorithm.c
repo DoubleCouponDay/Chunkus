@@ -36,8 +36,33 @@ void zip_border_seam(pixelchunk* current, pixelchunk* alien) {
     current->border_location.y = current->location.y + get_offset(diff.y);
 }
 
+bool inc_or_dec(int seam, pixelchunk* chunk) {
+    bool output = true;
+
+    switch(seam) {
+        case POSITIVE:
+            chunk->border_location.x = chunk->location.x + ZIP_DISTANCE;
+            break;
+
+        case NEGATIVE:
+            chunk->border_location.x = chunk->location.x - ZIP_DISTANCE;
+            break;
+
+        default:
+            LOG_ERR("inc_or_dec failed: invalid seam: ", seam);
+            output = false;
+            break;
+    }
+    return output;
+}
+
+bool zip_quadrant(Quadrant* quadrant, pixelchunk* chunk) {
+    bool output = inc_or_dec(quadrant->X_seam, chunk);
+    output = output && inc_or_dec(quadrant->Y_seam, chunk);
+    return output;
+}
+
 void windback_lists(chunkmap* map) {
-    map->shape_list = map->first_shape;
     chunkshape* current = map->first_shape;
 
     while(current != NULL) {
@@ -183,8 +208,9 @@ void enlarge_border(
     chunkshape* adjacentinshape, 
     pixelchunk* adjacent) {
     chunkshape* chosenshape;
-    zip_border_seam(current, adjacent);
 
+    zip_border_seam(current, adjacent);
+    
     if(isBadError()) {
         LOG_ERR("%s: zip_border failed with code: %d", quadrant->name, getLastError());
         return;
@@ -318,6 +344,13 @@ void find_shapes(
             chunkshape* currentinshape = current->shape_chunk_in;
             chunkshape* adjacentinshape = adjacent->shape_chunk_in;
 
+            zip_quadrant(quadrant, current);
+
+            if(isBadError()) {
+                LOG_ERR("%s: zip_quadrant failed with code: %d", quadrant->name, getLastError());
+                return;
+            }
+
             if (colours_are_similar(current->average_colour, adjacent->average_colour, threshold)) {
                 if(map_x == quadrant->bounds.startingX || map_x == (quadrant->bounds.endingX - 1) ||
                     map_y == quadrant->bounds.startingY || map_y == (quadrant->bounds.endingY - 1)) 
@@ -394,30 +427,30 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     int middle_height = (int)floor((float)map->map_height / (float)2);
 
     LOG_INFO("creating quadrants");
-    Quadrant quadrant1 = {"bottom-left", map, options};
+    Quadrant quadrant1 = {"bottom-left", map, options, POSITIVE, POSITIVE};
     quadrant1.bounds.startingX = 0;
     quadrant1.bounds.startingY = 0;
     quadrant1.bounds.endingX = middle_width;
     quadrant1.bounds.endingY = middle_height;
 
     chunkmap* map2 = generate_chunkmap(map->input, *options);
-    Quadrant quadrant2 = {"bottom-right", map2, options};
-    quadrant2.bounds.startingX = middle_width + 1;
+    Quadrant quadrant2 = {"bottom-right", map2, options, NEGATIVE, POSITIVE};
+    quadrant2.bounds.startingX = middle_width;
     quadrant2.bounds.startingY = 0;
     quadrant2.bounds.endingX = map->map_width;
     quadrant2.bounds.endingY = middle_height; 
 
     chunkmap* map3 = generate_chunkmap(map->input, *options);
-    Quadrant quadrant3 = {"top-left", map3, options};
+    Quadrant quadrant3 = {"top-left", map3, options, POSITIVE, NEGATIVE};
     quadrant3.bounds.startingX = 0;
-    quadrant3.bounds.startingY = middle_height + 1;
+    quadrant3.bounds.startingY = middle_height;
     quadrant3.bounds.endingX = middle_width;
     quadrant3.bounds.endingY = map->map_height;
 
     chunkmap* map4 = generate_chunkmap(map->input, *options);
-    Quadrant quadrant4 = {"top-right", map4, options};
-    quadrant4.bounds.startingX = middle_width + 1;
-    quadrant4.bounds.startingY = middle_height + 1;
+    Quadrant quadrant4 = {"top-right", map4, options, NEGATIVE, NEGATIVE};
+    quadrant4.bounds.startingX = middle_width;
+    quadrant4.bounds.startingY = middle_height;
     quadrant4.bounds.endingX = map->map_width;
     quadrant4.bounds.endingY = map->map_height;
 
@@ -438,22 +471,22 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     pthread_join(thread3, NULL);
     LOG_INFO("waiting for thread4");
     pthread_join(thread4, NULL);
-    
-    LOG_INFO("winding back lists");
-
-    windback_lists(map->first_shape);
-    windback_lists(map2->first_shape);
-    windback_lists(map3->first_shape);
-    windback_lists(map4->first_shape);
 
     LOG_INFO("appending shapes from threads");
-
+    
     map3->shape_list->next = map4->first_shape;
+    map4->first_shape->previous = map3->shape_list;
     map3->shape_count += map4->shape_count;
 
     map2->shape_list->next = map3->first_shape;
+    map3->first_shape->previous = map2->shape_list;
     map2->shape_count += map3->shape_count;
 
     map->shape_list->next = map2->first_shape;
+    map2->first_shape->previous = map->shape_list;
     map->shape_count += map2->shape_count;
+
+    LOG_INFO("winding back list");
+    map->shape_list = map->first_shape;
+    windback_lists(map);
 }

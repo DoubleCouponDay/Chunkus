@@ -91,7 +91,7 @@ image convert_png_to_image(const char* fileaddress) {
     if (setjmp(png_jmpbuf(read_struct)))
     {
         LOG_ERR("Error during init_io");
-        png_destroy_read_struct(read_struct, info_p, NULL);
+        png_destroy_read_struct(&read_struct, &info_p, NULL);
         fclose(file_p);
         return (image){ 0, 0, NULL };
     }
@@ -130,7 +130,7 @@ image convert_png_to_image(const char* fileaddress) {
     if (setjmp(png_jmpbuf(read_struct))) {
         LOG_ERR("Error during early PNG reading");
         setError(READ_FILE_ERROR);
-        png_destroy_read_struct(read_struct, info_p, NULL);
+        png_destroy_read_struct(&read_struct, &info_p, NULL);
         fclose(file_p);
         return EMPTY_IMAGE;
     }

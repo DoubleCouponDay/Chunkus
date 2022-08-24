@@ -12,15 +12,13 @@
 #include "prune.h"
 #include "utility/defines.h"
 
-float M_POG = 3.1415926535897932;
-
 enum {
     ADJACENT_COUNT = 9
 };
 
-void sort_item(pixelchunk** array, pixelchunk* current, unsigned long i, unsigned long next, unsigned long length) {
+void swap_items(pixelchunk** array, unsigned long i, unsigned long next) {
     pixelchunk* inbetween = array[next];
-    array[next] = current;
+    array[next] = array[i];
     array[i] = inbetween;
 }
 
@@ -45,7 +43,7 @@ void dont_skip_corners(pixelchunk** array, unsigned long eligiblesubjects[ADJACE
 
     if (most_eligible)
     {
-        sort_item(array, most_eligible, most_eligible_index, next, length);
+        swap_items(array, most_eligible_index, next);
     }
 
     else
@@ -74,7 +72,7 @@ void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) 
 
             if(chunk_is_adjacent(current, subject)) {
                 if(previous == NULL) {
-                    sort_item(array, current, i, next, length);
+                    swap_items(array, i, next);
                     break;
                 }
 

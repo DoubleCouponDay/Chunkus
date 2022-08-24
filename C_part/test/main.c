@@ -32,36 +32,36 @@ int main(int argc, char** argv) {
     LOG_INFO("%s, ", argv[i]);
   }
 
-  char* param1[] = { "test.png", NULL };
-  char* param2[] = { "1", NULL };
-  char* param3[] = { "1", NULL }; //max threshhold 440
-  char* param4[] = { "output.png", NULL };
-  char* param5[] = { "256", NULL }; //max colours 256
-  char* param6[] = { "test.jpeg", NULL };
-  char* param7[] = { "output.bmp", NULL };
+  char* png[] = { "test.png", NULL };
+  char* chunkSize[] = { "1", NULL };
+  char* threshold[] = { "1", NULL };
+  char* png_output[] = { "output.png", NULL };
+  char* num_colours[] = { "256", NULL };
+  char* jpeg[] = { "test.jpeg", NULL };
+  char* bmp_output[] = { "output.bmp", NULL };
   char* testname = argv[1];
 
   MunitParameterEnum test_params[] = { 
     { 
-      "filename", param1,
+      "filename", png,
     },
     {
-      "chunk_size", param2
+      "chunk_size", chunkSize
     },
     {
-      "threshold", param3
+      "threshold", threshold
     },
     { 
-      "png_output", param4 
+      "png_output", png_output 
     },
     {
-      "num_colours", param5
+      "num_colours", num_colours
     },
     {
-      "jpeg", param6
+      "jpeg", jpeg
     },
     {
-      "bmp_output", param7
+      "bmp_output", bmp_output
     },
     { NULL, NULL} 
   };

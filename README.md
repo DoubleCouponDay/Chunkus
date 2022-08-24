@@ -125,7 +125,7 @@ Threshold is a float between 0 and 441.67. This is the magnitude of the differen
 ## C Tests
 ---
 
-The C code contains a test suite `vec_tests.exe` which can run all C tests or just one, when given a test name. The test names can be found in `C_part/tests/main.c`.
+The C code contains a test suite `vec_test.exe` which can run all C tests or just one, when given a test name. The test names can be found in `C_part/tests/main.c`.
 
 Requirements: 
 

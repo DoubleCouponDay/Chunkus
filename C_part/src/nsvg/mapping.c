@@ -117,13 +117,13 @@ NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {
 
     NSVGpaint fill = {
         NSVG_PAINT_COLOR,
-        NSVG_RGB(0, 0, 0)
+        0
     };
     output->fill = fill;
 
     NSVGpaint stroke = {
         NSVG_PAINT_NONE,
-        NSVG_RGB(0, 0, 0)
+        0
     };
     output->stroke = stroke;
     output->opacity = 1.0;
