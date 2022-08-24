@@ -41,7 +41,7 @@ MunitResult can_read_png(const MunitParameter params[], void* userdata) {
 
 MunitResult can_convert_png_to_chunkmap(const MunitParameter params[], void* userdata) {
   tear2* stuff = userdata;
-  int png_input = params[0].value;
+  char* png_input = params[0].value;
   int num_colours = atoi(params[6].value);
   int chunksize = atoi(params[3].value);
   float threshold = atof(params[4].value);
@@ -63,7 +63,7 @@ MunitResult can_convert_png_to_bmp(const MunitParameter params[], void* userdata
   tear3* stuff = userdata;
   // Use constant input/output path
   char* in_file = params[0].value;
-  char* out_file = params[5].value;
+  char* out_file = params[8].value;
 
   // Delete output file
   remove(out_file);
@@ -84,7 +84,7 @@ MunitResult can_convert_png_to_bmp(const MunitParameter params[], void* userdata
 MunitResult can_vectorize_png(const MunitParameter params[], void* userdata)
 {
   tear4* stuff = userdata;
-  int png_input = params[0].value;
+  char* png_input = params[0].value;
   int num_colours = atoi(params[6].value);
   int chunksize = atoi(params[3].value);
   float threshold = atof(params[4].value);
