@@ -102,8 +102,8 @@ int main(int argc, char** argv) {
     {png_to_nsvg.name, png_to_nsvg},
     {chunkmap_to_png.name, chunkmap_to_png},
     {png_to_svg.name, png_to_svg},
-    {png2_to_svg.name, png_to_svg},
-    {png3_to_svg.name, png_to_svg},
+    {png2_to_svg.name, png2_to_svg},
+    {png3_to_svg.name, png3_to_svg},
 
     {jpeg_to_image.name, jpeg_to_image},
     {jpeg_to_bmp.name, jpeg_to_bmp},
