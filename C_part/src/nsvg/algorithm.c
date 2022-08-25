@@ -278,6 +278,13 @@ void enlarge_shape(
         else {
             LOG_INFO("%s: Creating new shape", quadrant->name);
             chosenshape = add_new_shape(quadrant);
+
+            // We're adding to the boundary here because otherwise it gets skipped
+            // This control block only ever gets called on the first pixel of a quadrant
+            // This might be a band-aid fix to a deeper problem
+            chosenshape->boundaries->chunk_p = current;
+            ++chosenshape->boundaries_length;
+            current->boundary_chunk_in = chosenshape;
         }
 
         if (chosenshape->chunks->chunk_p == NULL) // If list hasn't been started, manually set the first one to current
@@ -408,6 +415,38 @@ void* fill_quadrant(void* arg) {
             {
                 LOG_ERR("%s find_shapes failed with code: %d", quadrant->name, code);
                 pthread_exit(NULL);
+            }
+
+            if (currentchunk_p->shape_chunk_in == NULL)
+            {
+                // Small fix for very small images that don't get shapes because a quadrant is too small
+                // First check if quadrant is actually big enough
+                if (quadrant->bounds.endingX - quadrant->bounds.startingX > 1 || quadrant->bounds.endingY - quadrant->bounds.startingY > 1)
+                {
+                    LOG_ERR("quadrant '%s' find_shapes encountered a processed chunk with no shape in a valid quadrant", quadrant->name);
+                    setError(ASSUMPTION_WRONG);
+                    pthread_exit(NULL);
+                }
+
+                // We should be using quadrant's first chunkshape
+                // If it's already filled, this is another problem
+                if (quadrant->map->first_shape->filled == true)
+                {
+                    LOG_ERR("quadrant '%s' find_shapes encountered a processed chunk with no shape in a valid quadrant, but the first shape is already filled", quadrant->name);
+                    setError(ASSUMPTION_WRONG);
+                    pthread_exit(NULL);
+                }
+                LOG_INFO("quadrant '%s' find_shapes creating small-image-fix shape", quadrant->name);
+
+                // We can use the first shape
+                currentchunk_p->shape_chunk_in = quadrant->map->first_shape;
+
+                quadrant->map->first_shape->filled = true;
+
+                quadrant->map->first_shape->boundaries->chunk_p = currentchunk_p;
+                ++quadrant->map->first_shape->boundaries_length;
+                quadrant->map->first_shape->chunks->chunk_p = currentchunk_p;
+                ++quadrant->map->first_shape->chunks_amount;
             }
 
             if(quadrant->options->step_index > 0 && count >= quadrant->options->step_index) {

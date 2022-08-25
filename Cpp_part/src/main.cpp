@@ -26,6 +26,7 @@ interop platform{};
 WomboTexture renderStep(vectorize_options options, int width, int height)
 {
 	// Eventually have this cache the output and avoid rerunning for a cached step
+	std::cout << "Vectorizing to step: " << options.step_index << " with threshold: " << options.threshold << std::endl;
 
 	int code = execute_program(options);
 
@@ -72,7 +73,7 @@ void doVectorize(std::string image_path, GUIData& guiData)
 
 	std::cout << "Vectorizing '" << image_path << "' with chunk size: " << options.chunk_size << ", threshold: " << options.threshold << " and num colors: " << 256 << std::endl;
 
-		Texture8 tex = Texture8{ image_path, false };
+		Texture8 tex = Texture8{ image_path };
 		if (tex.getBytes() == nullptr)
 		{
 			std::cout << "Input image was not loaded correctly" << std::endl;
@@ -394,11 +395,13 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 			{
 				std::cout << "Left button clicked" << std::endl;
 				stepBackward(guiData);
+				guiData.inputField.setText(std::to_string(guiData.options.step_index));
 			}
 			if (withinRight)
 			{
 				std::cout << "Right button clicked" << std::endl;
 				stepForward(guiData);
+				guiData.inputField.setText(std::to_string(guiData.options.step_index));
 			}
 		}
 	}
