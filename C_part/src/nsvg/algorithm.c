@@ -278,6 +278,13 @@ void enlarge_shape(
         else {
             LOG_INFO("%s: Creating new shape", quadrant->name);
             chosenshape = add_new_shape(quadrant);
+
+            // We're adding to the boundary here because otherwise it gets skipped
+            // This control block only ever gets called on the first pixel of a quadrant
+            // This might be a band-aid fix to a deeper problem
+            chosenshape->boundaries->chunk_p = current;
+            ++chosenshape->boundaries_length;
+            current->boundary_chunk_in = chosenshape;
         }
 
         if (chosenshape->chunks->chunk_p == NULL) // If list hasn't been started, manually set the first one to current
