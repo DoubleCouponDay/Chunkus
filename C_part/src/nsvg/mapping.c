@@ -29,8 +29,8 @@ void fill_strokedash_array(float* strokedash, float* fill, int array_length) {
     }
 }
 
-void fill_id(char* id, char* fill, int array_length) {
-    if(array_length > ID_LENGTH) {
+void fill_id(char* dst_id, const char* src_id, int array_length) {
+    if(array_length > MAX_ID_LENGTH) {
         LOG_ERR("new id length must be less than: %d", BOUNDS_LENGTH);
         setError(ARRAY_DIFF_SIZE_ERROR);
         return;
@@ -38,7 +38,7 @@ void fill_id(char* id, char* fill, int array_length) {
     int fillindex = 0;
 
     while(fillindex < array_length) {
-        id[fillindex] = fill[fillindex];
+        dst_id[fillindex] = src_id[fillindex];
         ++fillindex;
     }
 }
@@ -104,9 +104,9 @@ NSVGpath* create_path(image input, vector2 start, vector2 end) {
     return output;
 }
 
-NSVGshape* create_shape(chunkmap* map, char* id, long id_length) {    
+NSVGshape* create_shape(chunkmap* map, const char* id, long id_length) {    
     NSVGshape* output = calloc(1, sizeof(NSVGshape));
-    fill_id(output->id, id, ID_LENGTH);
+    fill_id(output->id, id, MAX_ID_LENGTH);
 
     if (isBadError())
     {
