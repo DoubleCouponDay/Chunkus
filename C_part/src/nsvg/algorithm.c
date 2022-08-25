@@ -417,6 +417,38 @@ void* fill_quadrant(void* arg) {
                 pthread_exit(NULL);
             }
 
+            if (currentchunk_p->shape_chunk_in == NULL)
+            {
+                // Small fix for very small images that don't get shapes because a quadrant is too small
+                // First check if quadrant is actually big enough
+                if (quadrant->bounds.endingX - quadrant->bounds.startingX > 1 || quadrant->bounds.endingY - quadrant->bounds.startingY > 1)
+                {
+                    LOG_ERR("quadrant '%s' find_shapes encountered a processed chunk with no shape in a valid quadrant", quadrant->name);
+                    setError(ASSUMPTION_WRONG);
+                    pthread_exit(NULL);
+                }
+
+                // We should be using quadrant's first chunkshape
+                // If it's already filled, this is another problem
+                if (quadrant->map->first_shape->filled == true)
+                {
+                    LOG_ERR("quadrant '%s' find_shapes encountered a processed chunk with no shape in a valid quadrant, but the first shape is already filled", quadrant->name);
+                    setError(ASSUMPTION_WRONG);
+                    pthread_exit(NULL);
+                }
+                LOG_INFO("quadrant '%s' find_shapes creating small-image-fix shape", quadrant->name);
+
+                // We can use the first shape
+                currentchunk_p->shape_chunk_in = quadrant->map->first_shape;
+
+                quadrant->map->first_shape->filled = true;
+
+                quadrant->map->first_shape->boundaries->chunk_p = currentchunk_p;
+                ++quadrant->map->first_shape->boundaries_length;
+                quadrant->map->first_shape->chunks->chunk_p = currentchunk_p;
+                ++quadrant->map->first_shape->chunks_amount;
+            }
+
             if(quadrant->options->step_index > 0 && count >= quadrant->options->step_index) {
                 LOG_INFO("step_index reached: %d\n", count);
                 pthread_exit(NULL);
