@@ -79,8 +79,9 @@ Texture<ColorT>::Texture()
 
 // Currently silently returns empty, should maybe throw instead
 template<class ColorT>
-Texture<ColorT>::Texture(std::string fileName, bool flipY)
+Texture<ColorT>::Texture(std::string fileName)
 {
+	bool flipY = true;
 	auto rawdata = loadPixelsFromC(fileName);
 
 	_width = rawdata.width;
@@ -92,7 +93,8 @@ Texture<ColorT>::Texture(std::string fileName, bool flipY)
 	{
 		for (int y = 0; y < _height; ++y)
 		{
-			_data[(y * _width + x)] = ColorT::fromRGB(rawdata.data[(y * _width + x) * 3 + 0], rawdata.data[(y * _width + x) * 3 + 1], rawdata.data[(y * _width + x) * 3 + 2]);
+			int flippedY = flipY ? _height - y - 1 : y;
+			_data[(flippedY * _width + x)] = ColorT::fromRGB(rawdata.data[(y * _width + x) * 3 + 0], rawdata.data[(y * _width + x) * 3 + 1], rawdata.data[(y * _width + x) * 3 + 2]);
 		}
 	}
 }
@@ -210,7 +212,7 @@ void Texture<ColorT>::writeToBmp(const std::string& fileName) const
 template<class ColorT>
 void Texture<ColorT>::setArea(const Texture<ColorT>& other, int x, int y, int width, int height)
 {
-	if (x < 0 || y < 0 || x + width >= _width || y + height >= _height ||
+	if (x < 0 || y < 0 || x + width > _width || y + height > _height ||
 		width > other.getWidth() || height > other.getHeight())
 		throw std::invalid_argument("Invalid X/Y or Width/Height given to Texture::setArea");
 
@@ -264,8 +266,8 @@ GLTexture::GLTexture(const Texture8& tex, bool alpha)
 	glBindTexture(GL_TEXTURE_2D, myTex);
 
 	checkForGlError("Bound texture");
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	auto pow2width = nextPow2(tex.getWidth());
@@ -370,8 +372,8 @@ WomboTexture::WomboTexture()
 {
 }
 
-WomboTexture::WomboTexture(std::string fileName, bool flipY)
-	: _cpuTex(fileName, flipY)
+WomboTexture::WomboTexture(std::string fileName)
+	: _cpuTex(fileName)
 	, _glTex(_cpuTex)
 {
 }
@@ -397,13 +399,14 @@ WomboTexture::WomboTexture(const lunasvg::Bitmap& bitmap)
 	auto rowData = bitmap.data();
 	for (int y = 0; y < bitmap.height(); ++y)
 	{
+		int flippedY = bitmap.height() - y - 1;
 		auto data = rowData;
 		for (int x = 0; x < bitmap.width(); ++x)
 		{
 			if (data[3] == 0)
-				_cpuTex.setPixel(x, y, Colors::Black8);
+				_cpuTex.setPixel(x, flippedY, Colors::Black8);
 			else
-				_cpuTex.setPixel(x, y, Color8{ (unsigned char)data[0], (unsigned char)data[1], (unsigned char)data[2] });
+				_cpuTex.setPixel(x, flippedY, Color8{ (unsigned char)data[0], (unsigned char)data[1], (unsigned char)data[2] });
 			data += 4;
 		}
 		rowData += stride;

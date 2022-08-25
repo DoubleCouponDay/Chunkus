@@ -26,7 +26,7 @@ class Texture
 	GLuint _height;
 public:
 	Texture();
-	Texture(std::string fileName, bool flipY);
+	Texture(std::string fileName);
 	Texture(ColorT* source, GLuint width, GLuint height);
 	Texture(ColorT color, GLuint width, GLuint height);
 	Texture(Texture<ColorT>&& other);
@@ -90,7 +90,7 @@ class WomboTexture
 	GLTexture _glTex;
 public:
 	WomboTexture();
-	WomboTexture(std::string fileName, bool flipY);
+	WomboTexture(std::string fileName);
 	WomboTexture(GLTexture&& glTex, Texture8&& cpuTex);
 	WomboTexture(Texture8&& cpuTex, bool isAlphaTag = false);
 	WomboTexture(const lunasvg::Bitmap& bitmap);

@@ -227,13 +227,13 @@ void TextField::update(Vector2i windowSize, Vector2i mousePos, int mouseButton, 
 	{
 		auto width = glutBitmapWidth(GLUT_BITMAP_HELVETICA_18, _text[i]);
 		
-		if (mouseRel.x < textStart.x + width)
+		if (mouseRel.x < 0)
 		{
-			_cursorPosition = 0;
+			_cursorPosition = i;
 			return;
 		}
 
-		textStart.x += width;
+		mouseRel.x -= width;
 	}
 	_cursorPosition = _text.size();
 }
