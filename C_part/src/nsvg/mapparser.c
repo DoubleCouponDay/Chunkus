@@ -163,7 +163,6 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         }
         output->shapes->paths = firstpath; //first shapes path
 
-        // Misleadingly named struct that stores path stroking data
         svg_hashies_iter shape_data = {
             map, output, firstpath, NULL
         };        
