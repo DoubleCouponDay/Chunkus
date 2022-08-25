@@ -94,7 +94,15 @@ Texture<ColorT>::Texture(std::string fileName)
 		for (int y = 0; y < _height; ++y)
 		{
 			int flippedY = flipY ? _height - y - 1 : y;
-			_data[(flippedY * _width + x)] = ColorT::fromRGB(rawdata.data[(y * _width + x) * 3 + 0], rawdata.data[(y * _width + x) * 3 + 1], rawdata.data[(y * _width + x) * 3 + 2]);
+			int flippedIndex = flippedY * _width + x;
+			int dataIndex = y * _width + x;
+			int Rindex = dataIndex * 3;
+			int Gindex = dataIndex * 3 + 1;
+			int Bindex = dataIndex * 3 + 2;
+			unsigned char R = rawdata.data[Rindex];
+			unsigned char G = rawdata.data[Gindex];
+			unsigned char B = rawdata.data[Bindex];
+			_data[flippedIndex] = ColorT::fromRGB(R, G, B);
 		}
 	}
 }
