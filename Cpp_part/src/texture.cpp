@@ -94,7 +94,15 @@ Texture<ColorT>::Texture(std::string fileName)
 		for (int y = 0; y < _height; ++y)
 		{
 			int flippedY = flipY ? _height - y - 1 : y;
-			_data[(flippedY * _width + x)] = ColorT::fromRGB(rawdata.data[(y * _width + x) * 3 + 0], rawdata.data[(y * _width + x) * 3 + 1], rawdata.data[(y * _width + x) * 3 + 2]);
+			int flippedIndex = flippedY * _width + x;
+			int dataIndex = y * _width + x;
+			int Rindex = dataIndex * 3;
+			int Gindex = dataIndex * 3 + 1;
+			int Bindex = dataIndex * 3 + 2;
+			unsigned char R = rawdata.data[Rindex];
+			unsigned char G = rawdata.data[Gindex];
+			unsigned char B = rawdata.data[Bindex];
+			_data[flippedIndex] = ColorT::fromRGB(R, G, B);
 		}
 	}
 }
@@ -486,7 +494,8 @@ void WomboTexture::setPixel(int x, int y, Color8 color)
 
 	if (_glTex.isAlphaTag())
 	{
-		unsigned char dat[4] = { color.R, color.G, color.B, (color.R > 0 || color.G > 0 || color.B > 0) ? 255 : 0 };
+		unsigned char A = (color.R > 0 || color.G > 0 || color.B > 0) ? 255 : 0;
+		unsigned char dat[4] = { color.R, color.G, color.B, A};
 		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)dat);
 	}
 	else
