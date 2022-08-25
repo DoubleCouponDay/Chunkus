@@ -494,7 +494,8 @@ void WomboTexture::setPixel(int x, int y, Color8 color)
 
 	if (_glTex.isAlphaTag())
 	{
-		unsigned char dat[4] = { color.R, color.G, color.B, (color.R > 0 || color.G > 0 || color.B > 0) ? 255 : 0 };
+		unsigned char A = (color.R > 0 || color.G > 0 || color.B > 0) ? 255 : 0;
+		unsigned char dat[4] = { color.R, color.G, color.B, A};
 		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)dat);
 	}
 	else
