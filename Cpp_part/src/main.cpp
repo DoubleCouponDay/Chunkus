@@ -389,7 +389,7 @@ void onMouseButton(int button, int state, int mouseX, int mouseY)
 			if (withinWrite)
 			{
 				std::cout << "Write to BMP was clicked" << std::endl;
-				guiData.getActiveTexture().getCpuTex().writeToBmp("test.bmp");
+				guiData.getActiveTexture().getCpuTex().writeToBmp("output.bmp");
 			}
 			if (withinLeft)
 			{
