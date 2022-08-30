@@ -49,7 +49,7 @@ NSVGimage* vectorize(image input, vectorize_options options) {
     }
 
     LOG_INFO("sorting boundaries");
-    sort_boundary(map);
+    iterate_border(map);
 
     if(isBadError()) {
         LOG_ERR("sort_boundary failed with code %d", getLastError());

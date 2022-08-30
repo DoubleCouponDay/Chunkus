@@ -228,6 +228,10 @@ float calculate_angle_between(pixelchunk* eligible, pixelchunk* subject, pixelch
     int eligible_x_diff = eligible->location.x - subject->location.x;
     int eligible_y_diff = eligible->location.y - subject->location.y;
     vector2 subject_to_eligible = { eligible_x_diff, eligible_y_diff };
-    vector2 previous_to_subject = create_vector_between_chunks(previous, subject);
+    vector2 previous_to_subject;
+    if (previous)
+        previous_to_subject = create_vector_between_chunks(previous, subject);
+    else
+        previous_to_subject = subject_to_eligible;
     return vec_angle_between(previous_to_subject, subject_to_eligible);
 }

@@ -16,10 +16,10 @@ enum {
     ADJACENT_COUNT = 9
 };
 
-void swap_items(pixelchunk** array, unsigned long i, unsigned long next) {
-    pixelchunk* inbetween = array[next];
-    array[next] = array[i];
-    array[i] = inbetween;
+void swap_items(pixelchunk** array, unsigned long a, unsigned long b) {
+    pixelchunk* tmp = array[a];
+    array[a] = array[b];
+    array[b] = tmp;
 }
 
 void dont_skip_corners(pixelchunk** array, unsigned long eligiblesubjects[ADJACENT_COUNT], pixelchunk* subject, pixelchunk* previous, 
@@ -52,49 +52,36 @@ void dont_skip_corners(pixelchunk** array, unsigned long eligiblesubjects[ADJACE
     }
 }
 
-void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) {
+void bubble_sort(pixelchunk** array, unsigned long a, unsigned long length) {
     bool allsorted = false;
 
     while(allsorted == false) {        
-        unsigned long next = start + 1;
+        //unsigned long next = start + 1;
 
-        if(next >= length) {
+        if(a + 1 >= length) {
             allsorted = true;
             return;
         }
         unsigned long eligiblesubjects[ADJACENT_COUNT] = {0};
-        pixelchunk* subject = array[start];
+        pixelchunk* a_chunk = array[a];
         unsigned long eligible_count = 0;
-        pixelchunk* previous = (start ? array[start - 1] : NULL);
+        pixelchunk* a_prev_chunk = (a ? array[a - 1] : NULL);
 
-        for(unsigned long i = start; i < length; ++i) {
-            pixelchunk* current = array[i];
+        for(unsigned long b = a + 1; b < length; ++b) {
+            pixelchunk* b_chunk = array[b];
 
-            if(chunk_is_adjacent(current, subject)) {
-                if(previous == NULL) {
-                    swap_items(array, i, next);
-                    break;
-                }
-
-                else if(eligible_count == ADJACENT_COUNT) {
+            if(chunk_is_adjacent(b_chunk, a_chunk)) {
+                if(eligible_count == ADJACENT_COUNT) {
                     LOG_ERR("adjacent chunks are larger than known size!");
                     setError(ASSUMPTION_WRONG);
                     return;
                 }
-                eligiblesubjects[eligible_count] = i;
+                eligiblesubjects[eligible_count] = b;
                 ++eligible_count;            
             }
-
-            else {
-
-            }
-
-            if(i == length - 1) 
-            {            
-                dont_skip_corners(array, eligiblesubjects, subject, previous, eligible_count, next, length);
-            }
         }
-        ++start;
+        dont_skip_corners(array, eligiblesubjects, a_chunk, a_prev_chunk, eligible_count, a + 1, length);
+        ++a;
     }
 }
 
@@ -136,3 +123,303 @@ void sort_boundary(chunkmap* map) {
         free(array);
     }
 }
+
+
+typedef struct pixelchunk_vector
+{
+    pixelchunk** first; // Points to the first element
+    pixelchunk** last; // Points to the space after the last element (ie. the end of the array)
+    pixelchunk** realend; // Points to the end of the allocated memory (it points to out of bounds memory)
+} pc_vector;
+
+pc_vector pc_create(unsigned long size, unsigned long capacity) 
+{
+    if (capacity < size) 
+    {
+        capacity = size;
+    }
+    pc_vector vector;
+    vector.first = calloc(1, sizeof(pixelchunk*) * capacity);
+    vector.last = vector.first + size;
+    vector.realend = vector.first + capacity;
+    return vector;
+}
+
+int pc_vector_size(pc_vector* vector)
+{
+    return vector->last - vector->first;
+}
+
+int pc_vector_capacity(pc_vector* vector)
+{
+    return vector->realend - vector->first;
+}
+
+void pc_append(pc_vector* vector, pixelchunk* chunk)
+{
+    if (vector->first == NULL)
+    {
+        vector->first = calloc(1, sizeof(pixelchunk*));
+        vector->last = vector->first + 1;
+        vector->realend = vector->first + 1;
+    }
+    else if (vector->last >= vector->realend)
+    {
+        unsigned long size = pc_vector_size(vector);
+        vector->first = realloc(vector->first, sizeof(pixelchunk*) * (size + 5));
+        vector->last = vector->first + size;
+        vector->realend = vector->first + (size + 5);
+    }
+
+    *vector->last = chunk;
+    ++vector->last;
+}
+
+pixelchunk* pc_at(pc_vector* vector, int i)
+{
+    return vector->first[i];
+}
+
+// Returns previous value
+pixelchunk* pc_set(pc_vector* vector, unsigned long i, pixelchunk* chunk)
+{
+    pixelchunk* old = vector->first[i];
+    vector->first[i] = chunk;
+    return old;
+}
+
+void pc_insert(pc_vector* vector, unsigned long position, pixelchunk* val)
+{
+    if (position < 0 || position > pc_vector_size(vector))
+    {
+        return;
+    }
+    if (vector->first == NULL)
+    {
+        vector->first = calloc(1, sizeof(pixelchunk*));
+        vector->last = vector->first + 1;
+        vector->realend = vector->first + 1;
+        *vector->first = val;
+        return;
+    }
+    else if (vector->last + 1 > vector->realend)
+    {
+        vector->first = realloc(vector->first, sizeof(pixelchunk*) * ((vector->last - vector->first) + 10));
+        vector->realend += 10;
+    }
+
+    for (pixelchunk** iter = vector->last - 1; iter >= vector->first + position; --iter)
+    {
+        pixelchunk** next = iter + 1;
+        *next = *iter;
+    }
+
+    vector->first[position] = val;
+}
+
+void pc_erase(pc_vector* vector, unsigned long position)
+{
+    if (position < 0 || position >= pc_vector_size(vector))
+    {
+        return;
+    }
+
+    for (pixelchunk** iter = vector->first + position; iter < vector->last - 1; ++iter)
+    {
+        pixelchunk** next = iter + 1;
+        *iter = *next;
+    }
+
+    --vector->last;
+}
+
+void pc_free(pc_vector* vector)
+{
+    free(vector->first);
+    vector->first = NULL;
+    vector->last = NULL;
+    vector->realend = NULL;
+}
+
+enum AdjacentPosition
+{
+    TOP_LEFT = 0,
+    TOP_MIDDLE = 1,
+    TOP_RIGHT = 2,
+    MIDDLE_LEFT = 3,
+    MIDDLE_CENTER = 4,
+    MIDDLE_RIGHT = 5,
+    BOTTOM_LEFT = 6,
+    BOTTOM_MIDDLE = 7,
+    BOTTOM_RIGHT = 8
+};
+
+void find_adjacents(pixelchunk* chunk, pixelchunk* adjacents[9], pixelchunk_list* list)
+{
+    for (pixelchunk_list* cur = list; cur; cur = cur->next)
+    {
+        pixelchunk* other = cur->chunk_p;
+        if (other == chunk)
+            continue;
+
+        if (other->location.x == chunk->location.x - 1 && other->location.y == chunk->location.y - 1)
+        {
+            adjacents[TOP_LEFT] = other;
+        }
+        else if (other->location.x == chunk->location.x && other->location.y == chunk->location.y - 1)
+        {
+            adjacents[TOP_MIDDLE] = other;
+        }
+        else if (other->location.x == chunk->location.x + 1 && other->location.y == chunk->location.y - 1)
+        {
+            adjacents[TOP_RIGHT] = other;
+        }
+        else if (other->location.x == chunk->location.x - 1 && other->location.y == chunk->location.y)
+        {
+            adjacents[MIDDLE_LEFT] = other;
+        }
+        else if (other->location.x == chunk->location.x && other->location.y == chunk->location.y)
+        {
+            adjacents[MIDDLE_CENTER] = other;
+        }
+        else if (other->location.x == chunk->location.x + 1 && other->location.y == chunk->location.y)
+        {
+            adjacents[MIDDLE_RIGHT] = other;
+        }
+        else if (other->location.x == chunk->location.x - 1 && other->location.y == chunk->location.y + 1)
+        {
+            adjacents[BOTTOM_LEFT] = other;
+        }
+        else if (other->location.x == chunk->location.x && other->location.y == chunk->location.y + 1)
+        {
+            adjacents[BOTTOM_MIDDLE] = other;
+        }
+        else if (other->location.x == chunk->location.x + 1 && other->location.y == chunk->location.y + 1)
+        {
+            adjacents[BOTTOM_RIGHT] = other;
+        }
+    }
+}
+
+float calculate_ccw_angle(vector2 a, vector2 b)
+{
+    float dot = a.x * b.x + a.y * b.y;
+    float det = a.x * b.y - a.y * b.x;
+    float angle = atan2(det, dot);
+    if (angle < 0)
+    {
+        angle += 2 * M_PI;
+    }
+    return angle;
+}
+
+float calculate_cw_angle(vector2 a, vector2 b)
+{
+    return calculate_ccw_angle(b, a);
+}
+
+extern void free_pixelchunklist(pixelchunk_list* list);
+
+void iterate_border(chunkmap* map)
+{
+    chunkshape* shape = map->shape_list;
+
+    int shape_count = 0;
+    while (shape)
+    {
+        pc_vector vector = pc_create(0, shape->boundaries_length);
+        
+        // Go through boundaries and append the next boundary chunk (duplicates if necessary) to the vector
+        int count = 0;
+        int max_count = shape->boundaries_length * 2;
+        pixelchunk* current = shape->boundaries->chunk_p;
+
+        pc_append(&vector, current);
+
+        pixelchunk* prev = current;
+
+        pixelchunk* adjacents[9];
+
+        memset(adjacents, 0, sizeof(adjacents));
+        find_adjacents(current, adjacents, shape->boundaries);
+
+        if (adjacents[TOP_LEFT])
+            current = adjacents[TOP_LEFT];
+        else if (adjacents[TOP_MIDDLE])
+            current = adjacents[TOP_MIDDLE];
+        else if (adjacents[TOP_RIGHT])
+            current = adjacents[TOP_RIGHT];
+        else if (adjacents[MIDDLE_RIGHT])
+            current = adjacents[MIDDLE_RIGHT];
+        else if (adjacents[BOTTOM_RIGHT])
+            current = adjacents[BOTTOM_RIGHT];
+        else if (adjacents[BOTTOM_MIDDLE])
+            current = adjacents[BOTTOM_MIDDLE];
+        else if (adjacents[BOTTOM_LEFT])
+            current = adjacents[BOTTOM_LEFT];
+
+
+        while (current != pc_at(&vector, 0) && count < max_count)
+        {
+            pc_append(&vector, current);
+
+            memset(adjacents, 0, sizeof(adjacents));
+            find_adjacents(current, adjacents, shape->boundaries);
+
+            float smallest_angle = 3.14159265358979323846f * 2.0f;
+            pixelchunk* smallest_angle_chunk = NULL;
+            vector2 dir = { prev->location.x - current->location.x, prev->location.y - current->location.y };
+            for (int i = 0; i < 9; ++i)
+            {
+                pixelchunk* adjacent = adjacents[i];
+                if (!adjacent || i == MIDDLE_CENTER || adjacent == prev)
+                    continue;
+                vector2 next_dir = {adjacent->location.x - current->location.x, adjacent->location.y - current->location.y};
+
+                float angle = calculate_ccw_angle(dir, next_dir);
+                if (angle < smallest_angle)
+                {
+                    smallest_angle = angle;
+                    smallest_angle_chunk = adjacent;
+                }
+            }
+
+            if (!smallest_angle_chunk)
+            {
+                // Try going backward instead
+                smallest_angle_chunk = prev;
+            }
+
+            prev = current;
+            current = smallest_angle_chunk;
+            ++count;
+        }
+
+        // Copy the vector back to the list
+        free_pixelchunklist(shape->boundaries);
+        if (!pc_vector_size(&vector))
+        {
+            shape = shape->next;
+            continue;
+        }
+        pixelchunk_list* first = (pixelchunk_list*)malloc(sizeof(pixelchunk_list));
+        first->chunk_p = pc_at(&vector, 0);
+        first->next = NULL;
+        shape->boundaries = first;
+        for (int i = 1; i < pc_vector_size(&vector); ++i)
+        {
+            pixelchunk* chunk = pc_at(&vector, i);
+            pixelchunk_list* list = (pixelchunk_list*)malloc(sizeof(pixelchunk_list));
+            list->chunk_p = chunk;
+            list->next = NULL;
+            shape->boundaries->next = list;
+            shape->boundaries = list;
+        }
+        shape->boundaries = first;
+
+        shape = shape->next;
+        ++shape_count;
+    }
+}
+
+
