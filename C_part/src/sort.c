@@ -16,10 +16,10 @@ enum {
     ADJACENT_COUNT = 9
 };
 
-void swap_items(pixelchunk** array, unsigned long i, unsigned long next) {
-    pixelchunk* inbetween = array[next];
-    array[next] = array[i];
-    array[i] = inbetween;
+void swap_items(pixelchunk** array, unsigned long a, unsigned long b) {
+    pixelchunk* tmp = array[a];
+    array[a] = array[b];
+    array[b] = tmp;
 }
 
 void dont_skip_corners(pixelchunk** array, unsigned long eligiblesubjects[ADJACENT_COUNT], pixelchunk* subject, pixelchunk* previous, 
@@ -52,49 +52,36 @@ void dont_skip_corners(pixelchunk** array, unsigned long eligiblesubjects[ADJACE
     }
 }
 
-void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) {
+void bubble_sort(pixelchunk** array, unsigned long a, unsigned long length) {
     bool allsorted = false;
 
     while(allsorted == false) {        
-        unsigned long next = start + 1;
+        //unsigned long next = start + 1;
 
-        if(next >= length) {
+        if(a + 1 >= length) {
             allsorted = true;
             return;
         }
         unsigned long eligiblesubjects[ADJACENT_COUNT] = {0};
-        pixelchunk* subject = array[start];
+        pixelchunk* a_chunk = array[a];
         unsigned long eligible_count = 0;
-        pixelchunk* previous = (start ? array[start - 1] : NULL);
+        pixelchunk* a_prev_chunk = (a ? array[a - 1] : NULL);
 
-        for(unsigned long i = start; i < length; ++i) {
-            pixelchunk* current = array[i];
+        for(unsigned long b = a + 1; b < length; ++b) {
+            pixelchunk* b_chunk = array[b];
 
-            if(chunk_is_adjacent(current, subject)) {
-                if(previous == NULL) {
-                    swap_items(array, i, next);
-                    break;
-                }
-
-                else if(eligible_count == ADJACENT_COUNT) {
+            if(chunk_is_adjacent(b_chunk, a_chunk)) {
+                if(eligible_count == ADJACENT_COUNT) {
                     LOG_ERR("adjacent chunks are larger than known size!");
                     setError(ASSUMPTION_WRONG);
                     return;
                 }
-                eligiblesubjects[eligible_count] = i;
+                eligiblesubjects[eligible_count] = b;
                 ++eligible_count;            
             }
-
-            else {
-
-            }
-
-            if(i == length - 1) 
-            {            
-                dont_skip_corners(array, eligiblesubjects, subject, previous, eligible_count, next, length);
-            }
         }
-        ++start;
+        dont_skip_corners(array, eligiblesubjects, a_chunk, a_prev_chunk, eligible_count, a + 1, length);
+        ++a;
     }
 }
 
@@ -136,3 +123,6 @@ void sort_boundary(chunkmap* map) {
         free(array);
     }
 }
+
+
+
