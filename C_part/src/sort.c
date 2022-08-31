@@ -30,15 +30,15 @@ void dont_skip_corners(pixelchunk** array, unsigned long eligiblesubjects[ADJACE
     pixelchunk* most_eligible = NULL;
     unsigned long most_eligible_index = 0;
 
-    for (unsigned long q = 0; q < eligible_count; ++q) {
-        pixelchunk* eligible = array[eligiblesubjects[q]];
+    for (unsigned long i = 0; i < eligible_count; ++i) {
+        pixelchunk* eligible = array[eligiblesubjects[i]];
         float angle = calculate_angle_between(eligible, subject, previous);
 
         if (angle < smallest_angle)
         {
             smallest_angle = angle;
             most_eligible = eligible;
-            most_eligible_index = eligiblesubjects[q];
+            most_eligible_index = eligiblesubjects[i];
         }
     }
 
