@@ -4,4 +4,3 @@
 
 void bubble_sort(pixelchunk** array,unsigned long start, unsigned long length);
 void sort_boundary(chunkmap* map);
-void iterate_border(chunkmap* map);

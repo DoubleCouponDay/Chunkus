@@ -106,35 +106,6 @@ void convert_array_to_boundary_list(pixelchunk** array, pixelchunk_list* output,
     }
 }
 
-void iterate_shape_boundaries(chunkshape*);
-
-void sort_boundary(chunkmap* map) {
-    chunkshape* shape = map->shape_list;
-
-    while (shape)
-    {
-        pixelchunk** array = convert_boundary_list_toarray(shape->boundaries, shape->boundaries_length);
-        bubble_sort(array, 0, shape->boundaries_length);
-
-        if(isBadError()) {
-            LOG_ERR("bubble_sort failed with code: %d", getLastError());
-            return;
-        }
-        convert_array_to_boundary_list(array, shape->boundaries, shape->boundaries_length);
-
-        pixelchunk_list* last;
-        for (last = shape->boundaries; last && last->next; last = last->next)
-            ;
-
-        if (!chunk_is_adjacent(last->chunk_p, shape->boundaries->chunk_p))
-            iterate_shape_boundaries(shape);
-
-        shape = shape->next;
-        free(array);
-    }
-}
-
-
 typedef struct pixelchunk_vector
 {
     pixelchunk** first; // Points to the first element
@@ -422,18 +393,31 @@ void iterate_shape_boundaries(chunkshape* shape)
     shape->boundaries = first;
 }
 
-void iterate_border(chunkmap* map)
-{
+void sort_boundary(chunkmap* map) {
     chunkshape* shape = map->shape_list;
 
-    int shape_count = 0;
     while (shape)
     {
-        iterate_shape_boundaries(shape);
+        pixelchunk** array = convert_boundary_list_toarray(shape->boundaries, shape->boundaries_length);
+        bubble_sort(array, 0, shape->boundaries_length);
+
+        if(isBadError()) {
+            LOG_ERR("bubble_sort failed with code: %d", getLastError());
+            return;
+        }
+        convert_array_to_boundary_list(array, shape->boundaries, shape->boundaries_length);
+
+
+        pixelchunk_list* last = shape->boundaries;
+
+        while(last && last->next) {
+            last = last->next;
+        }
+
+        if (!chunk_is_adjacent(last->chunk_p, shape->boundaries->chunk_p))
+            iterate_shape_boundaries(shape);
 
         shape = shape->next;
-        ++shape_count;
+        free(array);
     }
 }
-
-
