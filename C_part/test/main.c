@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 
   char* png[] = { "test.png", NULL };
   char* chunkSize[] = { "1", NULL };
-  char* threshold[] = { "10", NULL };
+  char* threshold[] = { "1", NULL };
   char* png_output[] = { "output.png", NULL };
   char* num_colours[] = { "256", NULL };
   char* jpeg[] = { "test.jpeg", NULL };
