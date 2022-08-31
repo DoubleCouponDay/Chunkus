@@ -36,16 +36,26 @@ void zip_border_seam(pixelchunk* current, pixelchunk* alien) {
     current->border_location.y = current->location.y + get_offset(diff.y);
 }
 
-bool inc_or_dec(int seam, pixelchunk* chunk) {
+bool inc_or_dec(int seam, pixelchunk* chunk, bool isXAxis) {
     bool output = true;
 
     switch(seam) {
         case POSITIVE:
-            chunk->border_location.x = chunk->location.x + ZIP_DISTANCE;
+            if(isXAxis)
+                chunk->border_location.x = chunk->location.x + ZIP_DISTANCE;
+            
+            else
+                chunk->border_location.y = chunk->location.y + ZIP_DISTANCE;
+            
             break;
 
         case NEGATIVE:
-            chunk->border_location.x = chunk->location.x - ZIP_DISTANCE;
+            if(isXAxis)
+                chunk->border_location.x = chunk->location.x - ZIP_DISTANCE;
+            
+            else
+                chunk->border_location.y = chunk->location.y - ZIP_DISTANCE;
+            
             break;
 
         default:
@@ -57,8 +67,8 @@ bool inc_or_dec(int seam, pixelchunk* chunk) {
 }
 
 bool zip_quadrant(Quadrant* quadrant, pixelchunk* chunk) {
-    bool output = inc_or_dec(quadrant->X_seam, chunk);
-    output = output && inc_or_dec(quadrant->Y_seam, chunk);
+    bool output = inc_or_dec(quadrant->X_seam, chunk, true);
+    output = output && inc_or_dec(quadrant->Y_seam, chunk, false);
     return output;
 }
 
