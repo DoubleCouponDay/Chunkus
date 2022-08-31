@@ -178,7 +178,7 @@ image convert_png_to_image(const char* fileaddress) {
                 output.pixels_array_2d[x][y].b = pixel_p[2];
 
                 output.pixels_array_2d[x][y].location = (coordinate){
-                    x, y,
+                    x, y
                 };
             }
         }
