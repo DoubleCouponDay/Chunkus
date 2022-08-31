@@ -17,10 +17,10 @@ enum {
     ADJACENT_COUNT = 9
 };
 
-void swap_items(pixelchunk** array, unsigned long a, unsigned long b) {
-    pixelchunk* tmp = array[a];
-    array[a] = array[b];
-    array[b] = tmp;
+void swap_items(pixelchunk** array, unsigned long item1, unsigned long item2) {
+    pixelchunk* tmp = array[item1];
+    array[item1] = array[item2];
+    array[item2] = tmp;
 }
 
 void dont_skip_corners(pixelchunk** array, unsigned long eligiblesubjects[ADJACENT_COUNT], pixelchunk* subject, pixelchunk* previous, 
