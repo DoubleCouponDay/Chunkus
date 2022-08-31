@@ -53,36 +53,36 @@ void dont_skip_corners(pixelchunk** array, unsigned long eligiblesubjects[ADJACE
     }
 }
 
-void bubble_sort(pixelchunk** array, unsigned long a, unsigned long length) {
+void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) {
     bool allsorted = false;
 
     while(allsorted == false) {        
-        //unsigned long next = start + 1;
+        unsigned long next = start + 1;
 
-        if(a + 1 >= length) {
+        if(next >= length) {
             allsorted = true;
             return;
         }
         unsigned long eligiblesubjects[ADJACENT_COUNT] = {0};
-        pixelchunk* a_chunk = array[a];
+        pixelchunk* starting_chunk = array[start];
         unsigned long eligible_count = 0;
-        pixelchunk* a_prev_chunk = (a ? array[a - 1] : NULL);
+        pixelchunk* previous = (start ? array[start - 1] : NULL);
 
-        for(unsigned long b = a + 1; b < length; ++b) {
-            pixelchunk* b_chunk = array[b];
+        for(unsigned long i = start + 1; i < length; ++i) {
+            pixelchunk* current_chunk = array[i];
 
-            if(chunk_is_adjacent(b_chunk, a_chunk)) {
+            if(chunk_is_adjacent(current_chunk, starting_chunk)) {
                 if(eligible_count == ADJACENT_COUNT) {
                     LOG_ERR("adjacent chunks are larger than known size!");
                     setError(ASSUMPTION_WRONG);
                     return;
                 }
-                eligiblesubjects[eligible_count] = b;
+                eligiblesubjects[eligible_count] = i;
                 ++eligible_count;            
             }
         }
-        dont_skip_corners(array, eligiblesubjects, a_chunk, a_prev_chunk, eligible_count, a + 1, length);
-        ++a;
+        dont_skip_corners(array, eligiblesubjects, starting_chunk, previous, eligible_count, start + 1, length);
+        ++start;
     }
 }
 
