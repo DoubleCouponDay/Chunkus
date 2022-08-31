@@ -30,46 +30,14 @@ float get_offset(float dimension) {
     return 0.f;
 }
 
-void zip_border_seam(pixelchunk* current, pixelchunk* alien) {
+bool zip_border_seam(pixelchunk* current, pixelchunk* alien, Quadrant* quadrant) {
     vector2 diff = create_vector_between_chunks(current, alien);
-    current->border_location.x = current->location.x + get_offset(diff.x);
-    current->border_location.y = current->location.y + get_offset(diff.y);
-}
-
-bool inc_or_dec(int seam, pixelchunk* chunk, bool isXAxis) {
-    bool output = true;
-
-    switch(seam) {
-        case POSITIVE:
-            if(isXAxis)
-                chunk->border_location.x = chunk->location.x + ZIP_DISTANCE;
-            
-            else
-                chunk->border_location.y = chunk->location.y + ZIP_DISTANCE;
-            
-            break;
-
-        case NEGATIVE:
-            if(isXAxis)
-                chunk->border_location.x = chunk->location.x - ZIP_DISTANCE;
-            
-            else
-                chunk->border_location.y = chunk->location.y - ZIP_DISTANCE;
-            
-            break;
-
-        default:
-            LOG_ERR("inc_or_dec failed: invalid seam: ", seam);
-            output = false;
-            break;
-    }
-    return output;
-}
-
-bool zip_quadrant(Quadrant* quadrant, pixelchunk* chunk) {
-    bool output = inc_or_dec(quadrant->X_seam, chunk, true);
-    output = output && inc_or_dec(quadrant->Y_seam, chunk, false);
-    return output;
+    float offset_x = get_offset(diff.x);
+    float offset_y = get_offset(diff.y);
+    offset_x = offset_x + (float)quadrant->X_seam * ZIP_DISTANCE;
+    offset_y = offset_y + (float)quadrant->Y_seam * ZIP_DISTANCE;
+    current->border_location.x = current->location.x + offset_x;
+    current->border_location.y = current->location.y + offset_y;
 }
 
 void windback_lists(chunkmap* map) {
@@ -219,12 +187,7 @@ void enlarge_border(
     pixelchunk* adjacent) {
     chunkshape* chosenshape;
 
-    zip_border_seam(current, adjacent);
-    
-    if(isBadError()) {
-        LOG_ERR("%s: zip_border failed with code: %d", quadrant->name, getLastError());
-        return;
-    }
+    zip_border_seam(current, adjacent, quadrant);
 
     if(quadrant->map->shape_list->filled == false) { //use firstshape
         chosenshape = quadrant->map->shape_list;
@@ -360,13 +323,6 @@ void find_shapes(
             pixelchunk* adjacent = &(quadrant->map->groups_array_2d[adjacent_index_x][adjacent_index_y]);
             chunkshape* currentinshape = current->shape_chunk_in;
             chunkshape* adjacentinshape = adjacent->shape_chunk_in;
-
-            zip_quadrant(quadrant, current);
-
-            if(isBadError()) {
-                LOG_ERR("%s: zip_quadrant failed with code: %d", quadrant->name, getLastError());
-                return;
-            }
 
             if (colours_are_similar(current->average_colour, adjacent->average_colour, threshold)) {
                 if(map_x == quadrant->bounds.startingX || map_x == (quadrant->bounds.endingX - 1) ||
