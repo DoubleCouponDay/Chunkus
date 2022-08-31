@@ -30,36 +30,14 @@ float get_offset(float dimension) {
     return 0.f;
 }
 
-void zip_border_seam(pixelchunk* current, pixelchunk* alien) {
+bool zip_border_seam(pixelchunk* current, pixelchunk* alien, Quadrant* quadrant) {
     vector2 diff = create_vector_between_chunks(current, alien);
-    current->border_location.x = current->location.x + get_offset(diff.x);
-    current->border_location.y = current->location.y + get_offset(diff.y);
-}
-
-bool inc_or_dec(int seam, pixelchunk* chunk) {
-    bool output = true;
-
-    switch(seam) {
-        case POSITIVE:
-            chunk->border_location.x = chunk->location.x + ZIP_DISTANCE;
-            break;
-
-        case NEGATIVE:
-            chunk->border_location.x = chunk->location.x - ZIP_DISTANCE;
-            break;
-
-        default:
-            LOG_ERR("inc_or_dec failed: invalid seam: ", seam);
-            output = false;
-            break;
-    }
-    return output;
-}
-
-bool zip_quadrant(Quadrant* quadrant, pixelchunk* chunk) {
-    bool output = inc_or_dec(quadrant->X_seam, chunk);
-    output = output && inc_or_dec(quadrant->Y_seam, chunk);
-    return output;
+    float offset_x = get_offset(diff.x);
+    float offset_y = get_offset(diff.y);
+    offset_x = offset_x + (float)quadrant->X_seam * (ZIP_DISTANCE * 2);
+    offset_y = offset_y + (float)quadrant->Y_seam * (ZIP_DISTANCE * 2);
+    current->border_location.x = current->location.x + offset_x;
+    current->border_location.y = current->location.y + offset_y;
 }
 
 void windback_lists(chunkmap* map) {
@@ -209,12 +187,7 @@ void enlarge_border(
     pixelchunk* adjacent) {
     chunkshape* chosenshape;
 
-    zip_border_seam(current, adjacent);
-    
-    if(isBadError()) {
-        LOG_ERR("%s: zip_border failed with code: %d", quadrant->name, getLastError());
-        return;
-    }
+    zip_border_seam(current, adjacent, quadrant);
 
     if(quadrant->map->shape_list->filled == false) { //use firstshape
         chosenshape = quadrant->map->shape_list;
@@ -351,13 +324,6 @@ void find_shapes(
             chunkshape* currentinshape = current->shape_chunk_in;
             chunkshape* adjacentinshape = adjacent->shape_chunk_in;
 
-            zip_quadrant(quadrant, current);
-
-            if(isBadError()) {
-                LOG_ERR("%s: zip_quadrant failed with code: %d", quadrant->name, getLastError());
-                return;
-            }
-
             if (colours_are_similar(current->average_colour, adjacent->average_colour, threshold)) {
                 if(map_x == quadrant->bounds.startingX || map_x == (quadrant->bounds.endingX - 1) ||
                     map_y == quadrant->bounds.startingY || map_y == (quadrant->bounds.endingY - 1)) 
@@ -466,28 +432,28 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     int middle_height = (int)floor((float)map->map_height / (float)2);
 
     LOG_INFO("creating quadrants");
-    Quadrant quadrant1 = {"bottom-left", map, options, POSITIVE, POSITIVE};
+    Quadrant quadrant1 = {"top-left", map, options, POSITIVE, POSITIVE};
     quadrant1.bounds.startingX = 0;
     quadrant1.bounds.startingY = 0;
     quadrant1.bounds.endingX = middle_width;
     quadrant1.bounds.endingY = middle_height;
 
     chunkmap* map2 = generate_chunkmap(map->input, *options);
-    Quadrant quadrant2 = {"bottom-right", map2, options, NEGATIVE, POSITIVE};
+    Quadrant quadrant2 = {"top-right", map2, options, NEGATIVE, POSITIVE};
     quadrant2.bounds.startingX = middle_width;
     quadrant2.bounds.startingY = 0;
     quadrant2.bounds.endingX = map->map_width;
     quadrant2.bounds.endingY = middle_height; 
 
     chunkmap* map3 = generate_chunkmap(map->input, *options);
-    Quadrant quadrant3 = {"top-left", map3, options, POSITIVE, NEGATIVE};
+    Quadrant quadrant3 = {"bottom-left", map3, options, POSITIVE, NEGATIVE};
     quadrant3.bounds.startingX = 0;
     quadrant3.bounds.startingY = middle_height;
     quadrant3.bounds.endingX = middle_width;
     quadrant3.bounds.endingY = map->map_height;
 
     chunkmap* map4 = generate_chunkmap(map->input, *options);
-    Quadrant quadrant4 = {"top-right", map4, options, NEGATIVE, NEGATIVE};
+    Quadrant quadrant4 = {"bottom-right", map4, options, NEGATIVE, NEGATIVE};
     quadrant4.bounds.startingX = middle_width;
     quadrant4.bounds.startingY = middle_height;
     quadrant4.bounds.endingX = map->map_width;

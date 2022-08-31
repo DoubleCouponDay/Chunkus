@@ -3,6 +3,7 @@
         {
             "name": "Cmake CPP",
             "configurationProvider": "ms-vscode.cmake-tools",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
             "cStandard": "c17",
             "cppStandard": "c++17",
             "compilerPath": "C:/ProgramData/chocolatey/bin/g++.exe"

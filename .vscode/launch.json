@@ -10,13 +10,12 @@
             "request": "launch",
             "program": "${workspaceFolder}/install/bin/vec_test.exe",
             "args": [],
-            "stopAtEntry": true,
+            "stopAtEntry": false,
             "cwd": "${workspaceFolder}/install/bin",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
             "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe",
-            "preLaunchTask": "build"
         },
         {
             "name": "(Windows) Launch one test",
@@ -29,8 +28,6 @@
             "externalConsole": false,
             "MIMode": "gdb",
             "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe"
-            // ,
-            // "preLaunchTask": "build"
         },
         {
             "name": "(Linux) Launch tests",
