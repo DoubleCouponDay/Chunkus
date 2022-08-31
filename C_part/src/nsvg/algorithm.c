@@ -476,28 +476,28 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     int middle_height = (int)floor((float)map->map_height / (float)2);
 
     LOG_INFO("creating quadrants");
-    Quadrant quadrant1 = {"bottom-left", map, options, POSITIVE, POSITIVE};
+    Quadrant quadrant1 = {"top-left", map, options, POSITIVE, POSITIVE};
     quadrant1.bounds.startingX = 0;
     quadrant1.bounds.startingY = 0;
     quadrant1.bounds.endingX = middle_width;
     quadrant1.bounds.endingY = middle_height;
 
     chunkmap* map2 = generate_chunkmap(map->input, *options);
-    Quadrant quadrant2 = {"bottom-right", map2, options, NEGATIVE, POSITIVE};
+    Quadrant quadrant2 = {"top-right", map2, options, NEGATIVE, POSITIVE};
     quadrant2.bounds.startingX = middle_width;
     quadrant2.bounds.startingY = 0;
     quadrant2.bounds.endingX = map->map_width;
     quadrant2.bounds.endingY = middle_height; 
 
     chunkmap* map3 = generate_chunkmap(map->input, *options);
-    Quadrant quadrant3 = {"top-left", map3, options, POSITIVE, NEGATIVE};
+    Quadrant quadrant3 = {"bottom-left", map3, options, POSITIVE, NEGATIVE};
     quadrant3.bounds.startingX = 0;
     quadrant3.bounds.startingY = middle_height;
     quadrant3.bounds.endingX = middle_width;
     quadrant3.bounds.endingY = map->map_height;
 
     chunkmap* map4 = generate_chunkmap(map->input, *options);
-    Quadrant quadrant4 = {"top-right", map4, options, NEGATIVE, NEGATIVE};
+    Quadrant quadrant4 = {"bottom-right", map4, options, NEGATIVE, NEGATIVE};
     quadrant4.bounds.startingX = middle_width;
     quadrant4.bounds.startingY = middle_height;
     quadrant4.bounds.endingX = map->map_width;
