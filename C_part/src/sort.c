@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <math.h>
+#include <string.h>
 
 #include "chunkmap.h"
 #include "utility/logger.h"
@@ -105,6 +106,8 @@ void convert_array_to_boundary_list(pixelchunk** array, pixelchunk_list* output,
     }
 }
 
+void iterate_shape_boundaries(chunkshape*);
+
 void sort_boundary(chunkmap* map) {
     chunkshape* shape = map->shape_list;
 
@@ -118,7 +121,14 @@ void sort_boundary(chunkmap* map) {
             return;
         }
         convert_array_to_boundary_list(array, shape->boundaries, shape->boundaries_length);
-        prune_boundary(shape->boundaries);
+
+        pixelchunk_list* last;
+        for (last = shape->boundaries; last && last->next; last = last->next)
+            ;
+
+        if (!chunk_is_adjacent(last->chunk_p, shape->boundaries->chunk_p))
+            iterate_shape_boundaries(shape);
+
         shape = shape->next;
         free(array);
     }
@@ -320,6 +330,98 @@ float calculate_cw_angle(vector2 a, vector2 b)
 
 extern void free_pixelchunklist(pixelchunk_list* list);
 
+void iterate_shape_boundaries(chunkshape* shape)
+{
+    pc_vector vector = pc_create(0, shape->boundaries_length);
+    
+    // Go through boundaries and append the next boundary chunk (duplicates if necessary) to the vector
+    int count = 0;
+    int max_count = shape->boundaries_length * 2;
+    pixelchunk* current = shape->boundaries->chunk_p;
+
+    pc_append(&vector, current);
+
+    pixelchunk* prev = current;
+
+    pixelchunk* adjacents[9];
+
+    memset(adjacents, 0, sizeof(adjacents));
+    find_adjacents(current, adjacents, shape->boundaries);
+
+    if (adjacents[TOP_LEFT])
+        current = adjacents[TOP_LEFT];
+    else if (adjacents[TOP_MIDDLE])
+        current = adjacents[TOP_MIDDLE];
+    else if (adjacents[TOP_RIGHT])
+        current = adjacents[TOP_RIGHT];
+    else if (adjacents[MIDDLE_RIGHT])
+        current = adjacents[MIDDLE_RIGHT];
+    else if (adjacents[BOTTOM_RIGHT])
+        current = adjacents[BOTTOM_RIGHT];
+    else if (adjacents[BOTTOM_MIDDLE])
+        current = adjacents[BOTTOM_MIDDLE];
+    else if (adjacents[BOTTOM_LEFT])
+        current = adjacents[BOTTOM_LEFT];
+
+
+    while (current != pc_at(&vector, 0) && count < max_count)
+    {
+        pc_append(&vector, current);
+
+        memset(adjacents, 0, sizeof(adjacents));
+        find_adjacents(current, adjacents, shape->boundaries);
+
+        float smallest_angle = 3.14159265358979323846f * 2.0f;
+        pixelchunk* smallest_angle_chunk = NULL;
+        vector2 dir = { prev->location.x - current->location.x, prev->location.y - current->location.y };
+        for (int i = 0; i < 9; ++i)
+        {
+            pixelchunk* adjacent = adjacents[i];
+            if (!adjacent || i == MIDDLE_CENTER || adjacent == prev)
+                continue;
+            vector2 next_dir = {adjacent->location.x - current->location.x, adjacent->location.y - current->location.y};
+
+            float angle = calculate_ccw_angle(dir, next_dir);
+            if (angle < smallest_angle)
+            {
+                smallest_angle = angle;
+                smallest_angle_chunk = adjacent;
+            }
+        }
+
+        if (!smallest_angle_chunk)
+        {
+            // Try going backward instead
+            smallest_angle_chunk = prev;
+        }
+
+        prev = current;
+        current = smallest_angle_chunk;
+        ++count;
+    }
+
+    // Copy the vector back to the list
+    free_pixelchunklist(shape->boundaries);
+    if (!pc_vector_size(&vector))
+    {
+        return;
+    }
+    pixelchunk_list* first = (pixelchunk_list*)malloc(sizeof(pixelchunk_list));
+    first->chunk_p = pc_at(&vector, 0);
+    first->next = NULL;
+    shape->boundaries = first;
+    for (int i = 1; i < pc_vector_size(&vector); ++i)
+    {
+        pixelchunk* chunk = pc_at(&vector, i);
+        pixelchunk_list* list = (pixelchunk_list*)malloc(sizeof(pixelchunk_list));
+        list->chunk_p = chunk;
+        list->next = NULL;
+        shape->boundaries->next = list;
+        shape->boundaries = list;
+    }
+    shape->boundaries = first;
+}
+
 void iterate_border(chunkmap* map)
 {
     chunkshape* shape = map->shape_list;
@@ -327,95 +429,7 @@ void iterate_border(chunkmap* map)
     int shape_count = 0;
     while (shape)
     {
-        pc_vector vector = pc_create(0, shape->boundaries_length);
-        
-        // Go through boundaries and append the next boundary chunk (duplicates if necessary) to the vector
-        int count = 0;
-        int max_count = shape->boundaries_length * 2;
-        pixelchunk* current = shape->boundaries->chunk_p;
-
-        pc_append(&vector, current);
-
-        pixelchunk* prev = current;
-
-        pixelchunk* adjacents[9];
-
-        memset(adjacents, 0, sizeof(adjacents));
-        find_adjacents(current, adjacents, shape->boundaries);
-
-        if (adjacents[TOP_LEFT])
-            current = adjacents[TOP_LEFT];
-        else if (adjacents[TOP_MIDDLE])
-            current = adjacents[TOP_MIDDLE];
-        else if (adjacents[TOP_RIGHT])
-            current = adjacents[TOP_RIGHT];
-        else if (adjacents[MIDDLE_RIGHT])
-            current = adjacents[MIDDLE_RIGHT];
-        else if (adjacents[BOTTOM_RIGHT])
-            current = adjacents[BOTTOM_RIGHT];
-        else if (adjacents[BOTTOM_MIDDLE])
-            current = adjacents[BOTTOM_MIDDLE];
-        else if (adjacents[BOTTOM_LEFT])
-            current = adjacents[BOTTOM_LEFT];
-
-
-        while (current != pc_at(&vector, 0) && count < max_count)
-        {
-            pc_append(&vector, current);
-
-            memset(adjacents, 0, sizeof(adjacents));
-            find_adjacents(current, adjacents, shape->boundaries);
-
-            float smallest_angle = 3.14159265358979323846f * 2.0f;
-            pixelchunk* smallest_angle_chunk = NULL;
-            vector2 dir = { prev->location.x - current->location.x, prev->location.y - current->location.y };
-            for (int i = 0; i < 9; ++i)
-            {
-                pixelchunk* adjacent = adjacents[i];
-                if (!adjacent || i == MIDDLE_CENTER || adjacent == prev)
-                    continue;
-                vector2 next_dir = {adjacent->location.x - current->location.x, adjacent->location.y - current->location.y};
-
-                float angle = calculate_ccw_angle(dir, next_dir);
-                if (angle < smallest_angle)
-                {
-                    smallest_angle = angle;
-                    smallest_angle_chunk = adjacent;
-                }
-            }
-
-            if (!smallest_angle_chunk)
-            {
-                // Try going backward instead
-                smallest_angle_chunk = prev;
-            }
-
-            prev = current;
-            current = smallest_angle_chunk;
-            ++count;
-        }
-
-        // Copy the vector back to the list
-        free_pixelchunklist(shape->boundaries);
-        if (!pc_vector_size(&vector))
-        {
-            shape = shape->next;
-            continue;
-        }
-        pixelchunk_list* first = (pixelchunk_list*)malloc(sizeof(pixelchunk_list));
-        first->chunk_p = pc_at(&vector, 0);
-        first->next = NULL;
-        shape->boundaries = first;
-        for (int i = 1; i < pc_vector_size(&vector); ++i)
-        {
-            pixelchunk* chunk = pc_at(&vector, i);
-            pixelchunk_list* list = (pixelchunk_list*)malloc(sizeof(pixelchunk_list));
-            list->chunk_p = chunk;
-            list->next = NULL;
-            shape->boundaries->next = list;
-            shape->boundaries = list;
-        }
-        shape->boundaries = first;
+        iterate_shape_boundaries(shape);
 
         shape = shape->next;
         ++shape_count;
