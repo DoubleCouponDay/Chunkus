@@ -34,8 +34,8 @@ bool zip_border_seam(pixelchunk* current, pixelchunk* alien, Quadrant* quadrant)
     vector2 diff = create_vector_between_chunks(current, alien);
     float offset_x = get_offset(diff.x);
     float offset_y = get_offset(diff.y);
-    offset_x = offset_x + (float)quadrant->X_seam * ZIP_DISTANCE;
-    offset_y = offset_y + (float)quadrant->Y_seam * ZIP_DISTANCE;
+    offset_x = offset_x + (float)quadrant->X_seam * (ZIP_DISTANCE * 2);
+    offset_y = offset_y + (float)quadrant->Y_seam * (ZIP_DISTANCE * 2);
     current->border_location.x = current->location.x + offset_x;
     current->border_location.y = current->location.y + offset_y;
 }
