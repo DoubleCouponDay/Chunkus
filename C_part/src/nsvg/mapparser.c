@@ -26,7 +26,7 @@ typedef struct
 } svg_hashies_iter;
 
 //assumes first path and first shape are given
-bool iterate_new_path(pixelchunk* chunk, svg_hashies_iter* udata) {
+bool add_to_path(pixelchunk* chunk, svg_hashies_iter* udata) {
     NSVGshape* current = udata->output->shapes;
     NSVGpath* currentpath = current->paths;
 
@@ -130,7 +130,7 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
     while(map->shape_list != NULL) {
 
         if(map->shape_list->boundaries->chunk_p == NULL) {
-            LOG_ERR("boundary creation broken!");
+            LOG_ERR("boundary found without any chunks!");
             setError(LOW_BOUNDARIES_CREATED);
             return;
         }
@@ -151,7 +151,6 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         }
 
         // We have a shape, now we need to iterate its chunks
-        // v
         vector2 empty = {NONE_FILLED, NONE_FILLED};
         // Create and store the first path now so we can wind is back to the start later
         NSVGpath* firstpath = create_path(map->input, empty, empty); // the empty vector indicates the path has no points yet
@@ -170,13 +169,11 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         // Case 1: normal amount of boundaries:
         if (map->shape_list->boundaries_length > 1)
         {
-
-
             LOG_INFO("iterating boundaries, count: %d ", map->shape_list->boundaries_length);
 
             for (pixelchunk_list* iter = map->shape_list->boundaries; iter; iter = iter->next)
             {
-                iterate_new_path(iter->chunk_p, &shape_data);
+                add_to_path(iter->chunk_p, &shape_data);
             }
 
             code = getLastError();
@@ -195,39 +192,7 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
             LOG_INFO("closing path");
             close_path(map, output, firstpath);
         }
-        // Case 2: only one boundary
-        else
-        {
-            vector2 boundary_loc = map->shape_list->boundaries->chunk_p->border_location;
-            
-            // Create all the paths first
-            NSVGpath* right_edge_path = create_path(map->input, (vector2){ boundary_loc.x + 0.5f, boundary_loc.y - 0.5f }, (vector2){boundary_loc.x + 0.5f, boundary_loc.y + 0.5f});
-            NSVGpath* top_edge_path = create_path(map->input, (vector2){ boundary_loc.x + 0.5f, boundary_loc.y + 0.5f }, (vector2){boundary_loc.x - 0.5f, boundary_loc.y + 0.5f});
-            NSVGpath* left_edge_path = create_path(map->input, (vector2){ boundary_loc.x - 0.5f, boundary_loc.y + 0.5f }, (vector2){boundary_loc.x - 0.5f, boundary_loc.y - 0.5f});
-
-            // Fill in the bottom edge (which is firstpath)
-            firstpath->pts[0] = boundary_loc.x - 0.5f;
-            firstpath->pts[1] = boundary_loc.y - 0.5f;
-            firstpath->pts[2] = boundary_loc.x + 0.5f;
-            firstpath->pts[3] = boundary_loc.y - 0.5f;
-
-            // Connect the paths
-            firstpath->next = right_edge_path;
-            right_edge_path->next = top_edge_path;
-            top_edge_path->next = left_edge_path;
-
-            // Fill in the 'fill' data
-            shape_data.shapescolour = calloc(1, sizeof(NSVGpaint));
-            NSVGpaint* fill = shape_data.shapescolour;
-            fill->type = NSVG_PAINT_COLOR;
-
-            pixelchunk* chunk = map->shape_list->boundaries->chunk_p;
-            fill->color = NSVG_RGB(
-                chunk->average_colour.r, 
-                chunk->average_colour.g, 
-                chunk->average_colour.b
-            );
-        }
+        //boundaries with less than 1 item accounted for in algorithm.make_triangle()
 
         output->shapes->paths = firstpath; //wind back the paths
         
@@ -257,7 +222,6 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
     }
 
     // Done iterating, clean up now
-    // v
     map->shape_list = map->first_shape;
     LOG_INFO("Iterated %d shapes", count_shapes(map->shape_list));
 
