@@ -68,8 +68,8 @@ pixelF convert_colour_to_pixelf(colour input)
     return out;
 }
 
-bool pixelf_equal(pixelF a, pixelF b) {
-    return a.r == b.r && a.g == b.g && a.b == b.b;
+bool pixelf_equal(pixelF pixel1, pixelF pixel2) {
+    return pixel1.r == pixel2.r && pixel1.g == pixel2.g && pixel1.b == pixel2.b;
 }
 
 int calculate_int_units(int subject) {
