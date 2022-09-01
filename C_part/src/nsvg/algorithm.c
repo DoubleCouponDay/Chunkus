@@ -293,7 +293,7 @@ void enlarge_shape(
         {
             chosenshape->chunks = add_chunk_to_shape(chosenshape, current);
         }
-        chosen_shape->chunks = add_chunk_to_shape(chosenshape, adjacent);
+        chosenshape->chunks = add_chunk_to_shape(chosenshape, adjacent);
     }
 
     else if (currentinshape && adjacentinshape == NULL)
@@ -305,7 +305,7 @@ void enlarge_shape(
     else if(currentinshape == NULL && adjacentinshape)
     {
         chosenshape = adjacentinshape;
-        chosenshape->chunks = add_chunks_to_shape(chosenshape, current);
+        chosenshape->chunks = add_chunk_to_shape(chosenshape, current);
     }
 
     else if(currentinshape == adjacentinshape) {
