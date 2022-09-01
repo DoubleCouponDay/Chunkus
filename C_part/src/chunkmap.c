@@ -17,7 +17,7 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
     pixelchunk* chunk = &output->groups_array_2d[x][y];
     
     coordinate location = {
-        x, y,
+        x, y
     };
     chunk->location = location;
     chunk->border_location = (vector2){ 0.f, 0.f };

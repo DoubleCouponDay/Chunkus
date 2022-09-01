@@ -17,10 +17,10 @@ enum {
     ADJACENT_COUNT = 9
 };
 
-void swap_items(pixelchunk** array, unsigned long a, unsigned long b) {
-    pixelchunk* tmp = array[a];
-    array[a] = array[b];
-    array[b] = tmp;
+void swap_items(pixelchunk** array, unsigned long item1, unsigned long item2) {
+    pixelchunk* tmp = array[item1];
+    array[item1] = array[item2];
+    array[item2] = tmp;
 }
 
 void dont_skip_corners(pixelchunk** array, unsigned long eligiblesubjects[ADJACENT_COUNT], pixelchunk* subject, pixelchunk* previous, 
@@ -30,15 +30,15 @@ void dont_skip_corners(pixelchunk** array, unsigned long eligiblesubjects[ADJACE
     pixelchunk* most_eligible = NULL;
     unsigned long most_eligible_index = 0;
 
-    for (unsigned long q = 0; q < eligible_count; ++q) {
-        pixelchunk* eligible = array[eligiblesubjects[q]];
+    for (unsigned long i = 0; i < eligible_count; ++i) {
+        pixelchunk* eligible = array[eligiblesubjects[i]];
         float angle = calculate_angle_between(eligible, subject, previous);
 
         if (angle < smallest_angle)
         {
             smallest_angle = angle;
             most_eligible = eligible;
-            most_eligible_index = eligiblesubjects[q];
+            most_eligible_index = eligiblesubjects[i];
         }
     }
 
@@ -53,36 +53,36 @@ void dont_skip_corners(pixelchunk** array, unsigned long eligiblesubjects[ADJACE
     }
 }
 
-void bubble_sort(pixelchunk** array, unsigned long a, unsigned long length) {
+void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) {
     bool allsorted = false;
 
     while(allsorted == false) {        
-        //unsigned long next = start + 1;
+        unsigned long next = start + 1;
 
-        if(a + 1 >= length) {
+        if(next >= length) {
             allsorted = true;
             return;
         }
         unsigned long eligiblesubjects[ADJACENT_COUNT] = {0};
-        pixelchunk* a_chunk = array[a];
+        pixelchunk* starting_chunk = array[start];
         unsigned long eligible_count = 0;
-        pixelchunk* a_prev_chunk = (a ? array[a - 1] : NULL);
+        pixelchunk* previous = (start ? array[start - 1] : NULL);
 
-        for(unsigned long b = a + 1; b < length; ++b) {
-            pixelchunk* b_chunk = array[b];
+        for(unsigned long i = start + 1; i < length; ++i) {
+            pixelchunk* current_chunk = array[i];
 
-            if(chunk_is_adjacent(b_chunk, a_chunk)) {
+            if(chunk_is_adjacent(current_chunk, starting_chunk)) {
                 if(eligible_count == ADJACENT_COUNT) {
                     LOG_ERR("adjacent chunks are larger than known size!");
                     setError(ASSUMPTION_WRONG);
                     return;
                 }
-                eligiblesubjects[eligible_count] = b;
+                eligiblesubjects[eligible_count] = i;
                 ++eligible_count;            
             }
         }
-        dont_skip_corners(array, eligiblesubjects, a_chunk, a_prev_chunk, eligible_count, a + 1, length);
-        ++a;
+        dont_skip_corners(array, eligiblesubjects, starting_chunk, previous, eligible_count, start + 1, length);
+        ++start;
     }
 }
 
@@ -105,35 +105,6 @@ void convert_array_to_boundary_list(pixelchunk** array, pixelchunk_list* output,
         current = current->next;
     }
 }
-
-void iterate_shape_boundaries(chunkshape*);
-
-void sort_boundary(chunkmap* map) {
-    chunkshape* shape = map->shape_list;
-
-    while (shape)
-    {
-        pixelchunk** array = convert_boundary_list_toarray(shape->boundaries, shape->boundaries_length);
-        bubble_sort(array, 0, shape->boundaries_length);
-
-        if(isBadError()) {
-            LOG_ERR("bubble_sort failed with code: %d", getLastError());
-            return;
-        }
-        convert_array_to_boundary_list(array, shape->boundaries, shape->boundaries_length);
-
-        pixelchunk_list* last;
-        for (last = shape->boundaries; last && last->next; last = last->next)
-            ;
-
-        if (!chunk_is_adjacent(last->chunk_p, shape->boundaries->chunk_p))
-            iterate_shape_boundaries(shape);
-
-        shape = shape->next;
-        free(array);
-    }
-}
-
 
 typedef struct pixelchunk_vector
 {
@@ -422,18 +393,31 @@ void iterate_shape_boundaries(chunkshape* shape)
     shape->boundaries = first;
 }
 
-void iterate_border(chunkmap* map)
-{
+void sort_boundary(chunkmap* map) {
     chunkshape* shape = map->shape_list;
 
-    int shape_count = 0;
     while (shape)
     {
-        iterate_shape_boundaries(shape);
+        pixelchunk** array = convert_boundary_list_toarray(shape->boundaries, shape->boundaries_length);
+        bubble_sort(array, 0, shape->boundaries_length);
+
+        if(isBadError()) {
+            LOG_ERR("bubble_sort failed with code: %d", getLastError());
+            return;
+        }
+        convert_array_to_boundary_list(array, shape->boundaries, shape->boundaries_length);
+
+
+        pixelchunk_list* last = shape->boundaries;
+
+        while(last && last->next) {
+            last = last->next;
+        }
+
+        if (!chunk_is_adjacent(last->chunk_p, shape->boundaries->chunk_p))
+            iterate_shape_boundaries(shape);
 
         shape = shape->next;
-        ++shape_count;
+        free(array);
     }
 }
-
-
