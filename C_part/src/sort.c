@@ -86,9 +86,9 @@ void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) 
     }
 }
 
-pixelchunk** convert_boundary_list_toarray(pixelchunk_list* holder, unsigned long length) {
+pixelchunk** convert_boundary_list_toarray(pixelchunk_list* list, unsigned long length) {
     pixelchunk** output = calloc(1, sizeof(pixelchunk*) * length);
-    pixelchunk_list* current = holder;
+    pixelchunk_list* current = list;
 
     for(unsigned long i = 0; i < length; ++i) {
         output[i] = current->chunk_p;
