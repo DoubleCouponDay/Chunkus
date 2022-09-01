@@ -59,9 +59,6 @@ void windback_lists(chunkmap* map) {
 }
 
 pixelchunk_list* add_chunk_to_boundary(chunkshape* shape, pixelchunk* chunk) {
-    if(chunk->boundary_chunk_in != NULL) {
-        return shape->boundaries; //prevents putting chunks in multiple shapes
-    }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
     new->first_chunk = shape->boundaries->first_chunk;
     new->chunk_p = chunk;
@@ -69,13 +66,11 @@ pixelchunk_list* add_chunk_to_boundary(chunkshape* shape, pixelchunk* chunk) {
     chunk->boundary_chunk_in = shape;
     shape->boundaries->next = new;
     ++shape->boundaries_length;
+    shape->filled = true;
     return new;
 }
 
 pixelchunk_list* add_chunk_to_shape(chunkshape* shape, pixelchunk* chunk) {
-    if(chunk->shape_chunk_in != NULL) {
-        return shape->chunks;
-    }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
     new->first_chunk = shape->chunks->first_chunk;
     new->chunk_p = chunk;
@@ -83,6 +78,7 @@ pixelchunk_list* add_chunk_to_shape(chunkshape* shape, pixelchunk* chunk) {
     chunk->shape_chunk_in = shape;
     shape->chunks->next = new;
     ++shape->chunks_amount;
+    shape->filled = true;
     return new;
 }
 
