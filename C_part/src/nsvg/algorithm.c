@@ -407,12 +407,15 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     add_chunk_to_shape(triangle, currentchunk_p);
     add_chunk_to_boundary(triangle, currentchunk_p);
 
-    add_chunk_to_shape(triangle, top_vertex);
-    add_chunk_to_boundary(triangle, top_vertex);
+    if(top_vertex->shape_chunk_in == NULL) {
+        add_chunk_to_shape(triangle, top_vertex);
+        add_chunk_to_boundary(triangle, top_vertex);
+    }
 
-    add_chunk_to_shape(triangle, right_vertex);
-    add_chunk_to_boundary(triangle, right_vertex);
-
+    if(right_vertex->shape_chunk_in == NULL) {
+        add_chunk_to_shape(triangle, right_vertex);
+        add_chunk_to_boundary(triangle, right_vertex);
+    }
     triangle->colour = currentchunk_p->average_colour;
 }
 
