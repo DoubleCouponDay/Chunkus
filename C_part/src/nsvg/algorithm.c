@@ -404,9 +404,6 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     add_chunk_to_boundary(triangle, right_vertex);
 
     triangle->colour = currentchunk_p->average_colour;
-    triangle->boundaries_length = 3;
-    triangle->chunks_amount = 3;
-    triangle->filled = true;
 }
 
 ///A multithreaded function
