@@ -192,17 +192,22 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
             LOG_INFO("closing path");
             close_path(map, output, firstpath);
         }
-        //boundaries with less than 1 item accounted for in algorithm.make_triangle()
+
+        else {
+            ++index;
+            map->shape_list = map->shape_list->next;
+            continue; //boundaries with less than 1 item accounted for in algorithm.make_triangle() 
+        }
 
         output->shapes->paths = firstpath; //wind back the paths
         
-        //set the colour of the shape while prevent undefined behaviour
+        //set the colour of the shape
         NSVGpaint fillcopy = {
             shape_data.shapescolour->type,
             shape_data.shapescolour->color
         };
         output->shapes->fill = fillcopy;
-        free(shape_data.shapescolour); //we held on to the dynamically allocated paint now we free it
+        free(shape_data.shapescolour);
 
         NSVGpaint stroke = {
             NSVG_PAINT_NONE,
