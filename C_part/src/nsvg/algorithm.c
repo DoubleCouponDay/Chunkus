@@ -368,6 +368,12 @@ void find_shapes(
 }
 
 void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
+    //allow no shape pixels
+    if(currentchunk_p->shape_chunk_in != NULL)
+    {
+        return;
+    }
+
     LOG_INFO("%s: making triangle", quadrant->name);
     float Xoffset = get_quadrant_zip_Xoffset(quadrant);
     float Yoffset = get_quadrant_zip_Yoffset(quadrant);
@@ -443,10 +449,7 @@ void* fill_quadrant(void* arg) {
                 pthread_exit(NULL);
             }
 
-            if (currentchunk_p->shape_chunk_in == NULL)
-            {
-                make_triangle(quadrant, currentchunk_p);
-            }
+            make_triangle(quadrant, currentchunk_p);
 
             if(quadrant->options->step_index > 0 && count >= quadrant->options->step_index) {
                 LOG_INFO("step_index reached: %d\n", count);
