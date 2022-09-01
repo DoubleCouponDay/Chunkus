@@ -376,8 +376,7 @@ void find_shapes(
 }
 
 void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
-    //allow no shape pixels
-    if(currentchunk_p->shape_chunk_in != NULL)
+    if(currentchunk_p->shape_chunk_in->boundaries_length != 1) //chunks will always have a shape
     {
         return;
     }
@@ -386,11 +385,11 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     float Xoffset = get_quadrant_zip_Xoffset(quadrant);
     float Yoffset = get_quadrant_zip_Yoffset(quadrant);
 
-    float top_location_x = (float)currentchunk_p->location.x + Xoffset;
-    float top_location_y = (float)currentchunk_p->location.y - 1 + Yoffset;
+    int top_location_x = (float)currentchunk_p->location.x + Xoffset;
+    int top_location_y = (float)currentchunk_p->location.y - 1 + Yoffset;
 
-    float right_location_x = (float)currentchunk_p->location.x + 1 + Xoffset;
-    float right_location_y = (float)currentchunk_p->location.y + Yoffset;
+    int right_location_x = (float)currentchunk_p->location.x + 1 + Xoffset;
+    int right_location_y = (float)currentchunk_p->location.y + Yoffset;
 
     if(top_location_x < quadrant->bounds.startingX || top_location_x >= quadrant->bounds.endingX ||
         top_location_y < quadrant->bounds.startingY || top_location_y >= quadrant->bounds.endingY ||
@@ -400,8 +399,8 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
         LOG_INFO("triangle would overlap bounds. discarding...");
         return;
     }
-    pixelchunk* top_vertex = &(quadrant->map->groups_array_2d[currentchunk_p->location.x][currentchunk_p->location.y - 1]);
-    pixelchunk* right_vertex = &(quadrant->map->groups_array_2d[currentchunk_p->location.x + 1][currentchunk_p->location.y]);
+    pixelchunk* top_vertex = &(quadrant->map->groups_array_2d[top_location_x][top_location_y]);
+    pixelchunk* right_vertex = &(quadrant->map->groups_array_2d[right_location_x][right_location_y]);
     
     chunkshape* triangle = add_new_shape(quadrant);
     add_chunk_to_shape(triangle, currentchunk_p);
