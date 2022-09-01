@@ -417,7 +417,7 @@ void* fill_quadrant(void* arg) {
     int tenth_of_map = (int)floor(quadrant->map->map_width * quadrant->map->map_height / 10.f);
 
     // check if quadrant is actually big enough
-    if (quadrant->bounds.endingX - quadrant->bounds.startingX > 1 || quadrant->bounds.endingY - quadrant->bounds.startingY > 1)
+    if (quadrant->bounds.endingX - quadrant->bounds.startingX <= 1 || quadrant->bounds.endingY - quadrant->bounds.startingY <= 1)
     {
         LOG_ERR("quadrant '%s' is not big enough!", quadrant->name);
         setError(ASSUMPTION_WRONG);
