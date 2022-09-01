@@ -18,8 +18,8 @@ typedef struct
     pixel** pixels_array_2d;
     coordinate location;
     vector2 border_location;
-    struct chunkshape* shape_chunk_in;
-    struct chunkshape* boundary_chunk_in;
+    struct chunkshape* shape_chunk_in; //used to ensure a chunk doesnt end up in multiple shapes
+    struct chunkshape* boundary_chunk_in; 
 } pixelchunk;
 
 typedef struct pixelchunk_list
