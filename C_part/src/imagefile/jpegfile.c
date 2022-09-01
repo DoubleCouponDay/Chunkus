@@ -11,7 +11,7 @@
 #include "../utility/logger.h"
 #include "../utility/defines.h"
 
-bool file_is_jpeg(char* fileaddress) {
+bool file_is_jpeg(const char* fileaddress) {
 	char current = fileaddress[0];
 	int index = 0;
 
@@ -31,7 +31,7 @@ bool file_is_jpeg(char* fileaddress) {
 	return false;
 }
 
-image convert_jpeg_to_image(char* fileaddress) {
+image convert_jpeg_to_image(const char* fileaddress) {
 	LOG_INFO("opening jpeg file...");
 
 	FILE* file = openfile(fileaddress);
