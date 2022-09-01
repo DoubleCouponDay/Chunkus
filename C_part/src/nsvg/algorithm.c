@@ -403,18 +403,15 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     pixelchunk* right_vertex = &(quadrant->map->groups_array_2d[right_location_x][right_location_y]);
     
     chunkshape* triangle = add_new_shape(quadrant);
-    add_chunk_to_shape(triangle, currentchunk_p);
-    add_chunk_to_boundary(triangle, currentchunk_p);
+    triangle->chunks = add_chunk_to_shape(triangle, currentchunk_p);
+    triangle->boundaries = add_chunk_to_boundary(triangle, currentchunk_p);
 
-    if(top_vertex->shape_chunk_in == NULL) {
-        add_chunk_to_shape(triangle, top_vertex);
-        add_chunk_to_boundary(triangle, top_vertex);
-    }
+    triangle->chunks = add_chunk_to_shape(triangle, top_vertex);
+    triangle->boundaries = add_chunk_to_boundary(triangle, top_vertex);
 
-    if(right_vertex->shape_chunk_in == NULL) {
-        add_chunk_to_shape(triangle, right_vertex);
-        add_chunk_to_boundary(triangle, right_vertex);
-    }
+    triangle->chunks = add_chunk_to_shape(triangle, right_vertex);
+    triangle->boundaries = add_chunk_to_boundary(triangle, right_vertex);
+
     triangle->colour = currentchunk_p->average_colour;
 }
 
