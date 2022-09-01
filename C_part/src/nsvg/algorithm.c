@@ -401,8 +401,8 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     }
     pixelchunk* top_vertex = &(quadrant->map->groups_array_2d[top_location_x][top_location_y]);
     pixelchunk* right_vertex = &(quadrant->map->groups_array_2d[right_location_x][right_location_y]);
+    chunkshape* triangle = currentchunk_p->shape_chunk_in;
     
-    chunkshape* triangle = add_new_shape(quadrant);
     triangle->chunks = add_chunk_to_shape(triangle, currentchunk_p);
     triangle->boundaries = add_chunk_to_boundary(triangle, currentchunk_p);
 
