@@ -377,7 +377,7 @@ void find_shapes(
 
 void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     //chunks will always have a shape
-    if(currentchunk_p->shape_chunk_in->boundaries_length != 1 && currentchunk_p->shape_chunk_in->chunks_amount != 1)
+    if(currentchunk_p->shape_chunk_in->boundaries_length != 1 || currentchunk_p->shape_chunk_in->chunks_amount != 1)
     {
         return;
     }
@@ -412,6 +412,7 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
 
     triangle->chunks = add_chunk_to_shape(triangle, right_vertex);
     triangle->boundaries = add_chunk_to_boundary(triangle, right_vertex);
+    bool test = true;
 }
 
 ///A multithreaded function
