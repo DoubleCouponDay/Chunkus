@@ -17,39 +17,19 @@
 
 const int NONE_FILLED = -1;
 
-typedef struct
-{
-    chunkmap* map;
-    NSVGimage* output;
-    NSVGpath* first_path;
-    NSVGpaint* shapescolour;
-} parsing_data;
-
 //builds nsvg paths with a minimum of two boundary chunks
-void add_to_path(pixelchunk* chunk, parsing_data* data) {
-    NSVGshape* currentshape = data->output->shapes;
-    NSVGpath* currentpath = currentshape->paths;
+void add_to_path(pixelchunk* chunk, NSVGpath* path, image input) {
 
     //fill first point
-    if(currentpath->pts[0] == NONE_FILLED) { // 1st point of path
-        currentpath->pts[0] = chunk->border_location.x; //x1
-        currentpath->pts[1] = chunk->border_location.y; //y1
-
-        data->shapescolour = calloc(1, sizeof(NSVGpaint));
-        NSVGpaint* fill = data->shapescolour;
-        fill->type = NSVG_PAINT_COLOR;
-
-        fill->color = NSVG_RGB(
-            chunk->average_colour.r, 
-            chunk->average_colour.g, 
-            chunk->average_colour.b
-        );
+    if(path->pts[0] == NONE_FILLED) { // 1st point of path
+        path->pts[0] = chunk->border_location.x; //x1
+        path->pts[1] = chunk->border_location.y; //y1
         return;
     }
     //fill second point
-    else if(currentpath->pts[2] == NONE_FILLED) {
-        currentpath->pts[2] = chunk->border_location.x; //x2
-        currentpath->pts[3] = chunk->border_location.y; //y2
+    else if(path->pts[2] == NONE_FILLED) {
+        path->pts[2] = chunk->border_location.x; //x2
+        path->pts[3] = chunk->border_location.y; //y2
     }
 
     // If both points have been filled, create a new path between them
@@ -57,12 +37,12 @@ void add_to_path(pixelchunk* chunk, parsing_data* data) {
     int y = chunk->location.y;
     
     vector2 previous_coord = {
-        currentpath->pts[0],
-        currentpath->pts[1],
+        path->pts[0],
+        path->pts[1],
     };
 
     NSVGpath* nextsegment = create_path(
-        data->map->input, 
+        input, 
         previous_coord,
         chunk->border_location
     );
@@ -72,8 +52,7 @@ void add_to_path(pixelchunk* chunk, parsing_data* data) {
         LOG_ERR("create_path failed with code: %n", code);
         return;
     }
-    currentpath->next = nextsegment;
-    currentshape->paths = nextsegment;
+    path->next = nextsegment;
     return;
 }
 
@@ -115,11 +94,9 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         return;
     }
 
-
     LOG_INFO("creating first shape");
     const char* firstid = "firstshape";
     NSVGshape* firstshape = create_shape(map, firstid, strlen(firstid));
-
 
     LOG_INFO("iterating shapes list");
     //iterate shapes
@@ -149,19 +126,14 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
 
         // We have a shape, now we need to iterate its chunks
         vector2 empty = {NONE_FILLED, NONE_FILLED};
-        // Create and store the first path now so we can wind is back to the start later
-        NSVGpath* firstpath = create_path(map->input, empty, empty); // the empty vector indicates the path has no points yet
+        // Create and store the first path for winding back
+        NSVGpath* currentpath = create_path(map->input, empty, empty); // the empty vector indicates the path has no points yet
         int code = getLastError();
 
         if(isBadError()) {
             LOG_ERR("create_path failed with code: %d", code);
             return;
         }
-        output->shapes->paths = firstpath; //first shapes path
-
-        parsing_data shape_data = {
-            map, output, firstpath, NULL
-        };        
 
         // Case 1: normal amount of boundaries:
         if (map->shape_list->boundaries_length > 1)
@@ -171,25 +143,25 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
             //this loop must iterate at least twice
             for (pixelchunk_list* boundaries = map->shape_list->boundaries; boundaries; boundaries = boundaries->next)
             {
-                add_to_path(boundaries->chunk_p, &shape_data);
+                add_to_path(boundaries->chunk_p, currentpath, map->input);
                 ++iterationCount;
                 code = getLastError();
 
                 if(isBadError()) {
                     LOG_ERR("iterate_new_path failed with code: %d", code);
                     return;
-                }
+                }         
             }
             LOG_INFO("add_to_path ran: %d times", iterationCount);
 
-            if(firstpath->pts[2] == NONE_FILLED) { //didnt form at least one path between two coordinates
+            if(currentpath->pts[2] == NONE_FILLED) { //didnt form at least one path between two coordinates
                 LOG_ERR("NO PATHS FOUND");
                 setError(ASSUMPTION_WRONG);
                 return;
             }
 
             LOG_INFO("closing path");
-            close_path(map, output, firstpath);
+            close_path(map, output, currentpath);
         }
 
         else {
@@ -198,21 +170,30 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
             continue; //boundaries with less than 1 item accounted for in algorithm.make_triangle() 
         }
 
-        output->shapes->paths = firstpath; //wind back the paths
-        
+        if(output->shapes->paths == NULL) {
+            output->shapes->paths = currentpath;
+        }
+
+        else {
+            output->shapes->paths->next = currentpath;
+        }
+
         //set the colour of the shape
-        NSVGpaint fillcopy = {
-            shape_data.shapescolour->type,
-            shape_data.shapescolour->color
+        NSVGpaint fill = {
+            NSVG_PAINT_COLOR,
+            NSVG_RGB(
+                map->shape_list->colour.r, 
+                map->shape_list->colour.g, 
+                map->shape_list->colour.b
+            )
         };
-        output->shapes->fill = fillcopy;
-        free(shape_data.shapescolour);
+        output->shapes->fill = fill;
 
         NSVGpaint stroke = {
             NSVG_PAINT_NONE,
             NSVG_RGB(0, 0, 0)
         };
-        output->shapes->stroke = stroke;        
+        output->shapes->stroke = stroke;
 
         throw_on_max(index);
         code = getLastError();
