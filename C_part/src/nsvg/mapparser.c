@@ -25,14 +25,12 @@ typedef struct
     NSVGpaint* shapescolour;
 } parsing_data;
 
-//assumes first path and first shape are given
+//builds nsvg paths with a minimum of two boundary chunks
 void add_to_path(pixelchunk* chunk, parsing_data* data) {
-    NSVGshape* current = data->output->shapes;
-    NSVGpath* currentpath = current->paths;
+    NSVGshape* currentshape = data->output->shapes;
+    NSVGpath* currentpath = currentshape->paths;
 
-    // Check if current nsvg path has either points yet to be filled
-    // If either are not filled, fill them with the given pixelchunk's border location
-    // If the first point hasn't been filled, we assume this is the first iteration, and will also create the NSVGpaint struct
+    //fill first point
     if(currentpath->pts[0] == NONE_FILLED) { // 1st point of path
         currentpath->pts[0] = chunk->border_location.x; //x1
         currentpath->pts[1] = chunk->border_location.y; //y1
@@ -46,10 +44,10 @@ void add_to_path(pixelchunk* chunk, parsing_data* data) {
             chunk->average_colour.g, 
             chunk->average_colour.b
         );
-        return; //assumes there are a minimum of 2 points before creating path
+        return;
     }
-
-    else if(currentpath->pts[2] == NONE_FILLED) { // 2nd point of path
+    //fill second point
+    else if(currentpath->pts[2] == NONE_FILLED) {
         currentpath->pts[2] = chunk->border_location.x; //x2
         currentpath->pts[3] = chunk->border_location.y; //y2
     }
@@ -75,7 +73,7 @@ void add_to_path(pixelchunk* chunk, parsing_data* data) {
         return;
     }
     currentpath->next = nextsegment;
-    current->paths = nextsegment;
+    currentshape->paths = nextsegment;
     return;
 }
 
