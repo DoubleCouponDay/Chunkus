@@ -26,7 +26,7 @@ typedef struct
 } svg_hashies_iter;
 
 //assumes first path and first shape are given
-bool add_to_path(pixelchunk* chunk, svg_hashies_iter* udata) {
+void add_to_path(pixelchunk* chunk, svg_hashies_iter* udata) {
     NSVGshape* current = udata->output->shapes;
     NSVGpath* currentpath = current->paths;
 
@@ -46,14 +46,14 @@ bool add_to_path(pixelchunk* chunk, svg_hashies_iter* udata) {
             chunk->average_colour.g, 
             chunk->average_colour.b
         );
-        return true;
+        return;
     }
 
     else if(currentpath->pts[2] == NONE_FILLED) { // 2nd point of path
         currentpath->pts[2] = chunk->border_location.x; //x2
         currentpath->pts[3] = chunk->border_location.y; //y2
         
-        return true;
+        return;
     }
 
     // If both points have been filled, create a new path to the current pixelchunk instead
@@ -73,11 +73,12 @@ bool add_to_path(pixelchunk* chunk, svg_hashies_iter* udata) {
     int code = getLastError();
 
     if(isBadError()) {
-        return false;
+        LOG_ERR("create_path failed with code: %n", code);
+        return;
     }
     currentpath->next = nextsegment;
     current->paths = nextsegment;
-    return true;
+    return;
 }
 
 // Adds the final segment of the path that links that last path to the first
@@ -174,16 +175,16 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
             for (pixelchunk_list* boundaries = map->shape_list->boundaries; boundaries; boundaries = boundaries->next)
             {
                 add_to_path(boundaries->chunk_p, &shape_data);
+
+                code = getLastError();
+
+                if(isBadError()) {
+                    LOG_ERR("iterate_new_path failed with code: %d", code);
+                    return;
+                }
             }
 
-            code = getLastError();
-
-            if(isBadError()) {
-                LOG_ERR("iterate_new_path failed with code: %d", code);
-                return;
-            }
-
-            else if(firstpath->pts[2] == NONE_FILLED) { //didnt form at least one path between two coordinates
+            if(firstpath->pts[2] == NONE_FILLED) { //didnt form at least one path between two coordinates
                 LOG_ERR("NO PATHS FOUND");
                 setError(ASSUMPTION_WRONG);
                 return;
