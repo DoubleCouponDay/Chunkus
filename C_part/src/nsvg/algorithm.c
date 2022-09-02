@@ -412,7 +412,6 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
 
     triangle->chunks = add_chunk_to_shape(triangle, right_vertex);
     triangle->boundaries = add_chunk_to_boundary(triangle, right_vertex);
-    bool test = true;
 }
 
 ///A multithreaded function
@@ -520,6 +519,13 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     LOG_INFO("waiting for thread4");
     pthread_join(thread4, NULL);
 
+    int code = getLastError();
+
+    if (isBadError())
+    {
+        LOG_ERR("a thread encountered an error.");
+        return;
+    }
     LOG_INFO("appending shapes from threads");
     
     map3->shape_list->next = map4->first_shape;
