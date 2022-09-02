@@ -193,9 +193,9 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         }
 
         else {
-            LOG_ERR("Shape has an incorrect number of boundaries: %d", map->shape_list->boundaries_length);
-            setError(ASSUMPTION_WRONG);
-            return;
+            ++index;
+            map->shape_list = map->shape_list->next;
+            continue; //boundaries with less than 1 item accounted for in algorithm.make_triangle() 
         }
 
         output->shapes->paths = firstpath; //wind back the paths
