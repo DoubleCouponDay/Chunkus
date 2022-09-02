@@ -191,9 +191,9 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         }
 
         else {
-            ++index;
-            map->shape_list = map->shape_list->next;
-            continue; //boundaries with less than 1 item accounted for in algorithm.make_triangle() 
+            LOG_ERR("Shape only has 1 boundary!");
+            setError(ASSUMPTION_WRONG);
+            return;
         }
 
         output->shapes->paths = firstpath; //wind back the paths
