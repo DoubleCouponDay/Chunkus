@@ -23,10 +23,10 @@ typedef struct
     NSVGimage* output;
     NSVGpath* first_path;
     NSVGpaint* shapescolour;
-} svg_hashies_iter;
+} parsing_data;
 
 //assumes first path and first shape are given
-void add_to_path(pixelchunk* chunk, svg_hashies_iter* udata) {
+void add_to_path(pixelchunk* chunk, parsing_data* udata) {
     NSVGshape* current = udata->output->shapes;
     NSVGpath* currentpath = current->paths;
 
@@ -46,14 +46,12 @@ void add_to_path(pixelchunk* chunk, svg_hashies_iter* udata) {
             chunk->average_colour.g, 
             chunk->average_colour.b
         );
-        return;
+        return; //assumes there are a minimum of 2 points before creating path
     }
 
     else if(currentpath->pts[2] == NONE_FILLED) { // 2nd point of path
         currentpath->pts[2] = chunk->border_location.x; //x2
         currentpath->pts[3] = chunk->border_location.y; //y2
-        
-        return;
     }
 
     // If both points have been filled, create a new path to the current pixelchunk instead
@@ -163,7 +161,7 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         }
         output->shapes->paths = firstpath; //first shapes path
 
-        svg_hashies_iter shape_data = {
+        parsing_data shape_data = {
             map, output, firstpath, NULL
         };        
 
