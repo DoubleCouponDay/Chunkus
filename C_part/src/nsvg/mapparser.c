@@ -167,11 +167,12 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         if (map->shape_list->boundaries_length > 1)
         {
             LOG_INFO("iterating boundaries, count: %d ", map->shape_list->boundaries_length);
-
+            int iterationCount = 0;
+            //this loop must iterate at least twice
             for (pixelchunk_list* boundaries = map->shape_list->boundaries; boundaries; boundaries = boundaries->next)
             {
                 add_to_path(boundaries->chunk_p, &shape_data);
-
+                ++iterationCount;
                 code = getLastError();
 
                 if(isBadError()) {
@@ -179,6 +180,7 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
                     return;
                 }
             }
+            LOG_INFO("add_to_path ran: %d times");
 
             if(firstpath->pts[2] == NONE_FILLED) { //didnt form at least one path between two coordinates
                 LOG_ERR("NO PATHS FOUND");
@@ -191,7 +193,7 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         }
 
         else {
-            LOG_ERR("Shape only has 1 boundary!");
+            LOG_ERR("Shape has an incorrect number of boundaries: %d", map->shape_list->boundaries_length);
             setError(ASSUMPTION_WRONG);
             return;
         }
