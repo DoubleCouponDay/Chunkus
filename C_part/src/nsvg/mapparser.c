@@ -180,7 +180,7 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
                     return;
                 }
             }
-            LOG_INFO("add_to_path ran: %d times");
+            LOG_INFO("add_to_path ran: %d times", iterationCount);
 
             if(firstpath->pts[2] == NONE_FILLED) { //didnt form at least one path between two coordinates
                 LOG_ERR("NO PATHS FOUND");
