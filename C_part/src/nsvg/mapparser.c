@@ -124,10 +124,7 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
             output->shapes = newshape;
         }
 
-        // We have a shape, now we need to iterate its chunks
-        vector2 empty = {NONE_FILLED, NONE_FILLED};
-        // Create and store the first path for winding back
-        NSVGpath* currentpath = create_path(map->input, empty, empty); // the empty vector indicates the path has no points yet
+
         int code = getLastError();
 
         if(isBadError()) {
@@ -138,12 +135,17 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         // Case 1: normal amount of boundaries:
         if (map->shape_list->boundaries_length > 1)
         {
+            // We have a shape, now we need to iterate its chunks
+            vector2 empty = {NONE_FILLED, NONE_FILLED};
+            // Create and store the first path for winding back
+            NSVGpath* firstpath = create_path(map->input, empty, empty);
+            
             LOG_INFO("iterating boundaries, count: %d ", map->shape_list->boundaries_length);
             int iterationCount = 0;
             //this loop must iterate at least twice
             for (pixelchunk_list* boundaries = map->shape_list->boundaries; boundaries; boundaries = boundaries->next)
             {
-                add_to_path(boundaries->chunk_p, currentpath, map->input);
+                add_to_path(boundaries->chunk_p, firstpath, map->input);
                 ++iterationCount;
                 code = getLastError();
 
@@ -203,6 +205,7 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
             return;
         }
         ++index;
+        output->
         map->shape_list = map->shape_list->next; //go to next shape
     }
 
