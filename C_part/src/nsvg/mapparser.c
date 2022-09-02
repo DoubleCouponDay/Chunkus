@@ -26,8 +26,8 @@ typedef struct
 } parsing_data;
 
 //assumes first path and first shape are given
-void add_to_path(pixelchunk* chunk, parsing_data* udata) {
-    NSVGshape* current = udata->output->shapes;
+void add_to_path(pixelchunk* chunk, parsing_data* shape_data) {
+    NSVGshape* current = shape_data->output->shapes;
     NSVGpath* currentpath = current->paths;
 
     // Check if current nsvg path has either points yet to be filled
@@ -37,8 +37,8 @@ void add_to_path(pixelchunk* chunk, parsing_data* udata) {
         currentpath->pts[0] = chunk->border_location.x; //x1
         currentpath->pts[1] = chunk->border_location.y; //y1
 
-        udata->shapescolour = calloc(1, sizeof(NSVGpaint));
-        NSVGpaint* fill = udata->shapescolour;
+        shape_data->shapescolour = calloc(1, sizeof(NSVGpaint));
+        NSVGpaint* fill = shape_data->shapescolour;
         fill->type = NSVG_PAINT_COLOR;
 
         fill->color = NSVG_RGB(
@@ -64,7 +64,7 @@ void add_to_path(pixelchunk* chunk, parsing_data* udata) {
     };
 
     NSVGpath* nextsegment = create_path(
-        udata->map->input, 
+        shape_data->map->input, 
         previous_coord,
         chunk->border_location
     );
