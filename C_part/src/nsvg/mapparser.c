@@ -54,13 +54,13 @@ void add_to_path(pixelchunk* chunk, parsing_data* data) {
         currentpath->pts[3] = chunk->border_location.y; //y2
     }
 
-    // If both points have been filled, create a new path to the current pixelchunk instead
+    // If both points have been filled, create a new path between them
     int x = chunk->location.x;
     int y = chunk->location.y;
     
     vector2 previous_coord = {
-        currentpath->pts[2],
-        currentpath->pts[3],
+        currentpath->pts[0],
+        currentpath->pts[1],
     };
 
     NSVGpath* nextsegment = create_path(

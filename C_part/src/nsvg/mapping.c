@@ -94,7 +94,7 @@ NSVGpath* create_path(image input, vector2 start, vector2 end) {
     if(isBadError()) {
         LOG_ERR("fill_bounds failed with code: %d", code);
         free(output);
-        free(points);        
+        free(points);
         return NULL;
     }    
     
