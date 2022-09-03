@@ -131,77 +131,73 @@ chunkshape* add_new_shape(Quadrant* quadrant) {
 
 chunkshape* merge_shapes(
     Quadrant* quadrant,
-    chunkshape* first, 
-    chunkshape* second) {
+    chunkshape* shape1, 
+    chunkshape* shape2) {
+    if(shape1 == NULL || shape2 == NULL) {
+        LOG_ERR("null shape passed to merge shapes!");
+        setError(ASSUMPTION_WRONG);
+        return NULL;
+    }
+
     // Find smallest shape
     LOG_INFO("%s: merging shapes", quadrant->name);
-    chunkshape* smaller = (first->chunks_amount < second->chunks_amount ? first : second);
-    chunkshape* larger = (smaller == first ? second : first);
-
-    pixelchunk_list* larger_first_chunk = larger->chunks->first;
-    pixelchunk_list* larger_first_boundary = larger->boundaries->first;
-
-    pixelchunk_list* smaller_first_chunk = smaller->chunks->first;
-    pixelchunk_list* smaller_first_boundary = smaller->boundaries->first;
-
-    int smaller_s_count = count_list(smaller->chunks->first);
-    int smaller_b_count = count_list(smaller->boundaries->first);
-
-    int larger_s_count = count_list(larger->chunks->first);
-    int larger_b_count = count_list(larger->boundaries->first);
+    chunkshape* smaller = (shape1->chunks_amount < shape2->chunks_amount ? shape1 : shape2);
+    chunkshape* larger = (smaller == shape1 ? shape2 : shape1);
 
     // in the smaller shape replace every chunk's shape
-    if(smaller->chunks != NULL) {
+    if(smaller->chunks != NULL && larger->chunks != NULL) {
         for (pixelchunk_list* iter = smaller->chunks->first; iter != NULL; iter = iter->next) {
             iter->chunk_p->shape_chunk_in = larger;
-            iter->first = larger_first_chunk;
+            iter->first = larger->chunks->first;
         }
     }
 
-    if(smaller->boundaries != NULL) {
+    if(smaller->boundaries != NULL && larger->boundaries != NULL) {
         for (pixelchunk_list* iter = smaller->boundaries->first; iter; iter = iter->next) {
             iter->chunk_p->boundary_chunk_in = larger;
-            iter->first = larger_first_boundary;
+            iter->first = larger->boundaries->first;
         }
+    
+        //wind forward the chunks
+        pixelchunk_list* larger_end = larger->chunks;
+        
+        while (larger_end != NULL && larger_end->next)
+            larger_end = larger_end->next;
+        
+        // Append smaller shape's chunks
+        larger_end->next = smaller->chunks->first;
+        larger->chunks = smaller->chunks;
+        larger->chunks_amount += smaller->chunks_amount;
+        smaller->chunks = NULL;
+        smaller->chunks_amount = 0;
+        
+        // Now wind forward boundaries
+        pixelchunk_list* larger_bounds = larger->boundaries;
+
+        while (larger_bounds != NULL && larger_bounds->next)
+            larger_bounds = larger_bounds->next;
+        
+        //append smaller boundaries chunks
+        larger_bounds->next = smaller->boundaries->first;
+        larger->boundaries = smaller->boundaries;
+        larger->boundaries_length += smaller->boundaries_length;
+        smaller->boundaries = NULL;
+        smaller->boundaries_length = 0;
+        smaller->filled = false;
+
+        //get rid of smaller shape by cutting it out of the linked list
+        if (smaller->previous) {
+            smaller->previous->next = smaller->next;
+        }
+
+        if(smaller->next) {
+            smaller->next->previous = smaller->previous;
+        }
+        --quadrant->map->shape_count;
     }
-
-    // Append smaller shape's chunks and borders onto larger's
-    pixelchunk_list* larger_end = larger->chunks;
-    
-    while (larger_end->next)
-        larger_end = larger_end->next;
-    
-    larger_end->next = smaller_first_chunk;
-    larger->chunks = smaller->chunks;
-    int sum = larger_s_count + smaller_s_count;
-    larger->chunks_amount += smaller->chunks_amount;
-    smaller->chunks = NULL;
-    smaller->chunks_amount = 0;
-    
-    // Now append boundaries
-    larger_end = larger->boundaries;
-
-    while (larger_end->next)
-        larger_end = larger_end->next;
-    
-    larger_end->next = smaller_first_boundary;
-    larger->boundaries = smaller->boundaries;
-    sum = larger_b_count + smaller_b_count;
-    larger->boundaries_length += smaller->boundaries_length;
-    smaller->boundaries = NULL;
-    smaller->boundaries_length = 0;
-    smaller->filled = false;
-
-    //get rid of smaller shape by cutting it out of the linked list
-    if (smaller->previous) {
-        smaller->previous->next = smaller->next;
+    if(smaller){
+        free(smaller);
     }
-
-    if(smaller->next) {
-        smaller->next->previous = smaller->previous;
-    }
-    --quadrant->map->shape_count;
-    free(smaller);
     return larger;
 }
 
@@ -248,7 +244,6 @@ void enlarge_shape(
             chosenshape = quadrant->map->shape_list;
             quadrant->map->shape_list->filled = true;
             ++quadrant->map->shape_count;
-            
         }
 
         else {
@@ -281,6 +276,11 @@ void enlarge_shape(
     else {
         LOG_ERR("logic statement assumptions dont match reality.");
         setError(ASSUMPTION_WRONG);
+        return;
+    }
+
+    if(isBadError()) {
+        LOG_ERR("enlarge_shape failed with code: %n", getLastError());
         return;
     }
     chosenshape->colour = current->average_colour;
