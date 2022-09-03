@@ -344,17 +344,16 @@ void find_shapes(
             }
         }
     }
-    
-    if(current->shape_chunk_in == NULL) { //create an empty shape with a single chunk, no boundary
-        chunkshape* new_shape = add_new_shape(quadrant);
-        new_shape->chunks = add_chunk_to_shape(new_shape, current);
-        quadrant->map->shape_list = new_shape;
-    }
 }
 
-void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
-    //assumes every chunk has a shape
-    if(currentchunk_p->shape_chunk_in->boundaries_length != 1 || currentchunk_p->shape_chunk_in->chunks_amount != 1)
+void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {  
+    if(currentchunk_p->shape_chunk_in == NULL) { //create an empty shape with a single chunk, no boundary
+        chunkshape* new_shape = add_new_shape(quadrant);
+        new_shape->chunks = add_chunk_to_shape(new_shape, currentchunk_p);
+        quadrant->map->shape_list = new_shape;
+    }
+
+    else if(currentchunk_p->shape_chunk_in->boundaries_length != 1 || currentchunk_p->shape_chunk_in->chunks_amount != 1)
     {
         return;
     }
