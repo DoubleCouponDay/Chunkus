@@ -101,7 +101,7 @@ pixelchunk_list* add_chunk_to_shape(chunkshape* shape, pixelchunk* chunk) {
         shape->chunks = new;
         new->first = shape->chunks->first;
     }
-    chunk->boundary_chunk_in = shape;
+    chunk->shape_chunk_in = shape;
     ++shape->chunks_amount;
     shape->filled = true;
     return new;
