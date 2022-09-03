@@ -142,9 +142,10 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
             LOG_INFO("iterating boundaries, count: %d ", map->shape_list->boundaries_length);
             int iterationCount = 0;
             //this loop must iterate at least twice
-            for (pixelchunk_list* boundaries = map->shape_list->boundaries; boundaries; boundaries = boundaries->next)
+            
+            for (pixelchunk_list* current = map->shape_list->boundaries->first; current != NULL; current = current->next)
             {
-                add_to_path(boundaries->chunk_p, firstpath, map->input);
+                add_to_path(current->chunk_p, firstpath, map->input);
                 ++iterationCount;
                 code = getLastError();
 
