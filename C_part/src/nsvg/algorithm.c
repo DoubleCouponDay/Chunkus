@@ -120,6 +120,8 @@ chunkshape* add_new_shape(Quadrant* quadrant) {
     new->next = NULL;
     new->chunks = NULL;
     new->boundaries = NULL;
+    new->boundaries_length = 0;
+    new->chunks_amount = 0;
 
     quadrant->map->shape_list->next = new; //links to the previous last item
     quadrant->map->shape_list = new; //sets the linked list to last item
