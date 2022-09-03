@@ -268,15 +268,9 @@ void enlarge_shape(
         chosenshape = adjacent->shape_chunk_in;
         chosenshape->chunks = add_chunk_to_shape(chosenshape, current);
     }
-
-    else if(current->shape_chunk_in == adjacent->shape_chunk_in) {
-        chosenshape = merge_shapes(quadrant, current->shape_chunk_in, adjacent->shape_chunk_in);
-    }
-
+    
     else {
-        LOG_ERR("logic statement assumptions dont match reality.");
-        setError(ASSUMPTION_WRONG);
-        return;
+        chosenshape = merge_shapes(quadrant, current->shape_chunk_in, adjacent->shape_chunk_in);
     }
 
     if(isBadError()) {
