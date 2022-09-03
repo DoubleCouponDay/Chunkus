@@ -119,14 +119,14 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
 
     LOG_INFO("allocating boundaries list");
     pixelchunk_list* boundaries = calloc(1, sizeof(pixelchunk_list));
-    boundaries->first_chunk = boundaries;
+    boundaries->first = boundaries;
     boundaries->chunk_p = NULL;
     boundaries->next = NULL;
     shape_list->boundaries = boundaries;
         
     LOG_INFO("allocating chunks list");
     pixelchunk_list* chunks = calloc(1, sizeof(pixelchunk_list));
-    chunks->first_chunk = chunks;
+    chunks->first = chunks;
     chunks->chunk_p = NULL;
     chunks->next = NULL;
     shape_list->chunks = chunks;

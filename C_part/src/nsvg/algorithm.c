@@ -52,8 +52,8 @@ void windback_lists(chunkmap* map) {
     chunkshape* current = map->first_shape;
 
     while(current != NULL) {
-        current->chunks = current->chunks->first_chunk;
-        current->boundaries = current->boundaries->first_chunk;
+        current->chunks = current->chunks->first;
+        current->boundaries = current->boundaries->first;
         current = current->next;
     }
 }
@@ -63,7 +63,7 @@ pixelchunk_list* add_chunk_to_boundary(chunkshape* shape, pixelchunk* chunk) {
         return shape->boundaries; //prevents putting chunks in multiple shapes
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
-    new->first_chunk = shape->boundaries->first_chunk;
+    new->first = shape->boundaries->first;
     new->chunk_p = chunk;
     new->next = NULL;
     chunk->boundary_chunk_in = shape;
@@ -78,7 +78,7 @@ pixelchunk_list* add_chunk_to_shape(chunkshape* shape, pixelchunk* chunk) {
         return shape->chunks;
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
-    new->first_chunk = shape->chunks->first_chunk;
+    new->first = shape->chunks->first;
     new->chunk_p = chunk;
     new->next = NULL;
     chunk->shape_chunk_in = shape;
@@ -97,12 +97,12 @@ chunkshape* add_new_shape(Quadrant* quadrant) {
         return NULL;
     }
     pixelchunk_list* chunks = calloc(1, sizeof(pixelchunk_list));
-    chunks->first_chunk = chunks;
+    chunks->first = chunks;
     chunks->chunk_p = NULL;
     chunks->next = NULL;
 
     pixelchunk_list* boundaries = calloc(1, sizeof(pixelchunk_list));
-    boundaries->first_chunk = boundaries;
+    boundaries->first = boundaries;
     boundaries->chunk_p = NULL;
     boundaries->next = NULL;
 
@@ -126,31 +126,31 @@ chunkshape* merge_shapes(
     chunkshape* smaller = (first->chunks_amount < second->chunks_amount ? first : second);
     chunkshape* larger = (smaller == first ? second : first);
 
-    pixelchunk_list* larger_first_chunk = larger->chunks->first_chunk;
-    pixelchunk_list* larger_first_boundary = larger->boundaries->first_chunk;
+    pixelchunk_list* larger_first_chunk = larger->chunks->first;
+    pixelchunk_list* larger_first_boundary = larger->boundaries->first;
 
 
-    pixelchunk_list* smaller_first_chunk = smaller->chunks->first_chunk;
-    pixelchunk_list* smaller_first_boundary = smaller->boundaries->first_chunk;
+    pixelchunk_list* smaller_first_chunk = smaller->chunks->first;
+    pixelchunk_list* smaller_first_boundary = smaller->boundaries->first;
 
-    int smaller_s_count = count_list(smaller->chunks->first_chunk);
-    int smaller_b_count = count_list(smaller->boundaries->first_chunk);
+    int smaller_s_count = count_list(smaller->chunks->first);
+    int smaller_b_count = count_list(smaller->boundaries->first);
 
-    int larger_s_count = count_list(larger->chunks->first_chunk);
-    int larger_b_count = count_list(larger->boundaries->first_chunk);
+    int larger_s_count = count_list(larger->chunks->first);
+    int larger_b_count = count_list(larger->boundaries->first);
 
     // Replace every chunk's shape_chunk_in in second's shape holder to point to first
     if(smaller->chunks != NULL) {
-        for (pixelchunk_list* iter = smaller->chunks->first_chunk; iter != NULL; iter = iter->next) {
+        for (pixelchunk_list* iter = smaller->chunks->first; iter != NULL; iter = iter->next) {
             iter->chunk_p->shape_chunk_in = larger;
-            iter->first_chunk = larger_first_chunk;
+            iter->first = larger_first_chunk;
         }
     }
 
     if(smaller->boundaries != NULL) {
-        for (pixelchunk_list* iter = smaller->boundaries->first_chunk; iter; iter = iter->next) {
+        for (pixelchunk_list* iter = smaller->boundaries->first; iter; iter = iter->next) {
             iter->chunk_p->boundary_chunk_in = larger;
-            iter->first_chunk = larger_first_boundary;
+            iter->first = larger_first_boundary;
         }
     }
 
