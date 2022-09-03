@@ -124,6 +124,10 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
             output->shapes = newshape;
         }
 
+        // We have a shape, now we need to iterate its chunks
+        vector2 empty = {NONE_FILLED, NONE_FILLED};
+        // Create and store the first path for winding back
+        NSVGpath* firstpath = create_path(map->input, empty, empty);
 
         int code = getLastError();
 
@@ -135,11 +139,6 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         // Case 1: normal amount of boundaries:
         if (map->shape_list->boundaries_length > 1)
         {
-            // We have a shape, now we need to iterate its chunks
-            vector2 empty = {NONE_FILLED, NONE_FILLED};
-            // Create and store the first path for winding back
-            NSVGpath* firstpath = create_path(map->input, empty, empty);
-            
             LOG_INFO("iterating boundaries, count: %d ", map->shape_list->boundaries_length);
             int iterationCount = 0;
             //this loop must iterate at least twice
@@ -156,14 +155,14 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
             }
             LOG_INFO("add_to_path ran: %d times", iterationCount);
 
-            if(currentpath->pts[2] == NONE_FILLED) { //didnt form at least one path between two coordinates
+            if(firstpath->pts[2] == NONE_FILLED) { //didnt form at least one path between two coordinates
                 LOG_ERR("NO PATHS FOUND");
                 setError(ASSUMPTION_WRONG);
                 return;
             }
 
             LOG_INFO("closing path");
-            close_path(map, output, currentpath);
+            close_path(map, output, firstpath);
         }
 
         else {
@@ -173,11 +172,11 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         }
 
         if(output->shapes->paths == NULL) {
-            output->shapes->paths = currentpath;
+            output->shapes->paths = firstpath;
         }
 
         else {
-            output->shapes->paths->next = currentpath;
+            output->shapes->paths->next = firstpath;
         }
 
         //set the colour of the shape
@@ -205,7 +204,6 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
             return;
         }
         ++index;
-        output->
         map->shape_list = map->shape_list->next; //go to next shape
     }
 
