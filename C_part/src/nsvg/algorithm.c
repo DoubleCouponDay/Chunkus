@@ -149,7 +149,7 @@ chunkshape* merge_shapes(
     int larger_s_count = count_list(larger->chunks->first);
     int larger_b_count = count_list(larger->boundaries->first);
 
-    // Replace every chunk's shape_chunk_in in second's shape holder to point to first
+    // in the smaller shape replace every chunk's shape
     if(smaller->chunks != NULL) {
         for (pixelchunk_list* iter = smaller->chunks->first; iter != NULL; iter = iter->next) {
             iter->chunk_p->shape_chunk_in = larger;
