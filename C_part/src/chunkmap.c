@@ -187,25 +187,6 @@ void free_chunkmap(chunkmap* map_p)
     LOG_INFO("freed chunkmap");
 }
 
-int count_list(pixelchunk_list* first)
-{
-    int count = 0;
-    pixelchunk_list* iter = first;
-    for (; iter; iter = iter->next)
-    {
-        count++;
-    }
-    return count;
-}
-
-int count_shapes(chunkshape* first)
-{
-    int count = 0;
-    for (; first; first = first->next)
-        ++count;
-    return count;
-}
-
 vector2 create_vector_between_chunks(pixelchunk* initial, pixelchunk* final) {
     int x_diff = final->location.x - initial->location.x;
     int y_diff = final->location.y - initial->location.y;

@@ -206,7 +206,7 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
 
     // Done iterating, clean up now
     map->shape_list = map->first_shape;
-    LOG_INFO("Iterated %d shapes", count_shapes(map->shape_list));
+    LOG_INFO("Iterated %d shapes", map->shape_count);
 
     if(firstshape->paths != NULL) {
         output->shapes = firstshape;
