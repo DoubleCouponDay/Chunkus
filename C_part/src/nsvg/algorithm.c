@@ -63,11 +63,21 @@ pixelchunk_list* add_chunk_to_boundary(chunkshape* shape, pixelchunk* chunk) {
         return shape->boundaries; //prevents putting chunks in multiple shapes
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
-    new->first = shape->boundaries->first;
     new->chunk_p = chunk;
     new->next = NULL;
+     
+    if(shape->boundaries == NULL) {
+        shape->boundaries = new;
+        new->first = new;
+    }
+
+    else {
+        shape->boundaries->next = new;
+        shape->boundaries = new;
+        new->first = shape->boundaries->first;
+        
+    }
     chunk->boundary_chunk_in = shape;
-    shape->boundaries->next = new;
     ++shape->boundaries_length;
     shape->filled = true;
     return new;
@@ -78,11 +88,20 @@ pixelchunk_list* add_chunk_to_shape(chunkshape* shape, pixelchunk* chunk) {
         return shape->chunks;
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
-    new->first = shape->chunks->first;
     new->chunk_p = chunk;
     new->next = NULL;
-    chunk->shape_chunk_in = shape;
-    shape->chunks->next = new;
+     
+    if(shape->chunks == NULL) {
+        shape->chunks = new;
+        new->first = new;
+    }
+
+    else {
+        shape->chunks->next = new;
+        shape->chunks = new;
+        new->first = shape->chunks->first;
+    }
+    chunk->boundary_chunk_in = shape;
     ++shape->chunks_amount;
     shape->filled = true;
     return new;
@@ -95,21 +114,12 @@ chunkshape* add_new_shape(Quadrant* quadrant) {
         LOG_ERR("%s: allocation failed", quadrant->name);        
         setError(ASSUMPTION_WRONG);
         return NULL;
-    }
-    pixelchunk_list* chunks = calloc(1, sizeof(pixelchunk_list));
-    chunks->first = chunks;
-    chunks->chunk_p = NULL;
-    chunks->next = NULL;
-
-    pixelchunk_list* boundaries = calloc(1, sizeof(pixelchunk_list));
-    boundaries->first = boundaries;
-    boundaries->chunk_p = NULL;
-    boundaries->next = NULL;
+    } 
 
     new->previous = quadrant->map->shape_list;
     new->next = NULL;
-    new->chunks = chunks;
-    new->boundaries = boundaries;
+    new->chunks = NULL;
+    new->boundaries = NULL;
 
     quadrant->map->shape_list->next = new; //links to the previous last item
     quadrant->map->shape_list = new; //sets the linked list to last item
@@ -228,29 +238,10 @@ void enlarge_border(
     }
     
     //add to boundary
-    if(chosenshape->boundaries->chunk_p == NULL) { //use first boundary
-        chosenshape->boundaries->chunk_p = current;
-        ++chosenshape->boundaries_length;
-        current->boundary_chunk_in = chosenshape;
-    }
-
-    else { //create boundary item
-        chosenshape->boundaries = add_chunk_to_boundary(chosenshape, current);
-    }
+    chosenshape->boundaries = add_chunk_to_boundary(chosenshape, current);
 
     //boundaries are part of the shape too
-    if (chosenshape->chunks->chunk_p == NULL) { 
-        chosenshape->chunks->chunk_p = current;
-        if (chosenshape->chunks_amount)
-            LOG_WARN("%s: A shape's chunk_p was null but chunks_amount was not", quadrant->name);
-        ++chosenshape->chunks_amount;
-        current->shape_chunk_in = chosenshape;
-    }
-
-    else
-    {
-        chosenshape->chunks = add_chunk_to_shape(chosenshape, current);
-    }
+    chosenshape->chunks = add_chunk_to_shape(chosenshape, current);
     chosenshape->colour = current->average_colour;
 }
 
@@ -274,27 +265,11 @@ void enlarge_shape(
         else {
             LOG_INFO("%s: Creating new shape", quadrant->name);
             chosenshape = add_new_shape(quadrant);
-
-            // We're adding to the boundary here because otherwise it gets skipped
-            // This control block only ever gets called on the first pixel of a quadrant
-            // This might be a band-aid fix to a deeper problem
             chosenshape->boundaries->chunk_p = current;
             ++chosenshape->boundaries_length;
             current->boundary_chunk_in = chosenshape;
         }
-
-        if (chosenshape->chunks->chunk_p == NULL) // If list hasn't been started, manually set the first one to current
-        {
-            chosenshape->chunks->chunk_p = current;
-            if (chosenshape->chunks_amount)
-                LOG_INFO("%s: A shape's chunk_p was null but chunks_amount was not", quadrant->name);
-            ++chosenshape->chunks_amount;
-            current->shape_chunk_in = chosenshape;
-        }
-        else
-        {
-            chosenshape->chunks = add_chunk_to_shape(chosenshape, current);
-        }
+        chosenshape->chunks = add_chunk_to_shape(chosenshape, current);
         chosenshape->chunks = add_chunk_to_shape(chosenshape, adjacent);
     }
 
