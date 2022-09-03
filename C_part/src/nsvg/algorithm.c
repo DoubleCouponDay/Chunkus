@@ -139,7 +139,6 @@ chunkshape* merge_shapes(
     pixelchunk_list* larger_first_chunk = larger->chunks->first;
     pixelchunk_list* larger_first_boundary = larger->boundaries->first;
 
-
     pixelchunk_list* smaller_first_chunk = smaller->chunks->first;
     pixelchunk_list* smaller_first_boundary = smaller->boundaries->first;
 
@@ -191,21 +190,13 @@ chunkshape* merge_shapes(
     smaller->boundaries_length = 0;
     smaller->filled = false;
 
-    // Remove smaller from the chunkshape list
-    if (smaller->previous) 
-    {
-        if (smaller == quadrant->map->shape_list)
-            quadrant->map->shape_list = smaller->previous;
-
+    //get rid of smaller shape by cutting it out of the linked list
+    if (smaller->previous) {
         smaller->previous->next = smaller->next;
-
-        if (smaller->next)
-            smaller->next->previous = smaller->previous;
     }
-    else
-    { //smaller is firstshape
-        quadrant->map->shape_list = smaller->next;
-        quadrant->map->shape_list->previous = NULL;
+
+    if(smaller->next) {
+        smaller->next->previous = smaller->previous;
     }
     --quadrant->map->shape_count;
     free(smaller);
