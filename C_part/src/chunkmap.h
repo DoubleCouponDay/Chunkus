@@ -19,7 +19,6 @@ typedef struct
     coordinate location;
     vector2 border_location;
     struct chunkshape* shape_chunk_in; //used to ensure a chunk doesnt end up in multiple shapes
-    struct chunkshape* boundary_chunk_in; 
 } pixelchunk;
 
 typedef struct pixelchunk_list

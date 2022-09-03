@@ -59,7 +59,7 @@ void windback_lists(chunkmap* map) {
 }
 
 pixelchunk_list* add_chunk_to_boundary(chunkshape* shape, pixelchunk* chunk) {
-    if(chunk->boundary_chunk_in != NULL) {
+    if(chunk->shape_chunk_in != NULL) {
         return shape->boundaries; //prevents putting chunks in multiple shapes
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
@@ -77,7 +77,7 @@ pixelchunk_list* add_chunk_to_boundary(chunkshape* shape, pixelchunk* chunk) {
         new->first = shape->boundaries->first;
         
     }
-    chunk->boundary_chunk_in = shape;
+    chunk->shape_chunk_in = shape;
     ++shape->boundaries_length;
     shape->filled = true;
     return new;
@@ -154,7 +154,7 @@ chunkshape* merge_shapes(
 
     if(smaller->boundaries != NULL && larger->boundaries != NULL) {
         for (pixelchunk_list* iter = smaller->boundaries->first; iter; iter = iter->next) {
-            iter->chunk_p->boundary_chunk_in = larger;
+            iter->chunk_p->shape_chunk_in = larger;
             iter->first = larger->boundaries->first;
         }
     
@@ -251,7 +251,7 @@ void enlarge_shape(
             chosenshape = add_new_shape(quadrant);
             chosenshape->boundaries = add_chunk_to_boundary(chosenshape, current);
             ++chosenshape->boundaries_length;
-            current->boundary_chunk_in = chosenshape;
+            current->shape_chunk_in = chosenshape;
         }
         chosenshape->chunks = add_chunk_to_shape(chosenshape, current);
         chosenshape->chunks = add_chunk_to_shape(chosenshape, adjacent);

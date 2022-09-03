@@ -83,7 +83,6 @@ void iterateImagePixels(int x, int y, image input, vectorize_options options, ch
     };
     chunk->average_colour = average_p;
     chunk->shape_chunk_in = NULL;
-    chunk->boundary_chunk_in = NULL;
 }
 
 chunkmap* generate_chunkmap(image input, vectorize_options options)
