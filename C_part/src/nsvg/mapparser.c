@@ -161,50 +161,46 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
                 return;
             }
 
+
+            if(output->shapes->paths == NULL) {
+                output->shapes->paths = firstpath;
+            }
+
+            else {
+                output->shapes->paths->next = firstpath;
+            }
+
             LOG_INFO("closing path");
-            close_path(map, output, firstpath);
+            close_path(map, output, firstpath); //requires that paths is set before running
+
+            //set the colour of the shape
+            NSVGpaint fill = {
+                NSVG_PAINT_COLOR,
+                NSVG_RGB(
+                    map->shape_list->colour.r, 
+                    map->shape_list->colour.g, 
+                    map->shape_list->colour.b
+                )
+            };
+            output->shapes->fill = fill;
+
+            NSVGpaint stroke = {
+                NSVG_PAINT_NONE,
+                NSVG_RGB(0, 0, 0)
+            };
+            output->shapes->stroke = stroke;
+
+            throw_on_max(index);
+            code = getLastError();
+
+            if(isBadError()) {
+                LOG_ERR("throw_on_max failed with code: %d", code);
+                return;
+            }
         }
-
-        else {
-            ++index;
-            map->shape_list = map->shape_list->next;
-            continue; //boundaries with less than 1 item accounted for in algorithm.make_triangle() 
-        }
-
-        if(output->shapes->paths == NULL) {
-            output->shapes->paths = firstpath;
-        }
-
-        else {
-            output->shapes->paths->next = firstpath;
-        }
-
-        //set the colour of the shape
-        NSVGpaint fill = {
-            NSVG_PAINT_COLOR,
-            NSVG_RGB(
-                map->shape_list->colour.r, 
-                map->shape_list->colour.g, 
-                map->shape_list->colour.b
-            )
-        };
-        output->shapes->fill = fill;
-
-        NSVGpaint stroke = {
-            NSVG_PAINT_NONE,
-            NSVG_RGB(0, 0, 0)
-        };
-        output->shapes->stroke = stroke;
-
-        throw_on_max(index);
-        code = getLastError();
-
-        if(isBadError()) {
-            LOG_ERR("throw_on_max failed with code: %d", code);
-            return;
-        }
+        //boundaries with less than 1 item accounted for in algorithm.make_triangle() 
         ++index;
-        map->shape_list = map->shape_list->next; //go to next shape
+        map->shape_list = map->shape_list->next;
     }
 
     // Done iterating, clean up now
