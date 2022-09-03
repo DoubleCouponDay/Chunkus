@@ -146,58 +146,31 @@ chunkshape* merge_shapes(
 
     // in the smaller shape replace every chunk's shape
     if(smaller->chunks != NULL && larger->chunks != NULL) {
-        for (pixelchunk_list* iter = smaller->chunks->first; iter != NULL; iter = iter->next) {
-            iter->chunk_p->shape_chunk_in = larger;
-            iter->first = larger->chunks->first;
+        for (pixelchunk_list* current = smaller->chunks->first; current != NULL; current = current->next) {
+            current->chunk_p->shape_chunk_in = larger;
+            current->first = larger->chunks->first;
         }
+        larger->chunks->next = smaller->chunks->first;
+        larger->chunks = smaller->chunks->first;
+        larger->chunks_amount += smaller->chunks_amount;
     }
 
     if(smaller->boundaries != NULL && larger->boundaries != NULL) {
-        for (pixelchunk_list* iter = smaller->boundaries->first; iter; iter = iter->next) {
-            iter->chunk_p->shape_chunk_in = larger;
-            iter->first = larger->boundaries->first;
-        }
-    
-        //wind forward the chunks
-        pixelchunk_list* larger_end = larger->chunks;
-        
-        while (larger_end != NULL && larger_end->next)
-            larger_end = larger_end->next;
-        
-        // Append smaller shape's chunks
-        larger_end->next = smaller->chunks->first;
-        larger->chunks = smaller->chunks;
-        larger->chunks_amount += smaller->chunks_amount;
-        smaller->chunks = NULL;
-        smaller->chunks_amount = 0;
-        
-        // Now wind forward boundaries
-        pixelchunk_list* larger_bounds = larger->boundaries;
-
-        while (larger_bounds != NULL && larger_bounds->next)
-            larger_bounds = larger_bounds->next;
-        
-        //append smaller boundaries chunks
-        larger_bounds->next = smaller->boundaries->first;
-        larger->boundaries = smaller->boundaries;
+        //assuming that every boundary chunk is also in a shape
+        larger->boundaries->next = smaller->boundaries->first;
+        larger->boundaries = smaller->boundaries->first;
         larger->boundaries_length += smaller->boundaries_length;
-        smaller->boundaries = NULL;
-        smaller->boundaries_length = 0;
-        smaller->filled = false;
-
-        //get rid of smaller shape by cutting it out of the linked list
-        if (smaller->previous) {
-            smaller->previous->next = smaller->next;
-        }
-
-        if(smaller->next) {
-            smaller->next->previous = smaller->previous;
-        }
-        --quadrant->map->shape_count;
     }
-    if(smaller){
-        free(smaller);
+
+    //get rid of smaller shape by cutting it out of the linked list
+    if (smaller->previous) {
+        smaller->previous->next = smaller->next;
     }
+
+    if(smaller->next) {
+        smaller->next->previous = smaller->previous;
+    }
+    --quadrant->map->shape_count;
     return larger;
 }
 
