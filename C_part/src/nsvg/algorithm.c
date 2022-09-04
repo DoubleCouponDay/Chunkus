@@ -179,29 +179,26 @@ void enlarge_border(
     pixelchunk* adjacent) {
     chunkshape* chosenshape;
 
-    zip_border_seam(current, adjacent, quadrant);
-
-    if(quadrant->map->shape_list->filled == false) { //use firstshape
-        chosenshape = quadrant->map->shape_list;
-        chosenshape->filled = true;
-        ++quadrant->map->shape_count;
-        LOG_INFO("%s: using first shape to add a boundary to", quadrant->name);
+    if(chunk_to_add->is_boundary == true) {
+        return; //chunk is already a boundary
     }
 
-    else if(current->shape_chunk_in) { //set shape for boundary manipulation
-        chosenshape = current->shape_chunk_in;
-    }
-
-    else { //current is not in a shape
+    if(quadrant->map->shape_list == NULL) { //use first shape
         chosenshape = add_new_shape(quadrant);
     }
-    
-    //add to boundary
-    chosenshape->boundaries = add_chunk_to_boundary(chosenshape, current);
 
-    //boundaries are part of the shape too
-    chosenshape->chunks = add_chunk_to_shape(chosenshape, current);
-    chosenshape->colour = current->average_colour;
+    else if(chunk_to_add->shape_chunk_in == NULL) { //use last shape
+        chosenshape = quadrant->map->shape_list;
+    }
+
+    else { //use chunks shape
+        chosenshape = chunk_to_add->shape_chunk_in;
+    }
+    
+    chosenshape->boundaries = add_chunk_to_boundary(chosenshape, chunk_to_add); //add to boundary
+    chosenshape->chunks = add_chunk_to_shape(chosenshape, chunk_to_add); //boundaries are part of the shape too
+    zip_border_chunk(chunk_to_add, adjacent, quadrant);
+    chunk_to_add->is_boundary = true;
 }
 
 void enlarge_shape(
