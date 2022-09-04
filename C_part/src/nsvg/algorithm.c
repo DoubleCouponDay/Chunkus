@@ -149,7 +149,7 @@ chunkshape* merge_shapes(
     }
 
     for(pixelchunk_list* current = smaller->boundaries->first; current != NULL; current = current->next) {
-        current->chunk_p->shape_chunk_in = larger; //not all chunk_p's were updated in the chunks loop above
+        current->chunk_p->shape_chunk_in = larger; //not all chunks are boundaries. merge all chunks twice
         current->first = larger->boundaries->first;
     }
     larger->chunks->next = smaller->chunks->first;
@@ -183,7 +183,7 @@ void enlarge_border(
         return; //chunk is already a boundary
     }
 
-    if(quadrant->map->shape_list == NULL || chunk_to_add->shape_chunk_in == NULL) { //use first shape
+    if(quadrant->map->shape_list == NULL || chunk_to_add->shape_chunk_in == NULL) { //make first shape
         chosenshape = add_new_shape(quadrant);
     }
 
@@ -203,37 +203,30 @@ void enlarge_shape(
     pixelchunk* adjacent) {
     chunkshape* chosenshape;
 
+    //both chunks go in fresh shape
     if(current->shape_chunk_in == NULL && adjacent->shape_chunk_in == NULL) {
-        if(quadrant->map->shape_list->filled == false) {
-            LOG_INFO("%s: Using first shape", quadrant->name);
-            chosenshape = quadrant->map->shape_list;
-            quadrant->map->shape_list->filled = true;
-            ++quadrant->map->shape_count;
-        }
-
-        else {
-            LOG_INFO("%s: Creating new shape", quadrant->name);
-            chosenshape = add_new_shape(quadrant);
-            chosenshape->boundaries = add_chunk_to_boundary(chosenshape, current);
-            ++chosenshape->boundaries_length;
-            current->shape_chunk_in = chosenshape;
-        }
+        LOG_INFO("%s: Creating new shape", quadrant->name);
+        chosenshape = add_new_shape(quadrant);
         chosenshape->chunks = add_chunk_to_shape(chosenshape, current);
         chosenshape->chunks = add_chunk_to_shape(chosenshape, adjacent);
+        chosenshape->colour = current->average_colour;
     }
 
+    //adjacent goes in currents shape
     else if (current->shape_chunk_in && adjacent->shape_chunk_in == NULL)
     {
         chosenshape = current->shape_chunk_in;
         chosenshape->chunks = add_chunk_to_shape(chosenshape, adjacent);
     }
 
+    //current goes in adjacents shape
     else if(current->shape_chunk_in == NULL && adjacent->shape_chunk_in)
     {
         chosenshape = adjacent->shape_chunk_in;
         chosenshape->chunks = add_chunk_to_shape(chosenshape, current);
     }
     
+    //merge the two shapes
     else {
         chosenshape = merge_shapes(quadrant, current->shape_chunk_in, adjacent->shape_chunk_in);
     }
@@ -242,7 +235,6 @@ void enlarge_shape(
         LOG_ERR("enlarge_shape failed with code: %n", getLastError());
         return;
     }
-    chosenshape->colour = current->average_colour;
 }
 
 void find_shapes(
