@@ -145,22 +145,18 @@ chunkshape* merge_shapes(
     chunkshape* larger = (smaller == shape1 ? shape2 : shape1);
 
     // in the smaller shape replace every chunk's shape
-    if(smaller->chunks != NULL && larger->chunks != NULL) {
-        for (pixelchunk_list* current = smaller->chunks->first; current != NULL; current = current->next) {
-            current->chunk_p->shape_chunk_in = larger;
-            current->first = larger->chunks->first;
-        }
-        larger->chunks->next = smaller->chunks->first;
-        larger->chunks = smaller->chunks->first;
-        larger->chunks_amount += smaller->chunks_amount;
+    for (pixelchunk_list* current = smaller->chunks->first; current != NULL; current = current->next) {
+        current->chunk_p->shape_chunk_in = larger;
+        current->first = larger->chunks->first;
     }
+    larger->chunks->next = smaller->chunks->first;
+    larger->chunks = smaller->chunks->first;
+    larger->chunks_amount += smaller->chunks_amount;
 
-    if(smaller->boundaries != NULL && larger->boundaries != NULL) {
-        //assuming that every boundary chunk is also in a shape
-        larger->boundaries->next = smaller->boundaries->first;
-        larger->boundaries = smaller->boundaries->first;
-        larger->boundaries_length += smaller->boundaries_length;
-    }
+    //assuming that every boundary chunk is also in a shape
+    larger->boundaries->next = smaller->boundaries->first;
+    larger->boundaries = smaller->boundaries->first;
+    larger->boundaries_length += smaller->boundaries_length;
 
     //get rid of smaller shape by cutting it out of the linked list
     if (smaller->previous) {
