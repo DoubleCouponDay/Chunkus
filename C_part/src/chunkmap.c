@@ -108,18 +108,6 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
     LOG_INFO("creating pixelchunk");
     pixelchunk** newarray = calloc(1, sizeof(pixelchunk*) * output->map_width);
     output->groups_array_2d = newarray;
-    LOG_INFO("creating chunkshape");
-
-    chunkshape* shape_list = calloc(1, sizeof(chunkshape));
-    shape_list->next = NULL;
-    shape_list->previous = NULL;
-    output->first_shape = shape_list;
-    output->shape_list = shape_list;
-
-    shape_list->chunks = NULL;
-    shape_list->boundaries = NULL;
-    shape_list->chunks_amount = 0;
-    shape_list->boundaries_length = 0;
 
     LOG_INFO("allocating row pointers");
 
