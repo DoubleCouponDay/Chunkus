@@ -276,6 +276,12 @@ void find_shapes(
 
             pixelchunk* adjacent = &(quadrant->map->groups_array_2d[adjacent_index_x][adjacent_index_y]);
 
+            //add pixel on the edge of the image to a border
+            if(map_x == quadrant->bounds.startingX || map_x == (quadrant->bounds.endingX - 1) ||
+                map_y == quadrant->bounds.startingY || map_y == (quadrant->bounds.endingY - 1)) 
+            {
+                enlarge_border(quadrant, current, adjacent);
+            }
 
             //make a shape out of two adjacent chunks
             if (colours_are_similar(current->average_colour, adjacent->average_colour, threshold)) {
