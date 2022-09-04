@@ -183,12 +183,8 @@ void enlarge_border(
         return; //chunk is already a boundary
     }
 
-    if(quadrant->map->shape_list == NULL) { //use first shape
+    if(quadrant->map->shape_list == NULL || chunk_to_add->shape_chunk_in == NULL) { //use first shape
         chosenshape = add_new_shape(quadrant);
-    }
-
-    else if(chunk_to_add->shape_chunk_in == NULL) { //use last shape
-        chosenshape = quadrant->map->shape_list;
     }
 
     else { //use chunks shape
