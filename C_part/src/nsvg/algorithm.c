@@ -79,6 +79,7 @@ pixelchunk_list* add_chunk_to_boundary(chunkshape* shape, pixelchunk* chunk) {
     }
     chunk->shape_chunk_in = shape;
     ++shape->boundaries_length;
+    chunk->is_boundary = true;
     return new;
 }
 
