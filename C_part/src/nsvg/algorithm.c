@@ -38,14 +38,14 @@ float get_quadrant_zip_Yoffset(Quadrant* quadrant) {
     return (float)quadrant->Y_seam * ZIP_DISTANCE * 2;
 }
 
-bool zip_border_seam(pixelchunk* current, pixelchunk* alien, Quadrant* quadrant) {
-    vector2 diff = create_vector_between_chunks(current, alien);
+bool zip_border_chunk(Quadrant* quadrant, pixelchunk* chunk_to_zip, pixelchunk* adjacent) {
+    vector2 diff = create_vector_between_chunks(chunk_to_zip, adjacent);
     float offset_x = get_border_zip_offset(diff.x);
     float offset_y = get_border_zip_offset(diff.y);
     offset_x = offset_x + get_quadrant_zip_Xoffset(quadrant);
     offset_y = offset_y + get_quadrant_zip_Yoffset(quadrant);
-    current->border_location.x = current->location.x + offset_x;
-    current->border_location.y = current->location.y + offset_y;
+    chunk_to_zip->border_location.x = chunk_to_zip->location.x + offset_x;
+    chunk_to_zip->border_location.y = chunk_to_zip->location.y + offset_y;
 }
 
 void windback_lists(chunkmap* map) {
@@ -175,7 +175,7 @@ chunkshape* merge_shapes(
 
 void enlarge_border(
     Quadrant* quadrant,
-    pixelchunk* current,
+    pixelchunk* chunk_to_add,
     pixelchunk* adjacent) {
     chunkshape* chosenshape;
 
