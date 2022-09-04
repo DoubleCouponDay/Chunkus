@@ -79,7 +79,6 @@ pixelchunk_list* add_chunk_to_boundary(chunkshape* shape, pixelchunk* chunk) {
     }
     chunk->shape_chunk_in = shape;
     ++shape->boundaries_length;
-    shape->filled = true;
     return new;
 }
 
@@ -103,7 +102,6 @@ pixelchunk_list* add_chunk_to_shape(chunkshape* shape, pixelchunk* chunk) {
     }
     chunk->shape_chunk_in = shape;
     ++shape->chunks_amount;
-    shape->filled = true;
     return new;
 }
 
@@ -247,7 +245,6 @@ void enlarge_shape(
         return;
     }
     chosenshape->colour = current->average_colour;
-    chosenshape->filled = true;
 }
 
 void find_shapes(
