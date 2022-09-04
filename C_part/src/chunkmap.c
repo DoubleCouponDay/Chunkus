@@ -9,12 +9,9 @@
 #include "utility/error.h"
 #include "entrypoint.h"
 
-void iterateImagePixels(int x, int y, image input, vectorize_options options, chunkmap* output) {
+void fill_chunk(int x, int y, image input, vectorize_options options, pixelchunk* chunk) {
     int x_offset = x * options.chunk_size;
     int y_offset = y * options.chunk_size;
-
-    // Grab the pixelchunk
-    pixelchunk* chunk = &output->groups_array_2d[x][y];
     
     coordinate location = {
         x, y
@@ -105,7 +102,9 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
     output->map_width = (int)ceil((float)input.width / (float)options.chunk_size);
     output->map_height = (int)ceil((float)input.height / (float)options.chunk_size);
     output->shape_count = 0;
-    
+    output->first_shape = NULL;
+    output->shape_list = NULL;
+
     LOG_INFO("creating pixelchunk");
     pixelchunk** newarray = calloc(1, sizeof(pixelchunk*) * output->map_width);
     output->groups_array_2d = newarray;
@@ -134,7 +133,10 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
     {
         for (int y = 0; y < output->map_height; ++y)
         {
-            iterateImagePixels(x, y, input, options, output);
+            // Grab the pixelchunk
+            pixelchunk* chunk = &output->groups_array_2d[x][y];
+            chunk->is_boundary = false;
+            fill_chunk(x, y, input, options, chunk);
         }
     }
     return output;
