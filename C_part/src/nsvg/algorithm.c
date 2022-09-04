@@ -147,6 +147,11 @@ chunkshape* merge_shapes(
         current->chunk_p->shape_chunk_in = larger;
         current->first = larger->chunks->first;
     }
+
+    for(pixelchunk_list* current = smaller->boundaries->first; current != NULL; current = current->next) {
+        current->chunk_p->shape_chunk_in = larger; //not all chunk_p's were updated in the chunks loop above
+        current->first = larger->boundaries->first;
+    }
     larger->chunks->next = smaller->chunks->first;
     larger->chunks = smaller->chunks->first;
     larger->chunks_amount += smaller->chunks_amount;
@@ -271,29 +276,20 @@ void find_shapes(
 
             pixelchunk* adjacent = &(quadrant->map->groups_array_2d[adjacent_index_x][adjacent_index_y]);
 
+
             //make a shape out of two adjacent chunks
             if (colours_are_similar(current->average_colour, adjacent->average_colour, threshold)) {
-                if(map_x == quadrant->bounds.startingX || map_x == (quadrant->bounds.endingX - 1) ||
-                    map_y == quadrant->bounds.startingY || map_y == (quadrant->bounds.endingY - 1)) 
-                {
-                    enlarge_border(quadrant, current, adjacent);
-
-                    if(isBadError()) {
-                        LOG_ERR("%s enlarge_border failed with code: %d", quadrant->name, getLastError());
-                        return;
-                    }
-                }
                 enlarge_shape(quadrant, current, adjacent);
+
+                if(isBadError()) {
+                    LOG_ERR("enlarge_shape failed with code: %n", getLastError());
+                    return;
+                }
             }
 
             //define a boundary between two chunks
             else {
                 enlarge_border(quadrant, current, adjacent);
-
-                if(isBadError()) {
-                    LOG_ERR("%s enlarge_border failed with code: %d", quadrant->name, getLastError());
-                    return;
-                }
             }
         }
     }
