@@ -58,8 +58,8 @@ void windback_lists(chunkmap* map) {
     }
 }
 
-pixelchunk_list* add_chunk_to_boundary(chunkshape* shape, pixelchunk* chunk) {
     if(chunk->shape_chunk_in != NULL) {
+void add_chunk_to_boundary(chunkshape* shape, pixelchunk* chunk) {
         return shape->boundaries; //prevents putting chunks in multiple shapes
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
@@ -76,13 +76,13 @@ pixelchunk_list* add_chunk_to_boundary(chunkshape* shape, pixelchunk* chunk) {
         shape->boundaries->next = new;
         shape->boundaries = new;
     }
-    chunk->shape_chunk_in = shape;
     ++shape->boundaries_length;
     chunk->is_boundary = true;
-    return new;
+    shape->next = new;
+    add_chunk_to_shape(shape, chunk); //boundaries are part of the shape too
 }
 
-pixelchunk_list* add_chunk_to_shape(chunkshape* shape, pixelchunk* chunk) {
+void add_chunk_to_shape(chunkshape* shape, pixelchunk* chunk) {
     if(chunk->shape_chunk_in != NULL) {
         return shape->chunks;
     }
@@ -102,7 +102,7 @@ pixelchunk_list* add_chunk_to_shape(chunkshape* shape, pixelchunk* chunk) {
     }
     chunk->shape_chunk_in = shape;
     ++shape->chunks_amount;
-    return new;
+    shape->chunks = new;
 }
 
 chunkshape* add_new_shape(Quadrant* quadrant) {
@@ -200,8 +200,7 @@ void enlarge_border(
         chosenshape = chunk_to_add->shape_chunk_in;
     }
     
-    chosenshape->boundaries = add_chunk_to_boundary(chosenshape, chunk_to_add); //add to boundary
-    chosenshape->chunks = add_chunk_to_shape(chosenshape, chunk_to_add); //boundaries are part of the shape too
+    add_chunk_to_boundary(chosenshape, chunk_to_add); //add to boundary
     zip_border_chunk(quadrant, chunk_to_add, adjacent);
     chunk_to_add->is_boundary = true;
 }
@@ -216,8 +215,8 @@ void enlarge_shape(
     if(current->shape_chunk_in == NULL && adjacent->shape_chunk_in == NULL) {
         LOG_INFO("%s: Creating new shape", quadrant->name);
         chosenshape = add_new_shape(quadrant);
-        chosenshape->chunks = add_chunk_to_shape(chosenshape, current);
-        chosenshape->chunks = add_chunk_to_shape(chosenshape, adjacent);
+        add_chunk_to_shape(chosenshape, current);
+        add_chunk_to_shape(chosenshape, adjacent);
         chosenshape->colour = current->average_colour;
     }
 
@@ -225,14 +224,14 @@ void enlarge_shape(
     else if (current->shape_chunk_in && adjacent->shape_chunk_in == NULL)
     {
         chosenshape = current->shape_chunk_in;
-        chosenshape->chunks = add_chunk_to_shape(chosenshape, adjacent);
+        add_chunk_to_shape(chosenshape, adjacent);
     }
 
     //current goes in adjacents shape
     else if(current->shape_chunk_in == NULL && adjacent->shape_chunk_in)
     {
         chosenshape = adjacent->shape_chunk_in;
-        chosenshape->chunks = add_chunk_to_shape(chosenshape, current);
+        add_chunk_to_shape(chosenshape, current);
     }
     
     //merge the two shapes
@@ -298,7 +297,6 @@ void find_shapes(
 void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {  
     if(currentchunk_p->shape_chunk_in == NULL) { //create an empty shape with a single chunk, no boundary
         chunkshape* new_shape = add_new_shape(quadrant);
-        new_shape->chunks = add_chunk_to_shape(new_shape, currentchunk_p);
         quadrant->map->shape_list = new_shape;
     }
 
@@ -328,15 +326,9 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     pixelchunk* top_vertex = &(quadrant->map->groups_array_2d[top_location_x][top_location_y]);
     pixelchunk* right_vertex = &(quadrant->map->groups_array_2d[right_location_x][right_location_y]);
     chunkshape* triangle = currentchunk_p->shape_chunk_in;
-    
-    triangle->chunks = add_chunk_to_shape(triangle, currentchunk_p);
-    triangle->boundaries = add_chunk_to_boundary(triangle, currentchunk_p);
-
-    triangle->chunks = add_chunk_to_shape(triangle, top_vertex);
-    triangle->boundaries = add_chunk_to_boundary(triangle, top_vertex);
-
-    triangle->chunks = add_chunk_to_shape(triangle, right_vertex);
-    triangle->boundaries = add_chunk_to_boundary(triangle, right_vertex);
+    add_chunk_to_boundary(triangle, currentchunk_p);
+    add_chunk_to_boundary(triangle, top_vertex);
+    add_chunk_to_boundary(triangle, right_vertex);
 }
 
 ///A multithreaded function
