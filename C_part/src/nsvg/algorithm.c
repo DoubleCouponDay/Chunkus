@@ -202,7 +202,7 @@ void enlarge_border(
     
     chosenshape->boundaries = add_chunk_to_boundary(chosenshape, chunk_to_add); //add to boundary
     chosenshape->chunks = add_chunk_to_shape(chosenshape, chunk_to_add); //boundaries are part of the shape too
-    zip_border_chunk(chunk_to_add, adjacent, quadrant);
+    zip_border_chunk(quadrant, chunk_to_add, adjacent);
     chunk_to_add->is_boundary = true;
 }
 
