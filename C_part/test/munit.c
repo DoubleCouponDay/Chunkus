@@ -1279,6 +1279,8 @@ munit_restore_stderr(int orig_stderr) {
 }
 #endif /* !defined(MUNIT_NO_BUFFER) */
 
+FILE* ming_tmpfile();
+
 /* Run a test with the specified parameters. */
 static void
 munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest* test, const MunitParameter params[]) {
@@ -1327,8 +1329,10 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
   fflush(MUNIT_OUTPUT_FILE);
 
   stderr_buf = NULL;
-#if !defined(_WIN32) || defined(__MINGW32__)
+#if !defined(_WIN32)
   stderr_buf = tmpfile();
+#elif defined(__MINGW32__)
+  stderr_buf = ming_tmpfile();
 #else
   tmpfile_s(&stderr_buf);
 #endif
@@ -2053,3 +2057,33 @@ munit_suite_main(const MunitSuite* suite, void* user_data,
                  int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]) {
   return munit_suite_main_custom(suite, user_data, argc, argv, NULL);
 }
+
+
+FILE* ming_tmpfile()
+{
+    wchar_t path[ MAX_PATH ] = { 0 };
+    wchar_t dllPath[ MAX_PATH ] = { 0 };
+    GetTempPathW( MAX_PATH, path );
+
+    // Based on .exe or .dll filename
+    {
+      MEMORY_BASIC_INFORMATION info;
+      VirtualQuery( (LPCVOID)ming_tmpfile, &info, sizeof(info) );
+      GetModuleFileNameW( info.AllocationBase, dllPath, MAX_PATH );
+    }
+
+    wchar_t* p = wcsrchr( dllPath, L'\\');
+    wchar_t* ext = wcsrchr( p + 1, L'.');
+
+    if( ext ) *ext = 0;
+    wchar_t* outFile = path + wcslen(path);
+
+    static int iTempFileId = 1;
+    // Based on process id (so processes would not fight with each other)
+    // Based on some process global id.
+    wsprintfW(outFile, L"%s_%d_%d.tmp",p + 1, GetCurrentProcessId(), iTempFileId++ );
+
+    // 'D' - temporary file.
+    return _wfopen(path, L"w+bD");
+}
+
