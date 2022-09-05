@@ -58,33 +58,15 @@ void windback_lists(chunkmap* map) {
     }
 }
 
-void add_chunk_to_boundary(chunkshape* shape, pixelchunk* chunk) {
-    if(chunk->is_boundary == true) {
-        return shape->boundaries; //prevents putting chunks in multiple shapes
-    }
-    pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
-    new->chunk_p = chunk;
-    new->next = NULL;
-     
-    if(shape->boundaries == NULL) {
-        shape->boundaries = new;
-        new->first = new;
-    }
-
-    else {
-        new->first = shape->boundaries->first;
-        shape->boundaries->next = new;
-        shape->boundaries = new;
-    }
-    ++shape->boundaries_length;
-    chunk->is_boundary = true;
-    shape->next = new;
-    add_chunk_to_shape(shape, chunk); //boundaries are part of the shape too
-}
-
 void add_chunk_to_shape(chunkshape* shape, pixelchunk* chunk) {
-    if(chunk->shape_chunk_in != NULL) {
-        return shape->chunks;
+    if(shape == NULL || chunk == NULL) {
+        LOG_ERR("add_chunk_to_shape given null pointer!");
+        setError(ASSUMPTION_WRONG);
+        return;
+    }
+
+    if(chunk->shape_chunk_in != NULL && shape == chunk->shape_chunk_in) {
+        return;
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
     new->chunk_p = chunk;
@@ -103,6 +85,35 @@ void add_chunk_to_shape(chunkshape* shape, pixelchunk* chunk) {
     chunk->shape_chunk_in = shape;
     ++shape->chunks_amount;
     shape->chunks = new;
+}
+
+void add_chunk_to_boundary(chunkshape* shape, pixelchunk* chunk) {
+    if(shape == NULL || chunk == NULL) {
+        LOG_ERR("add_chunk_to_boundary given null pointer!");
+        setError(ASSUMPTION_WRONG);
+        return;
+    }
+    if(chunk->is_boundary == true && shape == chunk->shape_chunk_in) { //check if boundary is already in shape and prevent chunk in multiple shapes
+        return;
+    }
+    pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
+    new->chunk_p = chunk;
+    new->next = NULL;
+     
+    if(shape->boundaries == NULL) {
+        shape->boundaries = new;
+        new->first = new;
+    }
+
+    else {
+        new->first = shape->boundaries->first;
+        shape->boundaries->next = new;
+        shape->boundaries = new;
+    }
+    ++shape->boundaries_length;
+    chunk->is_boundary = true;
+    chunk->shape_chunk_in = NULL; //just paranoid
+    add_chunk_to_shape(shape, chunk); //boundaries are part of the shape too
 }
 
 chunkshape* add_new_shape(Quadrant* quadrant) {
