@@ -72,10 +72,9 @@ pixelchunk_list* add_chunk_to_boundary(chunkshape* shape, pixelchunk* chunk) {
     }
 
     else {
+        new->first = shape->boundaries->first;
         shape->boundaries->next = new;
         shape->boundaries = new;
-        new->first = shape->boundaries->first;
-        
     }
     chunk->shape_chunk_in = shape;
     ++shape->boundaries_length;
@@ -97,9 +96,9 @@ pixelchunk_list* add_chunk_to_shape(chunkshape* shape, pixelchunk* chunk) {
     }
 
     else {
+        new->first = shape->chunks->first; //must set this before adding to chunkslist
         shape->chunks->next = new;
         shape->chunks = new;
-        new->first = shape->chunks->first;
     }
     chunk->shape_chunk_in = shape;
     ++shape->chunks_amount;
