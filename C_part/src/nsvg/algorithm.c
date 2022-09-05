@@ -212,6 +212,11 @@ void enlarge_border(
     }
     
     add_chunk_to_boundary(chosenshape, chunk_to_add); //add to boundary
+
+    if(isBadError()) {
+        LOG_ERR("add_chunk_to_boundary failed with code: %d", getLastError());
+        return;
+    }
     zip_border_chunk(quadrant, chunk_to_add, adjacent);
     chunk_to_add->is_boundary = true;
 }
@@ -340,6 +345,11 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     add_chunk_to_boundary(triangle, currentchunk_p);
     add_chunk_to_boundary(triangle, top_vertex);
     add_chunk_to_boundary(triangle, right_vertex);
+
+    if(isBadError()) {
+        LOG_ERR("add_chunk_to_boundary failed with code: %d", getLastError());
+        return;
+    }
 }
 
 ///A multithreaded function
@@ -384,6 +394,12 @@ void* fill_quadrant(void* arg) {
             }
 
             make_triangle(quadrant, currentchunk_p);
+
+            if (isBadError())
+            {
+                LOG_ERR("%s make_triangle failed with code: %d", quadrant->name, code);
+                pthread_exit(NULL);
+            }
 
             if(quadrant->options->step_index > 0 && count >= quadrant->options->step_index) {
                 LOG_INFO("step_index reached: %d\n", count);
