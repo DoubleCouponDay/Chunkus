@@ -171,6 +171,13 @@ chunkshape* merge_shapes(
     if(smaller->next) {
         smaller->next->previous = smaller->previous;
     }
+
+    if(quadrant->map->first_shape == smaller) { //smaller is first item
+        quadrant->map->first_shape = quadrant->map->first_shape->next;
+    }
+    if (quadrant->map->shape_list == smaller) { //smaller is last item
+        quadrant->map->shape_list = quadrant->map->shape_list->previous;
+    }
     --quadrant->map->shape_count;
     return larger;
 }
