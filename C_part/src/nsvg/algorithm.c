@@ -121,7 +121,9 @@ chunkshape* add_new_shape(Quadrant* quadrant) {
     new->boundaries_length = 0;
     new->chunks_amount = 0;
 
-    quadrant->map->shape_list->next = new; //links to the previous last item
+    if(quadrant->map->shape_list != NULL) {
+        quadrant->map->shape_list->next = new; //links to the previous last item
+    }
     quadrant->map->shape_list = new; //sets the linked list to last item
     ++quadrant->map->shape_count;
     return new;
