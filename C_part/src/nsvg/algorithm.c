@@ -58,8 +58,8 @@ void windback_lists(chunkmap* map) {
     }
 }
 
-    if(chunk->shape_chunk_in != NULL) {
 void add_chunk_to_boundary(chunkshape* shape, pixelchunk* chunk) {
+    if(chunk->is_boundary == true) {
         return shape->boundaries; //prevents putting chunks in multiple shapes
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
