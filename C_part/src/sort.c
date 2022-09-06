@@ -81,7 +81,7 @@ void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) 
                 ++eligible_count;            
             }
         }
-        dont_skip_corners(array, eligiblesubjects, starting_chunk, previous, eligible_count, start + 1, length);
+        dont_skip_corners(array, eligiblesubjects, starting_chunk, previous, eligible_count, next, length);
         ++start;
     }
 }
