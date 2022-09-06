@@ -65,7 +65,7 @@ void add_chunk_to_shape(Quadrant* quadrant, chunkshape* shape, pixelchunk* chunk
         return;
     }
 
-    if(chunk->shape_chunk_in != NULL && shape == chunk->shape_chunk_in) {
+    else if(chunk->shape_chunk_in != NULL || shape == chunk->shape_chunk_in) {
         return;
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
@@ -94,7 +94,7 @@ void add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* ch
         return;
     }
     
-    if(chunk->is_boundary == true && shape == chunk->shape_chunk_in) { //chunk already in boundary or in multiple boundaries
+    else if(chunk->is_boundary == true || shape == chunk->shape_chunk_in) { //chunk already in boundary or in another shapes boundaries
         return;
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
