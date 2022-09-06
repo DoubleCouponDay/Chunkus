@@ -380,6 +380,7 @@ void iterate_shape_boundaries(chunkshape* shape)
     pixelchunk_list* first = (pixelchunk_list*)malloc(sizeof(pixelchunk_list));
     first->chunk_p = pc_at(&vector, 0);
     first->next = NULL;
+    first->first = first;
     shape->boundaries = first;
     for (int i = 1; i < pc_vector_size(&vector); ++i)
     {
@@ -387,6 +388,7 @@ void iterate_shape_boundaries(chunkshape* shape)
         pixelchunk_list* list = (pixelchunk_list*)malloc(sizeof(pixelchunk_list));
         list->chunk_p = chunk;
         list->next = NULL;
+        list->first = first;
         shape->boundaries->next = list;
         shape->boundaries = list;
     }
