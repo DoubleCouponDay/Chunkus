@@ -2,10 +2,10 @@
 FROM rust:1.63.0
 
 # copy C source and Rust source
-COPY ./ /Vectorizer/
+COPY ./ /Chunkus/
 
 # set environment variables
-ENV PATH=$PATH:/Vectorizer/Rust_part/target/release
+ENV PATH=$PATH:/Chunkus/Rust_part/target/release
 
 RUN apt-get update
 RUN apt-get install cmake -y
@@ -71,15 +71,15 @@ RUN cmake -B build -G "Unix Makefiles"
 RUN cmake --build build -j4
 RUN cmake --install build --prefix install
 
-RUN echo "building Vectorizer..."
-WORKDIR ../Vectorizer
+RUN echo "building Chunkus..."
+WORKDIR ../Chunkus
 RUN mkdir build
 RUN cmake -B build -G "Ninja" -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -D CMAKE_INSTALL_PREFIX="install" -D CMAKE_BUILD_TYPE="Debug" -D CMAKE_C_COMPILER="gcc"
 RUN cmake --build build -j4
 RUN cmake --install build --prefix install
 
 #build Rust code
-WORKDIR /Vectorizer/Rust_part/
+WORKDIR /Chunkus/Rust_part/
 RUN cargo build -vv --release
 
 #create entrypoint of container

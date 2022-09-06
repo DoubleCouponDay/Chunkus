@@ -1,7 +1,7 @@
 use std::env::var;
 
 pub fn gettoken() -> String {
-    var("VECTORIZER").unwrap()
+    var("CHUNKUS").unwrap()
 }
 
 pub fn getwatchertoken() -> String {

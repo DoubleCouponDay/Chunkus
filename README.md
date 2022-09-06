@@ -1,4 +1,4 @@
-# Vectorizer #
+# Chunkus #
 converts png and jpeg to svg.
 
 The main algorithm is written in C and is linked to the discord bot in Rust. 
@@ -10,7 +10,7 @@ This was a group project by Samuel, Joshua, Matthew.
 ## Building Requirements
 ---
 
-Set the `VECTORIZER` environment variable to the value of your discord bot's secret token.
+Set the `CHUNKUS` environment variable to the value of your discord bot's secret token.
 
 If you are on windows:
 
@@ -79,7 +79,7 @@ In the `Rust_part` folder, run:
 
 The rust part builds to `/Rust_part/target/debug/`.
 
-## Running Vectorizer
+## Running Chunkus
 ---
 
 `cargo run --bin trampoline`
@@ -96,7 +96,7 @@ Goes through all attachments of the command message, executes the algorithm on t
 
 `@[bots name] [attachment or URL]`  
 
-    @Vectorizer https://cdn.discordapp.com/attachments/787470274261549056/807847299752394773/ginormous.png  
+    @Chunkus https://cdn.discordapp.com/attachments/787470274261549056/807847299752394773/ginormous.png  
 
 You should receive a message with `output.svg` and a preview png attached
   
@@ -105,7 +105,7 @@ Sets the parameters to use with the algorithm
 
 `@[bots name] !params [chunksize] [threshold]` eg. 
 
-    @Vectorizer !params 2 50  
+    @Chunkus !params 2 50  
 
 You should receive a confirmation message telling you what you set the parameters to.
 
@@ -148,7 +148,7 @@ cargo test -- --test-threads 1
 ---
 you can run the bot on your computer or inside a docker container.
 
-You will need to provide a docker-compose.yml file that fills the `VECTORIZER` environment variable with your discord bot token.
+You will need to provide a docker-compose.yml file that fills the `CHUNKUS` environment variable with your discord bot token.
 
 build C code, then Rust code, then run `sudo docker build` on a Linux machine. once the image is built, deploy it to your docker hub registration.
 

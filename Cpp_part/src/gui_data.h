@@ -21,7 +21,7 @@ enum class ActiveTexture
 
 struct GUIData
 {
-	// For Vectorizer
+	// For Chunkus
 	vectorize_options options;
 	std::string file_path; // Store a string so that the const char* pointer in options is valid.
 

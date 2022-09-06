@@ -49,8 +49,8 @@ cmake -B build -G "Unix Makefiles"
 cmake --build build -j4
 cmake --install build --prefix install
 
-echo "building Vectorizer..."
-cd ../Vectorizer
+echo "building Chunkus..."
+cd ../Chunkus
 mkdir build
 sudo cmake -B build -G "Ninja" -D CMAKE_INSTALL_PREFIX=install -D CMAKE_BUILD_TYPE=Debug
 sudo cmake --build build -j4

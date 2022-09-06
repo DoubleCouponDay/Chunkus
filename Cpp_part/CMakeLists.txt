@@ -66,7 +66,7 @@ else()
 endif()
 
 if (TARGET vec)
-	message("Found the C vectorizer")
+	message("Found vec")
 	if(NOT VEC_HOTRELOAD)
 		target_link_libraries(vec_step PRIVATE vec)
 	endif()
@@ -74,7 +74,7 @@ if (TARGET vec)
 
 	add_dependencies(vec_step vec)
 else()
-	message("Did not find the C Vectorizer target! This should not happen! Make sure the C_part subdirectory is added first in the root CMakeLists.txt")
+	message("Did not find the vec target! This should not happen! Make sure the C_part subdirectory is added first in the root CMakeLists.txt")
 	return()
 endif()
 
