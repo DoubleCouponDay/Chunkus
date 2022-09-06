@@ -193,6 +193,13 @@ chunkshape* merge_shapes(
     if (quadrant->map->shape_list == smaller) { //smaller is last item
         quadrant->map->shape_list = quadrant->map->shape_list->previous;
     }
+
+    smaller->chunks = 0;
+    smaller->boundaries = 0;
+    smaller->chunks_amount = -1;
+    smaller->boundaries_length = -1;
+    free(smaller);
+
     --quadrant->map->shape_count;
     return larger;
 }
