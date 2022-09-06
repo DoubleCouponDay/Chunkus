@@ -88,12 +88,13 @@ void add_chunk_to_shape(Quadrant* quadrant, chunkshape* shape, pixelchunk* chunk
 }
 
 void add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* chunk) {
-    if(shape == NULL || chunk == NULL) {
+    if(shape == NULL || chunk == NULL) { //sanity check
         LOG_ERR("%s: add_chunk_to_boundary given null pointer!", quadrant->name);
         setError(ASSUMPTION_WRONG);
         return;
     }
-    if(chunk->is_boundary == true && shape == chunk->shape_chunk_in) { //check if boundary is already in shape and prevent chunk in multiple shapes
+    
+    if(chunk->is_boundary == true && shape == chunk->shape_chunk_in) { //chunk already in boundary or in multiple boundaries
         return;
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
