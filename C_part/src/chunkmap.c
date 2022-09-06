@@ -110,20 +110,17 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
     output->groups_array_2d = newarray;
 
     LOG_INFO("allocating row pointers");
-
-    for (int i = 0; i < output->map_width; ++i)
-    {
-        output->groups_array_2d[i] = calloc(1, sizeof(pixelchunk) * output->map_height);
-    }    
-    LOG_INFO("iterating chunkmap pixels");
     
     for (int x = 0; x < output->map_width; ++x)
     {
+        output->groups_array_2d[x] = calloc(1, sizeof(pixelchunk) * output->map_height);
+
         for (int y = 0; y < output->map_height; ++y)
         {
             // Grab the pixelchunk
             pixelchunk* chunk = &output->groups_array_2d[x][y];
             chunk->is_boundary = false;
+            chunk->boundary_chunk_in = NULL;
             fill_chunk(x, y, input, options, chunk);
         }
     }
@@ -164,7 +161,7 @@ void free_chunkmap(chunkmap* map_p)
 
         //free all shapes
         while (current)
-        {            
+        {
             free_pixelchunklist(current->boundaries);
             free_pixelchunklist(current->chunks);
             next = current->next;
