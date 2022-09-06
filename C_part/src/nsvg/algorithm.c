@@ -255,7 +255,7 @@ void enlarge_shape(
     }
     
     //merge the two shapes
-    else {
+    else if (current->shape_chunk_in != adjacent->shape_chunk_in) {
         chosenshape = merge_shapes(quadrant, current->shape_chunk_in, adjacent->shape_chunk_in);
     }
 
