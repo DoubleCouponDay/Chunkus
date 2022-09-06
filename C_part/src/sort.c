@@ -72,7 +72,7 @@ void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) 
             pixelchunk* current_chunk = array[i];
 
             if(chunk_is_adjacent(current_chunk, starting_chunk)) {
-                if(eligible_count == ADJACENT_COUNT) {
+                if(eligible_count >= ADJACENT_COUNT) {
                     LOG_ERR("adjacent chunks are larger than known size!");
                     setError(ASSUMPTION_WRONG);
                     return;
