@@ -14,7 +14,7 @@
 #include "utility/defines.h"
 
 enum {
-    ADJACENT_COUNT = 9
+    ADJACENT_COUNT = 8
 };
 
 void swap_items(pixelchunk** array, unsigned long item1, unsigned long item2) {
@@ -72,8 +72,8 @@ void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) 
             pixelchunk* current_chunk = array[i];
 
             if(chunk_is_adjacent(current_chunk, starting_chunk)) {
-                if(eligible_count >= ADJACENT_COUNT) {
-                    LOG_ERR("adjacent chunks are larger than known size!");
+                if(eligible_count > ADJACENT_COUNT) {
+                    LOG_ERR("adjacent chunks are more numerous than possible adjacent chunks!");
                     setError(ASSUMPTION_WRONG);
                     return;
                 }
