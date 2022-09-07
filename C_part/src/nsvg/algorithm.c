@@ -173,6 +173,7 @@ chunkshape* merge_shapes(
         current->chunk_p->shape_chunk_in = larger; //not all chunks are boundaries. merge all chunks twice
         current->first = larger->boundaries->first;
     }
+
     larger->chunks->next = chunk_first;
     larger->chunks = smaller->chunks;
     larger->chunks_amount += smaller->chunks_amount;
@@ -271,7 +272,7 @@ void enlarge_shape(
     }
 
     if(isBadError()) {
-        LOG_ERR("%s: enlarge_shape failed with code: %n", quadrant->name, getLastError());
+        LOG_ERR("%s: enlarge_shape failed with code: %d", quadrant->name, getLastError());
         return;
     }
 }
@@ -312,7 +313,7 @@ void find_shapes(
                 enlarge_shape(quadrant, current, adjacent);
 
                 if(isBadError()) {
-                    LOG_ERR("%s: enlarge_shape failed with code: %n", quadrant->name, getLastError());
+                    LOG_ERR("%s: enlarge_shape failed with code: %d", quadrant->name, getLastError());
                     return;
                 }
             }
