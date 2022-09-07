@@ -116,7 +116,7 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
         }
 
         else {
-            LOG_INFO("creating new shape");
+            LOG_INFO("creating new NSVGshape");
             char shape_number_char = ((char)index) + '0';
             NSVGshape* newshape = create_shape(map, &shape_number_char, 1);
 
@@ -169,6 +169,7 @@ void parse_map_into_nsvgimage(chunkmap* map, NSVGimage* output)
 
             else {
                 output->shapes->paths->next = firstpath;
+                output->shapes->paths = firstpath;
             }
 
             LOG_INFO("closing path");
