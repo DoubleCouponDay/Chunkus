@@ -18,14 +18,17 @@
 #include "../imagefile/pngfile.h"
 #include "../utility/logger.h"
 #include "../simplify.h"
+#include "../imagefile/svg.h"
 
-NSVGimage* vectorize(image input, vectorize_options options) {
+const char* OUTPUT_PNG_PATH = "output.png";
+
+void vectorize(image input, vectorize_options options) {
     LOG_INFO("quantizing image to %d colours", options.num_colours);
 	quantize_image(&input, options.num_colours);
 
 	if(isBadError()) {
 		LOG_ERR("quantize_image failed with %d", getLastError());
-		return NULL;
+		return;
 	}
 
     LOG_INFO("generating chunkmap");
@@ -35,7 +38,7 @@ NSVGimage* vectorize(image input, vectorize_options options) {
     {
         LOG_ERR("generate_chunkmap failed with code: %d", getLastError());
         free_chunkmap(map);
-        return NULL;
+        return;
     }
 
     LOG_INFO("filling chunkmap");
@@ -45,7 +48,7 @@ NSVGimage* vectorize(image input, vectorize_options options) {
     {
         LOG_ERR("fill_chunkmap failed with code %d", getLastError());
         free_chunkmap(map);
-        return NULL;
+        return;
     }
 
     LOG_INFO("sorting boundaries");
@@ -54,7 +57,7 @@ NSVGimage* vectorize(image input, vectorize_options options) {
     if(isBadError()) {
         LOG_ERR("sort_boundary failed with code %d", getLastError());
         free_chunkmap(map);
-        return NULL;
+        return;
     }
 
     LOG_INFO("printing chunkmap");
@@ -63,45 +66,15 @@ NSVGimage* vectorize(image input, vectorize_options options) {
     if(isBadError()) {
         LOG_INFO("write_chunkmap_to_png failed with code: %d", getLastError());
         free_chunkmap(map);
-        return NULL;
-    }
-
-    LOG_INFO("iterating chunk shapes");
-    NSVGimage* output = create_nsvgimage(map->map_width, map->map_height);
-    parse_map_into_nsvgimage(map, output);
-    
-    if (isBadError())
-    {
-        LOG_ERR("mapparser failed with code: %d", getLastError());
-        free_chunkmap(map);
-        free_nsvg(output);
-        return NULL;
-    }
-    free_chunkmap(map);
-    return output;
-}
-
-void free_nsvg(NSVGimage* input) {
-    if(!input) {
-        LOG_INFO("input is null");
         return;
     }
+     
+	bool result = write_svg_file(map, OUTPUT_PATH);
 
-    while(input->shapes != NULL) {
-        NSVGpath* currentpath = input->shapes->paths;
-
-        while(currentpath != NULL) {
-            if (currentpath->pts){
-                free(currentpath->pts);
-            }
-                
-            NSVGpath* nextpath = currentpath->next;
-            free(currentpath);
-            currentpath = nextpath;
-        }        
-        NSVGshape* nextshape = input->shapes->next;
-        free(input->shapes);
-        input->shapes = nextshape;
-    }
-    free(input);
+	if(result == false || isBadError()) {
+		free_chunkmap(map);
+		LOG_ERR("write_svg_file failed with code: %d", getLastError());
+		return;
+	}
+    free_chunkmap(map);
 }

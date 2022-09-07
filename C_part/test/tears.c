@@ -10,6 +10,7 @@ void* tear1setup(const MunitParameter params[], void* userdata) {
 };
 
 void tear1teardown(void* fixture) {
+  LOG_INFO("freeing tear 1");
   tear1* stuff = fixture;
   free_image_contents(stuff->img);
   free(stuff);
@@ -20,11 +21,11 @@ void* tear2setup(const MunitParameter params[], void* userdata) {
 };
 
 void tear2teardown(void* fixture) {
-  LOG_INFO("freeing test 4");
+  LOG_INFO("freeing tear 2");
   tear2* stuff = fixture;
   free_image_contents(stuff->img);
   free_chunkmap(stuff->map);
-  free(fixture);
+  free(stuff);
 }
 
 void* tear3setup(const MunitParameter params[], void* userdata) {
@@ -32,11 +33,11 @@ void* tear3setup(const MunitParameter params[], void* userdata) {
 };
 
 void tear3teardown(void* fixture) {
-  LOG_INFO("freeing test 5");
+  LOG_INFO("freeing tear 3");
   tear3* stuff = fixture;
   fclose(stuff->fp);
   free_image_contents(stuff->img);
-  free(fixture);
+  free(stuff);
 }
 
 void* tear4setup(const MunitParameter params[], void* userdata)
@@ -46,11 +47,8 @@ void* tear4setup(const MunitParameter params[], void* userdata)
 
 void tear4teardown(void* fixture)
 {
+  LOG_INFO("freeing tear 4");
   tear4* stuff = fixture;
-  LOG_INFO("freeing image contents");
   free_image_contents(stuff->img);
-  LOG_INFO("freeing image");
-  free_nsvg(stuff->nsvg_image);  
-  LOG_INFO("freeing test6stuff");
   free(stuff);
 }

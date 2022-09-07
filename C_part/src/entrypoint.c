@@ -26,27 +26,9 @@ int execute_program(vectorize_options options) {
 		return getAndResetErrorCode();
 	}
 
-	NSVGimage* nsvg = vectorize(img, options);
+	vectorize(img, options);
 	int code = getLastError();
-
-	if(isBadError() || nsvg == NULL) {
-		free_image_contents(img);
-		free_nsvg(nsvg);
-		LOG_ERR("vectorize_image failed with code: %d", code);
-		return getAndResetErrorCode();
-	}
-	bool result = write_svg_file(nsvg, OUTPUT_PATH);
-	code = getLastError();
-
-	if(result == false || isBadError()) {
-		free_image_contents(img);
-		free_nsvg(nsvg);
-		LOG_ERR("write_svg_file failed with code: %d", code);
-		return getAndResetErrorCode();
-	}
-
 	free_image_contents(img);
-	free_nsvg(nsvg);
 	return getAndResetErrorCode();
 }
 

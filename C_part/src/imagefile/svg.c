@@ -32,12 +32,12 @@ void finish_file(FILE* output, char* template) {
     fclose(output);
 }
 
-bool write_svg_file(NSVGimage* input, const char* filename) {
+bool write_svg_file(chunkmap* map, const char* filename) {
     LOG_INFO("create a file for read/write and destroy contents if already exists");
     FILE* output = fopen(filename, "w+"); 
 
     LOG_INFO("open the template as a string");
-    char* template = gettemplate(input->width, input->height);
+    char* template = gettemplate(map->map_width, map->map_height);
     int code = getLastError();
 
     if(isBadError()) {
@@ -49,20 +49,25 @@ bool write_svg_file(NSVGimage* input, const char* filename) {
     fprintf(output, template);
     fprintf(output, NEW_LINE);
 
-    if(input->shapes == NULL) {
-        LOG_ERR("no shapes found in nsvg!");
+    if(map->shape_list == NULL) {
+        LOG_ERR("no shapes found!");
         finish_file(output, template);
         return false;
     }
 
-    LOG_INFO("iterating nsvgshapes");
-    NSVGshape* currentshape = input->shapes;
+    LOG_INFO("iterating shapes");
+    chunkshape* currentshape = map->first_shape;
 
     while(currentshape != NULL) {
-        NSVGpath* currentpath = currentshape->paths;
+        pixelchunk_list* currentpath = currentshape->boundaries;
 
+        int colour = NSVG_RGB(
+            currentshape->colour.r,            
+            currentshape->colour.g,
+            currentshape->colour.b
+        );
         fprintf(output, "<path fill=\"#");
-        fprintf(output, "%06X", currentshape->fill.color);
+        fprintf(output, "%06X", colour);
         fprintf(output, "\" d=\"");
         bool ranonce = false;
 
@@ -72,15 +77,13 @@ bool write_svg_file(NSVGimage* input, const char* filename) {
 
             if(ranonce == false) {
                 fprintf(output, "M ");
-                x = currentpath->pts[0];
-                y = currentpath->pts[1];
             }
 
             else {
                 fprintf(output, " L ");
-                x = currentpath->pts[2];
-                y = currentpath->pts[3];
             }
+            x = currentpath->chunk_p->border_location.x;
+            y = currentpath->chunk_p->border_location.y;
             fprintf(output, "%f ", x);
             fprintf(output, "%f", y);
             currentpath = currentpath->next;
