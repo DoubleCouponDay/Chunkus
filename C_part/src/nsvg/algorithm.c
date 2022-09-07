@@ -117,7 +117,7 @@ void add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* ch
     add_chunk_to_shape(quadrant, shape, chunk); //boundaries are part of the shape too
 }
 
-chunkshape* add_new_shape(Quadrant* quadrant) {
+chunkshape* add_new_shape(Quadrant* quadrant, pixel colour) {
     chunkshape* new = calloc(1, sizeof(chunkshape));
 
     if (!new) {
@@ -133,13 +133,14 @@ chunkshape* add_new_shape(Quadrant* quadrant) {
     new->boundaries_length = 0;
     new->chunks_amount = 0;
 
-    if(quadrant->map->shape_list != NULL)
+    if(quadrant->map->shape_list != NULL) 
         quadrant->map->shape_list->next = new; //links to the previous last item
     else
         quadrant->map->first_shape = new; //if there was no previous item, this is the first item
         
     quadrant->map->shape_list = new; //sets the linked list to last item
 
+    new->colour = colour;
     ++quadrant->map->shape_count;
     return new;
 }
@@ -220,7 +221,7 @@ void enlarge_border(
     }
 
     if(quadrant->map->shape_list == NULL || chunk_to_add->shape_chunk_in == NULL) { //make first shape
-        chosenshape = add_new_shape(quadrant);
+        chosenshape = add_new_shape(quadrant, chunk_to_add->average_colour);
     }
 
     else { //use chunks shape
@@ -246,7 +247,7 @@ void enlarge_shape(
     //both chunks go in fresh shape
     if(current->shape_chunk_in == NULL && adjacent->shape_chunk_in == NULL) {
         LOG_INFO("%s: Creating new shape", quadrant->name);
-        chosenshape = add_new_shape(quadrant);
+        chosenshape = add_new_shape(quadrant, current->average_colour);
         add_chunk_to_shape(quadrant, chosenshape, current);
         add_chunk_to_shape(quadrant, chosenshape, adjacent);
         chosenshape->colour = current->average_colour;
@@ -328,7 +329,7 @@ void find_shapes(
 
 void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {  
     if(currentchunk_p->shape_chunk_in == NULL) { //create an empty shape with a single chunk, no boundary
-        chunkshape* new_shape = add_new_shape(quadrant);
+        chunkshape* new_shape = add_new_shape(quadrant, currentchunk_p->average_colour);
         quadrant->map->shape_list = new_shape;
     }
 
