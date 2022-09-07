@@ -17,7 +17,9 @@ void fill_chunk(int x, int y, image input, vectorize_options options, pixelchunk
         x, y
     };
     chunk->location = location;
-    chunk->border_location = (vector2){ 0.f, 0.f };
+    chunk->border_location = (vector2){ (float)x, (float)y };
+    chunk->is_boundary = false;
+    chunk->boundary_chunk_in = NULL;
     
     // Assigned the edge case pixelchunk dimensions
     int node_width = input.width - x * options.chunk_size;
@@ -119,8 +121,6 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
         {
             // Grab the pixelchunk
             pixelchunk* chunk = &output->groups_array_2d[x][y];
-            chunk->is_boundary = false;
-            chunk->boundary_chunk_in = NULL;
             fill_chunk(x, y, input, options, chunk);
         }
     }
