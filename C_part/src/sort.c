@@ -393,6 +393,8 @@ void iterate_shape_boundaries(chunkshape* shape)
         shape->boundaries = list;
     }
     shape->boundaries = first;
+    shape->boundaries_length = pc_vector_size(&vector);
+    pc_free(&vector);
 }
 
 void sort_boundary(chunkmap* map) {
