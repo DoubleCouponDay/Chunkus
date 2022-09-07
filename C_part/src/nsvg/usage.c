@@ -69,9 +69,9 @@ void vectorize(image input, vectorize_options options) {
         return;
     }
      
-	bool result = write_svg_file(map, OUTPUT_PATH);
+	write_svg_file(map, OUTPUT_PATH);
 
-	if(result == false || isBadError()) {
+	if(isBadError()) {
 		free_chunkmap(map);
 		LOG_ERR("write_svg_file failed with code: %d", getLastError());
 		return;

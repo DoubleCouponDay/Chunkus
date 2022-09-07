@@ -37,7 +37,7 @@ void print_coordinates(FILE* output, float x, float y) {
     fprintf(output, "%f", y);
 }
 
-bool write_svg_file(chunkmap* map, const char* filename) {
+void write_svg_file(chunkmap* map, const char* filename) {
     LOG_INFO("create a file for read/write and destroy contents if already exists");
     FILE* output = fopen(filename, "w+"); 
 
@@ -47,7 +47,8 @@ bool write_svg_file(chunkmap* map, const char* filename) {
 
     if(isBadError()) {
         LOG_ERR("gettemplate failed with code: %d", code);
-        return false;
+        setError(ASSUMPTION_WRONG);
+        return;
     }
 
     LOG_INFO("copy the template into the output string");
@@ -57,7 +58,8 @@ bool write_svg_file(chunkmap* map, const char* filename) {
     if(map->shape_list == NULL) {
         LOG_ERR("no shapes found!");
         finish_file(output, template);
-        return false;
+        setError(ASSUMPTION_WRONG);
+        return;
     }
 
     LOG_INFO("iterating shapes");
@@ -66,8 +68,9 @@ bool write_svg_file(chunkmap* map, const char* filename) {
     while(currentshape != NULL) {
         if(currentshape->boundaries_length < 2) {
             LOG_ERR("current_shape needs at least 2 boundaries!");
-            currentshape = currentshape->next;
-            return false;
+            finish_file(output, template);
+            setError(ASSUMPTION_WRONG);
+            return;
         }
         pixelchunk_list* currentpath = currentshape->boundaries->first;
 
@@ -113,5 +116,5 @@ bool write_svg_file(chunkmap* map, const char* filename) {
     }
     LOG_INFO("Iterated %d shapes", map->shape_count);
     finish_file(output, template);
-    return true;
+    return;
 }

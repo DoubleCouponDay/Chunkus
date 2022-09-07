@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-bool write_svg_file(chunkmap* map, const char* filename);
+void write_svg_file(chunkmap* map, const char* filename);
 
 extern const char* OUTPUT_PATH;
 
