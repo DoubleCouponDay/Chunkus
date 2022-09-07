@@ -32,6 +32,11 @@ void finish_file(FILE* output, char* template) {
     fclose(output);
 }
 
+void print_coordinates(FILE* output, float x, float y) {
+    fprintf(output, "%f ", x);
+    fprintf(output, "%f", y);
+}
+
 bool write_svg_file(chunkmap* map, const char* filename) {
     LOG_INFO("create a file for read/write and destroy contents if already exists");
     FILE* output = fopen(filename, "w+"); 
@@ -59,7 +64,12 @@ bool write_svg_file(chunkmap* map, const char* filename) {
     chunkshape* currentshape = map->first_shape;
 
     while(currentshape != NULL) {
-        pixelchunk_list* currentpath = currentshape->boundaries;
+        if(currentshape->boundaries_length < 2) {
+            LOG_INFO("current_shape needs at least 2 boundaries!");
+            currentshape = currentshape->next;
+            continue;
+        }
+        pixelchunk_list* currentpath = currentshape->boundaries->first;
 
         int colour = NSVG_RGB(
             currentshape->colour.r,            
@@ -72,9 +82,6 @@ bool write_svg_file(chunkmap* map, const char* filename) {
         bool ranonce = false;
 
         while(currentpath != NULL) {
-            float x;
-            float y;
-
             if(ranonce == false) {
                 fprintf(output, "M ");
             }
@@ -82,17 +89,29 @@ bool write_svg_file(chunkmap* map, const char* filename) {
             else {
                 fprintf(output, " L ");
             }
-            x = currentpath->chunk_p->border_location.x;
-            y = currentpath->chunk_p->border_location.y;
-            fprintf(output, "%f ", x);
-            fprintf(output, "%f", y);
+            print_coordinates(
+                output, 
+                currentpath->chunk_p->border_location.x,
+                currentpath->chunk_p->border_location.y);
+
             currentpath = currentpath->next;
             ranonce = true;
+        }
+
+        if(ranonce) {
+            fprintf(output, " L ");
+
+            print_coordinates(
+                output, 
+                currentshape->boundaries->first->chunk_p->border_location.x,
+                currentshape->boundaries->first->chunk_p->border_location.y);
+            
         }
         fprintf(output, " Z\"");
         fprintf(output, "/>\n");
         currentshape = currentshape->next;
     }
+    LOG_INFO("Iterated %d shapes", map->shape_count);
     finish_file(output, template);
     return true;
 }
