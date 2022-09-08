@@ -46,11 +46,13 @@ bool zip_quadrant(Quadrant* quadrant, pixelchunk* chunk_to_zip) {
 }
 
 bool zip_seam(Quadrant* quadrant, pixelchunk* chunk_to_zip, pixelchunk* adjacent) {
-    vector2 diff = create_vector_between_chunks(chunk_to_zip, adjacent);
-    float offset_x = get_border_zip_offset(diff.x);
-    float offset_y = get_border_zip_offset(diff.y);
-    chunk_to_zip->border_location.x = chunk_to_zip->border_location.x + offset_x;
-    chunk_to_zip->border_location.y = chunk_to_zip->border_location.y + offset_y;
+    if(adjacent != NULL) { //chunk could be on the edge of the image
+        vector2 diff = create_vector_between_chunks(chunk_to_zip, adjacent);
+        float offset_x = get_border_zip_offset(diff.x);
+        float offset_y = get_border_zip_offset(diff.y);
+        chunk_to_zip->border_location.x = chunk_to_zip->border_location.x + offset_x;
+        chunk_to_zip->border_location.y = chunk_to_zip->border_location.y + offset_y;
+    }
     zip_quadrant(quadrant, chunk_to_zip);
 }
 
@@ -223,6 +225,7 @@ void enlarge_border(
     chunkshape* chosenshape;
 
     if(chunk_to_add->is_boundary == true) {
+        LOG_INFO("%s: chunk already in border: %dx, %dy", quadrant->name, chunk_to_add->border_location.x, chunk_to_add->border_location.y);
         return; //chunk is already a boundary
     }
 
@@ -288,7 +291,14 @@ void find_shapes(
     Quadrant* quadrant, 
     pixelchunk* current,
     int map_x, int map_y, 
-    float threshold) {    
+    float threshold) {
+
+    if(map_x == quadrant->bounds.startingX || map_x == (quadrant->bounds.endingX - 1) ||
+        map_y == quadrant->bounds.startingY || map_y == (quadrant->bounds.endingY - 1)) 
+    {
+        enlarge_border(quadrant, current, NULL); //add pixel on the edge of the image to a border
+    }
+
     for (int adjacent_y = -1; adjacent_y < 2; ++adjacent_y)
     {
         for (int adjacent_x = -1; adjacent_x < 2; ++adjacent_x)
@@ -307,13 +317,6 @@ void find_shapes(
                 continue;
 
             pixelchunk* adjacent = &(quadrant->map->groups_array_2d[adjacent_index_x][adjacent_index_y]);
-
-            //add pixel on the edge of the image to a border
-            if(map_x == quadrant->bounds.startingX || map_x == (quadrant->bounds.endingX - 1) ||
-                map_y == quadrant->bounds.startingY || map_y == (quadrant->bounds.endingY - 1)) 
-            {
-                enlarge_border(quadrant, current, adjacent);
-            }
 
             //make a shape out of two adjacent chunks
             if (colours_are_similar(current->average_colour, adjacent->average_colour, threshold)) {
