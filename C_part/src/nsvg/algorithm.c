@@ -38,14 +38,20 @@ float get_quadrant_zip_Yoffset(Quadrant* quadrant) {
     return (float)quadrant->Y_seam * ZIP_DISTANCE * 2;
 }
 
-bool zip_border_chunk(Quadrant* quadrant, pixelchunk* chunk_to_zip, pixelchunk* adjacent) {
+bool zip_quadrant(Quadrant* quadrant, pixelchunk* chunk_to_zip) {
+    float offset_x = get_quadrant_zip_Xoffset(quadrant);
+    float offset_y = get_quadrant_zip_Yoffset(quadrant);
+    chunk_to_zip->border_location.x = chunk_to_zip->border_location.x + offset_x;
+    chunk_to_zip->border_location.y = chunk_to_zip->border_location.y + offset_y;
+}
+
+bool zip_seam(Quadrant* quadrant, pixelchunk* chunk_to_zip, pixelchunk* adjacent) {
     vector2 diff = create_vector_between_chunks(chunk_to_zip, adjacent);
     float offset_x = get_border_zip_offset(diff.x);
     float offset_y = get_border_zip_offset(diff.y);
-    offset_x = offset_x + get_quadrant_zip_Xoffset(quadrant);
-    offset_y = offset_y + get_quadrant_zip_Yoffset(quadrant);
-    chunk_to_zip->border_location.x = chunk_to_zip->location.x + offset_x;
-    chunk_to_zip->border_location.y = chunk_to_zip->location.y + offset_y;
+    chunk_to_zip->border_location.x = chunk_to_zip->border_location.x + offset_x;
+    chunk_to_zip->border_location.y = chunk_to_zip->border_location.y + offset_y;
+    zip_quadrant(quadrant, chunk_to_zip);
 }
 
 void windback_lists(chunkmap* map) {
@@ -234,7 +240,7 @@ void enlarge_border(
         LOG_ERR("%s: add_chunk_to_boundary failed with code: %d", quadrant->name, getLastError());
         return;
     }
-    zip_border_chunk(quadrant, chunk_to_add, adjacent);
+    zip_seam(quadrant, chunk_to_add, adjacent);
     chunk_to_add->is_boundary = true;
 }
 
@@ -358,15 +364,19 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     }
     pixelchunk* top_vertex = &(quadrant->map->groups_array_2d[top_location_x][top_location_y]);
     pixelchunk* right_vertex = &(quadrant->map->groups_array_2d[right_location_x][right_location_y]);
+    }
     chunkshape* triangle = currentchunk_p->shape_chunk_in;
     add_chunk_to_boundary(quadrant, triangle, currentchunk_p);
+    }    
     add_chunk_to_boundary(quadrant, triangle, top_vertex);
+    zip_quadrant(quadrant, top_vertex);
     add_chunk_to_boundary(quadrant, triangle, right_vertex);
 
     if(isBadError()) {
         LOG_ERR("%s: add_chunk_to_boundary failed with code: %d", quadrant->name, getLastError());
         return;
     }
+    zip_quadrant(quadrant, right_vertex);
 }
 
 ///A multithreaded function
