@@ -334,16 +334,6 @@ void find_shapes(
 }
 
 void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {  
-    if(currentchunk_p->shape_chunk_in == NULL) { //create an empty shape with a single chunk, no boundary
-        chunkshape* new_shape = add_new_shape(quadrant, currentchunk_p->average_colour);
-        quadrant->map->shape_list = new_shape;
-    }
-
-    else if(currentchunk_p->shape_chunk_in->boundaries_length != 1 || currentchunk_p->shape_chunk_in->chunks_amount != 1)
-    {
-        return;
-    }
-
     LOG_INFO("%s: making triangle", quadrant->name);
     float Xoffset = get_quadrant_zip_Xoffset(quadrant);
     float Yoffset = get_quadrant_zip_Yoffset(quadrant);
@@ -359,16 +349,45 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
         right_location_x < quadrant->bounds.startingX || right_location_x >= quadrant->bounds.endingX ||
         right_location_y < quadrant->bounds.startingY || right_location_y >= quadrant->bounds.endingY) 
     {
-        LOG_INFO("%s: triangle would overlap bounds. discarding...", quadrant->name);
+        LOG_INFO("%s: triangle would overlap bounds", quadrant->name);
         return;
     }
     pixelchunk* top_vertex = &(quadrant->map->groups_array_2d[top_location_x][top_location_y]);
     pixelchunk* right_vertex = &(quadrant->map->groups_array_2d[right_location_x][right_location_y]);
+
+    if(currentchunk_p->shape_chunk_in == NULL) { //sanity check isolated chunk
+        chunkshape* new_shape = add_new_shape(quadrant, currentchunk_p->average_colour);
+        quadrant->map->shape_list = new_shape;
+        add_chunk_to_boundary(quadrant, new_shape, currentchunk_p);
+
+        if(isBadError()) {
+            LOG_ERR("%s: add_chunk_to_boundary failed with code: %d", quadrant->name, getLastError());
+            return;
+        }
+        zip_quadrant(quadrant, currentchunk_p);
+    }
+
+    else if(currentchunk_p->shape_chunk_in->chunks_amount != 1) //only form triangle on isolated chunk
+    {
+        LOG_INFO("%s: triangle must start from an isolated pixel", quadrant->name);
+        return; //only allow single pixel shapes through
+    }
+
+    if(top_vertex->shape_chunk_in != NULL || right_vertex->shape_chunk_in != NULL) { //dont put chunks in multiple shapes
+        LOG_INFO("%s: surrounding pixel already in shapes", quadrant->name);
+        return;
     }
     chunkshape* triangle = currentchunk_p->shape_chunk_in;
-    add_chunk_to_boundary(quadrant, triangle, currentchunk_p);
+
+    if(currentchunk_p->is_boundary == false) {
+        add_chunk_to_boundary(quadrant, triangle, currentchunk_p);
     }    
     add_chunk_to_boundary(quadrant, triangle, top_vertex);
+
+    if(isBadError()) {
+        LOG_ERR("%s: add_chunk_to_boundary failed with code: %d", quadrant->name, getLastError());
+        return;
+    }
     zip_quadrant(quadrant, top_vertex);
     add_chunk_to_boundary(quadrant, triangle, right_vertex);
 
