@@ -14,7 +14,6 @@
 #include "../utility/logger.h"
 #include "../utility/error.h"
 #include "copy.h"
-#include "mapping.h"
 #include "../sort.h"
 #include "../utility/vec.h"
 

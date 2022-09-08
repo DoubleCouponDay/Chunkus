@@ -111,7 +111,6 @@
         "tears.h": "c",
         "pngfile.h": "c",
         "chunkmap.h": "c",
-        "mapping.h": "c",
         "copy.h": "c",
         "vec.h": "c",
         "error.h": "c",
