@@ -359,11 +359,6 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
         chunkshape* new_shape = add_new_shape(quadrant, currentchunk_p->average_colour);
         quadrant->map->shape_list = new_shape;
         add_chunk_to_boundary(quadrant, new_shape, currentchunk_p);
-
-        if(isBadError()) {
-            LOG_ERR("%s: add_chunk_to_boundary failed with code: %d", quadrant->name, getLastError());
-            return;
-        }
         zip_quadrant(quadrant, currentchunk_p);
     }
 
@@ -373,29 +368,25 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
         return; //only allow single pixel shapes through
     }
 
+    else if(currentchunk_p->is_boundary == false) {
+        add_chunk_to_boundary(quadrant, currentchunk_p->shape_chunk_in, currentchunk_p);
+        zip_quadrant(quadrant, currentchunk_p);
+    }
+
     if(top_vertex->shape_chunk_in != NULL || right_vertex->shape_chunk_in != NULL) { //dont put chunks in multiple shapes
         LOG_INFO("%s: surrounding pixel already in shapes", quadrant->name);
         return;
     }
     chunkshape* triangle = currentchunk_p->shape_chunk_in;
-
-    if(currentchunk_p->is_boundary == false) {
-        add_chunk_to_boundary(quadrant, triangle, currentchunk_p);
-    }    
     add_chunk_to_boundary(quadrant, triangle, top_vertex);
-
-    if(isBadError()) {
-        LOG_ERR("%s: add_chunk_to_boundary failed with code: %d", quadrant->name, getLastError());
-        return;
-    }
     zip_quadrant(quadrant, top_vertex);
     add_chunk_to_boundary(quadrant, triangle, right_vertex);
-
+    zip_quadrant(quadrant, right_vertex);
+    
     if(isBadError()) {
         LOG_ERR("%s: add_chunk_to_boundary failed with code: %d", quadrant->name, getLastError());
         return;
     }
-    zip_quadrant(quadrant, right_vertex);
 }
 
 ///A multithreaded function
