@@ -183,11 +183,11 @@ chunkshape* merge_shapes(
         current->first = larger->boundaries->first;
     }
 
+    //append the chunk lists
     larger->chunks->next = chunk_first;
     larger->chunks = smaller->chunks;
     larger->chunks_amount += smaller->chunks_amount;
 
-    //assuming that every boundary chunk is also in a shape
     larger->boundaries->next = boundary_first;
     larger->boundaries = smaller->boundaries;
     larger->boundaries_length += smaller->boundaries_length;
