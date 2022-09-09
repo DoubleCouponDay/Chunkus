@@ -18,7 +18,6 @@ void fill_chunk(int x, int y, image input, vectorize_options options, pixelchunk
     };
     chunk->location = location;
     chunk->border_location = (vector2){ (float)x, (float)y };
-    chunk->is_boundary = false;
     chunk->boundary_chunk_in = NULL;
     
     // Assigned the edge case pixelchunk dimensions

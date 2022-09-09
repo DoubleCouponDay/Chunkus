@@ -73,6 +73,7 @@ void add_chunk_to_shape(Quadrant* quadrant, chunkshape* shape, pixelchunk* chunk
     }
 
     else if(chunk->shape_chunk_in != NULL || shape == chunk->shape_chunk_in) {
+        LOG_INFO("%s: chunk is already in a shape");
         return;
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
@@ -101,7 +102,7 @@ void add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* ch
         return;
     }
     
-    else if(chunk->is_boundary == true || shape == chunk->shape_chunk_in) { //chunk already in boundary or in another shapes boundaries
+    else if(chunk->boundary_chunk_in != NULL || shape == chunk->shape_chunk_in) { //chunk already in boundary or in another shapes boundaries
         return;
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
@@ -119,8 +120,8 @@ void add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* ch
         shape->boundaries = new;
     }
     ++shape->boundaries_length;
-    chunk->is_boundary = true;
-    chunk->shape_chunk_in = NULL; //just paranoid
+    chunk->boundary_chunk_in = new;
+    chunk->shape_chunk_in = NULL; //just paranoid that add_chunk_to_shape will fail
     add_chunk_to_shape(quadrant, shape, chunk); //boundaries are part of the shape too
 }
 
@@ -223,7 +224,7 @@ void enlarge_border(
     pixelchunk* adjacent) {
     chunkshape* chosenshape;
 
-    if(chunk_to_add->is_boundary == true) {
+    if(chunk_to_add->boundary_chunk_in != NULL) {
         LOG_INFO("%s: chunk already in border: %dx, %dy", quadrant->name, chunk_to_add->border_location.x, chunk_to_add->border_location.y);
         return; //chunk is already a boundary
     }
@@ -243,7 +244,6 @@ void enlarge_border(
         return;
     }
     zip_seam(quadrant, chunk_to_add, adjacent);
-    chunk_to_add->is_boundary = true;
 }
 
 void enlarge_shape(
@@ -370,7 +370,7 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
         return; //only allow single pixel shapes through
     }
 
-    else if(currentchunk_p->is_boundary == false) {
+    else if(currentchunk_p->boundary_chunk_in == NULL) {
         add_chunk_to_boundary(quadrant, currentchunk_p->shape_chunk_in, currentchunk_p);
         zip_quadrant(quadrant, currentchunk_p);
     }
