@@ -141,13 +141,22 @@ void free_chunkmap(chunkmap* map_p)
     if (!map_p) {
         return;
     }
+    LOG_INFO("freeing chunkmap");
 
-    else {
-        for (int x = 0; x < map_p->map_width; ++x)
-        {
-            pixelchunk* current = map_p->groups_array_2d[x];
-            free(current);
+    for (int x = 0; x < map_p->map_width; ++x)
+    {
+        pixelchunk* current = map_p->groups_array_2d[x];
+
+        if(current == NULL) {
+            continue;
         }
+        current->shape_chunk_in = NULL;
+        current->boundary_chunk_in = NULL;
+
+        if(current->pixels_array_2d) {
+            free(current->pixels_array_2d);
+        }
+        free(current);
     }
 
     if(map_p->groups_array_2d) {
