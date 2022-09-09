@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 #include "../utility/error.h"
-#include "../nsvg/copy.h"
+#include "../algorithm/copy.h"
 #include "../utility/logger.h"
 #include "../chunkmap.h"
 

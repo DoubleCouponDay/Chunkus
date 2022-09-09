@@ -6,7 +6,7 @@
 #include "../src/imagefile/pngfile.h"
 #include "munit.h"
 #include "../src/chunkmap.h"
-#include "../src/nsvg/usage.h"
+#include "../src/algorithm/usage.h"
 
 typedef struct {
   image img;

@@ -7,14 +7,14 @@ set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 file(GLOB headersglob 
     "${PROJECT_SOURCE_DIR}/src/*.h"  
     "${PROJECT_SOURCE_DIR}/src/utility/*.h" 
-    "${PROJECT_SOURCE_DIR}/src/nsvg/*.h" 
+    "${PROJECT_SOURCE_DIR}/src/algorithm/*.h" 
     "${PROJECT_SOURCE_DIR}/src/imagefile/*.h")
 
 file(GLOB sourceglob
     "${PROJECT_SOURCE_DIR}/src/imagefile/*.c"
     "${PROJECT_SOURCE_DIR}/src/*.c"
     "${PROJECT_SOURCE_DIR}/src/utility/*.c"
-    "${PROJECT_SOURCE_DIR}/src/nsvg/*.c")
+    "${PROJECT_SOURCE_DIR}/src/algorithm/*.c")
 
 file(GLOB testglob
         "${PROJECT_SOURCE_DIR}/test/*.c")

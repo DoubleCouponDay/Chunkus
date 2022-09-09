@@ -2,7 +2,7 @@
 #include "munit.h"
 #include "tears.h"
 
-#include "../src/nsvg/usage.h"
+#include "../src/algorithm/usage.h"
 #include "../src/utility/logger.h"
 
 void* tear1setup(const MunitParameter params[], void* userdata) {

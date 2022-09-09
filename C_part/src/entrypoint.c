@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "entrypoint.h"
-#include "nsvg/usage.h"
+#include "algorithm/usage.h"
 #include "utility/logger.h"
 #include "utility/error.h"
 #include "imagefile/pngfile.h"

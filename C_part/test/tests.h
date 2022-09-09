@@ -18,7 +18,7 @@
 #include "../src/imagefile/pngfile.h"
 #include "../src/imagefile/bmp.h"
 #include "../src/entrypoint.h"
-#include "../src/nsvg/usage.h"
+#include "../src/algorithm/usage.h"
 #include "tears.h"
 #include "../src/utility/error.h"
 #include "../src/imagefile/svg.h"
