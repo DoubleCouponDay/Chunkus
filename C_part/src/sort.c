@@ -306,8 +306,6 @@ float calculate_cw_angle(vector2 a, vector2 b)
     return calculate_ccw_angle(b, a);
 }
 
-extern void free_pixelchunklist(pixelchunk_list* list);
-
 void iterate_shape_boundaries(chunkshape* shape)
 {
     pc_vector vector = pc_create(0, shape->boundaries_length);
