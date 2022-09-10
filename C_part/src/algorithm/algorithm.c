@@ -384,7 +384,7 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
 }
 
 void remove_loner(Quadrant* quadrant, pixelchunk* chunk) {
-    if(chunk->shape_chunk_in->boundaries_length != 1) {
+    if(chunk->shape_chunk_in->chunks_amount != 1) { //remove single pixel shape
         return;
     }
     chunkshape* shape = chunk->shape_chunk_in;
@@ -400,18 +400,26 @@ void remove_loner(Quadrant* quadrant, pixelchunk* chunk) {
     if(shape->previous != NULL)
         shape->previous->next = shape->next;
 
+    shape->previous = NULL;
+
     if(shape->next != NULL)
         shape->next->previous = shape->previous;
 
-    shape->previous = NULL;
     shape->next = NULL;
 
-    if(shape->chunks)
-        free_pixelchunklist(shape->chunks);
+    if(quadrant->map->first_shape == shape) {
+        quadrant->map->first_shape = shape->next;
+    }
 
-    if(shape->boundaries)
-        free_pixelchunklist(shape->boundaries);
+    if(shape->chunks && shape->chunks->first) {
+        free_pixelchunklist(shape->chunks->first);
+        shape->chunks = NULL;
+    }
 
+    if(shape->boundaries && shape->boundaries->first) {
+        free_pixelchunklist(shape->boundaries->first);
+        shape->boundaries = NULL;
+    }
     free(shape);
 }
 
