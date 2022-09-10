@@ -73,7 +73,6 @@ void add_chunk_to_shape(Quadrant* quadrant, chunkshape* shape, pixelchunk* chunk
     }
 
     else if(chunk->shape_chunk_in != NULL || shape == chunk->shape_chunk_in) {
-        LOG_INFO("%s: chunk is already in a shape");
         return;
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
@@ -164,7 +163,6 @@ chunkshape* merge_shapes(
     }
 
     // Find smallest shape
-    LOG_INFO("%s: merging shapes", quadrant->name);
     chunkshape* smaller = (shape1->chunks_amount < shape2->chunks_amount ? shape1 : shape2);
     chunkshape* larger = (smaller == shape1 ? shape2 : shape1);
 
@@ -225,7 +223,6 @@ void enlarge_border(
     chunkshape* chosenshape;
 
     if(chunk_to_add->boundary_chunk_in != NULL) {
-        LOG_INFO("%s: chunk already in border: %dx, %dy", quadrant->name, chunk_to_add->border_location.x, chunk_to_add->border_location.y);
         return; //chunk is already a boundary
     }
 
@@ -254,7 +251,6 @@ void enlarge_shape(
 
     //both chunks go in fresh shape
     if(current->shape_chunk_in == NULL && adjacent->shape_chunk_in == NULL) {
-        LOG_INFO("%s: Creating new shape", quadrant->name);
         chosenshape = add_new_shape(quadrant, current->average_colour);
         add_chunk_to_shape(quadrant, chosenshape, current);
         add_chunk_to_shape(quadrant, chosenshape, adjacent);
@@ -336,7 +332,6 @@ void find_shapes(
 }
 
 void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {  
-    LOG_INFO("%s: making triangle", quadrant->name);
     float Xoffset = get_quadrant_zip_Xoffset(quadrant);
     float Yoffset = get_quadrant_zip_Yoffset(quadrant);
 
@@ -351,7 +346,6 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
         right_location_x < quadrant->bounds.startingX || right_location_x >= quadrant->bounds.endingX ||
         right_location_y < quadrant->bounds.startingY || right_location_y >= quadrant->bounds.endingY) 
     {
-        LOG_INFO("%s: triangle would overlap bounds", quadrant->name);
         return;
     }
     pixelchunk* top_vertex = &(quadrant->map->groups_array_2d[top_location_x][top_location_y]);
@@ -366,7 +360,6 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
 
     else if(currentchunk_p->shape_chunk_in->chunks_amount != 1) //only form triangle on isolated chunk
     {
-        LOG_INFO("%s: triangle must start from an isolated pixel", quadrant->name);
         return; //only allow single pixel shapes through
     }
 
@@ -376,7 +369,6 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     }
 
     if(top_vertex->shape_chunk_in != NULL || right_vertex->shape_chunk_in != NULL) { //dont put chunks in multiple shapes
-        LOG_INFO("%s: surrounding pixel already in shapes", quadrant->name);
         return;
     }
     chunkshape* triangle = currentchunk_p->shape_chunk_in;
