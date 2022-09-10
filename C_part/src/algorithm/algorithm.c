@@ -433,7 +433,7 @@ void* fill_quadrant(void* arg) {
             }
 
             if(currentchunk_p->shape_chunk_in->boundaries_length == 1) {
-                LOG_ERR("%s: currentchunk_p did not find any friends! %.2fx, %.2fy", quadrant->name, currentchunk_p->location.x, currentchunk_p->location.y);
+                LOG_ERR("%s: currentchunk_p did not find any friends! %dx, %dy", quadrant->name, currentchunk_p->location.x, currentchunk_p->location.y);
                 setError(ASSUMPTION_WRONG);
                 pthread_exit(NULL);
             }

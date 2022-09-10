@@ -33,8 +33,8 @@ void finish_file(FILE* output, char* template) {
 }
 
 void print_coordinates(FILE* output, float x, float y) {
-    fprintf(output, "%f ", x);
-    fprintf(output, "%f", y);
+    fprintf(output, "%.2f ", x);
+    fprintf(output, "%.2f", y);
 }
 
 void write_svg_file(chunkmap* map, const char* filename) {
