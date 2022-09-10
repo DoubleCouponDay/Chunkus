@@ -383,6 +383,38 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     }
 }
 
+void remove_loner(Quadrant* quadrant, pixelchunk* chunk) {
+    if(chunk->shape_chunk_in->boundaries_length != 1) {
+        return;
+    }
+    chunkshape* shape = chunk->shape_chunk_in;
+
+    if(shape == NULL) {
+        LOG_ERR("%s: chunk did not have a shape! %.2x, %.2y", quadrant->name, chunk->location.x, chunk->location.y);
+        setError(ASSUMPTION_WRONG);
+        return;
+    }
+    chunk->shape_chunk_in = NULL;
+    chunk->boundary_chunk_in = NULL;
+
+    if(shape->previous != NULL)
+        shape->previous->next = shape->next;
+
+    if(shape->next != NULL)
+        shape->next->previous = shape->previous;
+
+    shape->previous = NULL;
+    shape->next = NULL;
+
+    if(shape->chunks)
+        free_pixelchunklist(shape->chunks);
+
+    if(shape->boundaries)
+        free_pixelchunklist(shape->boundaries);
+
+    free(shape);
+}
+
 ///A multithreaded function
 void* fill_quadrant(void* arg) {
     Quadrant* quadrant = (Quadrant*)arg;
@@ -432,9 +464,11 @@ void* fill_quadrant(void* arg) {
                 pthread_exit(NULL);
             }
 
-            if(currentchunk_p->shape_chunk_in->boundaries_length == 1) {
-                LOG_ERR("%s: currentchunk_p did not find any friends! %dx, %dy", quadrant->name, currentchunk_p->location.x, currentchunk_p->location.y);
-                setError(ASSUMPTION_WRONG);
+            remove_loner(quadrant, currentchunk_p);
+
+            if (isBadError())
+            {
+                LOG_ERR("%s remove_loner failed with code: %d", quadrant->name, code);
                 pthread_exit(NULL);
             }
 
