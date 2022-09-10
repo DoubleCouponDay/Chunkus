@@ -5,6 +5,5 @@ cmake_policy(SET CMP0074 NEW)
 
 project("Chunkus" C CXX)
 
-
 add_subdirectory(C_part)
 add_subdirectory(Cpp_part)
