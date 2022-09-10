@@ -71,6 +71,12 @@ void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) 
         for(unsigned long i = start + 1; i < length; ++i) {
             pixelchunk* current_chunk = array[i];
 
+            if(current_chunk == starting_chunk) {
+                LOG_ERR("duplicate chunk found in boundary!");
+                setError(ASSUMPTION_WRONG);
+                return;
+            }
+
             if(chunk_is_adjacent(current_chunk, starting_chunk)) {
                 if(eligible_count > ADJACENT_COUNT) {
                     LOG_ERR("adjacent chunks are more numerous than possible adjacent chunks!");
@@ -228,11 +234,10 @@ enum AdjacentPosition
     TOP_MIDDLE = 1,
     TOP_RIGHT = 2,
     MIDDLE_LEFT = 3,
-    MIDDLE_CENTER = 4,
-    MIDDLE_RIGHT = 5,
-    BOTTOM_LEFT = 6,
-    BOTTOM_MIDDLE = 7,
-    BOTTOM_RIGHT = 8
+    MIDDLE_RIGHT = 4,
+    BOTTOM_LEFT = 5,
+    BOTTOM_MIDDLE = 6,
+    BOTTOM_RIGHT = 7
 };
 
 void find_adjacents(pixelchunk* chunk, pixelchunk* adjacents[ADJACENT_COUNT], pixelchunk_list* list)
@@ -261,7 +266,9 @@ void find_adjacents(pixelchunk* chunk, pixelchunk* adjacents[ADJACENT_COUNT], pi
         }
         else if (other->location.x == chunk->location.x && other->location.y == chunk->location.y)
         {
-            adjacents[MIDDLE_CENTER] = other;
+            LOG_ERR("duplicate chunk found in pixelchunk_list!");
+            setError(ASSUMPTION_WRONG);
+            return;
         }
         else if (other->location.x == chunk->location.x + 1 && other->location.y == chunk->location.y)
         {
@@ -350,7 +357,7 @@ void iterate_shape_boundaries(chunkshape* shape)
         {
             pixelchunk* adjacent = adjacents[i];
 
-            if (!adjacent || i == MIDDLE_CENTER || adjacent == prev)
+            if (!adjacent || adjacent == prev)
                 continue;
 
             vector2 next_dir = {adjacent->location.x - current->location.x, adjacent->location.y - current->location.y};
