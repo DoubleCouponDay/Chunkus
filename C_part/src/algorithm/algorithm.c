@@ -432,6 +432,12 @@ void* fill_quadrant(void* arg) {
                 pthread_exit(NULL);
             }
 
+            if(currentchunk_p->shape_chunk_in->boundaries_length == 1) {
+                LOG_ERR("%s: currentchunk_p did not find any friends! %.2fx, %.2fy", quadrant->name, currentchunk_p->location.x, currentchunk_p->location.y);
+                setError(ASSUMPTION_WRONG);
+                pthread_exit(NULL);
+            }
+
             if(quadrant->options->step_index > 0 && count >= quadrant->options->step_index) {
                 LOG_INFO("%s: step_index reached: %d\n", quadrant->name, count);
                 pthread_exit(NULL);

@@ -85,7 +85,7 @@ int entrypoint(int argc, char* argv[]) {
 		return SUCCESS_CODE;
 	}
 
-	LOG_INFO("Vectorizing with input: '%s', chunk size: '%d', threshold: '%f', colours: %d", input_file_path, chunk_size, threshold, num_colours);
+	LOG_INFO("Vectorizing with input: '%s', chunk size: '%d', threshold: '%.2f', colours: %d", input_file_path, chunk_size, threshold, num_colours);
 
 	vectorize_options options = {
 		input_file_path,
