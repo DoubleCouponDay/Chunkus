@@ -77,7 +77,6 @@ MunitResult can_convert_png_to_bmp(const MunitParameter params[], void* userdata
   FILE* fp = fopen(out_file, "r");
   stuff->fp = fp;
   munit_assert_ptr_not_null(fp); // OUTPUT FILE NOT FOUND
-  fclose(fp);
   return MUNIT_OK;
 }
 
@@ -266,7 +265,6 @@ MunitResult can_convert_jpeg_to_bmp(const MunitParameter params[], void* userdat
   FILE* fp = fopen(out_file, "r");
   stuff->fp = fp;
   munit_assert_ptr_not_null(fp); // OUTPUT FILE NOT FOUND
-  fclose(fp);
   return MUNIT_OK;
 }
 
