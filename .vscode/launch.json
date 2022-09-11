@@ -8,84 +8,36 @@
             "name": "(Windows) Launch Tests",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/install/bin/vec_test.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/install/bin",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe",
+            "windows": {
+                "program": "${workspaceFolder}/install/bin/vec_test.exe",
+                "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe"
+            },
+            "linux": {
+                "program": "${workspaceFolder}/install/bin/vec_test"
+            }
         },
         {
             "name": "(Windows) Launch one test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/install/bin/vec_test.exe",
             "args": ["png2_to_svg"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/install/bin",
             "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe"
-        },
-        {
-            "name": "(Linux) Launch tests",
-            "MIMode": "gdb",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/install/bin/vec_test",
-            "args": [],
-            "cwd": "${workspaceFolder}/install/bin",
-            "externalConsole": false,
-            "internalConsoleOptions": "neverOpen",
-            "symbolLoadInfo": {
-                "loadAll": true,
-                "exceptionList": ""
+            "windows": {
+                "program": "${workspaceFolder}/install/bin/vec_test.exe",
+                "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe"
+            },
+            "linux": {
+                "program": "${workspaceFolder}/install/bin/vec_test"
             }
-        },
-        {
-            "name": "(Linux) Launch one test",
-            "MIMode": "gdb",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/install/bin/vec_test",
-            "args": ["jpeg_to_image"],
-            "cwd": "${workspaceFolder}/install/bin",
-            "externalConsole": false,
-            "symbolLoadInfo": {
-                "loadAll": true,
-                "exceptionList": ""
-            }
-        },
-        {
-            "name": "(Linux) Launch vec_step",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}\\Cpp_part\\build\\vec_step",
-            "stopAtEntry": true,
-            "cwd": "${workspaceFolder}\\Cpp_part\\build",
-            "environment": []
-        },
-        {
-            "name": "(Windows) Launch vec_step",
-            "type": "cppdbg",
-            "request": "launch",
-            "args": ["test.png"],
-            "program": "${workspaceFolder}/install/bin/vec_step.exe",
-            "cwd": "${workspaceFolder}/install/bin",
-            "MIMode": "gdb",
-            "preLaunchTask": "build",
-            "stopAtEntry": true,
-            "setupCommands": [
-                {
-                    "description": "Enable break on all exceptions",
-                    "text": "catch throw",
-                    "ignoreFailures": true,
-                    
-                }
-            ],
-
         }
     ]
 }
