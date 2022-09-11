@@ -296,7 +296,7 @@ float calculate_ccw_angle(vector2 a, vector2 b)
     float angle = atan2(det, dot);
     if (angle < 0)
     {
-        angle += 2 * M_PI;
+        angle += 2 * getpi();
     }
     return angle;
 }
