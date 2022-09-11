@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(Windows) Launch Tests",
+            "name": "Launch Tests",
             "type": "cppdbg",
             "request": "launch",
             "args": [],
@@ -23,7 +23,7 @@
             }
         },
         {
-            "name": "(Windows) Launch one test",
+            "name": "Launch one test",
             "type": "cppdbg",
             "request": "launch",
             "args": ["png2_to_svg"],
