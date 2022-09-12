@@ -10,12 +10,19 @@
 #include "utility/logger.h"
 #include "utility/error.h"
 #include "utility/vec.h"
-#include "prune.h"
 #include "utility/defines.h"
 
 enum {
     ADJACENT_COUNT = 8
 };
+
+bool chunk_is_adjacent(pixelchunk* current, pixelchunk* subject) {
+    int abs_x_diff = abs(subject->location.x - current->location.x);
+    int abs_y_diff = abs(subject->location.y - current->location.y);
+    bool xisclose = abs_x_diff <= 1;
+    bool yisclose = abs_y_diff <= 1;
+    return xisclose && yisclose;
+}
 
 void swap_items(pixelchunk** array, unsigned long item1, unsigned long item2) {
     pixelchunk* tmp = array[item1];

@@ -67,10 +67,9 @@ void write_svg_file(chunkmap* map, const char* filename) {
 
     while(currentshape != NULL) {
         if(currentshape->boundaries_length < 2) {
-            LOG_ERR("current_shape needs at least 2 boundaries!");
-            finish_file(output, template);
-            setError(ASSUMPTION_WRONG);
-            return;
+            LOG_INFO("current_shape needs at least 2 boundaries");
+            currentshape = currentshape->next;
+            continue;
         }
         pixelchunk_list* currentpath = currentshape->boundaries->first;
 
