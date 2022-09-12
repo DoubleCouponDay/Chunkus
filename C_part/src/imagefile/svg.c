@@ -64,11 +64,12 @@ void write_svg_file(chunkmap* map, const char* filename) {
 
     LOG_INFO("iterating shapes");
     chunkshape* currentshape = map->first_shape;
+    long oneBoundaryCount = 0;
 
     while(currentshape != NULL) {
         if(currentshape->boundaries_length < 2) {
-            LOG_INFO("current_shape needs at least 2 boundaries");
             currentshape = currentshape->next;
+            ++oneBoundaryCount;
             continue;
         }
         pixelchunk_list* currentpath = currentshape->boundaries->first;
@@ -113,7 +114,8 @@ void write_svg_file(chunkmap* map, const char* filename) {
         fprintf(output, "/>\n");
         currentshape = currentshape->next;
     }
-    LOG_INFO("Iterated %d shapes", map->shape_count);
+    LOG_INFO("wrote %d shapes", map->shape_count);
+    LOG_INFO("%d shapes had invalid single chunk boundaries", oneBoundaryCount);
     finish_file(output, template);
     return;
 }
