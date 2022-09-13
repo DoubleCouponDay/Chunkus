@@ -382,50 +382,6 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     }
 }
 
-void remove_loner(Quadrant* quadrant, pixelchunk* chunk) {
-    if(chunk->shape_chunk_in->chunks_amount > 1 || chunk->shape_chunk_in->boundaries_length > 1) { //only remove single pixel shapes
-        return;
-    }
-    chunkshape* shape = chunk->shape_chunk_in;
-
-    if(shape == NULL) {
-        LOG_ERR("%s: chunk did not have a shape! %.2f, %.2f", quadrant->name, chunk->location.x, chunk->location.y);
-        setError(ASSUMPTION_WRONG);
-        return;
-    }
-    chunk->shape_chunk_in = NULL;
-    chunk->boundary_chunk_in = NULL;
-
-    if(quadrant->map->first_shape == shape) {
-        quadrant->map->first_shape = shape->next;
-    }
-
-    if (quadrant->map->shape_list == shape) {
-        quadrant->map->shape_list = shape->previous;
-    }
-
-    if(shape->previous != NULL)
-        shape->previous->next = shape->next;
-
-    shape->previous = NULL;
-
-    if(shape->next != NULL)
-        shape->next->previous = shape->previous;
-
-    shape->next = NULL;
-
-    if(shape->chunks && shape->chunks->first) {
-        free_pixelchunklist(shape->chunks->first);
-        shape->chunks = NULL;
-    }
-
-    if(shape->boundaries && shape->boundaries->first) {
-        free_pixelchunklist(shape->boundaries->first);
-        shape->boundaries = NULL;
-    }
-    free(shape);
-}
-
 ///A multithreaded function
 void* fill_quadrant(void* arg) {
     Quadrant* quadrant = (Quadrant*)arg;
@@ -472,14 +428,6 @@ void* fill_quadrant(void* arg) {
             if (isBadError())
             {
                 LOG_ERR("%s make_triangle failed with code: %d", quadrant->name, code);
-                pthread_exit(NULL);
-            }
-
-            remove_loner(quadrant, currentchunk_p);
-
-            if (isBadError())
-            {
-                LOG_ERR("%s remove_loner failed with code: %d", quadrant->name, code);
                 pthread_exit(NULL);
             }
 
