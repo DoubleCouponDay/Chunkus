@@ -29,22 +29,18 @@ float get_border_zip_offset(float dimension) {
     return 0.f;
 }
 
-float get_quadrant_zip_Xoffset(Quadrant* quadrant) {
-    return (float)quadrant->X_seam * ZIP_DISTANCE * 2;
+float get_quadrant_zip_offset(int seam) {
+    return (float)seam * ZIP_DISTANCE * 2;
 }
 
-float get_quadrant_zip_Yoffset(Quadrant* quadrant) {
-    return (float)quadrant->Y_seam * ZIP_DISTANCE * 2;
-}
-
-bool zip_quadrant(Quadrant* quadrant, pixelchunk* chunk_to_zip) {
-    float offset_x = get_quadrant_zip_Xoffset(quadrant);
-    float offset_y = get_quadrant_zip_Yoffset(quadrant);
+void zip_quadrant(Quadrant* quadrant, pixelchunk* chunk_to_zip) {
+    float offset_x = get_quadrant_zip_offset(quadrant->X_seam);
+    float offset_y = get_quadrant_zip_offset(quadrant->Y_seam);
     chunk_to_zip->border_location.x = chunk_to_zip->border_location.x + offset_x;
     chunk_to_zip->border_location.y = chunk_to_zip->border_location.y + offset_y;
 }
 
-bool zip_seam(Quadrant* quadrant, pixelchunk* chunk_to_zip, pixelchunk* adjacent) {
+void zip_seam(Quadrant* quadrant, pixelchunk* chunk_to_zip, pixelchunk* adjacent) {
     if(adjacent != NULL) { //chunk could be on the edge of the image
         vector2 diff = create_vector_between_chunks(chunk_to_zip, adjacent);
         float offset_x = get_border_zip_offset(diff.x);
@@ -330,45 +326,58 @@ void find_shapes(
     }
 }
 
-void make_triangle(chunkmap* map, pixelchunk* currentchunk_p) {  
-    int top_location_x = currentchunk_p->location.x;
-    int top_location_y = currentchunk_p->location.y + 1;
+void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {  
+    int top_location_x = currentchunk_p->border_location.x;
+    int top_location_y = currentchunk_p->border_location.y + 1;
 
-    int right_location_x = currentchunk_p->location.x + 1;
-    int right_location_y = currentchunk_p->location.y;
+    int right_location_x = currentchunk_p->border_location.x + 1;
+    int right_location_y = currentchunk_p->border_location.y;
 
-    if(top_location_x < 0 || top_location_x >= map->map_width ||
-        top_location_y < 0 || top_location_y >= map->map_height ||
-        right_location_x < 0 || right_location_x >= map->map_width ||
-        right_location_y < 0 || right_location_y >= map->map_height) 
+    if(top_location_x < 0 || top_location_x >= quadrant->map->map_width ||
+        top_location_y < 0 || top_location_y >= quadrant->map->map_height ||
+        right_location_x < 0 || right_location_x >= quadrant->map->map_width ||
+        right_location_y < 0 || right_location_y >= quadrant->map->map_height) 
     {
         return;
     }
-    pixelchunk* top_vertex = &(map->groups_array_2d[top_location_x][top_location_y]);
-    pixelchunk* right_vertex = &(map->groups_array_2d[right_location_x][right_location_y]);
+    pixelchunk* top_vertex = &(quadrant->map->groups_array_2d[top_location_x][top_location_y]);
+    pixelchunk* right_vertex = &(quadrant->map->groups_array_2d[right_location_x][right_location_y]);
 
     if(currentchunk_p->shape_chunk_in == NULL) { //sanity check isolated chunk
-        chunkshape* new_shape = add_new_shape(map, currentchunk_p->average_colour);
-        map->shape_list = new_shape;
-        add_chunk_to_boundary(map, new_shape, currentchunk_p);
+        chunkshape* new_shape = add_new_shape(quadrant->map, currentchunk_p->average_colour);
+        quadrant->map->shape_list = new_shape;
+        add_chunk_to_boundary(quadrant->map, new_shape, currentchunk_p);
     }
 
-    else if(currentchunk_p->shape_chunk_in->chunks_amount != 1) //only form triangle on isolated chunk
+    else if(currentchunk_p->shape_chunk_in->boundaries_length != 1) //only form triangle on isolated chunk
     {
         return; //only allow single pixel shapes through
     }
 
     else if(currentchunk_p->boundary_chunk_in == NULL) {
-        add_chunk_to_boundary(map, currentchunk_p->shape_chunk_in, currentchunk_p);
+        add_chunk_to_boundary(quadrant->map, currentchunk_p->shape_chunk_in, currentchunk_p);
     }
     chunkshape* triangle = currentchunk_p->shape_chunk_in;
 
     if(top_vertex->shape_chunk_in == NULL) {
-        add_chunk_to_boundary(map, triangle, top_vertex);
+        top_vertex->shape_chunk_in = triangle;
+        add_chunk_to_boundary(quadrant->map, triangle, top_vertex);
+        zip_quadrant(quadrant, top_vertex);
     }
 
+    else {
+        add_chunk_to_boundary(quadrant->map, triangle, top_vertex);
+    }
+    
+
     if(right_vertex->shape_chunk_in == NULL) {
-        add_chunk_to_boundary(map, triangle, right_vertex);
+        right_vertex->shape_chunk_in = triangle;
+        add_chunk_to_boundary(quadrant->map, triangle, right_vertex);
+        zip_quadrant(quadrant, right_vertex);
+    }
+
+    else {
+        add_chunk_to_boundary(quadrant->map, triangle, right_vertex);
     }
     
     if(isBadError()) {
@@ -418,7 +427,30 @@ void* fill_quadrant(void* arg) {
                 pthread_exit(NULL);
             }
 
-            if(quadrant->options->step_index > 0 && count >= quadrant->options->step_index) {
+            else if(quadrant->options->step_index > 0 && count >= quadrant->options->step_index) {
+                LOG_INFO("%s: step_index reached: %d\n", quadrant->name, count);
+                pthread_exit(NULL);
+            }
+        }
+    }
+    LOG_INFO("%s: making triangles", quadrant->name);
+
+    for(int map_y = quadrant->bounds.startingY; map_y < quadrant->bounds.endingY; ++map_y)
+    {
+        for(int map_x = quadrant->bounds.startingX; map_x < quadrant->bounds.endingX; ++map_x)
+        {
+            pixelchunk* currentchunk_p = &(quadrant->map->groups_array_2d[map_x][map_y]);
+            make_triangle(quadrant, currentchunk_p);
+
+            int code = getLastError();
+
+            if (isBadError())
+            {
+                LOG_ERR("%s find_shapes failed with code: %d", quadrant->name, code);
+                pthread_exit(NULL);
+            }
+
+            else if(quadrant->options->step_index > 0 && count >= quadrant->options->step_index) {
                 LOG_INFO("%s: step_index reached: %d\n", quadrant->name, count);
                 pthread_exit(NULL);
             }
@@ -501,20 +533,6 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     map2->first_shape->previous = map->shape_list;
     map->shape_count += map2->shape_count;
 
-    LOG_INFO("making triangles out of isolated chunks");
-
-    for(chunkshape* curry = map->first_shape; curry != NULL; curry = curry->next) {
-        if (curry->chunks_amount == 1 && curry->boundaries_length == 1)
-        {
-            make_triangle(map, curry->chunks->chunk_p);
-        }
-
-        if (isBadError())
-        {
-            LOG_ERR("make_triangle failed with code: %d", getLastError());
-            return;
-        }  
-    }
     LOG_INFO("winding back list");
     map->shape_list = map->first_shape;
     windback_lists(map);
