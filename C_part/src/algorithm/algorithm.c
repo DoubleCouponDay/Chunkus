@@ -101,7 +101,7 @@ void add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* ch
         return;
     }
     
-    else if(chunk->boundary_chunk_in != NULL || shape == chunk->shape_chunk_in) { //chunk already in boundary or in another shapes boundaries
+    else if(chunk->boundary_chunk_in != NULL) { //chunk already in boundary or in another shapes boundaries
         return;
     }
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
