@@ -152,7 +152,7 @@ chunkshape* add_new_shape(Quadrant* quadrant, pixel colour) {
     return new;
 }
 
-chunkshape* merge_shapes(
+void merge_shapes(
     Quadrant* quadrant,
     chunkshape* shape1, 
     chunkshape* shape2) {
@@ -213,7 +213,6 @@ chunkshape* merge_shapes(
     free(smaller);
 
     --quadrant->map->shape_count;
-    return larger;
 }
 
 void enlarge_border(
@@ -273,7 +272,7 @@ void enlarge_shape(
     
     //merge the two shapes
     else if (current->shape_chunk_in != adjacent->shape_chunk_in) {
-        chosenshape = merge_shapes(quadrant, current->shape_chunk_in, adjacent->shape_chunk_in);
+        merge_shapes(quadrant, current->shape_chunk_in, adjacent->shape_chunk_in);
     }
 
     if(isBadError()) {
