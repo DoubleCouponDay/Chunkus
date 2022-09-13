@@ -390,12 +390,20 @@ void remove_loner(Quadrant* quadrant, pixelchunk* chunk) {
     chunkshape* shape = chunk->shape_chunk_in;
 
     if(shape == NULL) {
-        LOG_ERR("%s: chunk did not have a shape! %.2x, %.2y", quadrant->name, chunk->location.x, chunk->location.y);
+        LOG_ERR("%s: chunk did not have a shape! %.2f, %.2f", quadrant->name, chunk->location.x, chunk->location.y);
         setError(ASSUMPTION_WRONG);
         return;
     }
     chunk->shape_chunk_in = NULL;
     chunk->boundary_chunk_in = NULL;
+
+    if(quadrant->map->first_shape == shape) {
+        quadrant->map->first_shape = shape->next;
+    }
+
+    if (quadrant->map->shape_list == shape) {
+        quadrant->map->shape_list = shape->previous;
+    }
 
     if(shape->previous != NULL)
         shape->previous->next = shape->next;
@@ -406,10 +414,6 @@ void remove_loner(Quadrant* quadrant, pixelchunk* chunk) {
         shape->next->previous = shape->previous;
 
     shape->next = NULL;
-
-    if(quadrant->map->first_shape == shape) {
-        quadrant->map->first_shape = shape->next;
-    }
 
     if(shape->chunks && shape->chunks->first) {
         free_pixelchunklist(shape->chunks->first);
