@@ -327,16 +327,16 @@ void find_shapes(
 }
 
 void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {  
-    int top_location_x = currentchunk_p->border_location.x;
-    int top_location_y = currentchunk_p->border_location.y + 1;
+    int top_location_x = currentchunk_p->location.x;
+    int top_location_y = currentchunk_p->location.y + 1;
 
-    int right_location_x = currentchunk_p->border_location.x + 1;
-    int right_location_y = currentchunk_p->border_location.y;
+    int right_location_x = currentchunk_p->location.x + 1;
+    int right_location_y = currentchunk_p->location.y;
 
-    if(top_location_x < 0 || top_location_x >= quadrant->map->map_width ||
-        top_location_y < 0 || top_location_y >= quadrant->map->map_height ||
-        right_location_x < 0 || right_location_x >= quadrant->map->map_width ||
-        right_location_y < 0 || right_location_y >= quadrant->map->map_height) 
+    if(top_location_x < quadrant->bounds.startingX || top_location_x >= quadrant->bounds.endingX || 
+        top_location_y < quadrant->bounds.startingY || top_location_y >= quadrant->bounds.endingY ||
+        right_location_x < quadrant->bounds.startingX || right_location_x >= quadrant->bounds.endingX ||
+        right_location_y < quadrant->bounds.startingY || right_location_y >= quadrant->bounds.endingY) 
     {
         return;
     }
