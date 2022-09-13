@@ -389,7 +389,7 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
 ///A multithreaded function
 void* fill_quadrant(void* arg) {
     Quadrant* quadrant = (Quadrant*)arg;
-    int count = 0;
+    long count = 0;
     int tenth_count = 0;
     int tenth_of_map = (int)floor(quadrant->map->map_width * quadrant->map->map_height / 10.f);
 
@@ -439,6 +439,7 @@ void* fill_quadrant(void* arg) {
     {
         for(int map_x = quadrant->bounds.startingX; map_x < quadrant->bounds.endingX; ++map_x)
         {
+            ++count;
             pixelchunk* currentchunk_p = &(quadrant->map->groups_array_2d[map_x][map_y]);
             make_triangle(quadrant, currentchunk_p);
 
