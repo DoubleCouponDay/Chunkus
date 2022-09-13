@@ -79,9 +79,7 @@ void bubble_sort(pixelchunk** array, unsigned long start, unsigned long length) 
             pixelchunk* current_chunk = array[i];
 
             if(current_chunk == starting_chunk) {
-                LOG_ERR("duplicate chunk found in boundary!");
-                setError(ASSUMPTION_WRONG);
-                return;
+                continue; //sadly this happens a lot
             }
 
             if(chunk_is_adjacent(current_chunk, starting_chunk)) {

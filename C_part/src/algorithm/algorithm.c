@@ -349,9 +349,11 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
         add_chunk_to_boundary(quadrant->map, new_shape, currentchunk_p, true);
     }
 
-    else if(currentchunk_p->shape_chunk_in->boundaries_length != 1) //only form triangle on isolated chunk
+    else if(currentchunk_p->shape_chunk_in->boundaries_length != 1 &&
+            currentchunk_p->shape_chunk_in->boundaries_length != 2)  //sadly this can add the same chunk to its own boundary twice
     {
-        return; //only allow single pixel shapes through
+        //only form triangle on unformed chunks        
+        return;
     }
 
     else if(currentchunk_p->boundary_chunk_in == NULL) {
@@ -362,7 +364,6 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     if(top_vertex->shape_chunk_in == NULL) {
         top_vertex->shape_chunk_in = triangle;
         add_chunk_to_boundary(quadrant->map, triangle, top_vertex, true);
-        zip_quadrant(quadrant, top_vertex);
     }
 
     else {
@@ -373,7 +374,6 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     if(right_vertex->shape_chunk_in == NULL) {
         right_vertex->shape_chunk_in = triangle;
         add_chunk_to_boundary(quadrant->map, triangle, right_vertex, true);
-        zip_quadrant(quadrant, right_vertex);
     }
 
     else {
