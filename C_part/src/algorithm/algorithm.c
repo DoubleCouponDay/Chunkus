@@ -501,12 +501,10 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
     map2->first_shape->previous = map->shape_list;
     map->shape_count += map2->shape_count;
 
-    LOG_INFO("winding back list");
-    map->shape_list = map->first_shape;
-    windback_lists(map);
+    LOG_INFO("making triangles out of isolated chunks");
 
     for(chunkshape* curry = map->first_shape; curry != NULL; curry = curry->next) {
-        if (curry->chunks_amount < 2 && curry->boundaries_length < 2)
+        if (curry->chunks_amount == 1 && curry->boundaries_length == 1)
         {
             make_triangle(map, curry->chunks->chunk_p);
         }
@@ -515,6 +513,9 @@ void fill_chunkmap(chunkmap* map, vectorize_options* options) {
         {
             LOG_ERR("make_triangle failed with code: %d", getLastError());
             return;
-        }
+        }  
     }
+    LOG_INFO("winding back list");
+    map->shape_list = map->first_shape;
+    windback_lists(map);
 }
