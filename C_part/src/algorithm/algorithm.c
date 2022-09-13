@@ -159,7 +159,7 @@ void merge_shapes(
     if(shape1 == NULL || shape2 == NULL) {
         LOG_ERR("%s: null shape passed to merge shapes!", quadrant->name);
         setError(ASSUMPTION_WRONG);
-        return NULL;
+        return;
     }
 
     // Find smallest shape
