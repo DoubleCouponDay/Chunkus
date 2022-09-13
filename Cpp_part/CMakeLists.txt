@@ -30,19 +30,16 @@ endif()
 set(OpenGL_GL_PREFERENCE "LEGACY")
 
 find_package(OpenGL REQUIRED)
-find_package(GLUT QUIET)
 
-if (NOT GLUT_FOUND)
-	message("linking freeglut opengl...")
+set(CMAKE_PREFIX_PATH "../../freeglut/install")
+find_package(FreeGLUT REQUIRED)
 
-	add_subdirectory(../../freeglut ./freeglut)
-	
-	target_include_directories(vec_step PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../freeglut/include")
-	target_link_libraries(vec_step PRIVATE freeglut)
+if (NOT FreeGLUT_FOUND)
+	message("Couldn't find a built GLUT installation, please install freeglut alongside this repo")
 else()
-	message("Found Freeglut installation: dirs: ${GLUT_INCLUDE_DIRS} libs: ${GLUT_LIBRARIES}")
-	target_include_directories(vec_step PRIVATE ${GLUT_INCLUDE_DIRS})
-	target_link_libraries(vec_step PRIVATE ${GLUT_LIBRARIES})
+	message("Found Freeglut installation.")
+	target_link_libraries(vec_step PRIVATE FreeGLUT::freeglut)
+	target_include_directories(vec_step PRIVATE $<TARGET_PROPERTY:FreeGLUT::freeglut,INTERFACE_INCLUDE_DIRECTORIES>)
 endif()
 
 target_link_libraries(vec_step PRIVATE ${OPENGL_LIBRARIES})

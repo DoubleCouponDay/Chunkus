@@ -3,7 +3,7 @@
 #include <string>
 #include <exception>
 
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 
 
 class GLMatrix
