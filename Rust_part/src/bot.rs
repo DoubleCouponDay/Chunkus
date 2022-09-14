@@ -39,7 +39,7 @@ use crate::options::{
     insert_params,
     get_params,
     DEFAULT_CHUNK_SIZE,
-    DEFAULT_THRESHOLD,
+    DEFAULT_THRESHOLDS,
     DEFAULT_COLOURS
 };
 
@@ -78,7 +78,7 @@ pub async fn initialize_bot(client: &Client, shouldcrash: bool) {
         let mut data: RwLockWriteGuard<'_, TypeMap> = client.data.write().await; //only allowed one mutable reference
         data.insert::<MsgListen>(HashSet::<MessageId>::new());
         data.insert::<MsgUpdate>(HashMap::<MessageId, MessageUpdateEvent>::new());
-        let params = VectorizeOptions {chunksize: 0, thresholds: 0, numcolours: 0, shouldcrash};
+        let params = VectorizeOptions {chunksize: DEFAULT_CHUNK_SIZE, thresholds: DEFAULT_THRESHOLDS, numcolours: DEFAULT_COLOURS, shouldcrash};
         insert_params(data, params).await;
 }
 
