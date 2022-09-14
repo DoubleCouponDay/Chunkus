@@ -103,7 +103,7 @@ You should receive a message with `output.svg` and a preview png attached
 ### Params: 
 Sets the parameters to use with the algorithm
 
-`@[bots name] !params [chunksize] [threshold]` eg. 
+`@[bots name] !params [chunksize] [thresholds]` eg. 
 
     @Chunkus !params 2 50  
 
@@ -112,12 +112,14 @@ You should receive a confirmation message telling you what you set the parameter
 ### Chunk Size 
 Chunk size is amount of width and height in the algorithm's smallest image unit. An image is broken up into chunks, where a higher number improves speed while reducing quality (and losing information). 
 
-### Threshold 
-Threshold is a float between 0 and 441.67. This is the magnitude of the difference between colours with 3 components (RGB). You can use the pythagorean theorem in 3 dimensions to calculate this by:
+### Thresholds
+Thresholds is a float between 0 and 441. It is the number of threshold layers to be taking from an exponential curve.
+one threshold layer is the magnitude of the difference between colours with 3 components (RGB). 
+you can use the pythagorean theorem in 3 dimensions to calculate this by:
     
     mag3 = sqrt(255^2 * 3)
 
-- The threshold determines how easily another colour is considered a separate shape  
+- A threshold determines how easily another colour is considered a separate shape  
 - A Threshold of 0 means any color that is not EXACTLY the same will be considered separate  
 - A threshold of 441.67 means the only color values considered different are rgb(0,0,0) and rgb(255,255,255) (white and black)  
 
