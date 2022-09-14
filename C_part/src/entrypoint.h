@@ -11,6 +11,7 @@ extern "C" {
 typedef struct {
     const char* file_path;
     int chunk_size;
+    int thresholds;
     float threshold;
     int num_colours;
 	int64_t step_index; //optional argument

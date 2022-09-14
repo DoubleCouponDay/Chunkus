@@ -10,11 +10,11 @@
 #include "imagefile/svg.h"
 #include "simplify.h"
 #include "imagefile/converter.h"
+#include "algorithm/thresholds.h"
 
 const char *format1_p = "png";
 const char *format2_p = "jpeg";
 const int DEFAULT_CHUNKSIZE = 1;
-const int DEFAULT_THRESHOLD = 1;
 const int DEFAULT_COLOURS = 256;
 
 int execute_program(vectorize_options options) {
@@ -59,13 +59,13 @@ int entrypoint(int argc, char* argv[]) {
 	if (chunk_size < 1)
 		chunk_size = DEFAULT_CHUNKSIZE;
 
-	float threshold = DEFAULT_THRESHOLD;
+	int thresholds = DEFAULT_THRESHOLDS;
 
 	if (argc > 4)
-		threshold = (float)atof(argv[4]);	
+		thresholds = (int)atoi(argv[4]);	
 		
-	if (threshold < 0.f)
-		threshold = 1;
+	if (thresholds < 1)
+		thresholds = DEFAULT_THRESHOLDS;
 
 	int num_colours = DEFAULT_COLOURS;
 
@@ -85,12 +85,13 @@ int entrypoint(int argc, char* argv[]) {
 		return SUCCESS_CODE;
 	}
 
-	LOG_INFO("Vectorizing with input: '%s', chunk size: '%d', threshold: '%.2f', colours: %d", input_file_path, chunk_size, threshold, num_colours);
+	LOG_INFO("Vectorizing with input: '%s', chunk size: '%d', threshold: '%.2f', colours: %d", input_file_path, chunk_size, thresholds, num_colours);
 
 	vectorize_options options = {
 		input_file_path,
 		chunk_size,
-		threshold,
+		thresholds,
+		0,
 		num_colours
 	};
 

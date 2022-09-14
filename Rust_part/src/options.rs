@@ -10,7 +10,7 @@ use serenity::{
 use tokio::sync::RwLockWriteGuard;
 
 pub const DEFAULT_CHUNK_SIZE: u32 = 1;
-pub const DEFAULT_THRESHOLDS: u32 = 0;
+pub const DEFAULT_THRESHOLDS: u32 = 3;
 pub const DEFAULT_COLOURS: u32 = 256;
 
 pub struct VectorizeOptionsKey;
