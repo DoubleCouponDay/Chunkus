@@ -19,14 +19,14 @@ mod ffimodule
     }
 }
 
-fn call_entrypoint(input: &mut CString, chunk: &mut CString, threshold: &mut CString, numcolours: &mut CString) -> FfiResult
+fn call_entrypoint(input: &mut CString, chunk: &mut CString, thresholds: &mut CString, numcolours: &mut CString) -> FfiResult
 {
     let result: FfiResult;
     let mut argv: [*mut u8; 5] = [
         ptr::null_mut(), 
         input.as_ptr() as *mut u8,
         chunk.as_ptr() as *mut u8, 
-        threshold.as_ptr() as *mut u8,
+        thresholds.as_ptr() as *mut u8,
         numcolours.as_ptr() as *mut u8,
     ];
 
@@ -43,14 +43,14 @@ pub fn do_vectorize(input_file: &String, options: ParsedOptions) -> FfiResult
 {
     let input_copy = input_file.clone();
     
-    println!("vectorizing with input: {}, chunk: {}, threshold: {}, numcolours: {}", input_file, options.chunksize, options.threshold, options.numcolours);
+    println!("vectorizing with input: {}, chunk: {}, threshold: {}, numcolours: {}", input_file, options.chunksize, options.thresholds, options.numcolours);
     
     let mut input_c = CString::new(input_copy).unwrap();
     let mut chunk_c = CString::new(options.chunksize).unwrap();
-    let mut threshold_c = CString::new(options.threshold).unwrap();
+    let mut thresholds_c = CString::new(options.thresholds).unwrap();
     let mut colours_c = CString::new(options.numcolours).unwrap();
 
-    return call_entrypoint(&mut input_c, &mut chunk_c, &mut threshold_c, &mut colours_c);
+    return call_entrypoint(&mut input_c, &mut chunk_c, &mut thresholds_c, &mut colours_c);
 }
 
 pub fn crashing_this_plane() -> i32 {
