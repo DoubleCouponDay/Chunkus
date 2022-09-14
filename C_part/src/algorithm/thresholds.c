@@ -11,7 +11,7 @@ const int MAX_THRESHOLD = 441;
 //Credit to Makka_Pakka#4053
 float pickon_exponential_curve(int x) {
     float plusone = (float)(MAX_THRESHOLD + 1);
-    float exponent = (log(plusone / (plusone * log(2)))) * (float)x;
+    float exponent = (logf(plusone / (plusone * logf(2)))) * (float)x;
     return (float)-1 + powf(2, exponent);
 }
 
