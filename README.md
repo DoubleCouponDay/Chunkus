@@ -113,7 +113,7 @@ You should receive a confirmation message telling you what you set the parameter
 Chunk size is amount of width and height in the algorithm's smallest image unit. An image is broken up into chunks, where a higher number improves speed while reducing quality (and losing information). 
 
 ### Thresholds
-Thresholds is a float between 0 and 441. It is the number of threshold layers to be taking from an exponential curve.
+Thresholds is an int between 0 and 441. It is the number of threshold layers to be taking from an exponential curve.
 one threshold layer is the magnitude of the difference between colours with 3 components (RGB). 
 you can use the pythagorean theorem in 3 dimensions to calculate this by:
     

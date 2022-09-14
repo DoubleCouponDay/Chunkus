@@ -37,7 +37,10 @@ use crate::options::{
     VectorizeOptions,
     ParsedOptions,
     insert_params,
-    get_params
+    get_params,
+    DEFAULT_CHUNK_SIZE,
+    DEFAULT_THRESHOLD,
+    DEFAULT_COLOURS
 };
 
 pub const START_MESSAGE: &'static str = "Working on it...";
@@ -75,7 +78,7 @@ pub async fn initialize_bot(client: &Client, shouldcrash: bool) {
         let mut data: RwLockWriteGuard<'_, TypeMap> = client.data.write().await; //only allowed one mutable reference
         data.insert::<MsgListen>(HashSet::<MessageId>::new());
         data.insert::<MsgUpdate>(HashMap::<MessageId, MessageUpdateEvent>::new());
-        let params = VectorizeOptions {chunksize: 0, thresholds: 0.0, numcolours: 0, shouldcrash};
+        let params = VectorizeOptions {chunksize: 0, thresholds: 0, numcolours: 0, shouldcrash};
         insert_params(data, params).await;
 }
 
@@ -232,7 +235,7 @@ async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandRe
     }
     let mut mutable = args;
     let possiblechunksize = mutable.single::<u32>();
-    let possiblethreshold = mutable.single::<f32>();
+    let possiblethreshold = mutable.single::<u32>();
     let possiblecolours = mutable.single::<u32>();
 
     if possiblechunksize.is_ok() && possiblethreshold.is_ok() && possiblecolours.is_ok() {        

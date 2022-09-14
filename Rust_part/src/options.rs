@@ -9,16 +9,16 @@ use serenity::{
 };
 use tokio::sync::RwLockWriteGuard;
 
-const DEFAULT_CHUNK_SIZE: u32 = 1;
-const DEFAULT_THRESHOLD: f32 = 1.0;
-const DEFAULT_COLOURS: u32 = 256;
+pub const DEFAULT_CHUNK_SIZE: u32 = 1;
+pub const DEFAULT_THRESHOLD: u32 = 0;
+pub const DEFAULT_COLOURS: u32 = 256;
 
 pub struct VectorizeOptionsKey;
 
 pub struct VectorizeOptions
 {
     pub chunksize: u32,
-    pub thresholds: f32,
+    pub thresholds: u32,
     pub numcolours: u32,
     pub shouldcrash: bool
 }
@@ -46,18 +46,10 @@ impl Clone for ParsedOptions {
     }
 }
 
-fn place_default_u32(input: u32, constant: u32) -> String {
+fn choose_u32(input: u32, constant: u32) -> String {
     match input {
         0 => constant.to_string(),
         _ => input.to_string()
-    }
-}
-
-fn place_default_f32(input: f32, constant: f32) -> String {
-    if input == 0.0 {
-        constant.to_string()
-    } else {
-        input.to_string()
     }
 }
 
@@ -65,9 +57,9 @@ pub async fn insert_params(mut data: RwLockWriteGuard<'_, TypeMap>, input: Vecto
     println!("inserting params. shouldcrash: {}", input.shouldcrash);
 
     let options = ParsedOptions {
-        chunksize: place_default_u32(input.chunksize, DEFAULT_CHUNK_SIZE),
-        thresholds: place_default_f32(input.thresholds, DEFAULT_THRESHOLD),
-        numcolours: place_default_u32(input.numcolours, DEFAULT_COLOURS),
+        chunksize: choose_u32(input.chunksize, DEFAULT_CHUNK_SIZE),
+        thresholds: choose_u32(input.thresholds, DEFAULT_THRESHOLD),
+        numcolours: choose_u32(input.numcolours, DEFAULT_COLOURS),
         shouldcrash: input.shouldcrash.to_string()
     };
     data.insert::<VectorizeOptionsKey>(options.clone());
