@@ -9,6 +9,14 @@
 #include "utility/error.h"
 #include "entrypoint.h"
 
+int get_map_width(image input, vectorize_options options) {
+    return (int)ceil((float)input.width / (float)options.chunk_size);
+}
+
+int get_map_height(image input, vectorize_options options) {
+    return (int)ceil((float)input.height / (float)options.chunk_size);
+}
+
 void fill_chunk(int x, int y, image input, vectorize_options options, pixelchunk* chunk) {
     int x_offset = x * options.chunk_size;
     int y_offset = y * options.chunk_size;
@@ -100,8 +108,8 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
     }    
     chunkmap* output = calloc(1, sizeof(chunkmap));
     output->input = input;
-    output->map_width = (int)ceil((float)input.width / (float)options.chunk_size);
-    output->map_height = (int)ceil((float)input.height / (float)options.chunk_size);
+    output->map_width = get_map_width(input, options);
+    output->map_height = get_map_height(input, options);
     output->shape_count = 0;
     output->first_shape = NULL;
     output->shape_list = NULL;

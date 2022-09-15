@@ -9,7 +9,9 @@
 extern "C" {
 #endif
 
-void write_svg_file(chunkmap* map, const char* filename);
+FILE* start_svg_file(int map_width, int map_height, const char* filename);
+void write_svg_file(FILE* output, chunkmap* map, vectorize_options options);
+void finish_svg_file(FILE* output);
 
 extern const char* OUTPUT_PATH;
 

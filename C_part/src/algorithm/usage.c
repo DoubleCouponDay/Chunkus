@@ -17,6 +17,7 @@
 #include "../utility/logger.h"
 #include "../simplify.h"
 #include "../imagefile/svg.h"
+#include "thresholds.h"
 
 const char* OUTPUT_PNG_PATH = "output.png";
 
@@ -24,22 +25,34 @@ void vectorize(image input, vectorize_options options) {
     LOG_INFO("quantizing image to %d colours", options.num_colours);
     LOG_INFO("thresholds: %d", options.thresholds);
     vectorize_options* options_ref = &(options);
+    float* thresholds = get_thresholds(options.thresholds);
+    int map_width = get_map_width(input, options);
+    int map_height = get_map_height(input, options);
+    FILE* output = start_svg_file(map_width, map_height, OUTPUT_PATH);
 
-    for(int i = 0; i < options.thresholds; ++i) {
+    if(isBadError()) {
+        LOG_ERR("start_svg_file failed with code: %d", getLastError());
+        return;
+    }
+
+    quantize_image(&input, options.num_colours);
+
+    if(isBadError()) {
+        LOG_ERR("quantize_image failed with %d", getLastError());
+        finish_svg_file(output);
+        return;
+    }
+
+    for(int i = options.thresholds; i >= 0; --i) { //put larger shapes at the top so that they appear underneath
+        options_ref->threshold = thresholds[i];
         
-        quantize_image(&input, options.num_colours);
-
-        if(isBadError()) {
-            LOG_ERR("quantize_image failed with %d", getLastError());
-            return;
-        }
-
         LOG_INFO("generating chunkmap");
         chunkmap* map = generate_chunkmap(input, options);
         
         if (isBadError())
         {
             LOG_ERR("generate_chunkmap failed with code: %d", getLastError());
+            finish_svg_file(output);
             free_chunkmap(map);
             return;
         }
@@ -50,6 +63,7 @@ void vectorize(image input, vectorize_options options) {
         if (isBadError())
         {
             LOG_ERR("fill_chunkmap failed with code %d", getLastError());
+            finish_svg_file(output);
             free_chunkmap(map);
             return;
         }
@@ -59,23 +73,28 @@ void vectorize(image input, vectorize_options options) {
 
         if(isBadError()) {
             LOG_ERR("sort_boundary failed with code %d", getLastError());
+            finish_svg_file(output);
             free_chunkmap(map);
             return;
         }
         
         if(isBadError()) {
             LOG_INFO("write_chunkmap_to_png failed with code: %d", getLastError());
+            finish_svg_file(output);
             free_chunkmap(map);
             return;
         }
         
-        write_svg_file(map, OUTPUT_PATH);
+        write_svg_file(output, map, options);
 
         if(isBadError()) {
             free_chunkmap(map);
             LOG_ERR("write_svg_file failed with code: %d", getLastError());
+            finish_svg_file(output);
             return;
         }
         free_chunkmap(map);
     }
+    finish_svg_file(output);
+    free_thresholds_array(thresholds);
 }

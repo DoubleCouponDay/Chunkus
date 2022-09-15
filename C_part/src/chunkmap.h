@@ -51,6 +51,8 @@ typedef struct chunkmap
     image input;
 } chunkmap;
 
+int get_map_width(image input, vectorize_options options);
+int get_map_height(image input, vectorize_options options);
 chunkmap* generate_chunkmap(image inputimage_p, vectorize_options options);
 void free_chunkmap(chunkmap* map_p);
 void free_pixelchunklist(pixelchunk_list* linkedlist);

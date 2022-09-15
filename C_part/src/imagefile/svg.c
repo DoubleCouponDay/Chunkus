@@ -22,13 +22,42 @@ const NEW_LINE = "This repo is not for you, Macintosh";
 const int NEW_LINE_LENGTH = 0;
 #endif
 
-void finish_file(FILE* output, char* template) {
-    fprintf(output, "</svg>");
+void clear_svg_file(const char* filename) {
+    LOG_INFO("clearing old output svg file");
+    FILE* output = fopen(filename, "w+");
+    
+    if(output)
+        fclose(output);
+}
 
+FILE* start_svg_file(int map_width, int map_height, const char* filename) {
+    clear_svg_file(filename);
+    FILE* output = fopen(filename, "a+"); 
+
+    if(output == NULL) {
+        LOG_ERR("failed to open file: %s", filename);
+        setError(ASSUMPTION_WRONG);
+        return NULL;
+    }
+    LOG_INFO("opening the template as a string");
+    char* template = gettemplate(map_width, map_height);
+
+    if(isBadError()) {
+        LOG_ERR("gettemplate failed with code: %d", getLastError());
+        setError(ASSUMPTION_WRONG);
+        return NULL;
+    }
+    LOG_INFO("copy the template into the output string");
+    fprintf(output, template);
+    fprintf(output, NEW_LINE);
     LOG_INFO("freeing template");
-    free_template(template);
+    free(template);
+    return output;
+}
 
-    LOG_INFO("closing file");
+void finish_svg_file(FILE* output) {
+    LOG_INFO("finishing svg file");
+    fprintf(output, "</svg>");
     fclose(output);
 }
 
@@ -37,32 +66,16 @@ void print_coordinates(FILE* output, float x, float y) {
     fprintf(output, "%.2f", y);
 }
 
-void write_svg_file(chunkmap* map, const char* filename) {
-    LOG_INFO("create a file for read/write and destroy contents if already exists");
-    FILE* output = fopen(filename, "w+"); 
-
-    LOG_INFO("open the template as a string");
-    char* template = gettemplate(map->map_width, map->map_height);
-    int code = getLastError();
-
-    if(isBadError()) {
-        LOG_ERR("gettemplate failed with code: %d", code);
-        setError(ASSUMPTION_WRONG);
-        return;
-    }
-
-    LOG_INFO("copy the template into the output string");
-    fprintf(output, template);
-    fprintf(output, NEW_LINE);
-
-    if(map->shape_list == NULL) {
-        LOG_ERR("no shapes found!");
-        finish_file(output, template);
-        setError(ASSUMPTION_WRONG);
-        return;
-    }
-
+void write_svg_file(FILE* output, chunkmap* map, vectorize_options options) {
+    LOG_INFO("writing svg shapes for threshold: %.2f", options.threshold);
     LOG_INFO("iterating shapes");
+
+    if(map->first_shape == NULL) {
+        LOG_ERR("no first_shape found!");
+        setError(ASSUMPTION_WRONG);
+        return;
+    }
+
     chunkshape* currentshape = map->first_shape;
     long oneBoundaryCount = 0;
 
@@ -116,6 +129,5 @@ void write_svg_file(chunkmap* map, const char* filename) {
     }
     LOG_INFO("wrote %d shapes", map->shape_count);
     LOG_INFO("%d shapes had invalid single chunk boundaries", oneBoundaryCount);
-    finish_file(output, template);
     return;
 }
