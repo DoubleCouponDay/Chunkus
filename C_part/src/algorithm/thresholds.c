@@ -32,7 +32,8 @@ float* get_thresholds(int thresholds) {
     float* output = calloc(1, sizeof(float) * thresholds);
     
     for(int i = 0; i < thresholds; ++i) {
-        float threshold = pickon_exponential_curve(i);
+        int x_index = MAX_THRESHOLD / thresholds * i; //always include the most detailed threshold: 0
+        float threshold = pickon_exponential_curve(x_index);
 
         if(outofbounds((int)threshold)) {
             LOG_ERR("exponential curve equation is wrong! %d", threshold);
