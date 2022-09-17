@@ -433,6 +433,10 @@ void* fill_quadrant(void* arg) {
             }
         }
     }
+
+    if(quadrant->options->threshold != 0) {
+        pthread_exit(NULL);
+    }
     LOG_INFO("%s: making triangles", quadrant->name);
 
     for(int map_y = quadrant->bounds.startingY; map_y < quadrant->bounds.endingY; ++map_y)
