@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 
   char* png[] = { "test.png", NULL };
   char* chunkSize[] = { "1", NULL };
-  char* threshold[] = { "1", NULL };
+  char* thresholds[] = { "5", NULL };
   char* png_output[] = { "output.png", NULL };
   char* num_colours[] = { "256", NULL };
   char* jpeg[] = { "test.jpeg", NULL };
@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
       "3_chunk_size", chunkSize
     },
     {
-      "4_threshold", threshold
+      "4_thresholds", thresholds
     },
     { 
       "5_png_output", png_output 

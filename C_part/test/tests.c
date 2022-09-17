@@ -45,13 +45,13 @@ MunitResult can_convert_png_to_chunkmap(const MunitParameter params[], void* use
   char* png_input = params[0].value;
   int num_colours = atoi(params[6].value);
   int chunksize = atoi(params[3].value);
-  float threshold = atof(params[4].value);
+  float thresholds = atof(params[4].value);
   
   vectorize_options options = {
     png_input,
     chunksize,
-    DEFAULT_THRESHOLDS,
-    threshold,
+    thresholds,
+    0,
     num_colours
   };
   stuff->img = convert_png_to_image(options.file_path);
@@ -88,13 +88,13 @@ MunitResult can_vectorize_png(const MunitParameter params[], void* userdata)
   char* png_input = params[0].value;
   int num_colours = atoi(params[6].value);
   int chunksize = atoi(params[3].value);
-  float threshold = atof(params[4].value);
+  float thresholds = atof(params[4].value);
   
   vectorize_options options = {
     png_input,
     chunksize,
-    DEFAULT_THRESHOLDS,
-    threshold,
+    thresholds,
+    0,
     num_colours
   };
   
@@ -112,15 +112,15 @@ MunitResult can_write_chunkmap_to_png(const MunitParameter params[], void* userd
 
   char* fileaddress = params[0].value;
   int chunk_size = atoi(params[3].value);
-  float threshold = atof(params[4].value);
+  float thresholds = atof(params[4].value);
   char* out_fileaddress = params[5].value;
   int num_colours = atoi(params[6].value);
 
   vectorize_options options = {
     fileaddress,
     chunk_size,
-    DEFAULT_THRESHOLDS,
-    threshold,
+    thresholds,
+    0,
     num_colours
   };
 
@@ -153,14 +153,14 @@ MunitResult can_convert_png_to_svg(const MunitParameter params[], void* userdata
 
   char* fileaddress = params[0].value;
   int chunk_size = atoi(params[3].value);
-  float threshold = atof(params[4].value);
+  float thresholds = atof(params[4].value);
   int num_colours = atoi(params[6].value);
 
   vectorize_options options = {
     fileaddress,
     chunk_size,
-    DEFAULT_THRESHOLDS,
-    threshold,
+    thresholds,
+    0,
     num_colours
   };
 
@@ -185,14 +185,14 @@ MunitResult can_convert_png2_to_svg(const MunitParameter params[], void* userdat
 
   char* fileaddress = params[1].value;
   int chunk_size = atoi(params[3].value);
-  float threshold = atof(params[4].value);
+  float thresholds = atof(params[4].value);
   int num_colours = atoi(params[6].value);
 
   vectorize_options options = {
     fileaddress,
     chunk_size,
-    DEFAULT_THRESHOLDS,
-    threshold,
+    thresholds,
+    0,
     num_colours
   };
 
@@ -217,14 +217,14 @@ MunitResult can_convert_png3_to_svg(const MunitParameter params[], void* userdat
 
   char* fileaddress = params[2].value;
   int chunk_size = atoi(params[3].value);
-  float threshold = atof(params[4].value);
+  float thresholds = atof(params[4].value);
   int num_colours = atoi(params[6].value);
 
   vectorize_options options = {
     fileaddress,
     chunk_size,
-    DEFAULT_THRESHOLDS,
-    threshold,
+    thresholds,
+    0,
     num_colours
   };
 
@@ -280,14 +280,14 @@ MunitResult can_vectorize_jpeg(const MunitParameter params[], void* userdata) {
 
   char* inputjpeg = params[7].value;
   int chunk_size = atoi(params[3].value);
-  float threshold = atof(params[4].value);
+  float thresholds = atof(params[4].value);
   int num_colours = atoi(params[6].value);
 
   vectorize_options options = {
     inputjpeg,
     chunk_size,
-    DEFAULT_THRESHOLDS,
-    threshold,
+    thresholds,
+    0,
     num_colours
   };
 
@@ -307,14 +307,14 @@ MunitResult can_convert_jpeg_to_svg(const MunitParameter params[], void* userdat
 
   char* jpegaddress = params[7].value;
   int chunk_size = atoi(params[3].value);
-  float threshold = atof(params[4].value);
+  float thresholds = atof(params[4].value);
   int num_colours = atoi(params[6].value);
 
   vectorize_options options = {
     jpegaddress,
     chunk_size,
-    DEFAULT_THRESHOLDS,
-    threshold,
+    thresholds,
+    0,
     num_colours
   };
 
