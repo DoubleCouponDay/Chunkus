@@ -24,6 +24,7 @@
 #include "../src/algorithm/algorithm.h"
 #include "../src/utility/logger.h"
 #include "../src/imagefile/jpegfile.h"
+#include "../src/algorithm/thresholds.h"
 
 MunitResult can_test(const MunitParameter params[], void* data) {
   LOG_INFO("test 1 passed");
@@ -49,6 +50,7 @@ MunitResult can_convert_png_to_chunkmap(const MunitParameter params[], void* use
   vectorize_options options = {
     png_input,
     chunksize,
+    DEFAULT_THRESHOLDS,
     threshold,
     num_colours
   };
@@ -91,6 +93,7 @@ MunitResult can_vectorize_png(const MunitParameter params[], void* userdata)
   vectorize_options options = {
     png_input,
     chunksize,
+    DEFAULT_THRESHOLDS,
     threshold,
     num_colours
   };
@@ -116,6 +119,7 @@ MunitResult can_write_chunkmap_to_png(const MunitParameter params[], void* userd
   vectorize_options options = {
     fileaddress,
     chunk_size,
+    DEFAULT_THRESHOLDS,
     threshold,
     num_colours
   };
@@ -155,6 +159,7 @@ MunitResult can_convert_png_to_svg(const MunitParameter params[], void* userdata
   vectorize_options options = {
     fileaddress,
     chunk_size,
+    DEFAULT_THRESHOLDS,
     threshold,
     num_colours
   };
@@ -186,6 +191,7 @@ MunitResult can_convert_png2_to_svg(const MunitParameter params[], void* userdat
   vectorize_options options = {
     fileaddress,
     chunk_size,
+    DEFAULT_THRESHOLDS,
     threshold,
     num_colours
   };
@@ -217,6 +223,7 @@ MunitResult can_convert_png3_to_svg(const MunitParameter params[], void* userdat
   vectorize_options options = {
     fileaddress,
     chunk_size,
+    DEFAULT_THRESHOLDS,
     threshold,
     num_colours
   };
@@ -279,6 +286,7 @@ MunitResult can_vectorize_jpeg(const MunitParameter params[], void* userdata) {
   vectorize_options options = {
     inputjpeg,
     chunk_size,
+    DEFAULT_THRESHOLDS,
     threshold,
     num_colours
   };
@@ -305,6 +313,7 @@ MunitResult can_convert_jpeg_to_svg(const MunitParameter params[], void* userdat
   vectorize_options options = {
     jpegaddress,
     chunk_size,
+    DEFAULT_THRESHOLDS,
     threshold,
     num_colours
   };
