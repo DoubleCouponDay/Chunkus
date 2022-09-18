@@ -6,9 +6,8 @@
 /Rust_part/Cargo.lock
 C_part/.xmake/
 C_part/build/
-C_part/test/
-README.md
 LICENSE
 .gitignore
 /.vscode/
 Dockerfile
+build/

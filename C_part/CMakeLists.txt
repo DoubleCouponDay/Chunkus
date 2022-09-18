@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13.4)
 
 project("vec" "C")
 
-set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+message("${PROJECT_SOURCE_DIR}")
 
 file(GLOB headersglob 
     "${PROJECT_SOURCE_DIR}/src/*.h"  
@@ -16,12 +16,13 @@ file(GLOB sourceglob
     "${PROJECT_SOURCE_DIR}/src/utility/*.c"
     "${PROJECT_SOURCE_DIR}/src/algorithm/*.c")
 
-file(GLOB testglob
-        "${PROJECT_SOURCE_DIR}/test/*.c")
+file(GLOB testglob 
+    "${PROJECT_SOURCE_DIR}/test/*.c")
     
 set(TEST_SRCS ${testglob} ${sourceglob})
 
 add_executable(vec_test ${TEST_SRCS})
+message("Test sources: ${TEST_SRCS}")
 
 if(BUILD_SHARED_LIBS)
     message("Building vec as shared library")
