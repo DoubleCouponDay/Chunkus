@@ -54,7 +54,7 @@ Ensure that git is installed.
 
 On linux install the following:
 
-	sudo apt-get install mesa-common-dev
+	sudo apt-get install mesa-common-dev libxi-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev
 
 Use a terminal with Administrator privileges to execute the `build.bat` / `build.sh` depending on your operating system. It must be executed from the root directory.
 

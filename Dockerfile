@@ -14,8 +14,7 @@ RUN apt-get install mesa-common-dev -y
 RUN apt-get install libxi-dev -y
 RUN apt-get install libx11-dev -y
 RUN apt-get install libgl1-mesa-dev -y
-    # apt-get install libegl1-mesa-dev -y && \
-    # apt-get install libxkbcommon-dev -y
+RUN apt-get install libglu1-mesa-dev -y
 
 RUN rustup target add x86_64-unknown-linux-musl && \
     rustup default stable
