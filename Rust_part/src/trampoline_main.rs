@@ -7,7 +7,8 @@ use serenity::{
 use vecbot::{
     trampoline::{
         create_trampoline_bot
-    }, secrettoken::getwatchertoken
+    }, 
+    secrettoken::gettoken
 };
 use std::env::args;
 
@@ -16,7 +17,7 @@ async fn main() -> CommandResult
 {
     let arguments = args();
     let shouldcrash = arguments.last().unwrap().parse::<bool>().unwrap();
-    let watcher_token_obj = getwatchertoken();
+    let watcher_token_obj = gettoken();
     let watcher_token = watcher_token_obj.as_str();
     println!("starting trampoline with shouldcrash: {}", shouldcrash);
     let mut watcher_client = create_trampoline_bot(watcher_token, shouldcrash, None).await;    
