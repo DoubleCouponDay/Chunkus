@@ -43,35 +43,35 @@ RUN cmake --build build -j4
 RUN cmake --install build --prefix png-install
 
 RUN echo "Building nanosvg..."
-WORKDIR Chunkus/nanosvg
+WORKDIR /Chunkus/nanosvg
 RUN git checkout 3bcdf2f3cdc1bf9197c2dce81368bfc6f99205a7
 RUN cmake -B build -G "Unix Makefiles"
 RUN cmake --build build -j4
 RUN cmake --install build --prefix install
 
 RUN echo "Building freeglut..."
-WORKDIR Chunkus/freeglut
+WORKDIR /Chunkus/freeglut
 RUN git checkout v3.2.2
 RUN cmake -B build -G "Unix Makefiles"
 RUN cmake --build build -j4
 RUN cmake --install build --prefix install
 
 RUN echo "Building lunasvg..."
-WORKDIR Chunkus/lunasvg
+WORKDIR /Chunkus/lunasvg
 RUN git checkout v2.3.1
 RUN cmake -B build -G "Unix Makefiles"
 RUN cmake --build build -j4
 RUN cmake --install build --prefix install
 
 RUN echo "Building libjpg-turbo..."
-WORKDIR Chunkus/libjpeg
+WORKDIR /Chunkus/libjpeg
 RUN git checkout libjpeg-turbo-2.1.0
 RUN cmake -B build -G "Unix Makefiles"
 RUN cmake --build build -j4
 RUN cmake --install build --prefix install
 
 RUN echo "building Chunkus..."
-WORKDIR Chunkus/Chunkus
+WORKDIR /Chunkus/Chunkus
 RUN rm -rf build
 RUN mkdir build
 RUN cmake -B build -G "Unix Makefiles" -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -D CMAKE_INSTALL_PREFIX="install" -D CMAKE_BUILD_TYPE="Debug" -D CMAKE_C_COMPILER="gcc"
