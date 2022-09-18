@@ -51,7 +51,7 @@ void vectorize(image input, vectorize_options options) {
     }
 
     for(int i = options.thresholds; i >= 0; --i) { //put larger shapes at the top so that they appear underneath
-        options_ref->threshold = thresholds[i];
+        options.threshold = thresholds[i];
         
         LOG_INFO("generating chunkmap");
         chunkmap* map = generate_chunkmap(input, options);
