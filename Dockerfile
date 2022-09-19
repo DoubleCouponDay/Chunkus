@@ -2,7 +2,6 @@
 FROM rust:1.63.0
 
 # copy C source and Rust source
-COPY ./ /Chunkus
 WORKDIR /
 
 # set environment variables
@@ -70,6 +69,8 @@ RUN git checkout libjpeg-turbo-2.1.0
 RUN cmake -B build -G "Unix Makefiles"
 RUN cmake --build build -j4
 RUN cmake --install build --prefix install
+
+COPY ./ /Chunkus
 
 RUN echo "building Chunkus..."
 WORKDIR /Chunkus
