@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.13.4)
 
 project("vec" "C")
 
-message("${PROJECT_SOURCE_DIR}")
-
 file(GLOB headersglob 
     "${PROJECT_SOURCE_DIR}/src/*.h"  
     "${PROJECT_SOURCE_DIR}/src/utility/*.h" 
@@ -22,7 +20,6 @@ file(GLOB testglob
 set(TEST_SRCS ${testglob} ${sourceglob})
 
 add_executable(vec_test ${TEST_SRCS})
-message("Test sources: ${TEST_SRCS}")
 
 if(BUILD_SHARED_LIBS)
     message("Building vec as shared library")
@@ -55,7 +52,7 @@ target_include_directories(vec_test PUBLIC "${TURBOJPEG_PATH}/include")
 # Most dependent first (most dependencies)
 
 message("linking libpng...")
-    find_library(LIBPNG_LIB NAMES libpng16.a png16.a libpng.a png.a PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
+    find_library(LIBPNG_LIB NAMES png libpng16.a png16.a libpng.a png.a PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
     find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_PATH}/include" NO_DEFAULT_PATH REQUIRED)
 
     target_link_libraries(vec PUBLIC ${LIBPNG_LIB})

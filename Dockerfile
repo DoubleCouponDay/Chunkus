@@ -63,7 +63,7 @@ RUN cmake -B build -G "Unix Makefiles"
 RUN cmake --build build -j4
 RUN cmake --install build --prefix install
 
-RUN echo "Building libjpg-turbo..."
+RUN echo "Building libjpeg-turbo..."
 WORKDIR /libjpeg
 RUN git checkout libjpeg-turbo-2.1.0
 RUN cmake -B build -G "Unix Makefiles"
