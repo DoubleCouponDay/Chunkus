@@ -26,7 +26,7 @@ interop platform{};
 WomboTexture renderStep(vectorize_options options, int width, int height)
 {
 	// Eventually have this cache the output and avoid rerunning for a cached step
-	std::cout << "Vectorizing to step: " << options.step_index << " with threshold: " << options.threshold << std::endl;
+	std::cout << "Vectorizing to step: " << options.step_index << " with thresholds: " << options.thresholds << std::endl;
 
 	int code = execute_program(options);
 
@@ -67,11 +67,11 @@ void doVectorize(std::string image_path, GUIData& guiData)
 	vectorize_options& options = guiData.options;
 	options.chunk_size = 1;
 	options.file_path = guiData.file_path.c_str();
-	options.threshold = 1.f;
+	options.thresholds = 3.f;
 	options.step_index = 0;
 	options.num_colours = 255;
 
-	std::cout << "Vectorizing '" << image_path << "' with chunk size: " << options.chunk_size << ", threshold: " << options.threshold << " and num colors: " << 256 << std::endl;
+	std::cout << "Vectorizing '" << image_path << "' with chunk size: " << options.chunk_size << ", thresholds: " << options.thresholds << " and num colors: " << 256 << std::endl;
 
 		Texture8 tex = Texture8{ image_path };
 		if (tex.getBytes() == nullptr)
