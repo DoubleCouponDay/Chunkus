@@ -84,11 +84,6 @@ The rust part builds to `/Rust_part/target/debug/`.
 
 `cargo run --bin trampoline`
 
-Cargo must find bot.exe so add to the PATH environment variable with the Rust build location
-
-`(REPO CLONE FOLDER)/Rust_part/target/debug`
-
-
 ## Commands 
 ---
 ### Vectorize: 
