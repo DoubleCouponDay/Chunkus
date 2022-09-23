@@ -149,7 +149,7 @@ You will need to provide a docker-compose.yml file that fills the `CHUNKUS` envi
 
 build C code, then Rust code, then run `sudo docker build` on a Linux machine. once the image is built, deploy it to your docker hub registration.
 
-to use docker-compose on your computer, You will need to install OPENSSL 1.1.1
+to use docker-compose on a linux computer, You will need to install OPENSSL 1.1.1
 
 Fill in the blanks in the dockercompose.yml file to pass the environment variables into the container.
 
