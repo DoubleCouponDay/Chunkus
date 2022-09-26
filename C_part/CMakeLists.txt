@@ -40,16 +40,16 @@ target_include_directories(vec_test PUBLIC "../../nanosvg/install/include/nanosv
 target_include_directories(vec       PUBLIC "../../zlib/install/include")
 target_include_directories(vec_test PUBLIC "../../zlib/install/include")
 
-find_path(RPI_PATH NAMES libpng16.a "../../libpng/png-install/lib/aarch64-linux-gnu" NO_DEFAULT_PATH)
-		
-if(NOT RPI_PATH-NOTFOUND)
+find_path(RPI_PATH NAMES libpng16.a "../../libpng/png-install/lib/aarch64-linux-gnu" NO_CACHE NO_DEFAULT_PATH)
+message("RPI_PATH: ${RPI_PATH}")
+
+if(RPI_PATH STREQUAL "RPI_PATH-NOTFOUND")
+    set(LIBPNG_PATH "../../libpng/png-install/lib")
+    set(LIBPNG_INCLUDEPATH "../../libpng/png-install/include")
+else()
     message("aarch64-linux-gnu libpng install detected")
     set(LIBPNG_PATH "../../libpng/png-install/lib/aarch64-linux-gnu")
     set(LIBPNG_INCLUDEPATH "../../libpng/png-install/include/libpng16")
-
-else()
-    set(LIBPNG_PATH "../../libpng/png-install/lib")
-    set(LIBPNG_INCLUDEPATH "../../libpng/png-install/include")
 endif()
 
 message("LIBPNG_PATH: ${LIBPNG_PATH}")
