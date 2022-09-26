@@ -75,9 +75,10 @@ message("linking libpng...")
     message("Png header at: ${LIBPNG_HEADER}")
 
 message("linking turbojpeg...")
+    message("jpeg_path: ${TURBOJPEG_PATH}")
     find_library(TURBOJPEG_LIB NAMES turbojpeg.a libturbojpeg.a PATHS "${TURBOJPEG_PATH}/lib" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
     find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${TURBOJPEG_PATH}/include" NO_DEFAULT_PATH REQUIRED)
-    
+
     target_link_libraries(vec       PUBLIC  ${TURBOJPEG_LIB})
     target_link_libraries(vec_test PRIVATE ${TURBOJPEG_LIB})
     message("Turbojpeg at: ${TURBOJPEG_LIB}")
