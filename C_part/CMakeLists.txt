@@ -40,7 +40,16 @@ target_include_directories(vec_test PUBLIC "../../nanosvg/install/include/nanosv
 target_include_directories(vec       PUBLIC "../../zlib/install/include")
 target_include_directories(vec_test PUBLIC "../../zlib/install/include")
 
-set(LIBPNG_PATH "../../libpng/png-install")
+find_path(SOMEPATH NAMES libpng16.a "../../libpng/png-install/lib/aarch64-linux-gnu" NO_DEFAULT_PATH)
+		
+if(NOT SOMEPATH-NOTFOUND)
+    message("aarch64-linux-gnu libpng install detected")
+    set(LIBPNG_PATH "../../libpng/png-install/lib/aarch64-linux-gnu")
+
+else()
+    set(LIBPNG_PATH "../../libpng/png-install")
+endif()
+
 target_include_directories(vec       PUBLIC "${LIBPNG_PATH}/include")
 target_include_directories(vec_test PUBLIC "${LIBPNG_PATH}/include")
 
