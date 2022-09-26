@@ -50,6 +50,8 @@ else()
     set(LIBPNG_PATH "../../libpng/png-install")
 endif()
 
+message("LIBPNG_PATH: ${LIBPNG_PATH}")
+
 target_include_directories(vec       PUBLIC "${LIBPNG_PATH}/include")
 target_include_directories(vec_test PUBLIC "${LIBPNG_PATH}/include")
 
@@ -84,7 +86,6 @@ message("linking zlib...")
     target_link_libraries(vec       PUBLIC  ${ZLIB_LIB})
     target_link_libraries(vec_test PRIVATE ${ZLIB_LIB})
     message("Zlib at: ${ZLIB_LIB}")
-
 
 if (NOT WIN32)
     message("linking math...")
