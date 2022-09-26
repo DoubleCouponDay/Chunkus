@@ -40,20 +40,23 @@ target_include_directories(vec_test PUBLIC "../../nanosvg/install/include/nanosv
 target_include_directories(vec       PUBLIC "../../zlib/install/include")
 target_include_directories(vec_test PUBLIC "../../zlib/install/include")
 
-find_path(SOMEPATH NAMES libpng16.a "../../libpng/png-install/lib/aarch64-linux-gnu" NO_DEFAULT_PATH)
+find_path(RPI_PATH NAMES libpng16.a "../../libpng/png-install/lib/aarch64-linux-gnu" NO_DEFAULT_PATH)
 		
-if(NOT SOMEPATH-NOTFOUND)
+if(NOT RPI_PATH-NOTFOUND)
     message("aarch64-linux-gnu libpng install detected")
     set(LIBPNG_PATH "../../libpng/png-install/lib/aarch64-linux-gnu")
+    set(LIBPNG_INCLUDEPATH "../../libpng/png-install/include/libpng16")
 
 else()
-    set(LIBPNG_PATH "../../libpng/png-install")
+    set(LIBPNG_PATH "../../libpng/png-install/lib")
+    set(LIBPNG_INCLUDEPATH "../../libpng/png-install/include")
 endif()
 
 message("LIBPNG_PATH: ${LIBPNG_PATH}")
+message("LIBPNG_INCLUDEPATH: ${LIBPNG_INCLUDEPATH}")
 
-target_include_directories(vec       PUBLIC "${LIBPNG_PATH}/include")
-target_include_directories(vec_test PUBLIC "${LIBPNG_PATH}/include")
+target_include_directories(vec       PUBLIC "${LIBPNG_INCLUDEPATH}")
+target_include_directories(vec_test PUBLIC "${LIBPNG_INCLUDEPATH}")
 
 set(TURBOJPEG_PATH "../../libjpeg/install")
 target_include_directories(vec       PUBLIC "${TURBOJPEG_PATH}/include")
@@ -63,8 +66,8 @@ target_include_directories(vec_test PUBLIC "${TURBOJPEG_PATH}/include")
 # Most dependent first (most dependencies)
 
 message("linking libpng...")
-    find_library(LIBPNG_LIB NAMES png png16 libpng16.a png16.a libpng.a png.a PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
-    find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_PATH}/include" NO_DEFAULT_PATH REQUIRED)
+    find_library(LIBPNG_LIB NAMES png png16 libpng16.a png16.a libpng.a png.a PATHS "${LIBPNG_PATH}" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
+    find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
 
     target_link_libraries(vec PUBLIC ${LIBPNG_LIB})
     target_link_libraries(vec_test PUBLIC ${LIBPNG_LIB})
