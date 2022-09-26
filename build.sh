@@ -1,4 +1,5 @@
-sudo apt install git cmake -y
+sudo apt update -y
+sudo apt install git cmake build-essential mesa-common-dev libxi-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev -y
 
 cd ../
 git clone https://github.com/madler/zlib.git

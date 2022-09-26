@@ -52,7 +52,7 @@ Install docker and docker compose for testing the production build.
 
 Ensure that git is installed.
 
-On linux install the following:
+On linux install the following to install OpenGL:
 
 	sudo apt-get install mesa-common-dev libxi-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev
 
