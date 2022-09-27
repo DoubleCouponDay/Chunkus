@@ -23,7 +23,7 @@ fn main() {
     println!("cwd: {}", cwd.display());
 
     println!("cargo:rustc-link-search=native={}", cwd.display());
-    println!("cargo:rustc-link-search=native=/Chunkus/install/lib");
+    println!("cargo:rustc-link-search=native={}/../install/lib", cwd.display());
 
     println!("cargo:rerun-if-changed=build.rs");
 }
