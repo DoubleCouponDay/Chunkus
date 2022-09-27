@@ -84,6 +84,10 @@ pub async fn initialize_bot(client: &Client, shouldcrash: bool) {
 
 #[async_trait]
 impl EventHandler for DefaultHandler {
+    async fn message(&self, ctx: Context, msg: Message) {
+        println!("message received");
+    }
+
     //USED TO HANDLE SITUATIONS WHERE LINKS TAKE A WHILE TO LOAD THEIR IMAGE
     async fn message_update(&self, ctx: Context, _old_if_available: Option<Message>, _new: Option<Message>, event: MessageUpdateEvent)
     {
