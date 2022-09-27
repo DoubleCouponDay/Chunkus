@@ -59,11 +59,17 @@ pub async fn create_vec_bot(token: &str, shouldcrash: bool) -> Client
 {
     println!("creating vec bot...");
     let framework = StandardFramework::new().configure(|c| c
-        .prefix("!")
-        .with_whitespace(true))
+            .prefix("!")
+            .with_whitespace(true)
+            .case_insensitivity(true)
+        )
         .group(&GENERAL_GROUP);
 
-    let client = ClientBuilder::new(token, GatewayIntents::default())
+    let intents: GatewayIntents = GatewayIntents::GUILD_MESSAGES |
+        GatewayIntents::DIRECT_MESSAGES |
+        GatewayIntents::MESSAGE_CONTENT;
+
+    let client = ClientBuilder::new(token, intents)
         .event_handler(DefaultHandler)
         .framework(framework)
         .await

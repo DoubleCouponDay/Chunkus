@@ -108,6 +108,9 @@ pub async fn create_trampoline_bot(token: &str, shouldcrash: bool, framework_may
             })
             .group(&TRAMPOLINE_GROUP) //_GROUP suffix is used by serenity to identify a group of commands type                
     };
+    let intents: GatewayIntents = GatewayIntents::GUILD_MESSAGES |
+    GatewayIntents::DIRECT_MESSAGES |
+    GatewayIntents::MESSAGE_CONTENT;
 
     //im cloning the shared state here because I need to kill the process when the handler gets dropped
     let somenewwhatever = SharedState {
@@ -117,10 +120,9 @@ pub async fn create_trampoline_bot(token: &str, shouldcrash: bool, framework_may
     let handler = TrampolineHandler {
         data: shared.clone()
     };
-    let intent = GatewayIntents::default();
 
     // Login with a bot token from the environment
-    let client = ClientBuilder::new(&token, intent)
+    let client = ClientBuilder::new(&token, intents)
         .event_handler(handler)
         .framework(framework)
         .type_map_insert::<TrampolineProcessKey>(somenewwhatever)
