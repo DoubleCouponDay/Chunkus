@@ -137,7 +137,6 @@ async fn has_data(ctx: &Context, msg_id: MessageId, timeout: Duration) -> Result
         }
 
         // Check if the data is now there
-        //println!("Checking for message update for {0}", &msg_id);
         let contains: bool;
         {
             let data_read = ctx.data.read().await;
@@ -166,7 +165,6 @@ async fn has_listener(ctx: &Context, msg_id: MessageId, timeout: Duration) -> Re
         }
 
         // Check if the data is now there
-        //println!("Checking for message update for {0}", &msg_id);
         let contains: bool;
         {
             let data_read = ctx.data.read().await;
@@ -215,7 +213,6 @@ async fn wait_for_message_update(msg_id: MessageId, ctx: &Context) -> Result<Mes
         }
     }
     
-    // wait_for_data()
     // if exists: load data from hashmap
     let mut data_write = ctx.data.write().await;
     let stored_hashset = data_write.get_mut::<MsgListen>().unwrap();
