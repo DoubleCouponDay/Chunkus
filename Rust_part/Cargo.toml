@@ -1,6 +1,6 @@
 [package]
 name = "vecbot"
-version = "1.0.0"
+version = "2.0.0"
 authors = ["doublecouponday <mail@samueljenks.me>", "bobscorn <qwertster0@gmail.com>" ]
 edition = "2018"
 
