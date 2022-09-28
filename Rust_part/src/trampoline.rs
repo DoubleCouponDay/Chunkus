@@ -199,7 +199,15 @@ async fn restart_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
  
 pub async fn initialize_child(data: &Arc<RwLock<TypeMap>>, shouldcrash: bool) {
     println!("initializing vectorizer...");
-    let bot_path = Path::new("./target/debug/bot");
+    
+    let build_type: &str = match cfg!(debug_assertions) {
+        true => "debug",
+        false => "release"
+    };
+    let mut pathbuilder: String = String::from("./target/");
+    pathbuilder.push_str(build_type);
+    pathbuilder.push_str("/bot");
+    let bot_path = Path::new(&pathbuilder);
     let mut process_step1 = Command::new(bot_path);
     let process_step2 = process_step1.arg(shouldcrash.to_string());
     let created_process = process_step2.spawn().unwrap(); //if path is not absolute, path variable is searched
