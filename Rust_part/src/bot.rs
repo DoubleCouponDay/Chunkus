@@ -29,7 +29,7 @@ use serenity::{
 };
 
 use tokio::sync::RwLockWriteGuard;
-use lzma_rs::xz_compress;
+use xz2::write::XzEncoder;
 use crate::core::{
     do_vectorize, crashing_this_plane
 };
@@ -48,7 +48,7 @@ use crate::options::{
 pub const START_MESSAGE: &'static str = "Working on it...";
 pub const END_MESSAGE: &'static str = "Here's your result.";
 pub const ERR_MESSAGE: &'static str = "error: ";
-pub const OUTPUT_ARCHIVE: &'static str = "output.svg.7z";
+pub const OUTPUT_ARCHIVE: &'static str = "output.svg.xz";
 
 struct MsgListen;
 struct MsgUpdate;
@@ -442,9 +442,12 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
         }
         
         // Compress the svg file first
-        let mut output_file = File::create(OUTPUT_ARCHIVE).expect("Could not create the output 7z file!");
-        let mut f = BufReader::new(File::open(outputname).unwrap());
-        xz_compress(&mut f, &mut output_file).unwrap();
+        let output_file = File::create(OUTPUT_ARCHIVE).expect("Could not create the output 7z file!");
+        let contents = read(outputname).expect("Failed to read output svg file!");
+        let mut encoder = XzEncoder::new(&output_file, 9);
+
+        encoder.write_all(&contents).expect("Failed to write svg file contents!");
+        encoder.try_finish().expect("Failed to finish compressing!");
         
         // Send the output
         let msg_files = vec![OUTPUT_ARCHIVE, png_output.as_str()];
