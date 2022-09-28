@@ -281,7 +281,10 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
     if mentions_me.unwrap_or_default() == false {
         println!("message did not mention me.");
         return Ok(());
+    if let Err(why) = msg.reply(&ctx.http, START_MESSAGE).await {
+        eprintln!("Error sending start reply: {:?}", why);
     }
+
     let mut embed_urls: Vec<String> = vec![];
     if msg.embeds.len() < 1 && msg.attachments.len() < 1 // No embed, lets wait for an on_update
     {   
