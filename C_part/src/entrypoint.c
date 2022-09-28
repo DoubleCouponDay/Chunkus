@@ -54,7 +54,7 @@ int entrypoint(int argc, char* argv[]) {
 	int chunk_size = DEFAULT_CHUNKSIZE;
 
 	if (argc > 3)
-		chunk_size = atoi(argv[3]);
+		chunk_size = atoi(argv[2]);
 
 	if (chunk_size < 1)
 		chunk_size = DEFAULT_CHUNKSIZE;
@@ -62,7 +62,7 @@ int entrypoint(int argc, char* argv[]) {
 	int thresholds = DEFAULT_THRESHOLDS;
 
 	if (argc > 4)
-		thresholds = (int)atoi(argv[4]);	
+		thresholds = (int)atoi(argv[3]);
 		
 	if (thresholds < 1)
 		thresholds = DEFAULT_THRESHOLDS;
@@ -70,7 +70,7 @@ int entrypoint(int argc, char* argv[]) {
 	int num_colours = DEFAULT_COLOURS;
 
 	if(argc > 5)
-		num_colours = (int)atoi(argv[5]);
+		num_colours = (int)atoi(argv[4]);
 
 	if (num_colours > DEFAULT_COLOURS)
 		num_colours = DEFAULT_COLOURS;

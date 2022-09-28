@@ -261,7 +261,7 @@ async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandRe
         
         let result = msg.reply(
             &ctx.http, 
-            format!("Set Chunk Size to: {}, Threshold to: {}, Num Colours to: {}", 
+            format!("Set Chunk Size to: {}, Thresholds to: {}, Num Colours to: {}", 
             parsed.chunksize, parsed.thresholds, parsed.numcolours))
             .await;
         
