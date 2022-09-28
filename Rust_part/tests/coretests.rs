@@ -13,7 +13,8 @@ mod tests {
         let input_file = String::from("test.png");
 
         let input = ParsedOptions{
-            chunksize: String::from("1"), thresholds: String::from("5"),
+            chunksize: String::from("1"), 
+            thresholds: String::from("5"),
             numcolours: String::from("256"), 
             shouldcrash: String::from("false")
         };
