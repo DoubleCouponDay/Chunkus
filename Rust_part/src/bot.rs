@@ -1,7 +1,7 @@
 use std::{
     collections::{HashSet, HashMap}, 
-    fs::File, 
-    io::Write, 
+    fs::{File, read},
+    io::{Write, BufReader},
     ops::Add, 
     path::Path, 
     time::{Duration, Instant}};
@@ -25,9 +25,11 @@ use serenity::{
         }, 
         prelude::{MessageId, MessageUpdateEvent}
     }, 
-    prelude::{TypeMapKey, TypeMap, GatewayIntents}};
+    prelude::{TypeMapKey, TypeMap, GatewayIntents}
+};
 
 use tokio::sync::RwLockWriteGuard;
+use lzma_rs::xz_compress;
 use crate::core::{
     do_vectorize, crashing_this_plane
 };
@@ -46,6 +48,7 @@ use crate::options::{
 pub const START_MESSAGE: &'static str = "Working on it...";
 pub const END_MESSAGE: &'static str = "Here's your result.";
 pub const ERR_MESSAGE: &'static str = "error: ";
+pub const OUTPUT_ARCHIVE: &'static str = "output.svg.7z";
 
 struct MsgListen;
 struct MsgUpdate;
@@ -90,7 +93,7 @@ pub async fn initialize_bot(client: &Client, shouldcrash: bool) {
 
 #[async_trait]
 impl EventHandler for DefaultHandler {
-    async fn message(&self, ctx: Context, msg: Message) {
+    async fn message(&self, _ctx: Context, _msg: Message) {
         println!("message received");
     }
 
@@ -234,12 +237,13 @@ async fn wait_for_message_update(msg_id: MessageId, ctx: &Context) -> Result<Mes
 #[aliases("params")]
 async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 {
-    let mentions_me = msg.mentions_me(&ctx).await;
+    println!("vectorizeparams command");
+    // let mentions_me = msg.mentions_me(&ctx).await;
 
-    if mentions_me.unwrap_or_default() == false {
-        println!("message did not mention me.");
-        return Ok(());
-    }
+    // if mentions_me.unwrap_or_default() == false {
+    //     println!("message did not mention me.");
+    //     return Ok(());
+    // }
     let mut mutable = args;
     let possiblechunksize = mutable.single::<u32>();
     let possiblethreshold = mutable.single::<u32>();
@@ -273,14 +277,17 @@ async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandRe
 }
 
 #[command]
-#[aliases("")]
+#[aliases("vec")]
 async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
 {   
-    let mentions_me = msg.mentions_me(&ctx).await;
+    println!("vectorize command");
+    // let mentions_me = msg.mentions_me(&ctx).await;
 
-    if mentions_me.unwrap_or_default() == false {
-        println!("message did not mention me.");
-        return Ok(());
+    // if mentions_me.unwrap_or_default() == false {
+    //     println!("message did not mention me.");
+    //     return Ok(());
+    // }
+
     if let Err(why) = msg.reply(&ctx.http, START_MESSAGE).await {
         eprintln!("Error sending start reply: {:?}", why);
     }
@@ -398,7 +405,6 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
         if shouldcrash {
             println!("shouldcrash == true. initiating crash...");
             let _crash = crashing_this_plane();
-            //exit(1);
         }
 
         let outputname = String::from(constants::OUTPUT_SVG_FILE);
@@ -434,10 +440,14 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
             }
             continue;
         }
-
+        
+        // Compress the svg file first
+        let mut output_file = File::create(OUTPUT_ARCHIVE).expect("Could not create the output 7z file!");
+        let mut f = BufReader::new(File::open(outputname).unwrap());
+        xz_compress(&mut f, &mut output_file).unwrap();
+        
         // Send the output
-        let msg_files = vec![outputname.as_str(), png_output.as_str()];
-
+        let msg_files = vec![OUTPUT_ARCHIVE, png_output.as_str()];
         let msg = msg.channel_id.send_files(&ctx.http, msg_files, |m|
         {
             m.content(END_MESSAGE)
