@@ -57,3 +57,6 @@ cd ../Chunkus
 sudo cmake -B build -G "Unix Makefiles" -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -D CMAKE_INSTALL_PREFIX="install" -D CMAKE_BUILD_TYPE="Debug" -D CMAKE_C_COMPILER="gcc" -D CMAKE_EXPORT_COMPILE_COMMANDS="ON"
 sudo cmake --build build -j4
 sudo cmake --install build --prefix install
+
+cd ./Rust_part
+cargo build
