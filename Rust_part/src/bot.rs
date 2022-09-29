@@ -12,6 +12,7 @@ use serenity::{
         Client, ClientBuilder, Context, EventHandler
     }, 
     framework::{standard::{
+        Configuration,
         CommandResult,
         Args,
         StandardFramework,
@@ -61,10 +62,11 @@ struct General;
 pub async fn create_vec_bot(token: &str, shouldcrash: bool) -> Client
 {
     println!("creating vec bot...");
-    let framework = StandardFramework::new().configure(|c| c
+    let framework = StandardFramework::new().configure(|c: &mut Configuration | c
             .prefix("!")
             .with_whitespace(true)
             .case_insensitivity(true)
+            .allow_dm(false)
         )
         .group(&GENERAL_GROUP);
 

@@ -110,6 +110,7 @@ pub async fn create_trampoline_bot(token: &str, shouldcrash: bool, framework_may
                 c.prefix("!")
                 .with_whitespace(true)
                 .case_insensitivity(true)
+                .allow_dm(false)
             })
             .group(&TRAMPOLINE_GROUP) //_GROUP suffix is used by serenity to identify a group of commands type                
     };
