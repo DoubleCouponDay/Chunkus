@@ -90,7 +90,12 @@ impl fmt::Display for VectorizerStatus
 
 pub async fn create_trampoline_bot(token: &str, shouldcrash: bool, framework_maybe: Option<StandardFramework>) -> Client {
     println!("initializing trampoline...");
-    let dummy = Command::new("ls").spawn().expect("couldnt create dummy");
+    const ERROR_MESSAGE: &'static str = "couldnt create dummy program";
+
+    let dummy = match cfg!(windows) {
+        true => Command::new("cmd").spawn().expect(ERROR_MESSAGE),
+        false => Command::new("ls").spawn().expect(ERROR_MESSAGE)
+    } ;
 
     let data = TrampolineData {
         vectorizer: dummy,
