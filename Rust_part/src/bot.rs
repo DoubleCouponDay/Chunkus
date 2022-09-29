@@ -288,10 +288,6 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
     //     return Ok(());
     // }
 
-    if let Err(why) = msg.reply(&ctx.http, START_MESSAGE).await {
-        eprintln!("Error sending start reply: {:?}", why);
-    }
-
     let mut embed_urls: Vec<String> = vec![];
     if msg.embeds.len() < 1 && msg.attachments.len() < 1 // No embed, lets wait for an on_update
     {   
@@ -323,8 +319,15 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
                         }
                     }
                 },
-            Err(err) =>
-                println!("Received Err {} from wait_for_message_update for id: {}", err, msg.id),
+            Err(err) => {
+                println!("Received Err {} from wait_for_message_update for id: {}", err, msg.id);
+
+                if let Err(why) = msg.reply(&ctx.http, "timed out waiting for message content.").await {
+                    eprintln!("Error sending reply: {:?}", why);
+                }
+                return Ok(());
+            }
+                
         }
     }
 
@@ -349,7 +352,9 @@ async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
             embed_urls.push(attachment.url.clone());
         }
     }
-    
+    if let Err(why) = msg.reply(&ctx.http, START_MESSAGE).await {
+        eprintln!("Error sending start reply: {:?}", why);
+    }
     println!("Sending {0} urls to vectoriser", embed_urls.len());
     vectorize_urls(&ctx, &msg, &embed_urls).await;
     
