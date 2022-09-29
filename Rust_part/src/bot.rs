@@ -1,7 +1,7 @@
 use std::{
     collections::{HashSet, HashMap}, 
     fs::{File, read},
-    io::{Write, BufReader},
+    io::{Write},
     ops::Add, 
     path::Path, 
     time::{Duration, Instant}};
