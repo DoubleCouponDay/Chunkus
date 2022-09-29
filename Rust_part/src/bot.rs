@@ -368,13 +368,17 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
         let _url_clone = url.clone();
 
         let response = match client.get(url).send().await
-            {
-                Err(_) => { println!("could not download url: {:?}", url); continue },
-                Ok(thing) => thing
-            };
-    
         {
-            let mut file = match File::create(Path::new(constants::INPUTFILENAME))
+            Err(_) => { println!("could not download url: {:?}", url); continue },
+            Ok(thing) => thing
+        };
+
+        let mut inputname = String::from("input");
+        let file_extension = url.split('.').last().unwrap();
+        inputname.push_str(file_extension);
+
+        {
+            let mut file = match File::create(Path::new(&inputname))
             {
                 Err(err) => { println!("could not create path to copy image to Err: {:?}", err); continue },
                 Ok(thing) => thing
@@ -392,10 +396,6 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
                 continue;
             }
         }
-
-        // Execute Algorithm
-        let inputname = String::from(constants::INPUTFILENAME);
-
 
         // Get Options        
         let options: ParsedOptions = get_params(ctx).await;
