@@ -285,7 +285,7 @@ async fn trampolinestatus(ctx: &Context, msg: &Message) -> CommandResult
 #[aliases("tr")]
 async fn trampolinerestart(ctx: &Context, msg: &Message) -> CommandResult
 {
-    if let Err(why) = msg.reply(&ctx.http, "Restarting Vectorizer").await
+    if let Err(why) = msg.reply(&ctx.http, "Restarting Vectorizer...").await
     {
         eprintln!("Error responding to restart request: {}", why);
     }
