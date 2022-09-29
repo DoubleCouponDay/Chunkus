@@ -365,17 +365,16 @@ async fn vectorize_urls(ctx: &Context, msg: &Message, urls: &Vec<String>)
 
         let client = reqwest::Client::new();
 
-        let _url_clone = url.clone();
-
         let response = match client.get(url).send().await
         {
             Err(_) => { println!("could not download url: {:?}", url); continue },
             Ok(thing) => thing
         };
 
-        let mut inputname = String::from("input");
+        let mut inputname = String::from("input.");
         let file_extension = url.split('.').last().unwrap();
         inputname.push_str(file_extension);
+        println!("input filename: {}", inputname);
 
         {
             let mut file = match File::create(Path::new(&inputname))

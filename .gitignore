@@ -1,5 +1,4 @@
 docker-compose.yml
-Rust_part/template.svg
 **/*.a
 **/*.so
 **/*.lib
@@ -14,6 +13,7 @@ C_Part/build/
 **/Cargo.lock
 
 # Bot PNGs
+**/input.jpeg
 **/input.png
 **/output.png
 **/output.svg
@@ -115,3 +115,4 @@ __azurite_db_table__.json
 *.yml
 Rust_part/output.svg.7z
 Rust_part/output.svg.xz
+Rust_part/input.jpeg
