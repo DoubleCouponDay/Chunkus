@@ -60,4 +60,4 @@ sudo cmake --install build --prefix install
 
 cd ./Rust_part
 cargo build
-cd ../Chunkus
+cd ../
