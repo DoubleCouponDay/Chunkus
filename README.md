@@ -1,18 +1,16 @@
 # Chunkus #
-converts png and jpeg to svg.
+converts PNG and JPEG image files to Scalable Vector Graphic (SVG) image files.
 
-The main algorithm is written in C and is linked to the discord bot in Rust. 
+The main algorithm is written in C. It is linked with a discord bot written in Rust. The "vec_step" debugger is written in C++ which can be used for debugging the svg output.
 
-An optional debugger `vec_step` is written in C++ and is for using an index to step to a specified iteration of the Vectorizer algorithm.
-
-This was a group project by Samuel, Joshua, Matthew.
+This was a group project written by Samuel, Joshua, Matthew.
 
 ## Building Requirements
 ---
 
 Set the `CHUNKUS` environment variable to the value of your discord bot's secret token.
 
-If you are on windows:
+### Installing GCC
 
     + install chocolatey
 
@@ -22,41 +20,54 @@ If you are on windows:
 
         `C:\ProgramData\chocolatey\bin`
 
-Install Rust lang:
+### Installing Rust
+
+run the follow command:
 
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 if you are on windows:
 
++ install vc++ build tools from a vs installer
     rustup toolchain install stable-x86_64-pc-windows-gnu
+
++ run the following command:
 	
-	rustup default stable-x86_64-pc-windows-gnu
+        rustup default stable-x86_64-pc-windows-gnu
 
 If you are on linux:
 
     rustup default stable
-	
+
+### Installing OpenGL
+
+On linux run the following to install OpenGL:
+
+    sudo apt update -y
+
+    sudo apt install git cmake build-essential mesa-common-dev libxi-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev -y
+
+On Windows, OpenGL should already be available.
+
 ### Rust installation on windows
 	
-install vc++ build tools from a vs installer
 
 	
 ### Rust installation on linux
 		
-    sudo apt install build-essential libssl-dev -y	
+    sudo apt install build-essential libssl-dev -y
 
-Install docker and docker compose for testing the production build.
+### Installing Docker
+
+Run the following command:
+
+    curl -sSL https://get.docker.com | sh
 
 ## Building the C Code
 ---
 
-Ensure that git is installed.
 
-On linux install the following to install OpenGL:
-
-	sudo apt-get install mesa-common-dev libxi-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev
-
-Use a terminal with Administrator privileges to execute the `build.bat` / `build.sh` depending on your operating system. It must be executed from the root directory.
+Use a terminal to execute the `build.bat` / `build.sh` depending on your operating system type. It must be executed from the root directory.
 
 linux:
 
@@ -86,21 +97,21 @@ The rust part builds to `/Rust_part/target/debug/`.
 
 ## Commands 
 ---
-### Vectorize: 
+## Vec: 
 Goes through all attachments of the command message, executes the algorithm on them and returns the output  
 
-`@[bots name] [attachment or URL]`  
+`!vec [attachment or URL]`  
 
-    @Chunkus https://cdn.discordapp.com/attachments/787470274261549056/807847299752394773/ginormous.png  
+    !vec https://cdn.discordapp.com/attachments/787470274261549056/807847299752394773/ginormous.png  
 
-You should receive a message with `output.svg` and a preview png attached
+You should receive a message with `output.svg.xz` compressed file and a preview png attached.
   
-### Params: 
-Sets the parameters to use with the algorithm
+## Params: 
+Sets the parameters to use with the algorithm.
 
-`@[bots name] !params [chunksize] [thresholds]` eg. 
+`!params [chunksize] [thresholds] [olours]` eg. 
 
-    @Chunkus !params 2 50  
+    @Chunkus !params 1 20 256
 
 You should receive a confirmation message telling you what you set the parameters to.
 
@@ -147,9 +158,7 @@ you can run the bot on your computer or inside a docker container.
 
 You will need to provide a docker-compose.yml file that fills the `CHUNKUS` environment variable with your discord bot token.
 
-build C code, then Rust code, then run `sudo docker build` on a Linux machine. once the image is built, deploy it to your docker hub registration.
-
-to use docker-compose on a linux computer, You will need to install OPENSSL 1.1.1
+build C code, then Rust code, then run `sudo docker build`. once the image is built, push it to dockerhub.
 
 Fill in the blanks in the dockercompose.yml file to pass the environment variables into the container.
 
@@ -158,8 +167,8 @@ Fill in the blanks in the dockercompose.yml file to pass the environment variabl
 ## Debugging the C Algorithm
 ---
 
-You can use `vec_step` GUI to step through frames on a specified iteration count of the vectorizer algorithm.
+You can use the `vec_step` GUI to step through frames on a specified iteration count of the vectorizer algorithm.
 
-First you must build using cmake from the root directory, then open the Desktop App by running this:
+Open the Desktop App by running this:
 
-    ./build/bin/vec_step
+    ./build/bin/vec_step ./build/bin/test.png

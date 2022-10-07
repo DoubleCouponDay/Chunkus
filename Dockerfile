@@ -80,7 +80,7 @@ RUN cmake --install build --prefix install
 
 #build Rust code
 WORKDIR /Chunkus/Rust_part/
-RUN cargo build -vv --release
+RUN cargo build -vv
 
 #create entrypoint of container
-CMD ["./target/release/trampoline", "false"]
+CMD ["./target/debug/trampoline", "false"]
