@@ -116,7 +116,9 @@ Sets the parameters to use with the algorithm.
 You should receive a confirmation message telling you what you set the parameters to.
 
 ### Chunk Size 
-Chunk size is amount of width and height in the algorithm's smallest image unit. An image is broken up into chunks, where a higher number improves speed while reducing quality (and losing information). 
+Chunk size is amount of width and height in the algorithm's smallest image unit. An image is broken up into chunks, where a higher number improves speed while reducing quality (and losing information).
+
+Increase this if reducing the output image size would increase the speed of image processing.
 
 ### Thresholds
 Thresholds is an int between 0 and 441. It is the number of threshold layers to be taking from an exponential curve.
@@ -127,8 +129,14 @@ you can use the pythagorean theorem in 3 dimensions to calculate this by:
 
 - A threshold determines how easily another colour is considered a separate shape  
 - A Threshold of 0 means any color that is not EXACTLY the same will be considered separate  
-- A threshold of 441.67 means the only color values considered different are rgb(0,0,0) and rgb(255,255,255) (white and black)  
+- A threshold of 441.67 means the only color values considered different are rgb(0,0,0) and rgb(255,255,255) (white and black).
 
+Use this if you want increase the accuracy of the output image.
+
+### Colours
+The number of colours that are available in the output image. 
+
+Use this if reducing the colour complexity would increase the speed of image processing.
 
 ## C Tests
 ---
