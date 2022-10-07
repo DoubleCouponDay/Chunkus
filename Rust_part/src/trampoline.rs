@@ -213,6 +213,7 @@ pub async fn initialize_child(data: &Arc<RwLock<TypeMap>>, shouldcrash: bool) {
     let mut pathbuilder: String = String::from("./target/");
     pathbuilder.push_str(build_type);
     pathbuilder.push_str("/bot");
+    println!("running bot {}", &pathbuilder);
     let bot_path = Path::new(&pathbuilder);
     let mut process_step1 = Command::new(bot_path);
     let process_step2 = process_step1.arg(shouldcrash.to_string());
