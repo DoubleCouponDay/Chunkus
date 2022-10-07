@@ -1,7 +1,6 @@
 #designed for linux build
 FROM rust:1.63.0
 
-# copy C source and Rust source
 WORKDIR /
 
 # set environment variables
