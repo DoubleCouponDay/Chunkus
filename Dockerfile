@@ -82,5 +82,5 @@ RUN cmake --install build --prefix install
 WORKDIR /Chunkus/Rust_part/
 RUN cargo build -vv
 
-#create entrypoint of container
+#only receives bot commands in debug mode for some reason
 CMD ["./target/debug/trampoline", "false"]
