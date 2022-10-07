@@ -137,7 +137,7 @@ image convert_jpeg_to_image(const char* fileaddress) {
 		jpegSize,
 		scaledBuffer,
 		scaledWidth,
-		pitch,
+		0,
 		scaledHeight,
 		pixelFormat,
 		flags);
