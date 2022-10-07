@@ -39,6 +39,8 @@ If you are on linux:
 
     rustup default stable
 
+    sudo apt install libssl-dev
+
 ### Installing OpenGL
 
 On linux run the following to install OpenGL:
