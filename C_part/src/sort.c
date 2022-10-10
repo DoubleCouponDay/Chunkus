@@ -12,6 +12,74 @@
 #include "utility/vec.h"
 #include "utility/defines.h"
 
+typedef struct sorting_index
+{
+    short version;
+    pixelchunk* chunk;
+} sorting_index;
+
+// 2D Canvas of indexes into chunkmap
+typedef struct sorting_canvas
+{
+    int width;
+    int height;
+    sorting_index* pixels;
+} sorting_canvas;
+
+sorting_canvas* create_sorting_canvas(int width, int height)
+{
+    sorting_canvas* out = calloc(1, sizeof(sorting_canvas));
+
+    int count = width * height;
+    if (count < 1)
+        return out;
+
+    out->width = width;
+    out->height = height;
+    out->pixels = calloc(count, sizeof(sorting_index));
+
+    return out;
+}
+
+void free_sorting_canvas(sorting_canvas* canvas)
+{
+    if (!canvas)
+        return;
+
+    if (canvas->pixels)
+        free(canvas->pixels);
+    free(canvas);
+}
+
+void set_sorting_canvas(sorting_canvas* canvas, int x, int y, pixelchunk* value, int version)
+{
+    if (!canvas)
+        return;
+
+    if (x < 0 || y < 0 || x >= canvas->width || y >= canvas->height)
+    {
+        LOG_ERR("Out of bounds position given!");
+        return;
+    }
+
+    canvas->pixels[y * canvas->width + x].version = version;
+    canvas->pixels[y * canvas->width + x].chunk = value;
+}
+
+pixelchunk* get_sorting_canvas(sorting_canvas* canvas, int x, int y, int version)
+{
+    if (!canvas)
+        return 0;
+
+    if (x < 0 || y < 0 || x >= canvas->width || y >= canvas->height)
+    {
+        return 0;
+    }
+
+    if (canvas->pixels[y * canvas->width + x].version == version)
+        return canvas->pixels[y * canvas->width + x].chunk;
+    return 0;
+}
 enum {
     ADJACENT_COUNT = 8
 };
@@ -107,6 +175,7 @@ pixelchunk** convert_boundary_list_toarray(pixelchunk_list* list, unsigned long 
     }
     return output;
 }
+
 
 void convert_array_to_boundary_list(pixelchunk** array, pixelchunk_list* output, unsigned long length) {
     pixelchunk_list* current = output;
@@ -245,53 +314,16 @@ enum AdjacentPosition
     BOTTOM_RIGHT = 7
 };
 
-void find_adjacents(pixelchunk* chunk, pixelchunk* adjacents[ADJACENT_COUNT], pixelchunk_list* list)
+void find_adjacents(pixelchunk* chunk, pixelchunk* adjacents[ADJACENT_COUNT], sorting_canvas* canvas, int canvas_version)
 {
-    for (pixelchunk_list* cur = list; cur; cur = cur->next)
-    {
-        pixelchunk* other = cur->chunk_p;
-        if (other == chunk)
-            continue;
-
-        if (other->location.x == chunk->location.x - 1 && other->location.y == chunk->location.y - 1)
-        {
-            adjacents[TOP_LEFT] = other;
-        }
-        else if (other->location.x == chunk->location.x && other->location.y == chunk->location.y - 1)
-        {
-            adjacents[TOP_MIDDLE] = other;
-        }
-        else if (other->location.x == chunk->location.x + 1 && other->location.y == chunk->location.y - 1)
-        {
-            adjacents[TOP_RIGHT] = other;
-        }
-        else if (other->location.x == chunk->location.x - 1 && other->location.y == chunk->location.y)
-        {
-            adjacents[MIDDLE_LEFT] = other;
-        }
-        else if (other->location.x == chunk->location.x && other->location.y == chunk->location.y)
-        {
-            LOG_ERR("duplicate chunk found in pixelchunk_list!");
-            setError(ASSUMPTION_WRONG);
-            return;
-        }
-        else if (other->location.x == chunk->location.x + 1 && other->location.y == chunk->location.y)
-        {
-            adjacents[MIDDLE_RIGHT] = other;
-        }
-        else if (other->location.x == chunk->location.x - 1 && other->location.y == chunk->location.y + 1)
-        {
-            adjacents[BOTTOM_LEFT] = other;
-        }
-        else if (other->location.x == chunk->location.x && other->location.y == chunk->location.y + 1)
-        {
-            adjacents[BOTTOM_MIDDLE] = other;
-        }
-        else if (other->location.x == chunk->location.x + 1 && other->location.y == chunk->location.y + 1)
-        {
-            adjacents[BOTTOM_RIGHT] = other;
-        }
-    }
+    adjacents[TOP_LEFT]        = get_sorting_canvas(canvas, chunk->location.x - 1, chunk->location.y - 1, canvas_version);
+    adjacents[TOP_MIDDLE]      = get_sorting_canvas(canvas, chunk->location.x + 0, chunk->location.y - 1, canvas_version);
+    adjacents[TOP_RIGHT]       = get_sorting_canvas(canvas, chunk->location.x + 1, chunk->location.y - 1, canvas_version);
+    adjacents[MIDDLE_LEFT]     = get_sorting_canvas(canvas, chunk->location.x - 1, chunk->location.y + 0, canvas_version);
+    adjacents[MIDDLE_RIGHT]    = get_sorting_canvas(canvas, chunk->location.x + 1, chunk->location.y + 0, canvas_version);
+    adjacents[BOTTOM_LEFT]     = get_sorting_canvas(canvas, chunk->location.x - 1, chunk->location.y + 1, canvas_version);
+    adjacents[BOTTOM_MIDDLE]   = get_sorting_canvas(canvas, chunk->location.x + 0, chunk->location.y + 1, canvas_version);
+    adjacents[BOTTOM_RIGHT]    = get_sorting_canvas(canvas, chunk->location.x + 1, chunk->location.y + 1, canvas_version);
 }
 
 float calculate_ccw_angle(vector2 a, vector2 b)
@@ -311,7 +343,7 @@ float calculate_cw_angle(vector2 a, vector2 b)
     return calculate_ccw_angle(b, a);
 }
 
-void iterate_shape_boundaries(chunkshape* shape)
+void iterate_shape_boundaries(chunkshape* shape, sorting_canvas* canvas, int version)
 {
     pc_vector vector = pc_create(0, shape->boundaries_length);
     
@@ -327,7 +359,7 @@ void iterate_shape_boundaries(chunkshape* shape)
     pixelchunk* adjacents[ADJACENT_COUNT];
 
     memset(adjacents, 0, sizeof(adjacents));
-    find_adjacents(current, adjacents, shape->boundaries);
+    find_adjacents(current, adjacents, canvas, version);
 
     if (adjacents[TOP_LEFT])
         current = adjacents[TOP_LEFT];
@@ -350,7 +382,7 @@ void iterate_shape_boundaries(chunkshape* shape)
         pc_append(&vector, current);
 
         memset(adjacents, 0, sizeof(adjacents));
-        find_adjacents(current, adjacents, shape->boundaries);
+        find_adjacents(current, adjacents, canvas, version);
 
         float smallest_angle = getpi() * 2.0f;
         pixelchunk* smallest_angle_chunk = NULL;
@@ -411,6 +443,10 @@ void iterate_shape_boundaries(chunkshape* shape)
 }
 
 void sort_boundary(chunkmap* map) {
+
+    sorting_canvas* canvas = create_sorting_canvas(map->map_width, map->map_height);
+    int version = 0;
+
     chunkshape* shape = map->shape_list;
 
     while (shape)
@@ -430,7 +466,15 @@ void sort_boundary(chunkmap* map) {
         }
 
         if (!chunk_is_adjacent(last->chunk_p, shape->boundaries->chunk_p))
-            iterate_shape_boundaries(shape);
+        {
+            ++version;
+            for (pixelchunk_list* list = shape->boundaries; list != 0; list = list->next)
+            {
+                set_sorting_canvas(canvas, list->chunk_p->location.x, list->chunk_p->location.y, list->chunk_p, version);
+            }
+
+            iterate_shape_boundaries(shape, canvas, version);
+        }
 
         shape = shape->next;
         free(array);
