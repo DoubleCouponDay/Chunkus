@@ -479,4 +479,6 @@ void sort_boundary(chunkmap* map) {
         shape = shape->next;
         free(array);
     }
+
+    free_sorting_canvas(canvas);
 }
