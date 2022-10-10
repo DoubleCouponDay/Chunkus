@@ -155,18 +155,15 @@ void free_chunkmap(chunkmap* map_p)
 
     for (int x = 0; x < map_p->map_width; ++x)
     {
-        pixelchunk* current = map_p->groups_array_2d[x];
-
-        if(current == NULL) {
-            continue;
-        }
-        current->shape_chunk_in = NULL;
-        current->boundary_chunk_in = NULL;
-
-        if(current->pixels_array_2d) {
+        for (int y = 0; y < map_p->map_height; ++y)
+        {
+            pixelchunk* current = &map_p->groups_array_2d[x][y];
             free(current->pixels_array_2d);
+            current->shape_chunk_in = NULL;
+            current->boundary_chunk_in = NULL;
         }
-        free(current);
+
+        free(map_p->groups_array_2d[x]);
     }
 
     if(map_p->groups_array_2d) {
