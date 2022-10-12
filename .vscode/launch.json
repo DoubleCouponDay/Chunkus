@@ -15,10 +15,16 @@
             "externalConsole": false,
             "MIMode": "gdb",
             "windows": {
+                "name": "Launch Tests",
+                "type": "cppdbg",
+                "request": "launch",
                 "program": "${workspaceFolder}/install/bin/vec_test.exe",
                 "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe"
             },
             "linux": {
+                "name": "Launch Tests",
+                "type": "cppdbg",
+                "request": "launch",
                 "program": "${workspaceFolder}/install/bin/vec_test"
             }
         },
@@ -32,10 +38,16 @@
             "externalConsole": false,
             "MIMode": "gdb",
             "windows": {
+                "name": "Launch Tests",
+                "type": "cppdbg",
+                "request": "launch",
                 "program": "${workspaceFolder}/install/bin/vec_test.exe",
                 "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe"
             },
             "linux": {
+                "name": "Launch Tests",
+                "type": "cppdbg",
+                "request": "launch",
                 "program": "${workspaceFolder}/install/bin/vec_test"
             }
         }
