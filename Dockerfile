@@ -74,7 +74,7 @@ COPY ./ /Chunkus
 RUN echo "building Chunkus..."
 WORKDIR /Chunkus
 RUN cmake -B build -G "Unix Makefiles" -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -D CMAKE_INSTALL_PREFIX="install" -D CMAKE_BUILD_TYPE="Debug" -D CMAKE_C_COMPILER="gcc"
-RUN cmake --build build -j4
+RUN cmake --build build -j4 --config Release
 RUN cmake --install build --prefix install
 
 #build Rust code
