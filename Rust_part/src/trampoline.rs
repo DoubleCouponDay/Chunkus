@@ -183,13 +183,13 @@ async fn get_vectorizer_status(data: &Arc<RwLock<TypeMap>>) -> Result<Vectorizer
 async fn restart_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
 {   
     println!("restarting vectorizer...");
+    let shouldcrash:bool;
 
     println!("locking 7");
     {
         let lock = data.read().await; //locks the data variable until the end of scope
         let state = lock.get::<TrampolineProcessKey>().unwrap();
         let mut possibleerror = String::from("failed to kill vecbot process: ");
-        let shouldcrash:bool;
         
         {
             println!("locking 8");    
@@ -199,9 +199,9 @@ async fn restart_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
             possibleerror.push_str(&processid);
             sharedstate.vectorizer.kill().expect(&possibleerror);
             println!("unlocking 8");
-        }
-        initialize_child(data, shouldcrash).await;
+        }        
     }
+    initialize_child(data, shouldcrash).await;
     println!("unlocking 7");
 }
  
