@@ -200,7 +200,7 @@ async fn restart_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
 }
  
 pub async fn initialize_child(data: &Arc<RwLock<TypeMap>>, shouldcrash: bool) {
-    println!("initializing vectorizer...");
+    println!("initializing child...");
     
     let build_type: &str = match cfg!(debug_assertions) {
         true => "debug",
@@ -216,6 +216,7 @@ pub async fn initialize_child(data: &Arc<RwLock<TypeMap>>, shouldcrash: bool) {
     let created_process = process_step2.spawn().unwrap(); //if path is not absolute, path variable is searched
     println!("created vec process: {}", created_process.id());
     initialize_data_insert(data, created_process).await;
+    println!("finished initializing child...");
 }
 
 async fn initialize_data_insert(data: &Arc<RwLock<TypeMap>>, created_process: Child) {
