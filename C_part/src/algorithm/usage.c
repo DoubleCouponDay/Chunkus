@@ -182,6 +182,12 @@ void vectorize(image input, vectorize_options options) {
             return;
         }
         free_chunkmap(map);
+        map2->shape_list = NULL;
+        map3->shape_list = NULL;
+        map4->shape_list = NULL;
+        free_chunkmap(map2);
+        free_chunkmap(map3);
+        free_chunkmap(map4);
     }
     finish_svg_file(output);
     free_thresholds_array(thresholds);
