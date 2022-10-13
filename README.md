@@ -90,7 +90,7 @@ In the `Rust_part` folder, run:
 
     cargo build
 
-The rust part builds to `/Rust_part/target/debug/`.
+The rust part builds to `/Rust_part/target/{BUILD_MODE}/` where BUILD_MODE = (debug|release)
 
 ## Running Chunkus
 ---
@@ -143,15 +143,17 @@ Use this if reducing the colour complexity would increase the speed of image pro
 ## C Tests
 ---
 
+There are multiple ways to test the Vectorization functionality.
+
 The C code contains a test suite `vec_test.exe` which can run all C tests or just one, when given a test name. The test names can be found in `C_part/tests/main.c`.
 
-Requirements: 
+You can easily debug the C tests with Visual Studio Code. 
 
-+ administrative shell
+    + run the `.\build.bat` script at least once then run `.\debug.bat` to generate debugging symbols.
 
-+ current work directory (CWD) set to `.\install\bin`
+    + In the `Run and Debug` side menu, select the launch task `(Windows) Launch Tests`, which can be configured in the `.vscode/launch.json file`. 
 
-You can easily debug the tests with VSCode if it was opened with Administrive privileges. in the `Run and Debug` side menu, select the launch task `(Windows) Launch Tests`, or the Linux equivalent if required. It will run the build task automatically before running the tests.
+Currently, only windows tests have been confirmed to work.
 
 ## Rust Tests
 ---
