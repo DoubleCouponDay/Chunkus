@@ -91,8 +91,14 @@ void sort_boundary(Quadrant* quadrant) {
             current_list = next_chunk->boundary_chunk_in;
         }
 
-        if(is_adjacent(current_list, current_list->first) == false) {
+        if(current_list && is_adjacent(current_list, current_list->first) == false) {
             LOG_ERR("boundary was sorted badly!", quadrant->name);
+            setError(ASSUMPTION_WRONG);
+            return;
+        }
+
+        else if(current_list == NULL) {
+            LOG_ERR("current_list should not be null.");
             setError(ASSUMPTION_WRONG);
             return;
         }
