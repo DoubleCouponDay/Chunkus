@@ -158,6 +158,8 @@ Currently, only windows tests have been confirmed to work.
 ## Rust Tests
 ---
 
+Rust tests have been pretty much abandoned because a test cant send a discord chat message which triggers itself.
+
 The Rust tests must be run in series.
 
 ```
