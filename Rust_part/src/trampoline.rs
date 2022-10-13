@@ -188,12 +188,18 @@ async fn restart_vectorizer_bot(data: &Arc<RwLock<TypeMap>>)
     {
         let lock = data.read().await; //locks the data variable until the end of scope
         let state = lock.get::<TrampolineProcessKey>().unwrap();
-        let mut sharedstate = state.gimme.write().await;
-        let shouldcrash = sharedstate.shouldcrash;
-        let processid = sharedstate.vectorizer.id().to_string();
         let mut possibleerror = String::from("failed to kill vecbot process: ");
-        possibleerror.push_str(&processid);
-        sharedstate.vectorizer.kill().expect(&possibleerror);
+        let shouldcrash:bool;
+        
+        {
+            println!("locking 8");    
+            let mut sharedstate = state.gimme.write().await;
+            shouldcrash = sharedstate.shouldcrash;
+            let processid = sharedstate.vectorizer.id().to_string();
+            possibleerror.push_str(&processid);
+            sharedstate.vectorizer.kill().expect(&possibleerror);
+            println!("unlocking 8");
+        }
         initialize_child(data, shouldcrash).await;
     }
     println!("unlocking 7");
