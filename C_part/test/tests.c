@@ -106,48 +106,6 @@ MunitResult can_vectorize_png(const MunitParameter params[], void* userdata)
   return MUNIT_OK;
 }
 
-MunitResult can_write_chunkmap_to_png(const MunitParameter params[], void* userdata)
-{
-  tear2* stuff = userdata;
-
-  char* fileaddress = params[0].value;
-  int chunk_size = atoi(params[3].value);
-  float thresholds = atof(params[4].value);
-  char* out_fileaddress = params[5].value;
-  int num_colours = atoi(params[6].value);
-
-  vectorize_options options = {
-    fileaddress,
-    chunk_size,
-    thresholds,
-    0,
-    num_colours
-  };
-
-  stuff->img = convert_png_to_image(fileaddress);
-  LOG_INFO("asserting pixels_array_2d not null");
-  munit_assert_ptr_not_null(stuff->img.pixels_array_2d);
-  LOG_INFO("generating chunkmap");
-  chunkmap* map = generate_chunkmap(stuff->img, options);
-  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
-  stuff->map = map;
-
-  LOG_INFO("asserting groups_array_2d not null");
-  munit_assert_ptr_not_null(map->groups_array_2d);
-  LOG_INFO("filling chunkmap");
-  fill_chunkmap(stuff->map, &options);
-  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
-
-  LOG_INFO("writing chunkmap to file");
-  write_chunkmap_to_png(stuff->map, out_fileaddress);
-  munit_assert_int(getAndResetErrorCode(), ==, SUCCESS_CODE);
-
-  FILE* fp = fopen(out_fileaddress, "r");
-  munit_assert_ptr_not_null(fp);
-  fclose(fp);
-  return MUNIT_OK;
-}
-
 MunitResult can_convert_png_to_svg(const MunitParameter params[], void* userdata) {
   tear4* stuff = userdata;
 

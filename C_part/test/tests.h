@@ -30,7 +30,6 @@ MunitResult can_read_png(const MunitParameter params[], void* userdata);
 MunitResult can_convert_png_to_chunkmap(const MunitParameter params[], void* userdata);
 MunitResult can_convert_png_to_bmp(const MunitParameter params[], void* userdata);
 MunitResult can_vectorize_png(const MunitParameter params[], void* userdata);
-MunitResult can_write_chunkmap_to_png(const MunitParameter params[], void* userdata);
 MunitResult can_convert_png_to_svg(const MunitParameter params[], void* userdata);
 MunitResult can_convert_png2_to_svg(const MunitParameter params[], void* userdata);
 MunitResult can_convert_png3_to_svg(const MunitParameter params[], void* userdata);

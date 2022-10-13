@@ -79,7 +79,6 @@ int main(int argc, char** argv) {
   MunitTest png_to_chunkmap = { "png_to_chunkmap", can_convert_png_to_chunkmap, tear2setup, tear2teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest png_to_bmp = { "png_to_bmp", can_convert_png_to_bmp, tear3setup, tear3teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest png_to_nsvg = { "png_to_nsvg", can_vectorize_png, tear4setup, tear4teardown, MUNIT_TEST_OPTION_NONE, test_params };
-  MunitTest chunkmap_to_png = { "chunkmap_to_png", can_write_chunkmap_to_png, tear2setup, tear2teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest png_to_svg = { "png_to_svg", can_convert_png_to_svg, tear4setup, tear4teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest png2_to_svg = { "png2_to_svg", can_convert_png2_to_svg, tear4setup, tear4teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest png3_to_svg = { "png3_to_svg", can_convert_png3_to_svg, tear4setup, tear4teardown, MUNIT_TEST_OPTION_NONE, test_params };
@@ -90,7 +89,7 @@ int main(int argc, char** argv) {
   MunitTest jpeg_to_svg = { "jpeg_to_svg", can_convert_jpeg_to_svg, tear4setup, tear4teardown, MUNIT_TEST_OPTION_NONE, test_params};
 
   enum { 
-    NUM_TESTS = 13 //UPDATE THIS WHEN YOU ADD NEW TESTS
+    NUM_TESTS = 12 //UPDATE THIS WHEN YOU ADD NEW TESTS
   }; 
 
   namedtest tests[NUM_TESTS] = {
@@ -100,7 +99,6 @@ int main(int argc, char** argv) {
     {png_to_chunkmap.name, png_to_chunkmap},
     {png_to_bmp.name, png_to_bmp},
     {png_to_nsvg.name, png_to_nsvg},
-    {chunkmap_to_png.name, chunkmap_to_png},
     {png_to_svg.name, png_to_svg},
     {png2_to_svg.name, png2_to_svg},
     {png3_to_svg.name, png3_to_svg},
