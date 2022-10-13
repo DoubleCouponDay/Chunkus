@@ -47,7 +47,7 @@ pixelchunk* next_boundary_chunk(Quadrant* quadrant, pixelchunk* current, pixelch
         if (neighbour &&
             neighbour != previous && //chunk was not used before
             neighbour->shape_chunk_in == current->shape_chunk_in && //chunk is in the same shape
-            current->boundary_chunk_in != NULL) //chunk is on the boundary
+            neighbour->boundary_chunk_in != NULL) //chunk is on the boundary
         {
             return neighbour;
         }
@@ -62,7 +62,8 @@ bool is_adjacent(pixelchunk_list* current, pixelchunk_list* other) {
     int other_y = other->chunk_p->location.y;
     int compare_x = current_x - other_x;
     int compare_y = current_y - other_y;
-    return (compare_x == 1 || compare_x == -1) && (compare_y == 1 || compare_y == -1);
+    bool output = (compare_x == 1 || compare_x == -1) || (compare_y == 1 || compare_y == -1);
+    return output;
 }
 
 
@@ -80,18 +81,20 @@ void sort_boundary(Quadrant* quadrant) {
 
         current_list = next_chunk->boundary_chunk_in;
 
-        while(current_list && current_list != current_shape->boundaries->first) {
+        while(current_list != NULL && current_list != current_shape->boundaries->first) {
             next_chunk = next_boundary_chunk(quadrant, current_list->chunk_p, previous_list->chunk_p);
             
             if (next_chunk == NULL) {
                 current_list->next = NULL;
+                current_list = NULL;
                 break;
             }
             previous_list = current_list;
             current_list = next_chunk->boundary_chunk_in;
         }
 
-        if(current_list && is_adjacent(current_list, current_list->first) == false) {
+        //expect current_list to equal first boundary listitem here
+        if(current_list && is_adjacent(previous_list, current_list->first) == false) {
             LOG_ERR("boundary was sorted badly!", quadrant->name);
             setError(ASSUMPTION_WRONG);
             return;
