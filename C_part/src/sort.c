@@ -14,8 +14,8 @@
 #include "algorithm/algorithm.h"
 
 pixelchunk* get_at(Quadrant* quad, int x, int y);
-pixelchunk* get_next(Quadrant* quadrant, coordinate cur_pos, pixelchunk* prev);
-pixelchunk_list* append_list(pixelchunk_list* to, pixelchunk* of);
+pixelchunk* next_boundary_chunk(Quadrant* quadrant, coordinate cur_pos, pixelchunk* prev);
+void organise_chunk(pixelchunk_list* current, pixelchunk_list* next);
 
 void sort_boundary(Quadrant* quadrant) {
     //iterate through all shapes
@@ -25,41 +25,33 @@ void sort_boundary(Quadrant* quadrant) {
     //how do we define done?
     chunkmap* map = quadrant->map;
     
-    for (chunkshape* shape = map->shape_list; shape; shape = shape->next)
+    for (chunkshape* current_shape = map->shape_list; current_shape; current_shape = current_shape->next)
     {
-        pixelchunk_list* prev = NULL;
-        pixelchunk_list* cur = calloc(1, sizeof(pixelchunk_list));
-        cur->chunk_p = shape->boundaries->first->chunk_p;
-        cur->first = cur;
-        cur->next = NULL;
-        coordinate cur_pos = cur->chunk_p->location;
-
-        pixelchunk* next_chunk = get_next(quadrant, cur_pos, NULL);
-        if (!next_chunk)
-            continue;
-        prev = cur;
-        cur = append_list(cur, next_chunk);
+        pixelchunk_list* previous_list = NULL;
+        pixelchunk_list* current_list = current_shape->boundaries->first;
+        current_list->chunk_p = current_shape->boundaries->first->chunk_p;
+        current_list->first = current_list;
+        current_list->next = NULL;
+        coordinate current_position = current_list->chunk_p->location;
+        pixelchunk* next_chunk = next_boundary_chunk(quadrant, current_position, NULL);
         
-        while(cur && cur != shape->boundaries->first) {
-            cur_pos = cur->chunk_p->location;
-            next_chunk = get_next(quadrant, cur_pos, prev->chunk_p);
-            if (!next_chunk)
-                break;
-            prev = cur;
-            cur = append_list(cur, next_chunk);
+        if (next_chunk == NULL)
+            continue;
+
+        previous_list = current_list;
+        
+        while(current_list && current_list != current_shape->boundaries->first) {
+            current_position = current_list->chunk_p->location;
+            next_chunk = next_boundary_chunk(quadrant, current_position, previous_list->chunk_p);
+            
+            if (next_chunk == NULL)
+                current_list->next = next_chunk->boundary_chunk_in;
+
+            previous_list = current_list;
+            current_list = next_chunk->boundary_chunk_in;
         }
+        free_pixelchunklist(current_shape->boundaries->first);
     }
-}
-
-pixelchunk_list* append_list(pixelchunk_list* to, pixelchunk* of)
-{
-    pixelchunk_list* next = calloc(1, sizeof(pixelchunk_list));
-    next->chunk_p = of;
-    next->next = NULL;
-    next->first = to->first;
-
-    to->next = next;
-    return next;
 }
 
 pixelchunk* get_at(Quadrant* quad, int x, int y)
@@ -70,12 +62,12 @@ pixelchunk* get_at(Quadrant* quad, int x, int y)
         return NULL;
     }
 
-    return quad->map->groups_array_2d[x][y].boundary_chunk_in;
+    return &quad->map->groups_array_2d[x][y];
 }
 
-pixelchunk* get_next(Quadrant* quadrant, coordinate cur_pos, pixelchunk* prev)
+pixelchunk* next_boundary_chunk(Quadrant* quadrant, coordinate cur_pos, pixelchunk* prev)
 {
-    static coordinate next_offsets[8] = {
+    coordinate next_offsets[8] = {
         (coordinate){ -1, -1 },
         (coordinate){ +0, -1 },
         (coordinate){ +1, -1 },
@@ -90,7 +82,7 @@ pixelchunk* get_next(Quadrant* quadrant, coordinate cur_pos, pixelchunk* prev)
     {
         int neighbour_x = cur_pos.x + next_offsets[next_i].x;
         int neighbour_y = cur_pos.y + next_offsets[next_i].y;
-        pixelchunk_list* neighbour = get_at(quadrant, neighbour_x, neighbour_y);
+        pixelchunk* neighbour = get_at(quadrant, neighbour_x, neighbour_y);
         if (neighbour && neighbour != prev)
         {
             return neighbour;
