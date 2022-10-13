@@ -13,50 +13,6 @@
 #include "utility/defines.h"
 #include "algorithm/algorithm.h"
 
-pixelchunk* get_at(Quadrant* quad, int x, int y);
-pixelchunk* next_boundary_chunk(Quadrant* quadrant, coordinate cur_pos, pixelchunk* prev);
-void organise_chunk(pixelchunk_list* current, pixelchunk_list* next);
-bool is_adjacent(pixelchunk_list* current, pixelchunk_list* other);
-
-void sort_boundary(Quadrant* quadrant) {
-    //iterate through all shapes
-    //start with first chunk in boundary
-    //if chunk is adjacent and shape_chunk_in is equal and boundary_chunk_in is equal and chunk is not previous boundary chunk: use it
-    //set current chunk equal to the next boundary chunk and repeat until done?
-    //how do we define done?
-    chunkmap* map = quadrant->map;
-    
-    for (chunkshape* current_shape = map->first_shape; current_shape; current_shape = current_shape->next)
-    {        
-        pixelchunk_list* current_list = current_shape->boundaries->first;
-        pixelchunk_list* previous_list = current_list;
-
-        coordinate current_position = current_list->chunk_p->location;
-        pixelchunk* next_chunk = next_boundary_chunk(quadrant, current_position, NULL);
-        
-        if (next_chunk == NULL)
-            continue;
-
-        current_list = next_chunk->boundary_chunk_in;
-
-        while(current_list && current_list != current_shape->boundaries->first) {
-            current_position = current_list->chunk_p->location;
-            next_chunk = next_boundary_chunk(quadrant, current_position, previous_list->chunk_p);
-            
-            if (next_chunk == NULL)
-                current_list->next = next_chunk->boundary_chunk_in;
-
-            previous_list = current_list;
-            current_list = next_chunk->boundary_chunk_in;
-        }
-
-        if(is_adjacent(current_list, current_list->first) == false) {
-            LOG_ERR("boundary was sorted badly!", quadrant->name);
-            setError(ASSUMPTION_WRONG);
-            return;
-        }
-    }
-}
 
 pixelchunk* get_at(Quadrant* quad, int x, int y)
 {
@@ -69,7 +25,7 @@ pixelchunk* get_at(Quadrant* quad, int x, int y)
     return &quad->map->groups_array_2d[x][y];
 }
 
-pixelchunk* next_boundary_chunk(Quadrant* quadrant, coordinate cur_pos, pixelchunk* prev)
+pixelchunk* next_boundary_chunk(Quadrant* quadrant, pixelchunk* current, pixelchunk* previous)
 {
     coordinate next_offsets[8] = {
         (coordinate){ -1, -1 },
@@ -84,10 +40,14 @@ pixelchunk* next_boundary_chunk(Quadrant* quadrant, coordinate cur_pos, pixelchu
 
     for (int next_i = 0; next_i < 8; ++next_i)
     {
-        int neighbour_x = cur_pos.x + next_offsets[next_i].x;
-        int neighbour_y = cur_pos.y + next_offsets[next_i].y;
+        int neighbour_x = current->location.x + next_offsets[next_i].x;
+        int neighbour_y = current->location.y + next_offsets[next_i].y;
         pixelchunk* neighbour = get_at(quadrant, neighbour_x, neighbour_y);
-        if (neighbour && neighbour != prev)
+
+        if (neighbour &&
+            neighbour != previous && //chunk was not used before
+            neighbour->shape_chunk_in == current->shape_chunk_in && //chunk is in the same shape
+            current->boundary_chunk_in != NULL) //chunk is on the boundary
         {
             return neighbour;
         }
@@ -103,4 +63,38 @@ bool is_adjacent(pixelchunk_list* current, pixelchunk_list* other) {
     int compare_x = current_x - other_x;
     int compare_y = current_y - other_y;
     return (compare_x == 1 || compare_x == -1) && (compare_y == 1 || compare_y == -1);
+}
+
+
+void sort_boundary(Quadrant* quadrant) {
+    chunkmap* map = quadrant->map;
+    
+    for (chunkshape* current_shape = map->first_shape; current_shape; current_shape = current_shape->next)
+    {        
+        pixelchunk_list* current_list = current_shape->boundaries->first;
+        pixelchunk_list* previous_list = current_list;
+        pixelchunk* next_chunk = next_boundary_chunk(quadrant, current_list->chunk_p, NULL);
+        
+        if (next_chunk == NULL)
+            continue;
+
+        current_list = next_chunk->boundary_chunk_in;
+
+        while(current_list && current_list != current_shape->boundaries->first) {
+            next_chunk = next_boundary_chunk(quadrant, current_list->chunk_p, previous_list->chunk_p);
+            
+            if (next_chunk == NULL) {
+                current_list->next = NULL;
+                break;
+            }
+            previous_list = current_list;
+            current_list = next_chunk->boundary_chunk_in;
+        }
+
+        if(is_adjacent(current_list, current_list->first) == false) {
+            LOG_ERR("boundary was sorted badly!", quadrant->name);
+            setError(ASSUMPTION_WRONG);
+            return;
+        }
+    }
 }
