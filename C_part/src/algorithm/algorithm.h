@@ -18,4 +18,4 @@ typedef struct Quadrant {
     square bounds;
 } Quadrant;
 
-void fill_chunkmap(chunkmap* map, vectorize_options* options);
+void select_svg_shapes(Quadrant* quadrant);

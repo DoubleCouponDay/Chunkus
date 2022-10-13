@@ -51,16 +51,6 @@ void zip_seam(Quadrant* quadrant, pixelchunk* chunk_to_zip, pixelchunk* adjacent
     zip_quadrant(quadrant, chunk_to_zip);
 }
 
-void windback_lists(chunkmap* map) {
-    chunkshape* current = map->first_shape;
-
-    while(current != NULL) {
-        current->chunks = current->chunks->first;
-        current->boundaries = current->boundaries->first;
-        current = current->next;
-    }
-}
-
 void add_chunk_to_shape(chunkmap* map, chunkshape* shape, pixelchunk* chunk) {
     if(shape == NULL || chunk == NULL) {
         LOG_ERR("add_chunk_to_shape given null pointer!");
@@ -387,8 +377,8 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
 }
 
 ///A multithreaded function
-void* fill_quadrant(void* arg) {
-    Quadrant* quadrant = (Quadrant*)arg;
+void fill_quadrant(Quadrant* quadrant) {
+    LOG_INFO("Filling quadrant: %s", quadrant->name);
     long count = 0;
     int tenth_count = 0;
     int tenth_of_map = (int)floor(quadrant->map->map_width * quadrant->map->map_height / 10.f);
@@ -398,7 +388,7 @@ void* fill_quadrant(void* arg) {
     {
         LOG_ERR("quadrant '%s' is not big enough!", quadrant->name);
         setError(ASSUMPTION_WRONG);
-        pthread_exit(NULL);
+        return;
     }
     
     for(int map_y = quadrant->bounds.startingY; map_y < quadrant->bounds.endingY; ++map_y)
@@ -424,18 +414,18 @@ void* fill_quadrant(void* arg) {
             if (isBadError())
             {
                 LOG_ERR("%s find_shapes failed with code: %d", quadrant->name, code);
-                pthread_exit(NULL);
+                return;
             }
 
             else if(quadrant->options->step_index > 0 && count >= quadrant->options->step_index) {
                 LOG_INFO("%s: step_index reached: %d\n", quadrant->name, count);
-                pthread_exit(NULL);
+                return;
             }
         }
     }
 
     if(quadrant->options->threshold != 0) {
-        pthread_exit(NULL);
+        return;
     }
     LOG_INFO("%s: making triangles", quadrant->name);
 
@@ -452,93 +442,18 @@ void* fill_quadrant(void* arg) {
             if (isBadError())
             {
                 LOG_ERR("%s find_shapes failed with code: %d", quadrant->name, code);
-                pthread_exit(NULL);
+                return;
             }
 
             else if(quadrant->options->step_index > 0 && count >= quadrant->options->step_index) {
                 LOG_INFO("%s: step_index reached: %d\n", quadrant->name, count);
-                pthread_exit(NULL);
+                return;
             }
         }
     }
-    pthread_exit(NULL);
+    return;
 }
 
-void fill_chunkmap(chunkmap* map, vectorize_options* options) {
-    //create set of shapes
-    LOG_INFO("Filling chunkmap");
-
-    int middle_width = (int)floor((float)map->map_width / (float)2); //int divisions return 0 by default. use float division
-    int middle_height = (int)floor((float)map->map_height / (float)2);
-
-    LOG_INFO("creating quadrants");
-    Quadrant quadrant1 = {"top-left", map, options, POSITIVE, POSITIVE};
-    quadrant1.bounds.startingX = 0;
-    quadrant1.bounds.startingY = 0;
-    quadrant1.bounds.endingX = middle_width;
-    quadrant1.bounds.endingY = middle_height;
-
-    chunkmap* map2 = generate_chunkmap(map->input, *options);
-    Quadrant quadrant2 = {"top-right", map2, options, NEGATIVE, POSITIVE};
-    quadrant2.bounds.startingX = middle_width;
-    quadrant2.bounds.startingY = 0;
-    quadrant2.bounds.endingX = map->map_width;
-    quadrant2.bounds.endingY = middle_height; 
-
-    chunkmap* map3 = generate_chunkmap(map->input, *options);
-    Quadrant quadrant3 = {"bottom-left", map3, options, POSITIVE, NEGATIVE};
-    quadrant3.bounds.startingX = 0;
-    quadrant3.bounds.startingY = middle_height;
-    quadrant3.bounds.endingX = middle_width;
-    quadrant3.bounds.endingY = map->map_height;
-
-    chunkmap* map4 = generate_chunkmap(map->input, *options);
-    Quadrant quadrant4 = {"bottom-right", map4, options, NEGATIVE, NEGATIVE};
-    quadrant4.bounds.startingX = middle_width;
-    quadrant4.bounds.startingY = middle_height;
-    quadrant4.bounds.endingX = map->map_width;
-    quadrant4.bounds.endingY = map->map_height;
-
-    LOG_INFO("creating threads");
-    pthread_t thread1;
-    pthread_t thread2;
-    pthread_t thread3;
-    pthread_t thread4;
-    pthread_create(&thread1, NULL, fill_quadrant, &quadrant1);
-    pthread_create(&thread2, NULL, fill_quadrant, &quadrant2);
-    pthread_create(&thread3, NULL, fill_quadrant, &quadrant3);
-    pthread_create(&thread4, NULL, fill_quadrant, &quadrant4);
-    LOG_INFO("waiting for thread1");
-    pthread_join(thread1, NULL);
-    LOG_INFO("waiting for thread2");
-    pthread_join(thread2, NULL);
-    LOG_INFO("waiting for thread3");
-    pthread_join(thread3, NULL);
-    LOG_INFO("waiting for thread4");
-    pthread_join(thread4, NULL);
-
-    int code = getLastError();
-
-    if (isBadError())
-    {
-        LOG_ERR("a thread encountered an error.");
-        return;
-    }
-    LOG_INFO("appending shapes from threads");
-    
-    map3->shape_list->next = map4->first_shape;
-    map4->first_shape->previous = map3->shape_list;
-    map3->shape_count += map4->shape_count;
-
-    map2->shape_list->next = map3->first_shape;
-    map3->first_shape->previous = map2->shape_list;
-    map2->shape_count += map3->shape_count;
-
-    map->shape_list->next = map2->first_shape;
-    map2->first_shape->previous = map->shape_list;
-    map->shape_count += map2->shape_count;
-
-    LOG_INFO("winding back list");
-    map->shape_list = map->first_shape;
-    windback_lists(map);
+void select_svg_shapes(Quadrant* quadrant) {
+    fill_quadrant(quadrant);
 }

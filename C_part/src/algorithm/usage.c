@@ -21,6 +21,37 @@
 
 const char* OUTPUT_PNG_PATH = "output.png";
 
+///warning: winding back lists before threads have finished is bad
+void windback_lists(chunkmap* map) {
+    map->shape_list = map->first_shape;
+    chunkshape* current = map->first_shape;
+
+    while(current != NULL) {
+        current->chunks = current->chunks->first;
+        current->boundaries = current->boundaries->first;
+        current = current->next;
+    }
+}
+
+void* process_in_thread(void* arg) {
+    Quadrant* quadrant = (Quadrant*)arg;
+    select_svg_shapes(quadrant);
+    
+    if (isBadError())
+    {
+        LOG_ERR("fill_chunkmap failed with code %d", getLastError());
+        return;
+    }
+
+    LOG_INFO("sorting boundaries");
+    sort_boundary(quadrant);
+
+    if(isBadError()) {
+        LOG_ERR("sort_boundary failed with code %d", getLastError());
+        return;
+    }
+}
+
 void vectorize(image input, vectorize_options options) {
     LOG_INFO("quantizing image to %d colours", options.num_colours);
     LOG_INFO("thresholds: %d", options.thresholds);
@@ -65,36 +96,81 @@ void vectorize(image input, vectorize_options options) {
             return;
         }
 
+        int middle_width = (int)floor((float)map->map_width / (float)2); //int divisions return 0 by default. use float division
+        int middle_height = (int)floor((float)map->map_height / (float)2);
+
+        LOG_INFO("creating quadrants");
+        Quadrant quadrant1 = {"top-left", map, &options, POSITIVE, POSITIVE};
+        quadrant1.bounds.startingX = 0;
+        quadrant1.bounds.startingY = 0;
+        quadrant1.bounds.endingX = middle_width;
+        quadrant1.bounds.endingY = middle_height;
+
+        chunkmap* map2 = generate_chunkmap(map->input, options);
+        Quadrant quadrant2 = {"top-right", map2, &options, NEGATIVE, POSITIVE};
+        quadrant2.bounds.startingX = middle_width;
+        quadrant2.bounds.startingY = 0;
+        quadrant2.bounds.endingX = map->map_width;
+        quadrant2.bounds.endingY = middle_height; 
+
+        chunkmap* map3 = generate_chunkmap(map->input, options);
+        Quadrant quadrant3 = {"bottom-left", map3, &options, POSITIVE, NEGATIVE};
+        quadrant3.bounds.startingX = 0;
+        quadrant3.bounds.startingY = middle_height;
+        quadrant3.bounds.endingX = middle_width;
+        quadrant3.bounds.endingY = map->map_height;
+
+        chunkmap* map4 = generate_chunkmap(map->input, options);
+        Quadrant quadrant4 = {"bottom-right", map4, &options, NEGATIVE, NEGATIVE};
+        quadrant4.bounds.startingX = middle_width;
+        quadrant4.bounds.startingY = middle_height;
+        quadrant4.bounds.endingX = map->map_width;
+        quadrant4.bounds.endingY = map->map_height;
+
+        LOG_INFO("creating threads");
+        pthread_t thread1;
+        pthread_t thread2;
+        pthread_t thread3;
+        pthread_t thread4;
         LOG_INFO("filling chunkmap");
-        fill_chunkmap(map, &options);
         
+        pthread_create(&thread1, NULL, process_in_thread, &quadrant1);
+        pthread_create(&thread2, NULL, process_in_thread, &quadrant2);
+        pthread_create(&thread3, NULL, process_in_thread, &quadrant3);
+        pthread_create(&thread4, NULL, process_in_thread, &quadrant4);
+        LOG_INFO("waiting for thread1");
+        pthread_join(thread1, NULL);
+        LOG_INFO("waiting for thread2");
+        pthread_join(thread2, NULL);
+        LOG_INFO("waiting for thread3");
+        pthread_join(thread3, NULL);
+        LOG_INFO("waiting for thread4");
+        pthread_join(thread4, NULL);
+
+        int code = getLastError();
+
         if (isBadError())
         {
-            LOG_ERR("fill_chunkmap failed with code %d", getLastError());
-            finish_svg_file(output);
-            free_chunkmap(map);
-            free_thresholds_array(thresholds);
-            return;
-        }
-
-        LOG_INFO("sorting boundaries");
-        sort_boundary(map);
-
-        if(isBadError()) {
-            LOG_ERR("sort_boundary failed with code %d", getLastError());
+            LOG_ERR("a thread encountered an error.");
             finish_svg_file(output);
             free_chunkmap(map);
             free_thresholds_array(thresholds);
             return;
         }
         
-        if(isBadError()) {
-            LOG_INFO("write_chunkmap_to_png failed with code: %d", getLastError());
-            finish_svg_file(output);
-            free_chunkmap(map);
-            free_thresholds_array(thresholds);
-            return;
-        }
+        map3->shape_list->next = map4->first_shape;
+        map4->first_shape->previous = map3->shape_list;
+        map3->shape_count += map4->shape_count;
+
+        map2->shape_list->next = map3->first_shape;
+        map3->first_shape->previous = map2->shape_list;
+        map2->shape_count += map3->shape_count;
+
+        map->shape_list->next = map2->first_shape;
+        map2->first_shape->previous = map->shape_list;
+        map->shape_count += map2->shape_count;
+
+        windback_lists(map);
         
         write_svg_file(output, map, options);
 

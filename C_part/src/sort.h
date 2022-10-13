@@ -1,5 +1,7 @@
 #pragma once
 
 #include "chunkmap.h"
+#include "algorithm/algorithm.h"
 
-void sort_boundary(chunkmap* map);
+void sort_boundary(Quadrant* map);
+
