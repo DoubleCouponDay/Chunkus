@@ -40,7 +40,7 @@ void* process_in_thread(void* arg) {
     if (isBadError())
     {
         LOG_ERR("fill_chunkmap failed with code %d", getLastError());
-        return;
+        pthread_exit(NULL);
     }
 
     LOG_INFO("sorting boundaries");
@@ -48,8 +48,9 @@ void* process_in_thread(void* arg) {
 
     if(isBadError()) {
         LOG_ERR("sort_boundary failed with code %d", getLastError());
-        return;
+        pthread_exit(NULL);
     }
+    pthread_exit(NULL);
 }
 
 void vectorize(image input, vectorize_options options) {
