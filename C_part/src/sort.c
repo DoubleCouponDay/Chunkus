@@ -16,6 +16,7 @@
 pixelchunk* get_at(Quadrant* quad, int x, int y);
 pixelchunk* next_boundary_chunk(Quadrant* quadrant, coordinate cur_pos, pixelchunk* prev);
 void organise_chunk(pixelchunk_list* current, pixelchunk_list* next);
+bool is_adjacent(pixelchunk_list* current, pixelchunk_list* other);
 
 void sort_boundary(Quadrant* quadrant) {
     //iterate through all shapes
@@ -25,21 +26,19 @@ void sort_boundary(Quadrant* quadrant) {
     //how do we define done?
     chunkmap* map = quadrant->map;
     
-    for (chunkshape* current_shape = map->shape_list; current_shape; current_shape = current_shape->next)
-    {
-        pixelchunk_list* previous_list = NULL;
+    for (chunkshape* current_shape = map->first_shape; current_shape; current_shape = current_shape->next)
+    {        
         pixelchunk_list* current_list = current_shape->boundaries->first;
-        current_list->chunk_p = current_shape->boundaries->first->chunk_p;
-        current_list->first = current_list;
-        current_list->next = NULL;
+        pixelchunk_list* previous_list = current_list;
+
         coordinate current_position = current_list->chunk_p->location;
         pixelchunk* next_chunk = next_boundary_chunk(quadrant, current_position, NULL);
         
         if (next_chunk == NULL)
             continue;
 
-        previous_list = current_list;
-        
+        current_list = next_chunk->boundary_chunk_in;
+
         while(current_list && current_list != current_shape->boundaries->first) {
             current_position = current_list->chunk_p->location;
             next_chunk = next_boundary_chunk(quadrant, current_position, previous_list->chunk_p);
@@ -50,7 +49,12 @@ void sort_boundary(Quadrant* quadrant) {
             previous_list = current_list;
             current_list = next_chunk->boundary_chunk_in;
         }
-        free_pixelchunklist(current_shape->boundaries->first);
+
+        if(is_adjacent(current_list, current_list->first) == false) {
+            LOG_ERR("boundary was sorted badly!", quadrant->name);
+            setError(ASSUMPTION_WRONG);
+            return;
+        }
     }
 }
 
@@ -89,4 +93,14 @@ pixelchunk* next_boundary_chunk(Quadrant* quadrant, coordinate cur_pos, pixelchu
         }
     }
     return NULL;
+}
+
+bool is_adjacent(pixelchunk_list* current, pixelchunk_list* other) {
+    int current_x = current->chunk_p->location.x;
+    int current_y = current->chunk_p->location.y;
+    int other_x = other->chunk_p->location.x;
+    int other_y = other->chunk_p->location.y;
+    int compare_x = current_x - other_x;
+    int compare_y = current_y - other_y;
+    return (compare_x == 1 || compare_x == -1) && (compare_y == 1 || compare_y == -1);
 }
