@@ -78,16 +78,16 @@ void sort_boundary(Quadrant* quadrant) {
         
         if (next_chunk == NULL)
             continue;
-
-        current_list = next_chunk->boundary_chunk_in;
+        
         int counter = 0;
+        current_list = next_chunk->boundary_chunk_in;
 
         while(current_list != NULL && current_list != current_shape->boundaries->first) {
             next_chunk = next_boundary_chunk(quadrant, current_list->chunk_p, previous_list->chunk_p);
             
             if (next_chunk != NULL && 
                 next_chunk->boundary_chunk_in == current_shape->boundaries->first &&
-                counter >= current_shape->boundaries_length) {
+                counter <= current_shape->boundaries_length) {
                 previous_list = current_list;
                 current_list = next_chunk->boundary_chunk_in;
                 ++counter;
