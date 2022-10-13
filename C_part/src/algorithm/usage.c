@@ -50,7 +50,7 @@ void vectorize(image input, vectorize_options options) {
         return;
     }
 
-    for(int i = options.thresholds; i >= 0; --i) { //put larger shapes at the top so that they appear underneath
+    for(int i = options.thresholds - 1; i >= 0; --i) { //put larger shapes at the top so that they appear underneath
         options.threshold = thresholds[i];
         
         LOG_INFO("generating chunkmap");

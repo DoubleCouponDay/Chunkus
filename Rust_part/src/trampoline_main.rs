@@ -4,7 +4,7 @@ use serenity::{
         CommandResult
     }
 };
-use vecbot::{
+use chunkus::{
     trampoline::{
         create_trampoline_bot
     }, 

@@ -1,7 +1,7 @@
 
 #[cfg(test)]
 mod tests {
-    use vecbot::{
+    use chunkus::{
         core::{do_vectorize},
         options::ParsedOptions,
         constants::FfiResult
