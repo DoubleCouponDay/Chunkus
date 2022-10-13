@@ -80,21 +80,24 @@ void sort_boundary(Quadrant* quadrant) {
             continue;
 
         current_list = next_chunk->boundary_chunk_in;
+        int counter = 0;
 
         while(current_list != NULL && current_list != current_shape->boundaries->first) {
             next_chunk = next_boundary_chunk(quadrant, current_list->chunk_p, previous_list->chunk_p);
             
-            if (next_chunk == NULL) {
-                current_list->next = NULL;
-                current_list = NULL;
-                break;
+            if (next_chunk != NULL && 
+                next_chunk->boundary_chunk_in == current_shape->boundaries->first &&
+                counter >= current_shape->boundaries_length) {
+                previous_list = current_list;
+                current_list = next_chunk->boundary_chunk_in;
+                ++counter;
+                continue;
             }
-            previous_list = current_list;
-            current_list = next_chunk->boundary_chunk_in;
+            current_list->next = NULL; //break the old border in favour of the new ending
+            break;
         }
 
-        //expect current_list to equal first boundary listitem here
-        if(current_list && is_adjacent(previous_list, current_list->first) == false) {
+        if(current_list && is_adjacent(current_list, current_list->first) == false) {
             LOG_ERR("boundary was sorted badly!", quadrant->name);
             setError(ASSUMPTION_WRONG);
             return;
