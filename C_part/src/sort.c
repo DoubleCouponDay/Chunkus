@@ -13,7 +13,6 @@
 #include "utility/defines.h"
 #include "algorithm/algorithm.h"
 
-
 pixelchunk* get_at(Quadrant* quad, int x, int y)
 {
     if (x < quad->bounds.startingX || x >= quad->bounds.endingX ||
