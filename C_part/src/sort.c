@@ -66,46 +66,23 @@ bool is_adjacent(pixelchunk_list* current, pixelchunk_list* other) {
 }
 
 
-void sort_boundary(Quadrant* quadrant) {
-    chunkmap* map = quadrant->map;
-    
-    for (chunkshape* current_shape = map->first_shape; current_shape; current_shape = current_shape->next)
-    {        
-        pixelchunk_list* current_list = current_shape->boundaries->first;
-        pixelchunk_list* previous_list = current_list;
-        pixelchunk* next_chunk = next_boundary_chunk(quadrant, current_list->chunk_p, NULL);
-        
-        if (next_chunk == NULL)
-            continue;
-        
-        int counter = 0;
-        current_list = next_chunk->boundary_chunk_in;
-
-        while(current_list != NULL && current_list != current_shape->boundaries->first) {
-            next_chunk = next_boundary_chunk(quadrant, current_list->chunk_p, previous_list->chunk_p);
-            
-            if (next_chunk != NULL && 
-                next_chunk->boundary_chunk_in == current_shape->boundaries->first &&
-                counter <= current_shape->boundaries_length) {
-                previous_list = current_list;
-                current_list = next_chunk->boundary_chunk_in;
-                ++counter;
-                continue;
-            }
-            current_list->next = NULL; //break the old border in favour of the new ending
-            break;
-        }
-
-        if(current_list && is_adjacent(current_list, current_list->first) == false) {
-            LOG_ERR("boundary was sorted badly!", quadrant->name);
-            setError(ASSUMPTION_WRONG);
-            return;
-        }
-
-        else if(current_list == NULL) {
-            LOG_ERR("current_list should not be null.");
-            setError(ASSUMPTION_WRONG);
-            return;
-        }
-    }
-}
+/**
+ * @brief 
+ * 
+ * create linked_array_2d collection
+ * the expansion capabilities of an array and the random access capabilities of an array
+ * make all queries to XY() begin from the last inserted chunk
+ * 
+ * LinkedArray2D.XY() -> PixelChunk
+ * LinkedArray2D.Next -> PixelChunk
+ * LinkedArray2D.Current -> PixelChunk, the last item
+ * 
+ * sort boundary chunk impl
+ * if current chunk is not adjacent to any other chunk and first chunk is not null, throw exception
+ * if first chunk is null, set first chunk to the current chunk
+ * if first chunk is not null, subtract last_x from current_x, subtract last_y from current_y
+ * record the absolute value of the largest current_x, current_y
+ * if current_x, current_y is negative, throw exception
+ * iterate through the linkedlist2D on the X and Y axis for each increment or decrement
+ * set last_x, last_y to current_x, current_y
+ */ 
