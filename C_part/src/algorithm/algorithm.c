@@ -80,7 +80,7 @@ void add_chunk_to_shape(chunkmap* map, chunkshape* shape, pixelchunk* chunk) {
     shape->chunks = new;
 }
 
-void add_chunk_to_boundary(chunkmap* map, chunkshape* shape, pixelchunk* chunk, bool allow_multiple_shapes) {
+void add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* chunk, bool allow_multiple_shapes) {
     if(shape == NULL || chunk == NULL) { //sanity check
         LOG_ERR("add_chunk_to_boundary given null pointer!");
         setError(ASSUMPTION_WRONG);
@@ -106,8 +106,10 @@ void add_chunk_to_boundary(chunkmap* map, chunkshape* shape, pixelchunk* chunk, 
     }
     ++shape->boundaries_length;
     chunk->boundary_chunk_in = new;
+
+    sort_boundary_chunk(quadrant, chunk);
     chunk->shape_chunk_in = NULL; //just paranoid that add_chunk_to_shape will fail
-    add_chunk_to_shape(map, shape, chunk); //boundaries are part of the shape too
+    add_chunk_to_shape(quadrant->map, shape, chunk); //boundaries are part of the shape too
 }
 
 chunkshape* add_new_shape(chunkmap* map, pixel colour) {
@@ -219,7 +221,7 @@ void enlarge_border(
         chosenshape = chunk_to_add->shape_chunk_in;
     }
     
-    add_chunk_to_boundary(quadrant->map, chosenshape, chunk_to_add, false); //add to boundary
+    add_chunk_to_boundary(quadrant, chosenshape, chunk_to_add, false); //add to boundary
 
     if(isBadError()) {
         LOG_ERR("%s: add_chunk_to_boundary failed with code: %d", quadrant->name, getLastError());
@@ -336,7 +338,7 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     if(currentchunk_p->shape_chunk_in == NULL) { //sanity check isolated chunk
         chunkshape* new_shape = add_new_shape(quadrant->map, currentchunk_p->average_colour);
         quadrant->map->shape_list = new_shape;
-        add_chunk_to_boundary(quadrant->map, new_shape, currentchunk_p, true);
+        add_chunk_to_boundary(quadrant, new_shape, currentchunk_p, true);
     }
 
     else if(currentchunk_p->shape_chunk_in->boundaries_length != 1 &&
@@ -347,27 +349,27 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     }
 
     else if(currentchunk_p->boundary_chunk_in == NULL) {
-        add_chunk_to_boundary(quadrant->map, currentchunk_p->shape_chunk_in, currentchunk_p, true);
+        add_chunk_to_boundary(quadrant, currentchunk_p->shape_chunk_in, currentchunk_p, true);
     }
     chunkshape* triangle = currentchunk_p->shape_chunk_in;
 
     if(top_vertex->shape_chunk_in == NULL) {
         top_vertex->shape_chunk_in = triangle;
-        add_chunk_to_boundary(quadrant->map, triangle, top_vertex, true);
+        add_chunk_to_boundary(quadrant, triangle, top_vertex, true);
     }
 
     else {
-        add_chunk_to_boundary(quadrant->map, triangle, top_vertex, true);
+        add_chunk_to_boundary(quadrant, triangle, top_vertex, true);
     }
     
 
     if(right_vertex->shape_chunk_in == NULL) {
         right_vertex->shape_chunk_in = triangle;
-        add_chunk_to_boundary(quadrant->map, triangle, right_vertex, true);
+        add_chunk_to_boundary(quadrant, triangle, right_vertex, true);
     }
 
     else {
-        add_chunk_to_boundary(quadrant->map, triangle, right_vertex, true);
+        add_chunk_to_boundary(quadrant, triangle, right_vertex, true);
     }
     
     if(isBadError()) {

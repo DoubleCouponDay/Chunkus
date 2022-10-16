@@ -65,12 +65,16 @@ bool is_adjacent(pixelchunk_list* current, pixelchunk_list* other) {
     return output;
 }
 
+void sort_boundary_chunk(Quadrant* quadrant, pixelchunk* current) {
+
+}
 
 /**
  * @brief 
  * 
  * create linked_array_2d collection
  * the expansion capabilities of an array and the random access capabilities of an array
+ * useful because 
  * make all queries to XY() begin from the last inserted chunk
  * 
  * LinkedArray2D.XY() -> PixelChunk
@@ -81,8 +85,8 @@ bool is_adjacent(pixelchunk_list* current, pixelchunk_list* other) {
  * if current chunk is not adjacent to any other chunk and first chunk is not null, throw exception
  * if first chunk is null, set first chunk to the current chunk
  * if first chunk is not null, subtract last_x from current_x, subtract last_y from current_y
- * record the absolute value of the largest current_x, current_y
+ * record the largest current_x, current_y
  * if current_x, current_y is negative, throw exception
  * iterate through the linkedlist2D on the X and Y axis for each increment or decrement
  * set last_x, last_y to current_x, current_y
- */ 
+ */  
