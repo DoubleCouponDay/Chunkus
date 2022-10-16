@@ -107,7 +107,12 @@ void add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* ch
     ++shape->boundaries_length;
     chunk->boundary_chunk_in = new;
 
-    sort_boundary_chunk(quadrant, chunk);
+    sort_boundary_chunk(quadrant, shape, new);
+
+    if(isBadError()) {
+        LOG_ERR("%s: sort_boundary_chunk failed with code: %d", quadrant->name, getLastError());
+        return;
+    }
     chunk->shape_chunk_in = NULL; //just paranoid that add_chunk_to_shape will fail
     add_chunk_to_shape(quadrant->map, shape, chunk); //boundaries are part of the shape too
 }
