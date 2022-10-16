@@ -26,8 +26,8 @@ void windback_lists(chunkmap* map) {
     chunkshape* current = map->first_shape;
 
     while(current != NULL) {
-        current->chunks = current->chunks->first;
-        current->boundaries = current->boundaries->first;
+        current->chunks = current->first_chunk;
+        current->boundaries = current->first_boundary;
         current = current->next;
     }
 }

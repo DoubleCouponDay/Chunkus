@@ -67,11 +67,10 @@ void add_chunk_to_shape(chunkmap* map, chunkshape* shape, pixelchunk* chunk) {
      
     if(shape->chunks == NULL) {
         shape->chunks = new;
-        new->first = new;
+        shape->first_chunk = new;
     }
 
     else {
-        new->first = shape->chunks->first; //must set this before adding to chunkslist
         shape->chunks->next = new;
         shape->chunks = new;
     }
@@ -96,11 +95,10 @@ void add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* ch
      
     if(shape->boundaries == NULL) {
         shape->boundaries = new;
-        new->first = new;
+        shape->first_boundary = new;
     }
 
     else {
-        new->first = shape->boundaries->first;
         shape->boundaries->next = new;
         shape->boundaries = new;
     }
@@ -160,18 +158,16 @@ void merge_shapes(
     chunkshape* larger = (smaller == shape1 ? shape2 : shape1);
 
     // in the smaller shape replace every chunk's shape
-    pixelchunk_list* chunk_first = smaller->chunks->first;
+    pixelchunk_list* chunk_first = smaller->first_chunk;
     
-    for (pixelchunk_list* current = smaller->chunks->first; current != NULL; current = current->next) {
+    for (pixelchunk_list* current = chunk_first; current != NULL; current = current->next) {
         current->chunk_p->shape_chunk_in = larger;
-        current->first = larger->chunks->first;
     }
 
-    pixelchunk_list* boundary_first = smaller->boundaries->first;
+    pixelchunk_list* boundary_first = smaller->first_boundary;
 
-    for(pixelchunk_list* current = smaller->boundaries->first; current != NULL; current = current->next) {
+    for(pixelchunk_list* current = boundary_first; current != NULL; current = current->next) {
         current->chunk_p->shape_chunk_in = larger; //not all chunks are boundaries. merge all chunks twice
-        current->first = larger->boundaries->first;
     }
 
     //append the chunk lists

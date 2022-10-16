@@ -85,7 +85,7 @@ void write_svg_file(FILE* output, chunkmap* map, vectorize_options options) {
             ++oneBoundaryCount;
             continue;
         }
-        pixelchunk_list* currentpath = currentshape->boundaries->first;
+        pixelchunk_list* currentpath = currentshape->first_boundary;
 
         int colour = NSVG_RGB(
             currentshape->colour.r,            
@@ -119,8 +119,8 @@ void write_svg_file(FILE* output, chunkmap* map, vectorize_options options) {
 
             print_coordinates(
                 output, 
-                currentshape->boundaries->first->chunk_p->border_location.x,
-                currentshape->boundaries->first->chunk_p->border_location.y);
+                currentshape->first_boundary->chunk_p->border_location.x,
+                currentshape->first_boundary->chunk_p->border_location.y);
             
         }
         fprintf(output, " Z\"");

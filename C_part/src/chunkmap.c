@@ -138,7 +138,6 @@ void free_pixelchunklist(pixelchunk_list* linkedlist) {
     pixelchunk_list* current = linkedlist;
 
     while(current != NULL) {
-        current->first = NULL;
         current->chunk_p = NULL;
         pixelchunk_list* next = current->next;
         free(current); //the reference held to the pixel will be cleaned up

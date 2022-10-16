@@ -30,10 +30,11 @@ typedef struct pixelchunk_list
 
 typedef struct chunkshape {
     int chunks_amount; //chunks_amount also includes boundaries_length
-    pixelchunk_list* chunks;
     int boundaries_length;
     pixelchunk_list* boundaries;
-    struct pixelchunk_list* first_boundary_chunk;
+    struct pixelchunk_list* first_boundary;
+    pixelchunk_list* chunks;
+    struct pixelchunk_list* first_chunk;
     int pathcount;
     pixel colour;
     struct chunkshape* previous;
