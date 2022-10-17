@@ -39,19 +39,19 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk_list*
         shape->first_boundary = current;
     }
 
-    else if(current == shape->first_boundary && shape->boundaries_length > 1) {
+    else if(current == shape->first_boundary && shape->boundaries_length > 1) { //dont try to sort the first chunk
         LOG_ERR("current boundary chunk cannot be first! this is a finite linked list.");
         setError(ASSUMPTION_WRONG);
         return;
     }
 
-    else if(current != shape->boundaries) {
+    else if(current == shape->boundaries) { //dont try to sort the last chunk
         LOG_ERR("current boundary chunk cannot be last! this is a finite linked list.");
         setError(ASSUMPTION_WRONG);
         return;
     }
 
-    else {
+    else { //dont add to boundary if they are not adjacent
         LOG_ERR("current chunk is not adjacent to first or last chunk in boundary checks!");
         setError(ASSUMPTION_WRONG);
         return;
