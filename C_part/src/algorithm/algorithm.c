@@ -276,6 +276,11 @@ void find_shapes(
         map_y == quadrant->bounds.startingY || map_y == (quadrant->bounds.endingY - 1)) 
     {
         enlarge_border(quadrant, current, NULL); //add pixel on the edge of the image to a border
+
+        if(isBadError()) {
+            LOG_ERR("%s: enlarge_border failed with code: %d", quadrant->name, getLastError());
+            return;
+        }
     }
 
     for (int adjacent_y = -1; adjacent_y < 2; ++adjacent_y)
@@ -310,6 +315,11 @@ void find_shapes(
             //define a boundary between two chunks
             else {
                 enlarge_border(quadrant, current, adjacent);
+                
+                if(isBadError()) {
+                    LOG_ERR("%s: enlarge_border failed with code: %d", quadrant->name, getLastError());
+                    return;
+                }
             }
         }
     }
