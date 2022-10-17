@@ -158,25 +158,21 @@ void merge_shapes(
     chunkshape* larger = (smaller == shape1 ? shape2 : shape1);
 
     // in the smaller shape replace every chunk's shape
-    pixelchunk_list* chunk_first = smaller->first_chunk;
-    
-    for (pixelchunk_list* current = chunk_first; current != NULL; current = current->next) {
+    for (pixelchunk_list* current = smaller->first_chunk; current != NULL; current = current->next) {
         current->chunk_p->shape_chunk_in = larger;
     }
 
-    pixelchunk_list* boundary_first = smaller->first_boundary;
-
-    for(pixelchunk_list* current = boundary_first; current != NULL; current = current->next) {
-        current->chunk_p->shape_chunk_in = larger; //not all chunks are boundaries. merge all chunks twice
-    }
-
     //append the chunk lists
-    larger->chunks->next = chunk_first;
+    larger->chunks->next = smaller->first_chunk;
     larger->chunks = smaller->chunks;
     larger->chunks_amount += smaller->chunks_amount;
 
-    larger->boundaries->next = boundary_first;
-    larger->boundaries = smaller->boundaries;
+    //connect first and last if they are adjacent
+    sort_boundary_chunk(quadrant, larger, smaller->first_boundary);
+    getAndResetErrorCode();
+    sort_boundary_chunk(quadrant, larger, smaller->boundaries);
+    getAndResetErrorCode();
+    
     larger->boundaries_length += smaller->boundaries_length;
 
     //get rid of smaller shape by cutting it out of the linked list
