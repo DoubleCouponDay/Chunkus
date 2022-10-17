@@ -34,7 +34,7 @@ void windback_lists(chunkmap* map) {
 
 void* process_in_thread(void* arg) {
     Quadrant* quadrant = (Quadrant*)arg;
-    select_svg_shapes(quadrant);
+    fill_quadrant(quadrant);
     
     if (isBadError())
     {

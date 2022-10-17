@@ -18,4 +18,4 @@ typedef struct Quadrant {
     square bounds;
 } Quadrant;
 
-void select_svg_shapes(Quadrant* quadrant);
+void fill_quadrant(Quadrant* quadrant);

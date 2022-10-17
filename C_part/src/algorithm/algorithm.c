@@ -379,7 +379,6 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     }
 }
 
-///A multithreaded function
 void fill_quadrant(Quadrant* quadrant) {
     LOG_INFO("Filling quadrant: %s", quadrant->name);
     long count = 0;
@@ -455,8 +454,4 @@ void fill_quadrant(Quadrant* quadrant) {
         }
     }
     return;
-}
-
-void select_svg_shapes(Quadrant* quadrant) {
-    fill_quadrant(quadrant);
 }
