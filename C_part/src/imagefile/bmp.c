@@ -61,7 +61,7 @@ unsigned char* createBitmapInfoHeader (int height, int width)
     return infoHeader;
 }
 
-void generateBitmapImage(unsigned char* image, int height, int width, char* imageFileName)
+void generateBitmapImage(unsigned char* image, int height, int width, const char* imageFileName)
 {
     int widthInBytes = width * BYTES_PER_PIXEL;
 

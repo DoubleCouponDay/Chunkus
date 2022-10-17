@@ -15,7 +15,7 @@ bool file_is_jpeg(const char* fileaddress) {
 	char current = fileaddress[0];
 	int index = 0;
 
-	while(current != NULL) {		
+	while((long long)current != (long long)NULL) {		
 		index++;
 		current = fileaddress[index];
 	}
