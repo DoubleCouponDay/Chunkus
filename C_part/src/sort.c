@@ -26,7 +26,8 @@ bool is_adjacent(pixelchunk_list* current, pixelchunk_list* other) {
 
 void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk_list* current) {
     if(is_adjacent(current, shape->boundaries) && current != shape->first_boundary) { //chunk is adajcent to last and is not first
-        shape->boundaries->next = current;        
+        shape->boundaries->next = current;
+        shape->boundaries = current;
     }
 
     else if(is_adjacent(current, shape->first_boundary) && current != shape->boundaries) { //chunk is adjacent to first and is not last
