@@ -92,11 +92,10 @@ void add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* ch
     pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
     new->chunk_p = chunk;
     new->next = NULL;
-     
-    ++shape->boundaries_length;
     chunk->boundary_chunk_in = new;
 
     sort_boundary_chunk(quadrant, shape, new);
+    ++shape->boundaries_length;
 
     if(isBadError()) {
         LOG_ERR("%s: sort_boundary_chunk failed with code: %d", quadrant->name, getLastError());
