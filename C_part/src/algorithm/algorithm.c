@@ -94,7 +94,14 @@ void add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* ch
     new->next = NULL;
     chunk->boundary_chunk_in = new;
 
-    sort_boundary_chunk(quadrant, shape, new);
+    if(shape->boundaries == NULL) {
+        shape->first_boundary = new;
+        shape->boundaries = new;
+    }
+
+    else {
+        sort_boundary_chunk(quadrant, shape, new);
+    }
     ++shape->boundaries_length;
 
     if(isBadError()) {
