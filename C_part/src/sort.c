@@ -13,6 +13,45 @@
 #include "utility/defines.h"
 #include "algorithm/algorithm.h"
 
+pixelchunk* get_at(Quadrant* quad, int x, int y)
+{
+    if (x < quad->bounds.startingX || x >= quad->bounds.endingX ||
+        y < quad->bounds.startingY || y >= quad->bounds.endingY)
+    {
+        return NULL;
+    }
+    return &quad->map->groups_array_2d[x][y];
+}
+
+pixelchunk* next_boundary_chunk(Quadrant* quadrant, pixelchunk* current, pixelchunk* previous)
+{
+    coordinate next_offsets[8] = {
+        (coordinate){ -1, -1 },
+        (coordinate){ +0, -1 },
+        (coordinate){ +1, -1 },
+        (coordinate){ -1, +0 },
+        (coordinate){ +1, +0 },
+        (coordinate){ -1, +1 },
+        (coordinate){ +0, +1 },
+        (coordinate){ +1, +1 }
+    };
+    for (int next_i = 0; next_i < 8; ++next_i)
+    {
+        int neighbour_x = current->location.x + next_offsets[next_i].x;
+        int neighbour_y = current->location.y + next_offsets[next_i].y;
+        pixelchunk* neighbour = get_at(quadrant, neighbour_x, neighbour_y);
+
+        if (neighbour &&
+            neighbour != previous && //chunk was not used before
+            neighbour->shape_chunk_in == current->shape_chunk_in && //chunk is in the same shape
+            neighbour->boundary_chunk_in != NULL) //chunk is on the boundary
+        {
+            return neighbour;
+        }
+    }
+    return NULL;
+}
+
 bool is_adjacent(pixelchunk_list* current, pixelchunk_list* other) {
     int current_x = current->chunk_p->location.x;
     int current_y = current->chunk_p->location.y;
@@ -51,7 +90,8 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk_list*
         return;
     }
 
-    else { //dont add to boundary if they are not adjacent
+    else { //shapes boundary on next scanline starts back to front away from first or last boundary chunk
+        
         LOG_ERR("current chunk is not adjacent to first or last chunk in boundary checks!");
         setError(ASSUMPTION_WRONG);
         return;
