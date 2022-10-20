@@ -62,19 +62,69 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk_list*
     }
 
     else { //shapes boundary on next scanline starts back to front away from first or last boundary chunk
+
+    /**
+     * problem
+	I am trying to sort boundary chunks immediately after they get flagged as a boundary but it is not working
+
+    guess
+        the boundary chunks are sometimes not adjacent to the first or last boundary chunks
+        
+    try
+        build the boundary backwards until it hits the last chunk
+        
+        left, top left, top, top right chunks can never be on the boundary
+        
+        try to find two adajacent chunks that are boundaries
+        
+        if bot left, bot, bot right, right are possible boundaries
+        
+        assume there to be at most 3 boundaries
+        
+        if less than 2 found, throw error
+        
+        if 2 or 3 found
+            if this is the first loop, save the chunk furthest away from the last chunk for later
+            
+            if 2 found
+                set furthest away chunk to next
+                
+                set closest chunks next to current chunk
+                
+            if 3 found
+                set furthest away's chunk's next to second furthest away
+                
+                set second furthest away chunk to next
+                
+                set closest chunk's next to current
+                
+        loop until connected with adjacent
+
+        any chunk added to the boundary should be immediately zipped
+        
+        disable zipping in algorithm.c if sort.c sort_boundary_chunk returned true
+
+     * 
+     */
+        LOG_INFO("%s: building boundary backwards from current: %dx,%dy to last: %dx:%dy", quadrant->name, current->chunk_p->location.x, current->chunk_p->location.y, shape->boundaries->chunk_p->location.x, shape->boundaries->chunk_p->location.y);
         int current_x = current->chunk_p->location.x;
         int current_y = current->chunk_p->location.y;
         int last_x = shape->boundaries->chunk_p->location.x;
         int last_y = shape->boundaries->chunk_p->location.y;
         pixelchunk_list* current_work = current;
 
-        while(current_x <= last_x + 1) { //connect boundary chunks backwards until chunks have gone too far
-
-            pixelchunk* top_right = get_at(quadrant, current_x + 1, current_y - 1);
+        while(current_x <= last_x + 2) { //connect boundary chunks backwards until chunks have gone too far
+            pixelchunk* bot_left = get_at(quadrant, current_x - 1, current_y + 1);
+            pixelchunk* bot = get_at(quadrant, current_x, current_y + 1);
+            pixelchunk* bot_right = get_at(quadrant, current_x + 1, current_y + 1);            
             pixelchunk* right = get_at(quadrant, current_x + 1, current_y);
-            pixelchunk* bottom_right = get_at(quadrant, current_x + 1, current_y + 1);
-            bool top_adjacent = colours_are_similar(current_work->chunk_p->average_colour, top_right->average_colour, quadrant->options->threshold);
+            pixelchunk* top_right = get_at(quadrant, current_x + 1, current_y - 1);
+ 
+            bool top_similar = colours_are_similar(current_work->chunk_p->average_colour, top_right->average_colour, quadrant->options->threshold);
+            bool mid_similar = colours_are_similar(current_work->chunk_p->average_colour, right->average_colour, quadrant->options->threshold);
+            bool bot_similar = colours_are_similar(current_work->chunk_p->average_colour, bot_right->average_colour, quadrant->options->threshold);
 
+            
             current_x = current_work->chunk_p->location.x;
             current_y = current_work->chunk_p->location.y;
         }
