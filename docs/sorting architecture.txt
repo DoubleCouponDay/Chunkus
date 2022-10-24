@@ -1,0 +1,42 @@
+problem
+	I am trying to sort boundary chunks immediately after they get flagged as a boundary but it is not working
+
+guess
+	the boundary chunks are sometimes not adjacent to the first or last boundary chunks
+
+try
+	build the boundary backwards until it hits the last chunk
+
+	left, top left, top, top right chunks can never be on the boundary
+
+	try to find two adajacent chunks that are boundaries
+
+	bot_left, bot, bot_right, right are possible boundaries
+
+	assume there to be at most 3 boundaries
+
+	if current chunk is adjacent to first and boundary left == 1
+		special check for the 2nd chunk to ensure it becomes last and not first
+
+	if less than 2 found
+		set last chunks next to current
+
+	if 2 or 3 found
+		if this is the first loop, save the chunk furthest away from the last chunk for later
+
+		if 2 found
+			set furthest away chunk to next
+
+			set closest chunks next to current chunk
+
+		if 3 found
+			set furthest away's chunk's next to second furthest away
+
+			set second furthest away chunk to next
+
+			set closest chunk's next to current
+
+		do not add these boundaries to the shapes boundary list
+
+	in add_chunk_to_boundary, account for special scenario where current chunk is already in a boundary but it still needs to be added to same shape and zipped.
+
