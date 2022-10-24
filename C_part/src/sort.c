@@ -13,6 +13,13 @@
 #include "utility/defines.h"
 #include "algorithm/algorithm.h"
 
+void free_listitem_if_exists(pixelchunk* chunk) {
+    if(chunk->boundary_chunk_in == NULL) {
+        return;
+    }
+
+}
+
 pixelchunk* get_at(Quadrant* quad, int x, int y)
 {
     if (x < quad->bounds.startingX || x >= quad->bounds.endingX ||
@@ -48,7 +55,7 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk_list*
         current->next = shape->first_boundary;
         shape->first_boundary = current;
     }
-    //if no true condition found yet, something is seriously wrong
+
     else if(current == shape->first_boundary && shape->boundaries_length > 0) { //dont try to sort the first chunk
         LOG_ERR("current boundary chunk cannot be first! this is a finite linked list.");
         setError(ASSUMPTION_WRONG);
@@ -89,6 +96,8 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk_list*
 
         //XXXO
         else if(botleft_similar && bot_similar && botright_similar && !right_similar) {
+            bot_left->shape_chunk_in = shape;
+            bot_left->boundary_chunk_in = calloc(1, sizeof(pixelchunk_list));
             
         }
         
