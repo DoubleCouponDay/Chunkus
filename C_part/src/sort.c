@@ -13,11 +13,54 @@
 #include "utility/defines.h"
 #include "algorithm/algorithm.h"
 
-void free_listitem_if_exists(pixelchunk* chunk) {
-    if(chunk->boundary_chunk_in == NULL) {
-        return;
-    }
+bool is_boundary_chunk(Quadrant* quadrant, pixelchunk* subject) {
+    int current_x = subject->location.x;
+    int current_y = subject->location.y;
+    pixelchunk* top_right = get_at(quadrant, current_x + 1, current_y - 1);
+    pixelchunk* top = get_at(quadrant, current_x, current_y - 1);
+    pixelchunk* top_left = get_at(quadrant, current_x - 1, current_y - 1);
+    pixelchunk* left = get_at(quadrant, current_x - 1, current_y);
+    pixelchunk* bot_left = get_at(quadrant, current_x - 1, current_y + 1);
+    pixelchunk* bot = get_at(quadrant, current_x, current_y + 1);
+    pixelchunk* bot_right = get_at(quadrant, current_x + 1, current_y + 1);
+    pixelchunk* right = get_at(quadrant, current_x + 1, current_y);
+    bool topright_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
 
+    if(topright_dissimilar)
+        return true;
+
+    bool top_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
+    
+    if(top_dissimilar)
+        return true;
+
+    bool topleft_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
+
+    if(topleft_dissimilar)
+        return true;
+
+    bool left_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
+    
+    if(left_dissimilar)
+        return true;
+
+    bool botleft_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
+    
+    if(botleft_dissimilar)
+        return true;
+
+    bool bot_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
+    
+    if(bot_dissimilar)
+        return true;
+
+    bool botright_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
+    
+    if(botright_dissimilar)
+        return true;
+
+    bool right_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
+    return right_dissimilar;
 }
 
 pixelchunk* get_at(Quadrant* quad, int x, int y)
@@ -47,7 +90,7 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk_list*
     }
 
     else if(is_adjacent(current, shape->boundaries)) { //chunk is adjacent to last and is not first
-        shape->boundaries->next = current;
+        shape->boundaries->next = current; //also accounts for boundary flipping over at the second boundary item
         shape->boundaries = current;
     }
 
@@ -75,105 +118,34 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk_list*
 
         //left, top_left, top, top_right can never be on the boundary
         //bot_left, bot, bot_right, right are possible boundaries
+        pixelchunk* top_right = get_at(quadrant, current_x + 1, current_y - 1);
+        pixelchunk* top = get_at(quadrant, current_x, current_y - 1);
+        pixelchunk* top_left = get_at(quadrant, current_x - 1, current_y - 1);
+        pixelchunk* left = get_at(quadrant, current_x - 1, current_y);
         pixelchunk* bot_left = get_at(quadrant, current_x - 1, current_y + 1);
         pixelchunk* bot = get_at(quadrant, current_x, current_y + 1);
-        pixelchunk* bot_right = get_at(quadrant, current_x + 1, current_y + 1);            
+        pixelchunk* bot_right = get_at(quadrant, current_x + 1, current_y + 1);
         pixelchunk* right = get_at(quadrant, current_x + 1, current_y);
 
-        bool botleft_similar = colours_are_similar(current->chunk_p->average_colour, bot_left->average_colour, quadrant->options->threshold);
+        bool topright_boundary = top_right != NULL && colours_are_similar(current->chunk_p->average_colour, bot_left->average_colour, quadrant->options->threshold) && is_boundary_chunk(quadrant, top_right);
+        bool top_boundary = top != NULL && colours_are_similar(current->chunk_p->average_colour, top->average_colour, quadrant->options->threshold) && is_boundary_chunk(quadrant, top);
+        bool topleft_boundary = top_left != NULL && colours_are_similar(current->chunk_p->average_colour, top_left->average_colour, quadrant->options->threshold) && is_boundary_chunk(quadrant, top_left);
+        bool left_boundary = left != NULL && colours_are_similar(current->chunk_p->average_colour, left->average_colour, quadrant->options->threshold) && is_boundary_chunk(quadrant, left);
+        bool botleft_boundary = bot_left != NULL && colours_are_similar(current->chunk_p->average_colour, bot_left->average_colour, quadrant->options->threshold) && is_boundary_chunk(quadrant, bot_left);
+        bool bot_boundary = bot != NULL && colours_are_similar(current->chunk_p->average_colour, bot->average_colour, quadrant->options->threshold) && is_boundary_chunk(quadrant, bot);
+        bool botright_boundary = bot_right != NULL && colours_are_similar(current->chunk_p->average_colour, bot_right->average_colour, quadrant->options->threshold) && is_boundary_chunk(quadrant, bot_right);
+        bool right_boundary = right != NULL && colours_are_similar(current->chunk_p->average_colour, right->average_colour, quadrant->options->threshold) && is_boundary_chunk(quadrant, right);
 
-        bool bot_similar = colours_are_similar(current->chunk_p->average_colour, bot->average_colour, quadrant->options->threshold);
-
-        bool botright_similar = colours_are_similar(current->chunk_p->average_colour, bot_right->average_colour, quadrant->options->threshold);
-        
-        bool right_similar = colours_are_similar(current->chunk_p->average_colour, right->average_colour, quadrant->options->threshold);
-
-        //XXXX
-        if(botleft_similar && bot_similar && botright_similar && right_similar) {
+        //XXXX XXXX
+        if(topright_boundary && top_boundary && topleft_boundary && left_boundary && botleft_boundary && bot_boundary && botright_boundary && right_boundary) {
             LOG_ERR("some chunks should be in the other shape but are not.");
             setError(ASSUMPTION_WRONG);
         }
 
-        //XXXO
-        else if(botleft_similar && bot_similar && botright_similar && !right_similar) {
-            bot_left->shape_chunk_in = shape;
-            bot_left->boundary_chunk_in = calloc(1, sizeof(pixelchunk_list));
-            
-        }
-        
-        //XXOX
-        else if(botleft_similar && bot_similar && !botright_similar && right_similar) {
+        //XXXX XXXO
 
-        }
-        
-        //XXOO
-        else if(botleft_similar && bot_similar && !botright_similar && !right_similar) {
+        //XXXX XXOX
 
-        }
-
-        //XOXX
-        else if(botleft_similar && !bot_similar && botright_similar && right_similar) {
-            
-        }
-
-        //XOXO
-        else if(botleft_similar && !bot_similar && botright_similar && !right_similar) {
-
-        }
-
-        //XOOX
-        else if(botleft_similar && !bot_similar && !botright_similar && right_similar) {
-
-        }
-
-        //XOOO
-        else if(botleft_similar && !bot_similar && !botright_similar && !right_similar) {
-            LOG_ERR("only botleft is similar!");
-            setError(ASSUMPTION_WRONG);
-        }
-
-        //OXXX
-        else if(!botleft_similar && bot_similar && botright_similar && right_similar) {
-
-        }
-
-        //OXXO
-        else if(!botleft_similar && bot_similar && botright_similar && !right_similar) {
-
-        }
-
-        //OXOX
-        else if(!botleft_similar && bot_similar && !botright_similar && right_similar) {
-
-        }
-
-        //OXOO
-        else if(!botleft_similar && bot_similar && !botright_similar && !right_similar) {
-            LOG_ERR("only bot is similar!");
-            setError(ASSUMPTION_WRONG);
-        }
-
-        //OOXX
-        else if(!botleft_similar && !bot_similar && botright_similar && right_similar) {
-
-        }
-
-        //OOXO
-        else if(!botleft_similar && !bot_similar && botright_similar && !right_similar) {
-            LOG_ERR("only botright is similar!");
-            setError(ASSUMPTION_WRONG);
-        }
-
-        //OOOX
-        else if(!botleft_similar && !bot_similar && !botright_similar && right_similar) {
-            LOG_ERR("only right is similar");
-            setError(ASSUMPTION_WRONG);
-        }
-
-        //OOOO
-        else {
-            LOG_ERR("none are similar!");
-            setError(ASSUMPTION_WRONG);
-        }
+        //
     }
 }

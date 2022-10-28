@@ -5,7 +5,7 @@ guess
 	the boundary chunks are sometimes not adjacent to the first or last boundary chunks
 
 try
-	build the boundary backwards until it hits the last chunk
+	handle 6 scenarios in the same function sort_boundary_chunk
 
 	left, top left, top, top right chunks can never be on the boundary
 
@@ -43,11 +43,17 @@ try
 scenario 1
 	two shapes are being merged together
 	
-	the smaller shapes first andl ast boundary chunk are sorted into the larger
+	the smaller shapes first and last boundary chunk are sorted into the larger
 	
 	the smaller first chunk gets set to the larger last chunks next chunk.
 	
-	because the shapes are merging, the smaller last chunk doesn not need to be sorted.
+	the smaller last chunk is not adjacent to largers first or last chunks
+	
+	it is found that top and bot are adjacent.
+	
+	top is already connected so it is not relevant
+	
+	the next property of current is set to bot
 	
 scenario 2
 	a boundary chunk needs to be sorted.
@@ -58,11 +64,7 @@ scenario 2
 	
 	it is assumed that any chunk in this scenario will be trying to connect with either the first or last chunk depending on which is closer.
 	
-	a new pixelchunk_list is allocated for the current chunk.
-	
-	its next is set to bot. the next chunk of the right chunk is set to current chunk.
-	
-	when the scanline reaches the end of the shape, the current chunk will be adjacent to the last chunk of the shapes boundary. it will finally connect.
+	its next is set to bot. rights next is set to current
 	
 scenario 3
 	a boundary chunk needs to be sorted.
@@ -101,6 +103,6 @@ scenario 5
 	
 	the adjacent chunks are tested and it is found that left and bot are adjacent
 	
-	joining with the scanlined items is preferred so the next property of the currents list is set to left
+	next is set to left, the next property of bot is set to current
 	
 	
