@@ -71,6 +71,36 @@ scenario 3
 	
 	it is assumed that any chunk in this scenario will be trying to connect with either the first or last chunk depending on which is closer.
 	
+	the adjacent chunks are tested and it is found that no boundary chunks are adjacent.
+	
+	the boundary is considered part of a slope, not a staircase.
+	
+	the distance to first and last boundary chunk is compared and the closest chunk is selected.
+	
+	the boundary chunk is set to next if it is closer to the last chunk or first if it is closer to the first chunk.
+	
+scenario 4
+	a boundary chunk needs to be sorted.
+	
+	it is not adjacent to first or last boundary chunks
+	
+	it is assumed that any chunk in this scenario will be trying to connect with either the first or last chunk depending on which is closer.
+	
 	the adjacent chunks are tested and it is found that one or no boundary chunks are adjacent.
+	
+	the boundary is considered part of a slope not a staircase.
+	
+	the distance to first and last boundary chunk is compared and the closest chunk is selected.
+	
+	the boundary chunk is set to next if it is closer to the last chunk or first if it is closer to the first chunk.
+
+scenario 5
+	a boundary chunk needs to be sorted
+	
+	it is not adjacent to first or last boundary chunks
+	
+	the adjacent chunks are tested and it is found that left and bot are adjacent
+	
+	joining with the scanlined items is preferred so the next property of the currents list is set to left
 	
 	
