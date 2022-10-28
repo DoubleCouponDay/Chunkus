@@ -40,3 +40,37 @@ try
 
 	in add_chunk_to_boundary, account for special scenario where current chunk is already in a boundary but it still needs to be added to same shape and zipped.
 
+scenario 1
+	two shapes are being merged together
+	
+	the smaller shapes first andl ast boundary chunk are sorted into the larger
+	
+	the smaller first chunk gets set to the larger last chunks next chunk.
+	
+	because the shapes are merging, the smaller last chunk doesn not need to be sorted.
+	
+scenario 2
+	a boundary chunk needs to be sorted.
+	
+	it is not adjacent to first or last boundary chunks.
+	
+	the adjacent chunks are tested and it is found that bot and right are adjacent.
+	
+	it is assumed that any chunk in this scenario will be trying to connect with either the first or last chunk depending on which is closer.
+	
+	a new pixelchunk_list is allocated for the current chunk.
+	
+	its next is set to bot. the next chunk of the right chunk is set to current chunk.
+	
+	when the scanline reaches the end of the shape, the current chunk will be adjacent to the last chunk of the shapes boundary. it will finally connect.
+	
+scenario 3
+	a boundary chunk needs to be sorted.
+	
+	it is not adjacent to first or last boundary chunks.
+	
+	it is assumed that any chunk in this scenario will be trying to connect with either the first or last chunk depending on which is closer.
+	
+	the adjacent chunks are tested and it is found that one or no boundary chunks are adjacent.
+	
+	
