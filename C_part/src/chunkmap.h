@@ -59,6 +59,7 @@ void free_chunkmap(chunkmap* map_p);
 void free_pixelchunklist(pixelchunk_list* linkedlist);
 vector2 create_vector_between_chunks(pixelchunk* initial, pixelchunk* final);
 float calculate_angle_between(pixelchunk* eligible, pixelchunk* subject, pixelchunk* previous);
+float distance_between(pixelchunk* a, pixelchunk* b);
 
 #ifdef __cplusplus
 };

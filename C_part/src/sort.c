@@ -13,6 +13,22 @@
 #include "utility/defines.h"
 #include "algorithm/algorithm.h"
 
+void prepare_list(pixelchunk* chunk) {
+    if(chunk->boundary_chunk_in == NULL) {
+        chunk->boundary_chunk_in = calloc(1, sizeof(pixelchunk_list));
+    }
+}
+
+pixelchunk* get_at(Quadrant* quad, int x, int y)
+{
+    if (x < quad->bounds.startingX || x >= quad->bounds.endingX ||
+        y < quad->bounds.startingY || y >= quad->bounds.endingY)
+    {
+        return NULL;
+    }
+    return &quad->map->groups_array_2d[x][y];
+}
+
 bool is_boundary_chunk(Quadrant* quadrant, pixelchunk* subject) {
     int current_x = subject->location.x;
     int current_y = subject->location.y;
@@ -61,16 +77,6 @@ bool is_boundary_chunk(Quadrant* quadrant, pixelchunk* subject) {
 
     bool right_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
     return right_dissimilar;
-}
-
-pixelchunk* get_at(Quadrant* quad, int x, int y)
-{
-    if (x < quad->bounds.startingX || x >= quad->bounds.endingX ||
-        y < quad->bounds.startingY || y >= quad->bounds.endingY)
-    {
-        return NULL;
-    }
-    return &quad->map->groups_array_2d[x][y];
 }
 
 bool is_adjacent(pixelchunk_list* current, pixelchunk_list* other) {
@@ -136,16 +142,25 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk_list*
         bool botright_boundary = bot_right != NULL && colours_are_similar(current->chunk_p->average_colour, bot_right->average_colour, quadrant->options->threshold) && is_boundary_chunk(quadrant, bot_right);
         bool right_boundary = right != NULL && colours_are_similar(current->chunk_p->average_colour, right->average_colour, quadrant->options->threshold) && is_boundary_chunk(quadrant, right);
 
-        //XXXX XXXX
-        if(topright_boundary && top_boundary && topleft_boundary && left_boundary && botleft_boundary && bot_boundary && botright_boundary && right_boundary) {
-            LOG_ERR("some chunks should be in the other shape but are not.");
-            setError(ASSUMPTION_WRONG);
+        //scenario 2
+        if(bot_boundary && right_boundary) {
+            float bot_first_distance = distance_between(bot, shape->first_boundary->chunk_p);
+            float bot_last_distance = distance_between(bot, shape->boundaries->chunk_p);
+            float right_first_distance = distance_between(right, shape->first_boundary->chunk_p);
+            float right_last_distance = distance_between(right, shape->boundaries->chunk_p);
+
+            prepare_list(bot);
+            prepare_list(right);
+
+            if(bot_first_distance <= right_first_distance) {
+                current->next = bot->boundary_chunk_in;
+                right->boundary_chunk_in->next = current;
+            }
+
+            else {
+                current->next = right->boundary_chunk_in;
+                bot->boundary_chunk_in = current;
+            }
         }
-
-        //XXXX XXXO
-
-        //XXXX XXOX
-
-        //
     }
 }

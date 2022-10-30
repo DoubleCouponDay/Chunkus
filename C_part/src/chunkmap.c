@@ -9,6 +9,12 @@
 #include "utility/error.h"
 #include "entrypoint.h"
 
+float distance_between(pixelchunk* a, pixelchunk* b) {
+    int x = abs(a->location.x - b->location.x);
+    int y = abs(a->location.y - b->location.y);
+    return sqrtf((x * x) + (y * y));
+}
+
 int get_map_width(image input, vectorize_options options) {
     return (int)ceil((float)input.width / (float)options.chunk_size);
 }

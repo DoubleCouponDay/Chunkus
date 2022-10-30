@@ -64,6 +64,12 @@ scenario 2
 	
 	it is assumed that any chunk in this scenario will be trying to connect with either the first or last chunk depending on which is closer.
 	
+	the distance between first and last between bot and right is found
+	
+	bot is closer to first than right
+	
+	right is closer to last than bot
+	
 	its next is set to bot. rights next is set to current
 	
 scenario 3
