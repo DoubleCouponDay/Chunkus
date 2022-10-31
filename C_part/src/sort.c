@@ -142,25 +142,37 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk_list*
         bool botright_boundary = bot_right != NULL && colours_are_similar(current->chunk_p->average_colour, bot_right->average_colour, quadrant->options->threshold) && is_boundary_chunk(quadrant, bot_right);
         bool right_boundary = right != NULL && colours_are_similar(current->chunk_p->average_colour, right->average_colour, quadrant->options->threshold) && is_boundary_chunk(quadrant, right);
 
-        //scenario 2
-        if(bot_boundary && right_boundary) {
-            float bot_first_distance = distance_between(bot, shape->first_boundary->chunk_p);
-            float bot_last_distance = distance_between(bot, shape->boundaries->chunk_p);
-            float right_first_distance = distance_between(right, shape->first_boundary->chunk_p);
-            float right_last_distance = distance_between(right, shape->boundaries->chunk_p);
+        bool adjacent_array[] = {
+            topright_boundary, top_boundary, topleft_boundary, left_boundary, botleft_boundary, bot_boundary, botright_boundary, right_boundary
+        };
+        // //scenario 2
+        // if(bot_boundary && right_boundary) {
+        //     float bot_first_distance = distance_between(bot, shape->first_boundary->chunk_p);
+        //     float bot_last_distance = distance_between(bot, shape->boundaries->chunk_p);
+        //     float right_first_distance = distance_between(right, shape->first_boundary->chunk_p);
+        //     float right_last_distance = distance_between(right, shape->boundaries->chunk_p);
 
-            prepare_list(bot);
-            prepare_list(right);
+        //     prepare_list(bot);
+        //     prepare_list(right);
 
-            if(bot_first_distance <= right_first_distance) {
-                current->next = bot->boundary_chunk_in;
-                right->boundary_chunk_in->next = current;
-            }
+        //     if(bot_first_distance <= right_first_distance) {
+        //         current->next = bot->boundary_chunk_in;
+        //         right->boundary_chunk_in->next = current;
+        //     }
 
-            else {
-                current->next = right->boundary_chunk_in;
-                bot->boundary_chunk_in = current;
-            }
+        //     else {
+        //         current->next = right->boundary_chunk_in;
+        //         bot->boundary_chunk_in = current;
+        //     }
+        // }
+
+        int num_adjacent = 0;
+
+        for(int i = 0; i < 8; ++i) {
+            bool current = adjacent_array[i];
+            
+            if(current)
+                num_adjacent++;
         }
     }
 }
