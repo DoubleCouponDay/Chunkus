@@ -13,6 +13,15 @@
 #include "utility/defines.h"
 #include "algorithm/algorithm.h"
 
+typedef struct sorting_list {
+    bool is_boundary;
+    pixelchunk* chunk;
+    float distanceto_first;
+    float distanceto_last;
+    struct sorting_list* next;
+    bool sorted;
+} sorting_list;
+
 void prepare_list(pixelchunk* chunk) {
     if(chunk->boundary_chunk_in == NULL) {
         chunk->boundary_chunk_in = calloc(1, sizeof(pixelchunk_list));
@@ -142,9 +151,59 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk_list*
         bool botright_boundary = bot_right != NULL && colours_are_similar(current->chunk_p->average_colour, bot_right->average_colour, quadrant->options->threshold) && is_boundary_chunk(quadrant, bot_right);
         bool right_boundary = right != NULL && colours_are_similar(current->chunk_p->average_colour, right->average_colour, quadrant->options->threshold) && is_boundary_chunk(quadrant, right);
 
-        bool adjacent_array[] = {
-            topright_boundary, top_boundary, topleft_boundary, left_boundary, botleft_boundary, bot_boundary, botright_boundary, right_boundary
+        sorting_list adjacent_array[] = {
+            { topright_boundary, top_right },
+            { top_boundary, top },
+            { topleft_boundary, top_left },
+            { left_boundary, left },
+            { botleft_boundary, bot_left },
+            { bot_boundary, bot },
+            { botright_boundary, bot_right },
+            { right_boundary, right }
         };
+
+        int num_adjacent = 0;
+        sorting_list* first;
+        sorting_list* temp_list;
+        sorting_list* closestto_first;
+        sorting_list* closestto_last;
+
+        for(int i = 0; i < 8; ++i) {
+            sorting_list current_item = adjacent_array[i];
+            
+            if(current_item.is_boundary) {
+                num_adjacent++;
+
+                if(num_adjacent != 1) {
+                    temp_list->next = &current_item;
+                    temp_list = &current_item;
+                }
+
+                else {
+                    first = &current_item;
+                    temp_list = &current_item;
+                }
+                current_item.distanceto_first = distance_between(shape->first_boundary->chunk_p, current_item.chunk);
+                current_item.distanceto_last = distance_between(shape->boundaries->chunk_p, current_item.chunk);
+            }
+        }
+
+        if(first == NULL) {
+            LOG_ERR("no adjacents were boundary chunks!");
+            setError(ASSUMPTION_WRONG);
+        }
+
+        else if(num_adjacent == 8) {
+            LOG_ERR("no dissimilar chunks near current chunk!");
+            setError(ASSUMPTION_WRONG);
+        }
+        bool all_sorted = false;
+
+        while(all_sorted == false) {
+            //iterate through linked list until all chunks are sorted
+            //start from the chunk closests to last and make a path towards the chunk closest to first
+        }
+
         // //scenario 2
         // if(bot_boundary && right_boundary) {
         //     float bot_first_distance = distance_between(bot, shape->first_boundary->chunk_p);
@@ -166,13 +225,5 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk_list*
         //     }
         // }
 
-        int num_adjacent = 0;
-
-        for(int i = 0; i < 8; ++i) {
-            bool current = adjacent_array[i];
-            
-            if(current)
-                num_adjacent++;
-        }
     }
 }
