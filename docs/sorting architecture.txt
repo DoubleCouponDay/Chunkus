@@ -5,40 +5,21 @@ guess
 	the boundary chunks are sometimes not adjacent to the first or last boundary chunks
 
 try
-	handle 6 scenarios in the same function sort_boundary_chunk
+	handle chunks that are not adjacent to the first or last chunk in the same function
 
-	left, top left, top, top right chunks can never be on the boundary
+	any adjacent chunk can be on the boundary
 
-	try to find two adajacent chunks that are boundaries
-
-	bot_left, bot, bot_right, right are possible boundaries
-
-	assume there to be at most 3 boundaries
+	try to find at least two adjacent chunks that are boundaries
 
 	if current chunk is adjacent to first and boundary left == 1
-		special check for the 2nd chunk to ensure it becomes last and not first
+		in a condition, append to last before appending to first. this prevents the boundary flipping over
 
-	if less than 2 found
-		set last chunks next to current
+	path find all the way back to first and last. complete the entire path
 
-	if 2 or 3 found
-		if this is the first loop, save the chunk furthest away from the last chunk for later
-
-		if 2 found
-			set furthest away chunk to next
-
-			set closest chunks next to current chunk
-
-		if 3 found
-			set furthest away's chunk's next to second furthest away
-
-			set second furthest away chunk to next
-
-			set closest chunk's next to current
-
-		do not add these boundaries to the shapes boundary list
-
-	in add_chunk_to_boundary, account for special scenario where current chunk is already in a boundary but it still needs to be added to same shape and zipped.
+	in add_chunk_to_boundary, account for special scenario where current chunk is already in a boundary but it still needs to be zipped.
+	
+	if chunk already in boundary, assume it has already been sorted
+		still needs to be zipped
 
 scenario 1
 	two shapes are being merged together
@@ -56,59 +37,27 @@ scenario 1
 	the next property of current is set to bot
 	
 scenario 2
-	a boundary chunk needs to be sorted.
+	current is not adjacent with first or last
 	
-	it is not adjacent to first or last boundary chunks.
+	bot and right are adjacent
 	
-	the adjacent chunks are tested and it is found that bot and right are adjacent.
-	
-	it is assumed that any chunk in this scenario will be trying to connect with either the first or last chunk depending on which is closer.
-	
-	the distance between first and last between bot and right is found
-	
-	bot is closer to first than right
-	
-	right is closer to last than bot
-	
-	its next is set to bot. rights next is set to current
+	pathfind all the way back to first and last
 	
 scenario 3
-	a boundary chunk needs to be sorted.
+	current is not adjacent with first or last
 	
-	it is not adjacent to first or last boundary chunks.
 	
-	it is assumed that any chunk in this scenario will be trying to connect with either the first or last chunk depending on which is closer.
-	
-	the adjacent chunks are tested and it is found that no boundary chunks are adjacent.
-	
-	the boundary is considered part of a slope, not a staircase.
-	
-	the distance to first and last boundary chunk is compared and the closest chunk is selected.
-	
-	the boundary chunk is set to next if it is closer to the last chunk or first if it is closer to the first chunk.
 	
 scenario 4
-	a boundary chunk needs to be sorted.
-	
-	it is not adjacent to first or last boundary chunks
-	
-	it is assumed that any chunk in this scenario will be trying to connect with either the first or last chunk depending on which is closer.
-	
-	the adjacent chunks are tested and it is found that one or no boundary chunks are adjacent.
-	
-	the boundary is considered part of a slope not a staircase.
-	
-	the distance to first and last boundary chunk is compared and the closest chunk is selected.
-	
-	the boundary chunk is set to next if it is closer to the last chunk or first if it is closer to the first chunk.
 
 scenario 5
-	a boundary chunk needs to be sorted
-	
-	it is not adjacent to first or last boundary chunks
-	
-	the adjacent chunks are tested and it is found that left and bot are adjacent
-	
-	next is set to left, the next property of bot is set to current
-	
-	
+
+scenario 6
+
+scenario 7
+
+scenario 8
+
+scenario 9
+
+scenario 10
