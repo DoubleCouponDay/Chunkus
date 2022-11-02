@@ -92,7 +92,7 @@ scenario 10
 pathfinding algorithm
 	start from last chunk
 	
-	until currentitem equals first
+	until currentitem is NULL
 		find all adjacent boundary chunks that are not already in a shape
 	
 		select the adjacent chunks that is adjacent to the most dissimilar chunks and has not been used in a boundary
