@@ -44,20 +44,61 @@ scenario 2
 	pathfind all the way back to first and last
 	
 scenario 3
-	current is not adjacent with first or last
+	current is adjacent with last
 	
-	
+	the next of last is set to current
 	
 scenario 4
+	current is not adjacent with first or last
+	
+	botright and right are adjacent
+	
+	pathfinding begins and continues until the path is fully connected with first and last
 
 scenario 5
+	current is not adjacent with first or last
+	
+	left and bot are adjacent
+	
+	pathfinding begins and continues until the path is fully connected with first and last
 
 scenario 6
+	this should have already been sorted in scenario 5
 
 scenario 7
+	current is not adjacent with first or last
+	
+	4 are adjacent
+	
+	pathfinding begins and continues until the path is fully connected with first and last
 
 scenario 8
+	current is not adjacent with first or last
+	
+	4 are adjacent
+	
+	pathfinding begins and continues until the path is fully connected with first and last
 
 scenario 9
-
+	current is not adjacent with first or last
+	
+	3 are adjacent
+	
+	pathfinding begins and continues until the path is fully connected with first and last
+	
 scenario 10
+	should have already been sorted in scenario 5
+	
+pathfinding algorithm
+	start from last chunk
+	
+	until currentitem equals first
+		find all adjacent boundary chunks that are not already in a shape
+	
+		select the adjacent chunks that is adjacent to the most dissimilar chunks and has not been used in a boundary
+		
+		sort selection
+		
+		set currentitem to selection
+		
+	if current was not included in the updated boundary, THROW
