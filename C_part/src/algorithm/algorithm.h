@@ -18,4 +18,5 @@ typedef struct Quadrant {
     square bounds;
 } Quadrant;
 
+void zip_seam(Quadrant* quadrant, pixelchunk* chunk_to_zip, pixelchunk* adjacent);
 void fill_quadrant(Quadrant* quadrant);

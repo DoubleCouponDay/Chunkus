@@ -228,6 +228,7 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* curr
             shape->boundaries->next = list;
             shape->boundaries = list;
             sort_focus = list;
+            zip_seam(quadrant, highest, );
         }
     }
 }
