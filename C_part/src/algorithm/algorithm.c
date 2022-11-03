@@ -89,18 +89,15 @@ void add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* ch
     else if(chunk->boundary_chunk_in != NULL && allow_multiple_shapes == false) { //chunk already in boundary or in another shapes boundaries
         return;
     }
-    pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
-    new->chunk_p = chunk;
-    new->next = NULL;
-    chunk->boundary_chunk_in = new;
 
     if(shape->boundaries == NULL) {
+        pixelchunk_list* new = create_boundaryitem(chunk);
         shape->first_boundary = new;
         shape->boundaries = new;
     }
 
     else {
-        sort_boundary_chunk(quadrant, shape, new);
+        sort_boundary_chunk(quadrant, shape, chunk); //dont allocate a boundary list item until circumstances are clear
     }
     ++shape->boundaries_length;
 
@@ -165,9 +162,9 @@ void merge_shapes(
     larger->chunks_amount += smaller->chunks_amount;
 
     //connect first and last if they are adjacent
-    sort_boundary_chunk(quadrant, larger, smaller->first_boundary);
+    sort_boundary_chunk(quadrant, larger, smaller->first_boundary->chunk_p);
     getAndResetErrorCode();
-    sort_boundary_chunk(quadrant, larger, smaller->boundaries);
+    sort_boundary_chunk(quadrant, larger, smaller->boundaries->chunk_p);
     getAndResetErrorCode();
     
     larger->boundaries_length += smaller->boundaries_length;

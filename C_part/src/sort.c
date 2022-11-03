@@ -102,9 +102,9 @@ int is_boundary_chunk(Quadrant* quadrant, pixelchunk* subject) {
     return output;
 }
 
-bool is_adjacent(pixelchunk_list* current, pixelchunk_list* other) {
-    int current_x = current->chunk_p->location.x;
-    int current_y = current->chunk_p->location.y;
+bool is_adjacent(pixelchunk* current, pixelchunk_list* other) {
+    int current_x = current->location.x;
+    int current_y = current->location.y;
     int other_x = other->chunk_p->location.x;
     int other_y = other->chunk_p->location.y;
     int compare_x = current_x - other_x;
@@ -113,29 +113,39 @@ bool is_adjacent(pixelchunk_list* current, pixelchunk_list* other) {
     return output;
 }
 
-void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk_list* current) {
-    if(current == shape->boundaries) { //dont sort if first chunk
+/// @brief Assume current->shape_chunk_in is NULL
+/// @param quadrant 
+/// @param shape 
+/// @param current 
+void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* current) {
+    if(current == shape->boundaries->chunk_p) { //dont sort if first chunk
+        LOG_ERR("current boundary chunk cannot be last! this is a finite linked list.");
+        setError(ASSUMPTION_WRONG);
+        return;
+    }
+
+    else if(current == shape->first_boundary->chunk_p && shape->boundaries_length > 0) { //dont try to sort the first chunk
+        LOG_ERR("current boundary chunk cannot be first! this is a finite linked list.");
+        setError(ASSUMPTION_WRONG);
+        return;
+    }
+
+    else if(current == shape->boundaries->chunk_p) { //dont try to sort the last chunk
+        LOG_ERR("current boundary chunk cannot be last! this is a finite linked list.");
+        setError(ASSUMPTION_WRONG);
         return;
     }
 
     else if(is_adjacent(current, shape->boundaries)) { //chunk is adjacent to last and is not first
-        shape->boundaries->next = current; //also accounts for boundary flipping over at the second boundary item
-        shape->boundaries = current;
+        pixelchunk_list* list = create_boundaryitem(current);
+        shape->boundaries->next = list; //also accounts for boundary flipping over at the second boundary item
+        shape->boundaries = list;
     }
 
     else if(is_adjacent(current, shape->first_boundary)) { //chunk is adjacent to first and is not last
-        current->next = shape->first_boundary;
-        shape->first_boundary = current;
-    }
-
-    else if(current == shape->first_boundary && shape->boundaries_length > 0) { //dont try to sort the first chunk
-        LOG_ERR("current boundary chunk cannot be first! this is a finite linked list.");
-        setError(ASSUMPTION_WRONG);
-    }
-
-    else if(current == shape->boundaries) { //dont try to sort the last chunk
-        LOG_ERR("current boundary chunk cannot be last! this is a finite linked list.");
-        setError(ASSUMPTION_WRONG);
+        pixelchunk_list* list = create_boundaryitem(current);
+        list->next = shape->first_boundary;
+        shape->first_boundary = list;
     }
 
     else { //shapes boundary on next scanline starts back to front away from first or last boundary chunk
@@ -214,12 +224,10 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk_list*
                 setError(ASSUMPTION_WRONG);
                 return;
             }
-            highest->boundary_chunk_in = calloc(1, sizeof(pixelchunk_list));
-            highest->boundary_chunk_in->chunk_p = highest;
-            highest->boundary_chunk_in->next = NULL;
-
-            shape->boundaries->next = highest->boundary_chunk_in;
-            sort_focus = highest->boundary_chunk_in;
+            pixelchunk_list* list = create_boundaryitem(highest);
+            shape->boundaries->next = list;
+            shape->boundaries = list;
+            sort_focus = list;
         }
     }
 }

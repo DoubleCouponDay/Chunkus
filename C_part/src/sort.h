@@ -3,4 +3,4 @@
 #include "chunkmap.h"
 #include "algorithm/algorithm.h"
 
-void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk_list* current);
+void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* current);

@@ -214,3 +214,11 @@ float calculate_angle_between(pixelchunk* eligible, pixelchunk* subject, pixelch
         previous_to_subject = subject_to_eligible;
     return vec_angle_between(previous_to_subject, subject_to_eligible);
 }
+
+pixelchunk_list* create_boundaryitem(pixelchunk* chunk) {
+    pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list)); //allocate the shapes first boundary chunks. no need to sort
+    new->chunk_p = chunk;
+    new->next = NULL;
+    chunk->boundary_chunk_in = new;
+    return new;
+}
