@@ -100,5 +100,3 @@ pathfinding algorithm
 		sort selection
 		
 		set currentitem to selection
-		
-	if current was not included in the updated boundary, THROW
