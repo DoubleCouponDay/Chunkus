@@ -13,15 +13,11 @@
 #include "utility/defines.h"
 #include "algorithm/algorithm.h"
 
-typedef struct sorting_list {
+typedef struct sorting_item {
     pixelchunk* chunk;
     int num_dissimilar;
     bool is_boundary;
-    float distanceto_first;
-    float distanceto_last;
-    struct sorting_list* next;
-    bool sorted;
-} sorting_list;
+} sorting_item;
 
 void prepare_list(pixelchunk* chunk) {
     if(chunk->boundary_chunk_in == NULL) {
@@ -39,14 +35,11 @@ pixelchunk* get_at(Quadrant* quad, int x, int y)
     return &quad->map->groups_array_2d[x][y];
 }
 
-/// @brief returns the number of adjacent dissimilar chunks
+/// @brief returns the info about the first dissimilar chunk
 /// @param quadrant 
 /// @param subject 
 /// @return 
-int is_boundary_chunk(Quadrant* quadrant, pixelchunk* subject) {
-    if(subject == 0) {
-        return 0;
-    }
+sorting_item is_boundary_chunk(Quadrant* quadrant, pixelchunk* subject) {
     int current_x = subject->location.x;
     int current_y = subject->location.y;
     pixelchunk* top_right = get_at(quadrant, current_x + 1, current_y - 1);
@@ -57,47 +50,65 @@ int is_boundary_chunk(Quadrant* quadrant, pixelchunk* subject) {
     pixelchunk* bot = get_at(quadrant, current_x, current_y + 1);
     pixelchunk* bot_right = get_at(quadrant, current_x + 1, current_y + 1);
     pixelchunk* right = get_at(quadrant, current_x + 1, current_y);
-    int output = 0;
+    int num_dissimilar = 0;
+    sorting_item output = {NULL, 0, false};
 
     bool topright_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
 
-    if(topright_dissimilar)
-        ++output;
+    if(topright_dissimilar) {
+        ++num_dissimilar;
+        output.num_dissimilar = num_dissimilar;
+    }
+        
 
     bool top_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
     
-    if(top_dissimilar)
-        ++output;
+    if(top_dissimilar) {
+        ++num_dissimilar;
+        output.num_dissimilar = num_dissimilar;
+    }
 
     bool topleft_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
 
-    if(topleft_dissimilar)
-        ++output;
+    if(topleft_dissimilar) {
+        ++num_dissimilar;
+        output.num_dissimilar = num_dissimilar;
+    }
 
     bool left_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
     
-    if(left_dissimilar)
-        ++output;
+    if(left_dissimilar) {
+        ++num_dissimilar;
+        output.num_dissimilar = num_dissimilar;
+    }
 
     bool botleft_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
     
-    if(botleft_dissimilar)
-        ++output;
+    if(botleft_dissimilar) {
+        ++num_dissimilar;
+        output.num_dissimilar = num_dissimilar;
+    }
 
     bool bot_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
     
-    if(bot_dissimilar)
-        ++output;
+    if(bot_dissimilar) {
+        ++num_dissimilar;
+        output.num_dissimilar = num_dissimilar;
+    }
 
     bool botright_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
     
-    if(botright_dissimilar)
-        ++output;
+    if(botright_dissimilar) {
+        ++num_dissimilar;
+        output.num_dissimilar = num_dissimilar;
+    }
 
     bool right_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
 
-    if(right_dissimilar)
-        ++output;
+    if(right_dissimilar) {
+        ++num_dissimilar;
+        output.num_dissimilar = num_dissimilar;
+    }
 
     return output;
 }
@@ -168,7 +179,7 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* curr
             pixelchunk* right = get_at(quadrant, current_x + 1, current_y);
 
             //if chunk is inside the quadrant and similar to current chunk and adjacent to dissimilar chunk and 
-            int topright_diff = is_boundary_chunk(quadrant, top_right);
+            sorting_item topright_ = is_boundary_chunk(quadrant, top_right);
             bool topright_boundary = top_right != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, bot_left->average_colour, quadrant->options->threshold) && topright_diff != 0 && top_right->boundary_chunk_in == NULL;
             int top_diff = is_boundary_chunk(quadrant, top);
             bool top_boundary = top != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, top->average_colour, quadrant->options->threshold) && top_diff != 0 && top->boundary_chunk_in == NULL;
@@ -185,7 +196,7 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* curr
             int right_diff  = is_boundary_chunk(quadrant, right);
             bool right_boundary = right != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, right->average_colour, quadrant->options->threshold) && right_diff != 0 && right->boundary_chunk_in == NULL;
 
-            sorting_list adjacent_array[] = {
+            sorting_item adjacent_array[] = {
                 { top_right, topright_diff, topright_boundary },
                 { top, top_diff, top_boundary },
                 { top_left, topleft_diff, topleft_boundary },
@@ -201,7 +212,7 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* curr
             int highest_adjacent = 0;
 
             for(int i = 0; i < 8; ++i) {
-                sorting_list current_item = adjacent_array[i];
+                sorting_item current_item = adjacent_array[i];
                 
                 if(current_item.num_dissimilar != 0) {
                     ++num_have_adjacent;
