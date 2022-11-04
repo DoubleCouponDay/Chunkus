@@ -15,6 +15,7 @@
 
 typedef struct sorting_item {
     pixelchunk* chunk;
+    pixelchunk* dissimilar_chunk;
     int num_dissimilar;
     bool is_boundary;
 } sorting_item;
@@ -40,6 +41,11 @@ pixelchunk* get_at(Quadrant* quad, int x, int y)
 /// @param subject 
 /// @return 
 sorting_item is_boundary_chunk(Quadrant* quadrant, pixelchunk* subject) {
+    sorting_item output = {subject, NULL, 0, false};
+
+    if(subject == NULL)
+        return output;
+
     int current_x = subject->location.x;
     int current_y = subject->location.y;
     pixelchunk* top_right = get_at(quadrant, current_x + 1, current_y - 1);
@@ -51,65 +57,71 @@ sorting_item is_boundary_chunk(Quadrant* quadrant, pixelchunk* subject) {
     pixelchunk* bot_right = get_at(quadrant, current_x + 1, current_y + 1);
     pixelchunk* right = get_at(quadrant, current_x + 1, current_y);
     int num_dissimilar = 0;
-    sorting_item output = {NULL, 0, false};
 
     bool topright_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
 
     if(topright_dissimilar) {
         ++num_dissimilar;
         output.num_dissimilar = num_dissimilar;
+        output.dissimilar_chunk = top_right;
     }
         
 
-    bool top_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
+    bool top_dissimilar = top != NULL && colours_are_similar(subject->average_colour, top->average_colour, quadrant->options->threshold) == false;
     
     if(top_dissimilar) {
         ++num_dissimilar;
         output.num_dissimilar = num_dissimilar;
+        output.dissimilar_chunk = top;
     }
 
-    bool topleft_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
+    bool topleft_dissimilar = top_left != NULL && colours_are_similar(subject->average_colour, top_left->average_colour, quadrant->options->threshold) == false;
 
     if(topleft_dissimilar) {
         ++num_dissimilar;
         output.num_dissimilar = num_dissimilar;
+        output.dissimilar_chunk = top_left;
     }
 
-    bool left_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
+    bool left_dissimilar = left != NULL && colours_are_similar(subject->average_colour, left->average_colour, quadrant->options->threshold) == false;
     
     if(left_dissimilar) {
         ++num_dissimilar;
         output.num_dissimilar = num_dissimilar;
+        output.dissimilar_chunk = left;
     }
 
-    bool botleft_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
+    bool botleft_dissimilar = bot_left != NULL && colours_are_similar(subject->average_colour, bot_left->average_colour, quadrant->options->threshold) == false;
     
     if(botleft_dissimilar) {
         ++num_dissimilar;
         output.num_dissimilar = num_dissimilar;
+        output.dissimilar_chunk = bot_left;
     }
 
-    bool bot_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
+    bool bot_dissimilar = bot != NULL && colours_are_similar(subject->average_colour, bot->average_colour, quadrant->options->threshold) == false;
     
     if(bot_dissimilar) {
         ++num_dissimilar;
         output.num_dissimilar = num_dissimilar;
+        output.dissimilar_chunk = bot;
     }
 
-    bool botright_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
+    bool botright_dissimilar = bot_right != NULL && colours_are_similar(subject->average_colour, bot_right->average_colour, quadrant->options->threshold) == false;
     
     if(botright_dissimilar) {
         ++num_dissimilar;
         output.num_dissimilar = num_dissimilar;
+        output.dissimilar_chunk = bot_right;
     }
 
-    bool right_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
+    bool right_dissimilar = right != NULL && colours_are_similar(subject->average_colour, right->average_colour, quadrant->options->threshold) == false;
 
     if(right_dissimilar) {
         ++num_dissimilar;
         output.num_dissimilar = num_dissimilar;
+        output.dissimilar_chunk = right;
     }
-
     return output;
 }
 
@@ -122,6 +134,90 @@ bool is_adjacent(pixelchunk* current, pixelchunk_list* other) {
     int compare_y = current_y - other_y;
     bool output = (compare_x == 1 || compare_x == -1) || (compare_y == 1 || compare_y == -1);
     return output;
+}
+
+void not_adjacent_firstlast(Quadrant* quadrant, chunkshape* shape) {
+    pixelchunk_list* sort_focus = shape->boundaries;
+
+    while(sort_focus != NULL) {
+        int current_x = sort_focus->chunk_p->location.x;
+        int current_y = sort_focus->chunk_p->location.y;
+        int last_x = shape->boundaries->chunk_p->location.x;
+        int last_y = shape->boundaries->chunk_p->location.y;
+
+        pixelchunk* top_right = get_at(quadrant, current_x + 1, current_y - 1);
+        pixelchunk* top = get_at(quadrant, current_x, current_y - 1);
+        pixelchunk* top_left = get_at(quadrant, current_x - 1, current_y - 1);
+        pixelchunk* left = get_at(quadrant, current_x - 1, current_y);
+        pixelchunk* bot_left = get_at(quadrant, current_x - 1, current_y + 1);
+        pixelchunk* bot = get_at(quadrant, current_x, current_y + 1);
+        pixelchunk* bot_right = get_at(quadrant, current_x + 1, current_y + 1);
+        pixelchunk* right = get_at(quadrant, current_x + 1, current_y);
+
+        //if chunk is inside the quadrant and similar to a known boundary chunk (current) and adjacent to at least one dissimilar chunk and 
+        sorting_item topright_item = is_boundary_chunk(quadrant, top_right);
+        topright_item.is_boundary = top_right != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, bot_left->average_colour, quadrant->options->threshold) && topright_item.dissimilar_chunk != NULL && top_right->boundary_chunk_in == NULL;
+        sorting_item top_item = is_boundary_chunk(quadrant, top);
+        top_item.is_boundary = top != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, top->average_colour, quadrant->options->threshold) && top_item.dissimilar_chunk != NULL && top->boundary_chunk_in == NULL;
+        sorting_item topleft_item = is_boundary_chunk(quadrant, top_left);
+        topleft_item.is_boundary = top_left != NULL && top_left->boundary_chunk_in == NULL && colours_are_similar(sort_focus->chunk_p->average_colour, top_left->average_colour, quadrant->options->threshold) && topleft_item.dissimilar_chunk != NULL;
+        sorting_item left_item = is_boundary_chunk(quadrant, left);
+        left_item.is_boundary = left != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, left->average_colour, quadrant->options->threshold) && left_item.dissimilar_chunk != NULL && left->boundary_chunk_in == NULL;
+        sorting_item botleft_item = is_boundary_chunk(quadrant, bot_left);
+        botleft_item.is_boundary = bot_left != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, bot_left->average_colour, quadrant->options->threshold) && botleft_item.dissimilar_chunk != NULL && bot_left->boundary_chunk_in == NULL;
+        sorting_item bot_item = is_boundary_chunk(quadrant, bot);
+        bot_item.is_boundary = bot != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, bot->average_colour, quadrant->options->threshold) && bot_item.dissimilar_chunk != NULL && bot->boundary_chunk_in == NULL;
+        sorting_item botright_item = is_boundary_chunk(quadrant, bot_right);
+        botright_item.is_boundary = bot_right != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, bot_right->average_colour, quadrant->options->threshold) && botright_item.dissimilar_chunk != NULL && bot_right->boundary_chunk_in == NULL;
+        sorting_item right_item = is_boundary_chunk(quadrant, right);
+        right_item.is_boundary = right != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, right->average_colour, quadrant->options->threshold) && right_item.dissimilar_chunk != NULL && right->boundary_chunk_in == NULL;
+
+        sorting_item adjacent_array[] = {
+            topright_item,
+            top_item,
+            topleft_item,
+            left_item,
+            botleft_item,
+            bot_item,
+            botright_item,
+            right_item
+        };
+
+        int num_have_adjacent = 0;
+        sorting_item highest;
+        int highest_adjacent = 0;
+
+        //find the adjacent boundary chunk closest to the most dissimilar chunks
+        for(int i = 0; i < 8; ++i) {
+            sorting_item current_item = adjacent_array[i];
+            
+            if(current_item.num_dissimilar != 0) {
+                ++num_have_adjacent;
+                
+                if(current_item.num_dissimilar > highest_adjacent) {
+                    highest_adjacent = current_item.num_dissimilar;
+                    highest = adjacent_array[i];
+                }
+            }
+        }
+
+        if(num_have_adjacent == 0) {
+            sort_focus->next = NULL;
+            sort_focus = NULL;
+            return;
+        }
+
+        else if(num_have_adjacent == 8) {
+            LOG_ERR("no dissimilar chunks near current chunk!");
+            setError(ASSUMPTION_WRONG);
+            return;
+        }
+        pixelchunk_list* list = create_boundaryitem(highest.chunk);
+        shape->boundaries->next = list;
+        shape->boundaries = list;
+        sort_focus = list;
+        zip_seam(quadrant, highest.chunk, highest.dissimilar_chunk);
+    }
 }
 
 /// @brief Assume current->shape_chunk_in is NULL
@@ -161,85 +257,6 @@ void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* curr
 
     else { //shapes boundary on next scanline starts back to front away from first or last boundary chunk
         LOG_INFO("current chunk is not adjacent to first or last chunk");
-        pixelchunk_list* sort_focus = shape->boundaries;
-
-        while(sort_focus != NULL) {
-            int current_x = sort_focus->chunk_p->location.x;
-            int current_y = sort_focus->chunk_p->location.y;
-            int last_x = shape->boundaries->chunk_p->location.x;
-            int last_y = shape->boundaries->chunk_p->location.y;
-
-            pixelchunk* top_right = get_at(quadrant, current_x + 1, current_y - 1);
-            pixelchunk* top = get_at(quadrant, current_x, current_y - 1);
-            pixelchunk* top_left = get_at(quadrant, current_x - 1, current_y - 1);
-            pixelchunk* left = get_at(quadrant, current_x - 1, current_y);
-            pixelchunk* bot_left = get_at(quadrant, current_x - 1, current_y + 1);
-            pixelchunk* bot = get_at(quadrant, current_x, current_y + 1);
-            pixelchunk* bot_right = get_at(quadrant, current_x + 1, current_y + 1);
-            pixelchunk* right = get_at(quadrant, current_x + 1, current_y);
-
-            //if chunk is inside the quadrant and similar to current chunk and adjacent to dissimilar chunk and 
-            sorting_item topright_ = is_boundary_chunk(quadrant, top_right);
-            bool topright_boundary = top_right != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, bot_left->average_colour, quadrant->options->threshold) && topright_diff != 0 && top_right->boundary_chunk_in == NULL;
-            int top_diff = is_boundary_chunk(quadrant, top);
-            bool top_boundary = top != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, top->average_colour, quadrant->options->threshold) && top_diff != 0 && top->boundary_chunk_in == NULL;
-            int topleft_diff = is_boundary_chunk(quadrant, top_left);
-            bool topleft_boundary = top_left != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, top_left->average_colour, quadrant->options->threshold) && topleft_diff != 0 && top_left->boundary_chunk_in == NULL;
-            int left_diff = is_boundary_chunk(quadrant, left);
-            bool left_boundary = left != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, left->average_colour, quadrant->options->threshold) && left_diff != 0 && left->boundary_chunk_in == NULL;
-            int botleft_diff = is_boundary_chunk(quadrant, bot_left);
-            bool botleft_boundary = bot_left != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, bot_left->average_colour, quadrant->options->threshold) && botleft_diff != 0 && bot_left->boundary_chunk_in == NULL;
-            int bot_diff = is_boundary_chunk(quadrant, bot);
-            bool bot_boundary = bot != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, bot->average_colour, quadrant->options->threshold) && bot_diff != 0 && bot->boundary_chunk_in == NULL;
-            int botright_diff = is_boundary_chunk(quadrant, bot_right);
-            bool botright_boundary = bot_right != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, bot_right->average_colour, quadrant->options->threshold) && botright_diff != 0 && bot_right->boundary_chunk_in == NULL;
-            int right_diff  = is_boundary_chunk(quadrant, right);
-            bool right_boundary = right != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, right->average_colour, quadrant->options->threshold) && right_diff != 0 && right->boundary_chunk_in == NULL;
-
-            sorting_item adjacent_array[] = {
-                { top_right, topright_diff, topright_boundary },
-                { top, top_diff, top_boundary },
-                { top_left, topleft_diff, topleft_boundary },
-                { left, left_diff, left_boundary },
-                { bot_left, botleft_diff, botleft_boundary },
-                { bot, bot_diff, bot_boundary },
-                { bot_right, botright_diff, botright_boundary },
-                { right, right_diff, right_boundary }
-            };
-
-            int num_have_adjacent = 0;
-            pixelchunk* highest = NULL;
-            int highest_adjacent = 0;
-
-            for(int i = 0; i < 8; ++i) {
-                sorting_item current_item = adjacent_array[i];
-                
-                if(current_item.num_dissimilar != 0) {
-                    ++num_have_adjacent;
-                    
-                    if(current_item.num_dissimilar > highest_adjacent) {
-                        highest_adjacent = current_item.num_dissimilar;
-                        highest = adjacent_array[i].chunk;
-                    }
-                }
-            }
-
-            if(num_have_adjacent == 0) {
-                sort_focus->next = NULL;
-                sort_focus = NULL;
-                return;
-            }
-
-            else if(num_have_adjacent == 8) {
-                LOG_ERR("no dissimilar chunks near current chunk!");
-                setError(ASSUMPTION_WRONG);
-                return;
-            }
-            pixelchunk_list* list = create_boundaryitem(highest);
-            shape->boundaries->next = list;
-            shape->boundaries = list;
-            sort_focus = list;
-            zip_seam(quadrant, highest, );
-        }
+        not_adjacent_firstlast(quadrant, shape);
     }
 }
