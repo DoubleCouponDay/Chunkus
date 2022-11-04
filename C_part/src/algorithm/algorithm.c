@@ -79,15 +79,23 @@ void add_chunk_to_shape(chunkmap* map, chunkshape* shape, pixelchunk* chunk) {
     shape->chunks = new;
 }
 
-void add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* chunk, bool allow_multiple_shapes) {
+/// @brief returns whether the current chunk was added to the boundary or not
+/// @param quadrant 
+/// @param shape 
+/// @param chunk 
+/// @param allow_multiple_shapes 
+/// @return 
+bool add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* chunk, bool allow_multiple_shapes) {
+    bool current_sorted = false;
+
     if(shape == NULL || chunk == NULL) { //sanity check
         LOG_ERR("add_chunk_to_boundary given null pointer!");
         setError(ASSUMPTION_WRONG);
-        return;
+        return current_sorted;
     }
     
     else if(chunk->boundary_chunk_in != NULL && allow_multiple_shapes == false) { //chunk already in boundary or in another shapes boundaries
-        return;
+        return current_sorted;
     }
 
     if(shape->boundaries == NULL) {
@@ -97,16 +105,17 @@ void add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* ch
     }
 
     else {
-        sort_boundary_chunk(quadrant, shape, chunk); //dont allocate a boundary list item until circumstances are clear
+        current_sorted = sort_boundary_chunk(quadrant, shape, chunk); //dont allocate a boundary list item until circumstances are clear
     }
     ++shape->boundaries_length;
 
     if(isBadError()) {
         LOG_ERR("%s: sort_boundary_chunk failed with code: %d", quadrant->name, getLastError());
-        return;
+        return current_sorted;
     }
     chunk->shape_chunk_in = NULL; //just paranoid that add_chunk_to_shape will fail
     add_chunk_to_shape(quadrant->map, shape, chunk); //boundaries are part of the shape too
+    return current_sorted;
 }
 
 chunkshape* add_new_shape(chunkmap* map, pixel colour) {
@@ -212,12 +221,16 @@ void enlarge_border(
         chosenshape = chunk_to_add->shape_chunk_in;
     }
     
-    add_chunk_to_boundary(quadrant, chosenshape, chunk_to_add, false); //add to boundary
+    bool current_sorted = add_chunk_to_boundary(quadrant, chosenshape, chunk_to_add, false); //add to boundary
 
     if(isBadError()) {
         LOG_ERR("%s: add_chunk_to_boundary failed with code: %d", quadrant->name, getLastError());
         return;
     }
+
+    if(current_sorted == false) //dont zip if current not sorted
+        return;
+
     zip_seam(quadrant, chunk_to_add, adjacent);
 }
 

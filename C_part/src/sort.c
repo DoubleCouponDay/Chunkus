@@ -220,43 +220,46 @@ void not_adjacent_firstlast(Quadrant* quadrant, chunkshape* shape) {
     }
 }
 
-/// @brief Assume current->shape_chunk_in is NULL
+/// @brief returns whether the current chunk was added to the boundary or not.
+/// Assume current->shape_chunk_in is NULL
 /// @param quadrant 
 /// @param shape 
 /// @param current 
-void sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* current) {
+bool sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* current) {
+    bool current_sorted = false;
+
     if(current == shape->boundaries->chunk_p) { //dont sort if first chunk
         LOG_ERR("current boundary chunk cannot be last! this is a finite linked list.");
         setError(ASSUMPTION_WRONG);
-        return;
     }
 
     else if(current == shape->first_boundary->chunk_p && shape->boundaries_length > 0) { //dont try to sort the first chunk
         LOG_ERR("current boundary chunk cannot be first! this is a finite linked list.");
         setError(ASSUMPTION_WRONG);
-        return;
     }
 
     else if(current == shape->boundaries->chunk_p) { //dont try to sort the last chunk
         LOG_ERR("current boundary chunk cannot be last! this is a finite linked list.");
         setError(ASSUMPTION_WRONG);
-        return;
     }
 
     else if(is_adjacent(current, shape->boundaries)) { //chunk is adjacent to last and is not first
         pixelchunk_list* list = create_boundaryitem(current);
         shape->boundaries->next = list; //also accounts for boundary flipping over at the second boundary item
         shape->boundaries = list;
+        current_sorted = true;
     }
 
     else if(is_adjacent(current, shape->first_boundary)) { //chunk is adjacent to first and is not last
         pixelchunk_list* list = create_boundaryitem(current);
         list->next = shape->first_boundary;
         shape->first_boundary = list;
+        current_sorted = true;
     }
 
     else { //shapes boundary on next scanline starts back to front away from first or last boundary chunk
         LOG_INFO("current chunk is not adjacent to first or last chunk");
         not_adjacent_firstlast(quadrant, shape);
     }
+    return current_sorted;
 }
