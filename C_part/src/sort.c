@@ -208,7 +208,7 @@ void not_adjacent_firstlast(Quadrant* quadrant, chunkshape* shape) {
         }
 
         else if(num_have_adjacent == 8) {
-            LOG_ERR("no dissimilar chunks near current chunk!");
+            LOG_ERR("no dissimilar chunks!");
             setError(ASSUMPTION_WRONG);
             return;
         }
