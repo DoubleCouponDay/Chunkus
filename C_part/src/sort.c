@@ -154,9 +154,9 @@ void not_adjacent_firstlast(Quadrant* quadrant, chunkshape* shape) {
         pixelchunk* bot_right = get_at(quadrant, current_x + 1, current_y + 1);
         pixelchunk* right = get_at(quadrant, current_x + 1, current_y);
 
-        //if chunk is inside the quadrant and similar to a known boundary chunk (current) and adjacent to at least one dissimilar chunk and 
+        //if adjacent is in the quadrant and similar to a known boundary chunk (current) and adjacent to at least one dissimilar chunk and not already in a boundary
         sorting_item topright_item = is_boundary_chunk(quadrant, top_right);
-        topright_item.is_boundary = top_right != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, bot_left->average_colour, quadrant->options->threshold) && topright_item.dissimilar_chunk != NULL && top_right->boundary_chunk_in == NULL;
+        topright_item.is_boundary = top_right != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, top_right->average_colour, quadrant->options->threshold) && topright_item.dissimilar_chunk != NULL && top_right->boundary_chunk_in == NULL;
         sorting_item top_item = is_boundary_chunk(quadrant, top);
         top_item.is_boundary = top != NULL && colours_are_similar(sort_focus->chunk_p->average_colour, top->average_colour, quadrant->options->threshold) && top_item.dissimilar_chunk != NULL && top->boundary_chunk_in == NULL;
         sorting_item topleft_item = is_boundary_chunk(quadrant, top_left);
