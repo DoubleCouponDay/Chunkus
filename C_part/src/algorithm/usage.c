@@ -183,4 +183,5 @@ void vectorize(image input, vectorize_options options) {
     }
     finish_svg_file(output);
     free_thresholds_array(thresholds);
+    LOG_INFO("vectorization complete");
 }
