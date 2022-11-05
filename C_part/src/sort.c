@@ -258,7 +258,6 @@ bool sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* curr
     }
 
     else { //shapes boundary on next scanline starts back to front away from first or last boundary chunk
-        LOG_INFO("current chunk is not adjacent to first or last chunk");
         not_adjacent_firstlast(quadrant, shape);
     }
     return current_sorted;
