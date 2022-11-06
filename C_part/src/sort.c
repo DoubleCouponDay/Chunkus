@@ -56,13 +56,11 @@ sorting_item is_boundary_chunk(Quadrant* quadrant, pixelchunk* subject) {
     pixelchunk* bot = get_at(quadrant, current_x, current_y + 1);
     pixelchunk* bot_right = get_at(quadrant, current_x + 1, current_y + 1);
     pixelchunk* right = get_at(quadrant, current_x + 1, current_y);
-    int num_dissimilar = 0;
 
     bool topright_dissimilar = top_right != NULL && colours_are_similar(subject->average_colour, top_right->average_colour, quadrant->options->threshold) == false;
 
     if(topright_dissimilar) {
-        ++num_dissimilar;
-        output.num_dissimilar = num_dissimilar;
+        ++output.num_dissimilar;
         output.dissimilar_chunk = top_right;
     }
         
@@ -70,56 +68,51 @@ sorting_item is_boundary_chunk(Quadrant* quadrant, pixelchunk* subject) {
     bool top_dissimilar = top != NULL && colours_are_similar(subject->average_colour, top->average_colour, quadrant->options->threshold) == false;
     
     if(top_dissimilar) {
-        ++num_dissimilar;
-        output.num_dissimilar = num_dissimilar;
+                ++output.num_dissimilar;
+
         output.dissimilar_chunk = top;
     }
 
     bool topleft_dissimilar = top_left != NULL && colours_are_similar(subject->average_colour, top_left->average_colour, quadrant->options->threshold) == false;
 
     if(topleft_dissimilar) {
-        ++num_dissimilar;
-        output.num_dissimilar = num_dissimilar;
+                ++output.num_dissimilar;
+
         output.dissimilar_chunk = top_left;
     }
 
     bool left_dissimilar = left != NULL && colours_are_similar(subject->average_colour, left->average_colour, quadrant->options->threshold) == false;
     
     if(left_dissimilar) {
-        ++num_dissimilar;
-        output.num_dissimilar = num_dissimilar;
+        ++output.num_dissimilar;
         output.dissimilar_chunk = left;
     }
 
     bool botleft_dissimilar = bot_left != NULL && colours_are_similar(subject->average_colour, bot_left->average_colour, quadrant->options->threshold) == false;
     
     if(botleft_dissimilar) {
-        ++num_dissimilar;
-        output.num_dissimilar = num_dissimilar;
+        ++output.num_dissimilar;
         output.dissimilar_chunk = bot_left;
     }
 
     bool bot_dissimilar = bot != NULL && colours_are_similar(subject->average_colour, bot->average_colour, quadrant->options->threshold) == false;
     
     if(bot_dissimilar) {
-        ++num_dissimilar;
-        output.num_dissimilar = num_dissimilar;
+        ++output.num_dissimilar;
         output.dissimilar_chunk = bot;
     }
 
     bool botright_dissimilar = bot_right != NULL && colours_are_similar(subject->average_colour, bot_right->average_colour, quadrant->options->threshold) == false;
     
     if(botright_dissimilar) {
-        ++num_dissimilar;
-        output.num_dissimilar = num_dissimilar;
+        ++output.num_dissimilar;
         output.dissimilar_chunk = bot_right;
     }
 
     bool right_dissimilar = right != NULL && colours_are_similar(subject->average_colour, right->average_colour, quadrant->options->threshold) == false;
 
     if(right_dissimilar) {
-        ++num_dissimilar;
-        output.num_dissimilar = num_dissimilar;
+        ++output.num_dissimilar;
         output.dissimilar_chunk = right;
     }
     return output;
