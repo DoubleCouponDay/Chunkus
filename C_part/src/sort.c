@@ -181,7 +181,7 @@ void not_adjacent_firstlast(Quadrant* quadrant, chunkshape* shape) {
         for(int i = 0; i < 8; ++i) {
             sorting_item current_item = adjacent_array[i];
             
-            if(current_item.num_dissimilar != 0) {
+            if(current_item.is_boundary) {
                 ++num_have_adjacent;
                 
                 if(current_item.num_dissimilar > highest_adjacent) {
