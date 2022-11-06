@@ -63,21 +63,18 @@ sorting_item is_boundary_chunk(Quadrant* quadrant, pixelchunk* subject) {
         ++output.num_dissimilar;
         output.dissimilar_chunk = top_right;
     }
-        
 
     bool top_dissimilar = top != NULL && colours_are_similar(subject->average_colour, top->average_colour, quadrant->options->threshold) == false;
     
     if(top_dissimilar) {
-                ++output.num_dissimilar;
-
+        ++output.num_dissimilar;
         output.dissimilar_chunk = top;
     }
 
     bool topleft_dissimilar = top_left != NULL && colours_are_similar(subject->average_colour, top_left->average_colour, quadrant->options->threshold) == false;
 
     if(topleft_dissimilar) {
-                ++output.num_dissimilar;
-
+        ++output.num_dissimilar;
         output.dissimilar_chunk = top_left;
     }
 
@@ -202,6 +199,12 @@ void not_adjacent_firstlast(Quadrant* quadrant, chunkshape* shape) {
 
         else if(num_have_adjacent == 8) {
             LOG_ERR("no dissimilar chunks!");
+            setError(ASSUMPTION_WRONG);
+            return;
+        }
+
+        else if(highest.chunk == NULL) {
+            LOG_ERR("highest not found");
             setError(ASSUMPTION_WRONG);
             return;
         }
