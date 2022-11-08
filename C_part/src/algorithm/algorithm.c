@@ -171,10 +171,12 @@ void merge_shapes(
     larger->chunks_amount += smaller->chunks_amount;
 
     //connect first and last if they are adjacent
-    sort_boundary_chunk(quadrant, larger, smaller->first_boundary->chunk_p);
-    getAndResetErrorCode();
-    sort_boundary_chunk(quadrant, larger, smaller->boundaries->chunk_p);
-    getAndResetErrorCode();
+    if(smaller->boundaries_length != 0) {
+        sort_boundary_chunk(quadrant, larger, smaller->first_boundary->chunk_p);
+        getAndResetErrorCode();
+        sort_boundary_chunk(quadrant, larger, smaller->boundaries->chunk_p);
+        getAndResetErrorCode();
+    }
     
     larger->boundaries_length += smaller->boundaries_length;
 
