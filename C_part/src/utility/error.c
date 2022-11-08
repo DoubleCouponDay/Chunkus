@@ -13,7 +13,6 @@ int getLastError() {
 }
 
 void setError(int error) {
-    LOG_INFO("setting status code: %d", error);
     error_code = error;
 }
 
