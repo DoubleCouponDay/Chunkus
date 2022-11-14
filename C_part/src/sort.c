@@ -225,11 +225,11 @@ bool sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* curr
     bool current_sorted = false;
 
     if(current == shape->boundaries->chunk_p) { //dont sort if first chunk
-        return;
+        return current_sorted;
     }
 
     else if(current == shape->first_boundary->chunk_p && shape->boundaries_length > 0) { //dont try to sort the first chunk
-        return;
+        return current_sorted;
     }
 
     else if(is_adjacent(current, shape->boundaries)) { //chunk is adjacent to last and is not first
