@@ -32,7 +32,7 @@
             "name": "Launch one test",
             "type": "cppdbg",
             "request": "launch",
-            "args": ["jpeg_to_svg"],
+            "args": ["png_to_svg"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/install/bin",
             "externalConsole": false,
