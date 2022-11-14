@@ -100,7 +100,7 @@ int entrypoint(int argc, char* argv[]) {
 
 int just_crash() {
 	clear_logfile();
-	LOG_ERR("crashing this plane; with no survivors");
+	LOG_INFO("crashing this plane; with no survivors");
 	void* crash = (void*)1;
 	free(crash);
 	return 0;
