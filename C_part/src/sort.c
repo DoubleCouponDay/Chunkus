@@ -224,12 +224,15 @@ void not_adjacent_firstlast(Quadrant* quadrant, chunkshape* shape) {
 bool sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* current) {
     bool current_sorted = false;
 
-    if(current == shape->boundaries->chunk_p) { //dont sort if first chunk
-        return current_sorted;
+    if(shape->boundaries == NULL) { //dont sort if first chunk
+        current_sorted = true;
+        pixelchunk_list* list = create_boundaryitem(current);
+        list->next = NULL;
+        shape->boundaries = list;
     }
 
-    else if(current == shape->first_boundary->chunk_p && shape->boundaries_length > 0) { //dont try to sort the first chunk
-        return current_sorted;
+    else if() { //ensure boundary list doesnt flip over
+
     }
 
     else if(is_adjacent(current, shape->boundaries)) { //chunk is adjacent to last and is not first
