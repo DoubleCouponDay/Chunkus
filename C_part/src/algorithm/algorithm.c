@@ -160,6 +160,12 @@ void merge_shapes(
     chunkshape* smaller = (shape1->chunks_amount < shape2->chunks_amount ? shape1 : shape2);
     chunkshape* larger = (smaller == shape1 ? shape2 : shape1);
 
+    if(smaller->first_boundary == NULL || larger->first_boundary == NULL) {
+        LOG_ERR("sorting didn't add a chunk to this new shape!");
+        setError(ASSUMPTION_WRONG);
+        return;
+    }
+
     // in the smaller shape replace every chunk's shape
     for (pixelchunk_list* current = smaller->first_chunk; current != NULL; current = current->next) {
         current->chunk_p->shape_chunk_in = larger;
