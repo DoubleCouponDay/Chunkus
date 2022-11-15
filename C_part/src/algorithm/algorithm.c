@@ -425,13 +425,13 @@ void fill_quadrant(Quadrant* quadrant) {
                 LOG_INFO("%s progress: %d0%%", quadrant->name, tenth_count);
             }
             pixelchunk* currentchunk_p = &(quadrant->map->groups_array_2d[map_x][map_y]);
-            
+
             find_shapes(
-                quadrant, 
+                quadrant,
                 currentchunk_p,
-                map_x, map_y, 
-                quadrant->options->threshold);            
-            
+                map_x, map_y,
+                quadrant->options->threshold);
+
             int code = getLastError();
 
             if (isBadError())
