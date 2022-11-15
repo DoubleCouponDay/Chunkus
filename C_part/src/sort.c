@@ -227,7 +227,6 @@ bool sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* curr
     if(shape->boundaries == NULL) { //dont sort if first chunk
         current_sorted = true;
         pixelchunk_list* list = create_boundaryitem(current);
-        list->next = NULL;
         shape->boundaries = list;
         shape->first_boundary = list;
     }
