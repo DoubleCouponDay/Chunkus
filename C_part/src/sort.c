@@ -229,6 +229,7 @@ bool sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* curr
         pixelchunk_list* list = create_boundaryitem(current);
         list->next = NULL;
         shape->boundaries = list;
+        shape->first_boundary = list;
     }
 
     else if(is_adjacent(current, shape->boundaries)) { //chunk is adjacent to last and is not first
