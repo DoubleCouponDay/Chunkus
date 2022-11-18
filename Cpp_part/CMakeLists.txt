@@ -40,6 +40,7 @@ else()
 	message("Found Freeglut installation.")
 	target_link_libraries(vec_step PRIVATE FreeGLUT::freeglut)
 	target_include_directories(vec_step PRIVATE $<TARGET_PROPERTY:FreeGLUT::freeglut,INTERFACE_INCLUDE_DIRECTORIES>)
+	install(FILES $<TARGET_RUNTIME_DLLS:vec_step> DESTINATION bin)
 endif()
 
 target_link_libraries(vec_step PRIVATE ${OPENGL_LIBRARIES})
