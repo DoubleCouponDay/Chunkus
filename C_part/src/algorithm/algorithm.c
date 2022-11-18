@@ -419,6 +419,7 @@ void fill_quadrant(Quadrant* quadrant) {
         for(int map_x = quadrant->bounds.startingX; map_x < quadrant->bounds.endingX; ++map_x)
         {
             ++count;
+
             if (tenth_of_map > 0 && count % tenth_of_map == 0)
             {
                 ++tenth_count;

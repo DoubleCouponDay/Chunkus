@@ -50,6 +50,29 @@
                 "request": "launch",
                 "program": "${workspaceFolder}/install/bin/vec_test"
             }
+        },
+        {
+            "name": "debug vec_step.exe",
+            "type": "cppdbg",
+            "request": "launch",
+            "args": ["./test.png"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/install/bin",
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "windows": {
+                "name": "Launch Tests",
+                "type": "cppdbg",
+                "request": "launch",
+                "program": "${workspaceFolder}/install/bin/vec_step.exe",
+                "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe"
+            },
+            "linux": {
+                "name": "Launch Tests",
+                "type": "cppdbg",
+                "request": "launch",
+                "program": "${workspaceFolder}/install/bin/vec_step"
+            }
         }
     ]
 }
