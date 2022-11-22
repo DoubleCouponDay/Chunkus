@@ -50,10 +50,6 @@ On linux run the following to install OpenGL:
     sudo apt install git cmake build-essential mesa-common-dev libxi-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev -y
 
 On Windows, OpenGL should already be available.
-
-### Rust installation on windows
-	
-
 	
 ### Rust installation on linux
 		
