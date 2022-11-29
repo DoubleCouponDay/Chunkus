@@ -216,8 +216,8 @@ void enlarge_border(
     pixelchunk* adjacent) {
     chunkshape* chosenshape;
 
-    if(chunk_to_add->boundary_chunk_in != NULL) {
-        return; //chunk is already in a boundary
+    if(chunk_to_add->boundary_chunk_in != NULL) { //chunk is already in a boundary but
+        return; 
     }
 
     if(quadrant->map->shape_list == NULL || chunk_to_add->shape_chunk_in == NULL) { //make first shape
@@ -274,7 +274,7 @@ void enlarge_shape(
     else if (current->shape_chunk_in != adjacent->shape_chunk_in) {
         merge_shapes(quadrant, current->shape_chunk_in, adjacent->shape_chunk_in, x, y);
     }
-
+    //else, shapes are in the same shape so it should not be enlarged
     if(isBadError()) {
         LOG_ERR("%s: enlarge_shape failed with code: %d", quadrant->name, getLastError());
         return;
