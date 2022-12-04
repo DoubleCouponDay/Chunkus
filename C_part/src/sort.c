@@ -214,6 +214,7 @@ void not_adjacent_firstlast(Quadrant* quadrant, chunkshape* shape) {
         sort_focus = list;
         zip_seam(quadrant, highest.chunk, highest.dissimilar_chunk);
     }
+    shape->path_closed = true;
 }
 
 /// @brief returns whether the current chunk was added to the boundary or not.
@@ -231,21 +232,21 @@ bool sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* curr
         shape->first_boundary = list;
     }
 
-    else if(is_adjacent(current, shape->boundaries)) { //chunk is adjacent to last and is not first
+    else if(is_adjacent(current, shape->boundaries)) { //chunk is adjacent to last
         pixelchunk_list* list = create_boundaryitem(current);
         shape->boundaries->next = list; //also accounts for boundary flipping over at the second boundary item
         shape->boundaries = list;
         current_sorted = true;
     }
 
-    else if(is_adjacent(current, shape->first_boundary)) { //chunk is adjacent to first and is not last
+    else if(is_adjacent(current, shape->first_boundary)) { //chunk is adjacent to first
         pixelchunk_list* list = create_boundaryitem(current);
         list->next = shape->first_boundary;
         shape->first_boundary = list;
         current_sorted = true;
     }
 
-    else { //shapes boundary on next scanline starts back to front away from first or last boundary chunk
+    else if(shape->path_closed == false) {
         not_adjacent_firstlast(quadrant, shape);
     }
     return current_sorted;
