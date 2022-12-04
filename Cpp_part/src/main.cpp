@@ -67,7 +67,7 @@ void doVectorize(std::string image_path, GUIData& guiData)
 	vectorize_options& options = guiData.options;
 	options.chunk_size = 1;
 	options.file_path = guiData.file_path.c_str();
-	options.thresholds = 3.f;
+	options.thresholds = 5.f;
 	options.step_index = 0;
 	options.num_colours = 255;
 

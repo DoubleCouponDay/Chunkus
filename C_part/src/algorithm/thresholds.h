@@ -1,6 +1,6 @@
 
 #ifndef THRESHOLDS
-    #define DEFAULT_THRESHOLDS 3
+    #define DEFAULT_THRESHOLDS 5
 #endif
 
 float* get_thresholds(int thresholds);
