@@ -39,7 +39,6 @@ typedef struct chunkshape {
     pixel colour;
     struct chunkshape* previous;
     struct chunkshape* next;
-    bool path_closed;
 } chunkshape;
 
 typedef struct chunkmap
