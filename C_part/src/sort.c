@@ -198,17 +198,13 @@ void not_adjacent_firstlast(Quadrant* quadrant, chunkshape* shape, pixelchunk* c
             return;
         }
 
-        else if(highest.chunk == shape->first_chunk->chunk_p) {
-            shape->path_closed = true;
-            LOG_INFO("successfully closed the path");
-            return;
-        }
         pixelchunk_list* list = create_boundaryitem(highest.chunk);
         shape->boundaries->next = list;
         shape->boundaries = list;
         sort_focus = list;
         zip_seam(quadrant, highest.chunk, highest.dissimilar_chunk);
     }
+    shape->path_closed = true;
 }
 
 /// @brief returns whether the current chunk was added to the boundary or not.
