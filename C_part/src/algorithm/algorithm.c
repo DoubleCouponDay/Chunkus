@@ -176,10 +176,14 @@ void merge_shapes(
         larger_chunk = chunk1;
     }
 
+    //not worried about deleting shapes if they have no boundary
+    if(smaller->first_boundary == NULL || larger->first_boundary == NULL) {
+        LOG_INFO("merging shape without boundary items: %dx, %dy", x, y);
+    }
     //connect first and last if they are adjacent
     //ONLY IF the chunks are adjacent and can be easily sorted
     //ELSE DONT MERGE
-    if(smaller->boundaries_length != 0 && (is_adjacent(larger->first_boundary->chunk_p, smaller_chunk) || is_adjacent(larger->boundaries->chunk_p, smaller_chunk))) {
+    else if(smaller->boundaries_length != 0 && (is_adjacent(larger->first_boundary->chunk_p, smaller_chunk) || is_adjacent(larger->boundaries->chunk_p, smaller_chunk))) {
         sort_boundary_chunk(quadrant, larger, smaller->first_boundary->chunk_p);
         getAndResetErrorCode();
         sort_boundary_chunk(quadrant, larger, smaller->boundaries->chunk_p);
@@ -193,10 +197,6 @@ void merge_shapes(
     //replace every smaller chunk's shape
     for (pixelchunk_list* current = smaller->first_chunk; current != NULL; current = current->next) {
         current->chunk_p->shape_chunk_in = larger;
-    }
-
-    if(smaller->first_boundary == NULL || larger->first_boundary == NULL) {
-        LOG_INFO("merging shape without boundary items: %dx, %dy", x, y);
     }
 
     //append the chunk lists
