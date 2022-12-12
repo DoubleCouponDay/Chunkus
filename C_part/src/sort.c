@@ -126,7 +126,7 @@ bool is_adjacent(pixelchunk* current, pixelchunk_list* other) {
     return output;
 }
 
-void not_adjacent_firstlast(Quadrant* quadrant, chunkshape* shape) {
+void not_adjacent_firstlast(Quadrant* quadrant, chunkshape* shape, pixelchunk* current) {
     pixelchunk_list* sort_focus = shape->boundaries;
 
     while(sort_focus != NULL) {
@@ -247,7 +247,7 @@ bool sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* curr
     }
 
     else if(shape->path_closed == false) {
-        not_adjacent_firstlast(quadrant, shape);
+        not_adjacent_firstlast(quadrant, shape, current);
     }
     return current_sorted;
 }

@@ -148,18 +148,17 @@ chunkshape* add_new_shape(chunkmap* map, pixel colour) {
 
 void merge_shapes(
     Quadrant* quadrant,
-    chunkshape* shape1, 
-    chunkshape* shape2,
+    pixelchunk* chunk1, 
+    pixelchunk* chunk2,
     int x, int y) {
-    if(shape1 == NULL || shape2 == NULL) {
+    if(chunk1->shape_chunk_in == NULL || chunk2->shape_chunk_in == NULL) {
         LOG_ERR("%s: null shape passed to merge shapes!", quadrant->name);
         setError(ASSUMPTION_WRONG);
         return;
     }
-
     // Find smallest shape
-    chunkshape* smaller = (shape1->chunks_amount < shape2->chunks_amount ? shape1 : shape2);
-    chunkshape* larger = (smaller == shape1 ? shape2 : shape1);
+    chunkshape* smaller = (chunk1->shape_chunk_in->chunks_amount < chunk2->shape_chunk_in->chunks_amount ? chunk1->shape_chunk_in : chunk2->shape_chunk_in);
+    chunkshape* larger = (smaller == chunk1->shape_chunk_in ? chunk2->shape_chunk_in : chunk1->shape_chunk_in);
 
     // in the smaller shape replace every chunk's shape
     for (pixelchunk_list* current = smaller->first_chunk; current != NULL; current = current->next) {
@@ -272,7 +271,7 @@ void enlarge_shape(
     
     //merge the two shapes
     else if (current->shape_chunk_in != adjacent->shape_chunk_in) {
-        merge_shapes(quadrant, current->shape_chunk_in, adjacent->shape_chunk_in, x, y);
+        merge_shapes(quadrant, current, adjacent, x, y);
     }
     //else, shapes are in the same shape so it should not be enlarged
     if(isBadError()) {
@@ -419,6 +418,10 @@ void fill_quadrant(Quadrant* quadrant) {
         for(int map_x = quadrant->bounds.startingX; map_x < quadrant->bounds.endingX; ++map_x)
         {
             ++count;
+
+            if(count == 53574 && strcmp(quadrant->name, "bottom-right") == 0) {
+                LOG_INFO("breakpoint hit");
+            }
 
             if (tenth_of_map > 0 && count % tenth_of_map == 0)
             {
