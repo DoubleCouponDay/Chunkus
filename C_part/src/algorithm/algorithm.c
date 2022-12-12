@@ -180,13 +180,12 @@ void merge_shapes(
     if(smaller->first_boundary == NULL || larger->first_boundary == NULL) {
         LOG_INFO("merging shape without boundary items: %dx, %dy", x, y);
     }
-    //connect first and last if they are adjacent
-    //ELSE DONT MERGE
+
     else if(smaller->boundaries_length != 0) {
-        sort_boundary_chunk(quadrant, larger, smaller->first_boundary->chunk_p);
-        getAndResetErrorCode();
-        sort_boundary_chunk(quadrant, larger, smaller->boundaries->chunk_p);
-        getAndResetErrorCode();
+        // sort_boundary_chunk(quadrant, larger, smaller->first_boundary->chunk_p);
+        // getAndResetErrorCode();
+        // sort_boundary_chunk(quadrant, larger, smaller->boundaries->chunk_p);
+        // getAndResetErrorCode();
     }
 
     else {
