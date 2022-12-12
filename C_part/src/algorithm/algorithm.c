@@ -441,10 +441,6 @@ void fill_quadrant(Quadrant* quadrant) {
         {
             ++count;
 
-            if(count == 53574 && strcmp(quadrant->name, "bottom-right") == 0) {
-                LOG_INFO("breakpoint hit");
-            }
-
             if (tenth_of_map > 0 && count % tenth_of_map == 0)
             {
                 ++tenth_count;
