@@ -183,7 +183,8 @@ void merge_shapes(
     //connect first and last if they are adjacent
     //ONLY IF the chunks are adjacent and can be easily sorted
     //ELSE DONT MERGE
-    else if(smaller->boundaries_length != 0 && (is_adjacent(larger->first_boundary->chunk_p, smaller_chunk) || is_adjacent(larger->boundaries->chunk_p, smaller_chunk))) {
+    //else if(smaller->boundaries_length != 0 && (is_adjacent(larger->first_boundary->chunk_p, smaller_chunk) || is_adjacent(larger->boundaries->chunk_p, smaller_chunk))) {
+    else if(smaller->boundaries_length != 0) {
         sort_boundary_chunk(quadrant, larger, smaller->first_boundary->chunk_p);
         getAndResetErrorCode();
         sort_boundary_chunk(quadrant, larger, smaller->boundaries->chunk_p);
