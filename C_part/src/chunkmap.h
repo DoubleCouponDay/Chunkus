@@ -62,6 +62,7 @@ vector2 create_vector_between_chunks(pixelchunk* initial, pixelchunk* final);
 float calculate_angle_between(pixelchunk* eligible, pixelchunk* subject, pixelchunk* previous);
 float distance_between(pixelchunk* a, pixelchunk* b);
 pixelchunk_list* create_boundaryitem(pixelchunk* chunk);
+bool is_adjacent(pixelchunk* current, pixelchunk* other);
 
 #ifdef __cplusplus
 };

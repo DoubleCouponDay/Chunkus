@@ -157,10 +157,40 @@ void merge_shapes(
         return;
     }
     // Find smallest shape
-    chunkshape* smaller = (chunk1->shape_chunk_in->chunks_amount < chunk2->shape_chunk_in->chunks_amount ? chunk1->shape_chunk_in : chunk2->shape_chunk_in);
-    chunkshape* larger = (smaller == chunk1->shape_chunk_in ? chunk2->shape_chunk_in : chunk1->shape_chunk_in);
+    chunkshape* smaller;
+    pixelchunk* smaller_chunk;
+    chunkshape* larger;
+    pixelchunk* larger_chunk;
+    
+    if(chunk1->shape_chunk_in->chunks_amount < chunk2->shape_chunk_in->chunks_amount) {
+        smaller = chunk1->shape_chunk_in;
+        smaller_chunk = chunk1;
+        larger = chunk2->shape_chunk_in;
+        larger_chunk = chunk2;
+    }
 
-    // in the smaller shape replace every chunk's shape
+    else {
+        smaller = chunk2->shape_chunk_in;
+        smaller_chunk = chunk2;
+        larger = chunk1->shape_chunk_in;
+        larger_chunk = chunk1;
+    }
+
+    //connect first and last if they are adjacent
+    //ONLY IF the chunks are adjacent and can be easily sorted
+    //ELSE DONT MERGE
+    if(smaller->boundaries_length != 0 && (is_adjacent(larger->first_boundary->chunk_p, smaller_chunk) || is_adjacent(larger->boundaries->chunk_p, smaller_chunk))) {
+        sort_boundary_chunk(quadrant, larger, smaller->first_boundary->chunk_p);
+        getAndResetErrorCode();
+        sort_boundary_chunk(quadrant, larger, smaller->boundaries->chunk_p);
+        getAndResetErrorCode();
+    }
+
+    else {
+        return;
+    }
+
+    //replace every smaller chunk's shape
     for (pixelchunk_list* current = smaller->first_chunk; current != NULL; current = current->next) {
         current->chunk_p->shape_chunk_in = larger;
     }
@@ -173,14 +203,6 @@ void merge_shapes(
     larger->chunks->next = smaller->first_chunk;
     larger->chunks = smaller->chunks;
     larger->chunks_amount += smaller->chunks_amount;
-
-    //connect first and last if they are adjacent
-    if(smaller->boundaries_length != 0) {
-        sort_boundary_chunk(quadrant, larger, smaller->first_boundary->chunk_p);
-        getAndResetErrorCode();
-        sort_boundary_chunk(quadrant, larger, smaller->boundaries->chunk_p);
-        getAndResetErrorCode();
-    }
     
     larger->boundaries_length += smaller->boundaries_length;
 

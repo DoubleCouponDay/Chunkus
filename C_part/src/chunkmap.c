@@ -222,3 +222,14 @@ pixelchunk_list* create_boundaryitem(pixelchunk* chunk) {
     chunk->boundary_chunk_in = new;
     return new;
 }
+
+bool is_adjacent(pixelchunk* current, pixelchunk* other) {
+    int current_x = current->location.x;
+    int current_y = current->location.y;
+    int other_x = other->location.x;
+    int other_y = other->location.y;
+    int compare_x = current_x - other_x;
+    int compare_y = current_y - other_y;
+    bool output = (compare_x == 1 || compare_x == -1) || (compare_y == 1 || compare_y == -1);
+    return output;
+}

@@ -115,17 +115,6 @@ sorting_item is_boundary_chunk(Quadrant* quadrant, pixelchunk* subject) {
     return output;
 }
 
-bool is_adjacent(pixelchunk* current, pixelchunk_list* other) {
-    int current_x = current->location.x;
-    int current_y = current->location.y;
-    int other_x = other->chunk_p->location.x;
-    int other_y = other->chunk_p->location.y;
-    int compare_x = current_x - other_x;
-    int compare_y = current_y - other_y;
-    bool output = (compare_x == 1 || compare_x == -1) || (compare_y == 1 || compare_y == -1);
-    return output;
-}
-
 void not_adjacent_firstlast(Quadrant* quadrant, chunkshape* shape, pixelchunk* current) {
     pixelchunk_list* sort_focus = shape->boundaries;
 
@@ -209,7 +198,7 @@ void not_adjacent_firstlast(Quadrant* quadrant, chunkshape* shape, pixelchunk* c
             return;
         }
 
-        else if(highest.chunk == shape->first_chunk) {
+        else if(highest.chunk == shape->first_chunk->chunk_p) {
             shape->path_closed = true;
             LOG_INFO("successfully closed the path");
             return;
@@ -237,14 +226,14 @@ bool sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* curr
         shape->first_boundary = list;
     }
 
-    else if(is_adjacent(current, shape->boundaries)) { //chunk is adjacent to last
+    else if(is_adjacent(current, shape->boundaries->chunk_p)) { //chunk is adjacent to last
         pixelchunk_list* list = create_boundaryitem(current);
         shape->boundaries->next = list; //also accounts for boundary flipping over at the second boundary item
         shape->boundaries = list;
         current_sorted = true;
     }
 
-    else if(is_adjacent(current, shape->first_boundary)) { //chunk is adjacent to first
+    else if(is_adjacent(current, shape->first_boundary->chunk_p)) { //chunk is adjacent to first
         pixelchunk_list* list = create_boundaryitem(current);
         list->next = shape->first_boundary;
         shape->first_boundary = list;
