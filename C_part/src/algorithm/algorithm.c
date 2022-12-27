@@ -181,7 +181,7 @@ void merge_shapes(
     }
 
     else if(smaller->boundaries_length != 0) {
-        
+        sort_merging_boundary(smaller, larger);
     }
 
     //replace every smaller chunk's shape

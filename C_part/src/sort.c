@@ -247,3 +247,8 @@ bool sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* curr
     //else the chunk is not adjacent with first or last and the boundary is completed
     return current_sorted;
 }
+
+void sort_merging_boundary(chunkshape* smaller, chunkshape* larger) {
+    smaller->boundaries->next = larger->first_boundary;
+    larger->first_boundary = smaller->boundaries;
+}
