@@ -249,6 +249,16 @@ bool sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* curr
 }
 
 void sort_merging_boundary(chunkshape* smaller, chunkshape* larger) {
-    smaller->boundaries->next = larger->first_boundary;
-    larger->first_boundary = smaller->boundaries;
+    pixelchunk* smaller_start = smaller->first_boundary;
+    pixelchunk* larger_start = larger->fiirst_boundary;
+
+    if(smaller_start.location.x <= larger_start.location.x) { //smaller shape is on the left
+        smaller->boundaries->next = larger->first_boundary;
+        larger->first_boundary = smaller->first_boundary;
+    }
+
+    else { //smaller shape is on the right
+        larger->boundaries->next = smaller->first_boundary;
+        smaller->first_boundary = larger->first_boundary;    
+    }
 }
