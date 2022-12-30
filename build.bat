@@ -54,16 +54,8 @@ cmake --install build --prefix install
 echo "Building opencl..."
 cd ../OpenCL-SDK
 git checkout v2022.09.30
-cmake -B build -G "MinGW Makefiles" ^
-    -D BUILD_TESTING=OFF ^
-    -D BUILD_DOCS=OFF ^
-    -D BUILD_EXAMPLES=OFF ^
-    -D BUILD_TESTS=OFF ^
-    -D OPENCL_SDK_BUILD_SAMPLES=ON ^
-    -D OPENCL_SDK_TEST_SAMPLES=OFF
-		  
-cmake --build build -j4
-cmake --install build --prefix install
+cmake -G "Visual Studio 17 2022" -D CMAKE_INSTALL_PREFIX=install -B build -S ./
+cmake --build build --config Release --target install -- /m /v:minimal
 
 echo "building Chunkus..."
 cd ../Chunkus
