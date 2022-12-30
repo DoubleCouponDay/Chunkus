@@ -7,6 +7,7 @@ git clone https://github.com/memononen/nanosvg.git
 git clone https://github.com/FreeGLUTProject/freeglut.git
 git clone https://github.com/sammycage/lunasvg.git
 git clone https://github.com/winlibs/libjpeg.git
+git clone https://github.com/KhronosGroup/OpenCL-SDK.git
 
 echo "Building zlib..."
 cd zlib
@@ -47,6 +48,20 @@ echo "Building libjpg-turbo..."
 cd ../libjpeg
 git checkout libjpeg-turbo-2.1.0
 cmake -B build -G "MinGW Makefiles"
+cmake --build build -j4
+cmake --install build --prefix install
+
+echo "Building opencl..."
+cd ../OpenCL-SDK
+git checkout v2022.09.30
+cmake -B build -G "MinGW Makefiles" ^
+    -D BUILD_TESTING=OFF ^
+    -D BUILD_DOCS=OFF ^
+    -D BUILD_EXAMPLES=OFF ^
+    -D BUILD_TESTS=OFF ^
+    -D OPENCL_SDK_BUILD_SAMPLES=ON ^
+    -D OPENCL_SDK_TEST_SAMPLES=OFF
+		  
 cmake --build build -j4
 cmake --install build --prefix install
 
