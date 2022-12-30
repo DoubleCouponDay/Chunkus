@@ -6,6 +6,7 @@ git clone https://github.com/memononen/nanosvg.git
 git clone https://github.com/FreeGLUTProject/freeglut.git
 git clone https://github.com/sammycage/lunasvg.git
 git clone https://github.com/winlibs/libjpeg.git
+git clone https://github.com/KhronosGroup/OpenCL-SDK.git
 
 echo "Building zlib..."
 cd zlib
@@ -47,6 +48,13 @@ cd ../libjpeg
 git checkout libjpeg-turbo-2.1.0
 cmake -B build -G "Unix Makefiles"
 cmake --build build -j4
+cmake --install build --prefix install
+
+echo "Building opencl..."
+cd ../OpenCL-SDK
+git checkout v2022.09.30
+cmake -G "Unix Makefiles" -D CMAKE_INSTALL_PREFIX=install -B build -S ./
+cmake --build build --config Release --target install -- /m /v:minimal
 cmake --install build --prefix install
 
 echo "building Chunkus..."
