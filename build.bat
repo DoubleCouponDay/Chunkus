@@ -12,43 +12,43 @@ git clone https://github.com/KhronosGroup/OpenCL-SDK.git
 echo "Building zlib..."
 cd zlib
 git checkout v1.2.12
-cmake -B build -G "MinGW Makefiles" -D CMAKE_INSTALL_PREFIX="install"
+cmake -B build -G "Visual Studio 17 2022" -D CMAKE_INSTALL_PREFIX="install"
 cmake --build build -j4
 cmake --install build
 
 echo "Building libpng..."
 cd ../libpng
 git checkout v1.6.35
-cmake -B build -G "MinGW Makefiles" -D ZLIB_ROOT="../zlib/install"
-cmake --build build -j4
+cmake -B build -G "Visual Studio 17 2022" -D ZLIB_ROOT="../zlib/install"
+cmake --build build -j4 --config Release
 cmake --install build --prefix png-install
 
 echo "Building nanosvg..."
 cd ../nanosvg
 git checkout 3bcdf2f3cdc1bf9197c2dce81368bfc6f99205a7
-cmake -B build -G "MinGW Makefiles"
-cmake --build build -j4
+cmake -B build -G "Visual Studio 17 2022"
+cmake --build build -j4 --config Release
 cmake --install build --prefix install
 
 echo "Building freeglut..."
 cd ../freeglut
 git checkout v3.2.2
-cmake -B build -G "MinGW Makefiles"
-cmake --build build -j4
+cmake -B build -G "Visual Studio 17 2022"
+cmake --build build -j4 --config Release
 cmake --install build --prefix install
 
 echo "Building lunasvg..."
 cd ../lunasvg
 git checkout v2.3.1
-cmake -B build -G "MinGW Makefiles" -D CMAKE_INSTALL_PREFIX="install"
-cmake --build build -j4
+cmake -B build -G "Visual Studio 17 2022" -D CMAKE_INSTALL_PREFIX="install"
+cmake --build build -j4 --config Release
 cmake --install build --prefix install
 
-echo "Building libjpg-turbo..."
+echo "Building libjpeg-turbo..."
 cd ../libjpeg
 git checkout libjpeg-turbo-2.1.0
-cmake -B build -G "MinGW Makefiles"
-cmake --build build -j4
+cmake -B build -G "Visual Studio 17 2022"
+cmake --build build -j4 --config Release
 cmake --install build --prefix install
 
 echo "Building opencl..."
