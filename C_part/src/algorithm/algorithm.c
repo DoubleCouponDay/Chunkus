@@ -411,7 +411,7 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
     }
 }
 
-void fill_quadrant(Quadrant* quadrant) {
+void process_layer(Layer* layer) {
     LOG_INFO("Filling quadrant: %s", quadrant->name);
     long count = 0;
     int tenth_count = 0;
@@ -459,7 +459,7 @@ void fill_quadrant(Quadrant* quadrant) {
         }
     }
 
-    if(quadrant->options->threshold != 0) {
+    if(quadrant->options->threshold != 0) { //only draw triangles on the top layer
         return;
     }
     LOG_INFO("%s: making triangles", quadrant->name);

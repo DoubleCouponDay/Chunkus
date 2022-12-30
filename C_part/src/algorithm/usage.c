@@ -72,6 +72,8 @@ void vectorize(image input, vectorize_options options) {
         free_thresholds_array(thresholds);
         return;
     }
+    LayerOperation operations[options.thresholds] = {};
+    int threadIndex = 0;
 
     for(int i = options.thresholds - 1; i >= 0; --i) { //put larger shapes at the top so that they appear underneath
         options.threshold = thresholds[i];
@@ -88,67 +90,16 @@ void vectorize(image input, vectorize_options options) {
             return;
         }
 
-        int middle_width = (int)floor((float)map->map_width / (float)2); //int divisions return 0 by default. use float division
-        int middle_height = (int)floor((float)map->map_height / (float)2);
-
-        LOG_INFO("creating quadrants");
-        Quadrant quadrant1 = {"top-left", map, &options, POSITIVE, POSITIVE};
-        quadrant1.bounds.startingX = 0;
-        quadrant1.bounds.startingY = 0;
-        quadrant1.bounds.endingX = middle_width;
-        quadrant1.bounds.endingY = middle_height;
-
+        LOG_INFO("creating map");
         chunkmap* map2 = generate_chunkmap(map->input, options);
-        Quadrant quadrant2 = {"top-right", map2, &options, NEGATIVE, POSITIVE};
-        quadrant2.bounds.startingX = middle_width;
-        quadrant2.bounds.startingY = 0;
-        quadrant2.bounds.endingX = map->map_width;
-        quadrant2.bounds.endingY = middle_height; 
-
-        chunkmap* map3 = generate_chunkmap(map->input, options);
-        Quadrant quadrant3 = {"bottom-left", map3, &options, POSITIVE, NEGATIVE};
-        quadrant3.bounds.startingX = 0;
-        quadrant3.bounds.startingY = middle_height;
-        quadrant3.bounds.endingX = middle_width;
-        quadrant3.bounds.endingY = map->map_height;
-
-        chunkmap* map4 = generate_chunkmap(map->input, options);
-        Quadrant quadrant4 = {"bottom-right", map4, &options, NEGATIVE, NEGATIVE};
-        quadrant4.bounds.startingX = middle_width;
-        quadrant4.bounds.startingY = middle_height;
-        quadrant4.bounds.endingX = map->map_width;
-        quadrant4.bounds.endingY = map->map_height;
-
-        LOG_INFO("creating threads");
-        pthread_t thread1;
-        pthread_t thread2;
-        pthread_t thread3;
-        pthread_t thread4;
+        Layer quadrant2 = {options.thresold, map2, &options};
+        LOG_INFO("creating thread");
+        pthread_t currentThread;
+        threads[threadIndex] = currentThread;
         LOG_INFO("filling chunkmap");
-        
-        pthread_create(&thread1, NULL, process_in_thread, &quadrant1);
-        pthread_create(&thread2, NULL, process_in_thread, &quadrant2);
-        pthread_create(&thread3, NULL, process_in_thread, &quadrant3);
-        pthread_create(&thread4, NULL, process_in_thread, &quadrant4);
-        LOG_INFO("waiting for thread1");
-        pthread_join(thread1, NULL);
-        LOG_INFO("waiting for thread2");
-        pthread_join(thread2, NULL);
-        LOG_INFO("waiting for thread3");
-        pthread_join(thread3, NULL);
-        LOG_INFO("waiting for thread4");
-        pthread_join(thread4, NULL);
+        pthread_create(&currentThread, NULL, process_in_thread, &quadrant1);
+        LOG_INFO("waiting for threads");
 
-        int code = getLastError();
-
-        if (isBadError())
-        {
-            LOG_ERR("a thread encountered an error.");
-            finish_svg_file(output);
-            free_chunkmap(map);
-            free_thresholds_array(thresholds);
-            return;
-        }
         
         map3->shape_list->next = map4->first_shape;
         map4->first_shape->previous = map3->shape_list;
@@ -174,12 +125,23 @@ void vectorize(image input, vectorize_options options) {
             return;
         }
         free_chunkmap(map);
-        map2->shape_list = NULL;
-        map3->shape_list = NULL;
-        map4->shape_list = NULL;
-        free_chunkmap(map2);
-        free_chunkmap(map3);
-        free_chunkmap(map4);
+        map2->shape_list = NULL;    
+    }
+
+    int code = getLastError();
+
+    if (isBadError())
+    {
+        LOG_ERR("a thread encountered an error.");
+        finish_svg_file(output);
+        free_chunkmap(map);
+        free_thresholds_array(thresholds);
+        return;
+    }
+
+    for(int i = 0; i < options.thresholds; ++i) {
+        pthread_t current = threads[i];
+        pthread_join(current, NULL);
     }
     finish_svg_file(output);
     free_thresholds_array(thresholds);
