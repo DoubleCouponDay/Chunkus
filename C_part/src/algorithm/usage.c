@@ -102,8 +102,6 @@ void vectorize(image input, vectorize_options options) {
         LOG_INFO("filling chunkmap");
         pthread_create(&currentThread, NULL, process_in_thread, &quadrant1);
 
-        write_svg_file(output, map, options);
-
         if(isBadError()) {
             LOG_ERR("write_svg_file failed with code: %d", getLastError());
             finish_svg_file(output);
@@ -111,8 +109,6 @@ void vectorize(image input, vectorize_options options) {
             free_thresholds_array(thresholds);
             return;
         }
-        free_chunkmap(map);
-        map2->shape_list = NULL;
     }
 
     int code = getLastError();
@@ -130,7 +126,6 @@ void vectorize(image input, vectorize_options options) {
         LayerOperation current = operations[i];
         pthread_join(current->thread, NULL);
         windback_lists(current.layer->map);
-
         write_svg_file(output, map, options);
 
         if(isBadError()) {
