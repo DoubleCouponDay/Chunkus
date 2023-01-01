@@ -124,7 +124,7 @@ void vectorize(image input, vectorize_options options) {
 
     for(int i = 0; i < options.thresholds; ++i) {
         LayerOperation current = operations[i];
-        pthread_join(current->thread, NULL);
+        pthread_join(current.thread, NULL);
         windback_lists(current.layer->map);
         write_svg_file(output, map, options);
 
@@ -135,8 +135,8 @@ void vectorize(image input, vectorize_options options) {
             free_thresholds_array(thresholds);
             return;
         }
-        free_chunkmap(current->layer->map);
-        current->layer->map->shape_list = NULL;
+        free_chunkmap(current.layer->map);
+        current.layer->map->shape_list = NULL;
     }
 
     finish_svg_file(output);
