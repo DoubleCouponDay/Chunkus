@@ -26,10 +26,10 @@ void prepare_list(pixelchunk* chunk) {
     }
 }
 
-pixelchunk* get_at(Quadrant* quad, int x, int y)
+pixelchunk* get_at(Layer* layer, int x, int y)
 {
-    if (x < quad->bounds.startingX || x >= quad->bounds.endingX ||
-        y < quad->bounds.startingY || y >= quad->bounds.endingY)
+    if (x < 0 || x >= layer->map->map_width ||
+        y < 0 || y >= layer->map->map_height)
     {
         return NULL;
     }
@@ -40,7 +40,7 @@ pixelchunk* get_at(Quadrant* quad, int x, int y)
 /// @param quadrant 
 /// @param subject 
 /// @return 
-sorting_item is_boundary_chunk(Quadrant* quadrant, pixelchunk* subject) {
+sorting_item is_boundary_chunk(Layer* quadrant, pixelchunk* subject) {
     sorting_item output = {subject, NULL, 0, false};
 
     if(subject == NULL)
@@ -115,7 +115,7 @@ sorting_item is_boundary_chunk(Quadrant* quadrant, pixelchunk* subject) {
     return output;
 }
 
-bool not_adjacent_firstlast(Quadrant* quadrant, chunkshape* shape, pixelchunk* current) {
+bool pathfind_shape(Layer* layer, chunkshape* shape, pixelchunk* current) {
     bool used_current = false;
     pixelchunk_list* sort_focus = shape->boundaries;
 
@@ -210,55 +210,4 @@ bool not_adjacent_firstlast(Quadrant* quadrant, chunkshape* shape, pixelchunk* c
     }
     shape->path_closed = true;
     return used_current;
-}
-
-/// @brief returns whether the current chunk was added to the boundary or not.
-/// Assume current->shape_chunk_in is NULL
-/// @param quadrant 
-/// @param shape 
-/// @param current 
-bool sort_boundary_chunk(Quadrant* quadrant, chunkshape* shape, pixelchunk* current) {
-    bool current_sorted = false;
-
-    if(shape->boundaries == NULL) { //dont sort if first chunk
-        current_sorted = true;
-        pixelchunk_list* list = create_boundaryitem(current);
-        shape->boundaries = list;
-        shape->first_boundary = list;
-    }
-
-    else if(is_adjacent(current, shape->boundaries->chunk_p)) { //chunk is adjacent to last
-        pixelchunk_list* list = create_boundaryitem(current);
-        shape->boundaries->next = list; //also accounts for boundary flipping over at the second boundary item
-        shape->boundaries = list;
-        current_sorted = true;
-    }
-
-    else if(is_adjacent(current, shape->first_boundary->chunk_p)) { //chunk is adjacent to first
-        pixelchunk_list* list = create_boundaryitem(current);
-        list->next = shape->first_boundary;
-        shape->first_boundary = list;
-        current_sorted = true;
-    }
-
-    else if(shape->path_closed == false) {
-        current_sorted = not_adjacent_firstlast(quadrant, shape, current);
-    }
-    //else the chunk is not adjacent with first or last and the boundary is completed
-    return current_sorted;
-}
-
-void sort_merging_boundary(chunkshape* smaller, chunkshape* larger) {
-    pixelchunk* smaller_start = smaller->first_boundary->chunk_p;
-    pixelchunk* larger_start = larger->first_boundary->chunk_p;
-
-    if(smaller_start->location.x <= larger_start->location.x) { //smaller shape is on the left
-        smaller->boundaries->next = larger->first_boundary;
-        larger->first_boundary = smaller->first_boundary;
-    }
-
-    else { //smaller shape is on the right
-        larger->boundaries->next = smaller->first_boundary;
-        smaller->first_boundary = larger->first_boundary;    
-    }
 }

@@ -29,18 +29,7 @@ float get_border_zip_offset(float dimension) {
     return 0.f;
 }
 
-float get_quadrant_zip_offset(int seam) {
-    return (float)seam * ZIP_DISTANCE * 2;
-}
-
-void zip_quadrant(Quadrant* quadrant, pixelchunk* chunk_to_zip) {
-    float offset_x = get_quadrant_zip_offset(quadrant->X_seam);
-    float offset_y = get_quadrant_zip_offset(quadrant->Y_seam);
-    chunk_to_zip->border_location.x = chunk_to_zip->border_location.x + offset_x;
-    chunk_to_zip->border_location.y = chunk_to_zip->border_location.y + offset_y;
-}
-
-void zip_seam(Quadrant* quadrant, pixelchunk* chunk_to_zip, pixelchunk* adjacent) {
+void zip_seam(pixelchunk* chunk_to_zip, pixelchunk* adjacent) {
     if(adjacent != NULL) { //chunk could be on the edge of the image
         vector2 diff = create_vector_between_chunks(chunk_to_zip, adjacent);
         float offset_x = get_border_zip_offset(diff.x);
@@ -48,46 +37,16 @@ void zip_seam(Quadrant* quadrant, pixelchunk* chunk_to_zip, pixelchunk* adjacent
         chunk_to_zip->border_location.x = chunk_to_zip->border_location.x + offset_x;
         chunk_to_zip->border_location.y = chunk_to_zip->border_location.y + offset_y;
     }
-    zip_quadrant(quadrant, chunk_to_zip);
-}
-
-void add_chunk_to_shape(chunkmap* map, chunkshape* shape, pixelchunk* chunk) {
-    if(shape == NULL || chunk == NULL) {
-        LOG_ERR("add_chunk_to_shape given null pointer!");
-        setError(ASSUMPTION_WRONG);
-        return;
-    }
-
-    else if(chunk->shape_chunk_in != NULL || shape == chunk->shape_chunk_in) {
-        return;
-    }
-    pixelchunk_list* new = calloc(1, sizeof(pixelchunk_list));
-    new->chunk_p = chunk;
-    new->next = NULL;
-     
-    if(shape->chunks == NULL) {
-        shape->chunks = new;
-        shape->first_chunk = new;
-    }
-
-    else {
-        shape->chunks->next = new;
-        shape->chunks = new;
-    }
-    chunk->shape_chunk_in = shape;
-    ++shape->chunks_amount;
-    shape->chunks = new;
 }
 
 /// @brief returns whether the current chunk was added to the boundary or not
-/// @param quadrant 
+/// @param layer 
 /// @param shape 
 /// @param chunk 
 /// @param allow_multiple_shapes 
 /// @return 
-bool add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* chunk, bool allow_multiple_shapes) {
+bool add_chunk_to_boundary(Layer* layer, chunkshape* shape, pixelchunk* chunk, bool allow_multiple_shapes) {
     bool current_sorted = false;
-
     if(shape == NULL || chunk == NULL) { //sanity check
         LOG_ERR("add_chunk_to_boundary given null pointer!");
         setError(ASSUMPTION_WRONG);
@@ -97,214 +56,34 @@ bool add_chunk_to_boundary(Quadrant* quadrant, chunkshape* shape, pixelchunk* ch
     else if(chunk->boundary_chunk_in != NULL && allow_multiple_shapes == false) { //chunk already in boundary or in another shapes boundaries
         return current_sorted;
     }
-
     if(shape->boundaries == NULL) {
         pixelchunk_list* new = create_boundaryitem(chunk);
         shape->first_boundary = new;
         shape->boundaries = new;
     }
-
-    else {
-        current_sorted = sort_boundary_chunk(quadrant, shape, chunk); //dont allocate a boundary list item until circumstances are clear
-    }
+    
     ++shape->boundaries_length;
-
     if(isBadError()) {
-        LOG_ERR("%s: sort_boundary_chunk failed with code: %d", quadrant->name, getLastError());
+        LOG_ERR("layer: %d, sort_boundary_chunk failed with code: %d", layer->layer_index, getLastError());
         return current_sorted;
     }
     chunk->shape_chunk_in = NULL; //just paranoid that add_chunk_to_shape will fail
-    add_chunk_to_shape(quadrant->map, shape, chunk); //boundaries are part of the shape too
     return current_sorted;
 }
 
-chunkshape* add_new_shape(chunkmap* map, pixel colour) {
-    chunkshape* new = calloc(1, sizeof(chunkshape));
-
-    if (!new) {
-        LOG_ERR("allocation failed");        
-        setError(ASSUMPTION_WRONG);
-        return NULL;
-    } 
-
-    new->previous = map->shape_list;
-    new->next = NULL;
-    new->chunks = NULL;
-    new->boundaries = NULL;
-    new->boundaries_length = 0;
-    new->chunks_amount = 0;
-
-    if(map->shape_list != NULL) 
-        map->shape_list->next = new; //links to the previous last item
-    else
-        map->first_shape = new; //if there was no previous item, this is the first item
-        
-    map->shape_list = new; //sets the linked list to last item
-
-    new->colour = colour;
-    ++map->shape_count;
-    return new;
-}
-
-void merge_shapes(
-    Quadrant* quadrant,
-    pixelchunk* chunk1, 
-    pixelchunk* chunk2,
-    int x, int y) {
-    if(chunk1->shape_chunk_in == NULL || chunk2->shape_chunk_in == NULL) {
-        LOG_ERR("%s: null shape passed to merge shapes!", quadrant->name);
-        setError(ASSUMPTION_WRONG);
-        return;
-    }
-    // Find smallest shape
-    chunkshape* smaller;
-    pixelchunk* smaller_chunk;
-    chunkshape* larger;
-    pixelchunk* larger_chunk;
-    
-    if(chunk1->shape_chunk_in->chunks_amount < chunk2->shape_chunk_in->chunks_amount) {
-        smaller = chunk1->shape_chunk_in;
-        smaller_chunk = chunk1;
-        larger = chunk2->shape_chunk_in;
-        larger_chunk = chunk2;
-    }
-
-    else {
-        smaller = chunk2->shape_chunk_in;
-        smaller_chunk = chunk2;
-        larger = chunk1->shape_chunk_in;
-        larger_chunk = chunk1;
-    }
-
-    if(smaller->first_boundary == NULL || larger->first_boundary == NULL) {
-        LOG_INFO("merging shape without boundary items: %dx, %dy", x, y);
-    }
-
-    else if(smaller->boundaries_length != 0) {
-        sort_merging_boundary(smaller, larger);
-    }
-
-    //replace every smaller chunk's shape
-    for (pixelchunk_list* current = smaller->first_chunk; current != NULL; current = current->next) {
-        current->chunk_p->shape_chunk_in = larger;
-    }
-
-    //append the chunk lists
-    larger->chunks->next = smaller->first_chunk;
-    larger->chunks = smaller->chunks;
-    larger->chunks_amount += smaller->chunks_amount;
-    
-    larger->boundaries_length += smaller->boundaries_length;
-
-    //get rid of smaller shape by cutting it out of the linked list
-    if (smaller->previous) {
-        smaller->previous->next = smaller->next;
-    }
-
-    if(smaller->next) {
-        smaller->next->previous = smaller->previous;
-    }
-
-    if(quadrant->map->first_shape == smaller) { //smaller is first item
-        quadrant->map->first_shape = quadrant->map->first_shape->next;
-    }
-    if (quadrant->map->shape_list == smaller) { //smaller is last item
-        quadrant->map->shape_list = quadrant->map->shape_list->previous;
-    }
-
-    smaller->chunks = 0;
-    smaller->boundaries = 0;
-    smaller->chunks_amount = -1;
-    smaller->boundaries_length = -1;
-    free(smaller);
-
-    --quadrant->map->shape_count;
-}
-
-void enlarge_border(
-    Quadrant* quadrant,
-    pixelchunk* chunk_to_add,
-    pixelchunk* adjacent) {
-    chunkshape* chosenshape;
-
-    if(chunk_to_add->boundary_chunk_in != NULL) { //chunk is already in a boundary but
-        return; 
-    }
-
-    if(quadrant->map->shape_list == NULL || chunk_to_add->shape_chunk_in == NULL) { //make first shape
-        chosenshape = add_new_shape(quadrant->map, chunk_to_add->average_colour);
-    }
-
-    else { //use chunks shape
-        chosenshape = chunk_to_add->shape_chunk_in;
-    }
-    
-    bool current_sorted = add_chunk_to_boundary(quadrant, chosenshape, chunk_to_add, false); //add to boundary
-
-    if(isBadError()) {
-        LOG_ERR("%s: add_chunk_to_boundary failed with code: %d", quadrant->name, getLastError());
-        return;
-    }
-
-    if(current_sorted == false) //dont zip if current not sorted
-        return;
-
-    zip_seam(quadrant, chunk_to_add, adjacent);
-}
-
-void enlarge_shape(
-    Quadrant* quadrant,
-    pixelchunk* current,
-    pixelchunk* adjacent,
-    int x, int y) {
-    chunkshape* chosenshape;
-
-    //both chunks go in fresh shape
-    if(current->shape_chunk_in == NULL && adjacent->shape_chunk_in == NULL) {
-        chosenshape = add_new_shape(quadrant->map, current->average_colour);
-        add_chunk_to_shape(quadrant->map, chosenshape, current);
-        add_chunk_to_shape(quadrant->map, chosenshape, adjacent);
-        chosenshape->colour = current->average_colour;
-    }
-
-    //adjacent goes in currents shape
-    else if (current->shape_chunk_in && adjacent->shape_chunk_in == NULL)
-    {
-        chosenshape = current->shape_chunk_in;
-        add_chunk_to_shape(quadrant->map, chosenshape, adjacent);
-    }
-
-    //current goes in adjacents shape
-    else if(current->shape_chunk_in == NULL && adjacent->shape_chunk_in)
-    {
-        chosenshape = adjacent->shape_chunk_in;
-        add_chunk_to_shape(quadrant->map, chosenshape, current);
-    }
-    
-    //merge the two shapes
-    else if (current->shape_chunk_in != adjacent->shape_chunk_in) {
-        merge_shapes(quadrant, current, adjacent, x, y);
-    }
-    //else, shapes are in the same shape so it should not be enlarged
-    if(isBadError()) {
-        LOG_ERR("%s: enlarge_shape failed with code: %d", quadrant->name, getLastError());
-        return;
-    }
-}
 
 void find_shapes(
-    Quadrant* quadrant, 
+    Layer* layer, 
     pixelchunk* current,
     int map_x, int map_y, 
     float threshold) {
 
-    if(map_x == quadrant->bounds.startingX || map_x == (quadrant->bounds.endingX - 1) ||
-        map_y == quadrant->bounds.startingY || map_y == (quadrant->bounds.endingY - 1)) 
+    if(map_x == 0 || map_x == (layer->map->map_width - 1) ||
+        map_y == 0 || map_y == (layer->map->map_height - 1)) 
     {
-        enlarge_border(quadrant, current, NULL); //add pixel on the edge of the image to a border
 
         if(isBadError()) {
-            LOG_ERR("%s: enlarge_border failed with code: %d", quadrant->name, getLastError());
+            LOG_ERR("layer: %d, enlarge_border failed with code: %d", layer->layer_index, getLastError());
             return;
         }
     }
@@ -320,30 +99,28 @@ void find_shapes(
             int adjacent_index_y = map_y + adjacent_y;
 
             //prevent out of bounds index
-            if (adjacent_index_x < quadrant->bounds.startingX || 
-                adjacent_index_y < quadrant->bounds.startingY ||
-                adjacent_index_x >= quadrant->bounds.endingX ||  
-                adjacent_index_y >= quadrant->bounds.endingY)
+            if (adjacent_index_x < 0 || 
+                adjacent_index_y < 0 ||
+                adjacent_index_x >= layer->map->map_width ||  
+                adjacent_index_y >= layer->map->map_height)
                 continue;
 
-            pixelchunk* adjacent = &(quadrant->map->groups_array_2d[adjacent_index_x][adjacent_index_y]);
+            pixelchunk* adjacent = &(layer->map->groups_array_2d[adjacent_index_x][adjacent_index_y]);
 
             //make a shape out of two adjacent chunks
             if (colours_are_similar(current->average_colour, adjacent->average_colour, threshold)) {
-                enlarge_shape(quadrant, current, adjacent, map_x, map_y);
 
                 if(isBadError()) {
-                    LOG_ERR("%s: enlarge_shape failed with code: %d", quadrant->name, getLastError());
+                    LOG_ERR("layer: %d, enlarge_shape failed with code: %d", layer->layer_index, getLastError());
                     return;
                 }
             }
 
             //define a boundary between two chunks
             else {
-                enlarge_border(quadrant, current, adjacent);
                 
                 if(isBadError()) {
-                    LOG_ERR("%s: enlarge_border failed with code: %d", quadrant->name, getLastError());
+                    LOG_ERR("layer: %d, enlarge_border failed with code: %d", layer->layer_index, getLastError());
                     return;
                 }
             }
@@ -359,12 +136,12 @@ void make_triangle(Layer* layer, pixelchunk* currentchunk_p) {
     int right_location_y = currentchunk_p->location.y;
 
     pixelchunk* top_vertex = &(layer->map->groups_array_2d[top_location_x][top_location_y]);
-    pixelchunk* right_vertex = &(quadrant->map->groups_array_2d[right_location_x][right_location_y]);
+    pixelchunk* right_vertex = &(layer->map->groups_array_2d[right_location_x][right_location_y]);
 
     if(currentchunk_p->shape_chunk_in == NULL) { //sanity check isolated chunk
-        chunkshape* new_shape = add_new_shape(quadrant->map, currentchunk_p->average_colour);
-        quadrant->map->shape_list = new_shape;
-        add_chunk_to_boundary(quadrant, new_shape, currentchunk_p, true);
+        chunkshape* new_shape = add_new_shape(layer->map, currentchunk_p->average_colour);
+        layer->map->shape_list = new_shape;
+
     }
 
     else if(currentchunk_p->shape_chunk_in->boundaries_length != 1 &&
@@ -375,27 +152,26 @@ void make_triangle(Layer* layer, pixelchunk* currentchunk_p) {
     }
 
     else if(currentchunk_p->boundary_chunk_in == NULL) {
-        add_chunk_to_boundary(quadrant, currentchunk_p->shape_chunk_in, currentchunk_p, true);
+        add_chunk_to_boundary(layer, currentchunk_p->shape_chunk_in, currentchunk_p, true);
     }
     chunkshape* triangle = currentchunk_p->shape_chunk_in;
 
     if(top_vertex->shape_chunk_in == NULL) {
         top_vertex->shape_chunk_in = triangle;
-        add_chunk_to_boundary(quadrant, triangle, top_vertex, true);
+        add_chunk_to_boundary(layer, triangle, top_vertex, true);
     }
 
     else {
-        add_chunk_to_boundary(quadrant, triangle, top_vertex, true);
+        add_chunk_to_boundary(layer, triangle, top_vertex, true);
     }
-    
 
     if(right_vertex->shape_chunk_in == NULL) {
         right_vertex->shape_chunk_in = triangle;
-        add_chunk_to_boundary(quadrant, triangle, right_vertex, true);
+        add_chunk_to_boundary(layer, triangle, right_vertex, true);
     }
 
     else {
-        add_chunk_to_boundary(quadrant, triangle, right_vertex, true);
+        add_chunk_to_boundary(layer, triangle, right_vertex, true);
     }
     
     if(isBadError()) {
