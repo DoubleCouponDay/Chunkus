@@ -73,9 +73,9 @@ void vectorize(image input, vectorize_options options) {
         return;
     }
     LayerOperation operations[options.thresholds] = {};
-    int threadIndex = 0;
+    int index = 0;
 
-    for(int i = options.thresholds - 1; i >= 0; --i) { //put larger shapes at the top so that they appear underneath
+    for(int i = options.thresholds - 1; i >= 0; --i) { //put larger shapes first so that they appear underneath
         options.threshold = thresholds[i];
         
         LOG_INFO("generating chunkmap");
@@ -91,30 +91,17 @@ void vectorize(image input, vectorize_options options) {
         }
 
         LOG_INFO("creating map");
-        chunkmap* map2 = generate_chunkmap(map->input, options);
-        Layer quadrant2 = {options.thresold, map2, &options};
+        chunkmap* mapCopy = generate_chunkmap(map->input, options);
+        Layer layer = {options.thresold, mapCopy, &options};
         LOG_INFO("creating thread");
         pthread_t currentThread;
-        threads[threadIndex] = currentThread;
+        
+        operations[index] = {
+            currentThread, layer
+        };
         LOG_INFO("filling chunkmap");
         pthread_create(&currentThread, NULL, process_in_thread, &quadrant1);
-        LOG_INFO("waiting for threads");
 
-        
-        map3->shape_list->next = map4->first_shape;
-        map4->first_shape->previous = map3->shape_list;
-        map3->shape_count += map4->shape_count;
-
-        map2->shape_list->next = map3->first_shape;
-        map3->first_shape->previous = map2->shape_list;
-        map2->shape_count += map3->shape_count;
-
-        map->shape_list->next = map2->first_shape;
-        map2->first_shape->previous = map->shape_list;
-        map->shape_count += map2->shape_count;
-
-        windback_lists(map);
-        
         write_svg_file(output, map, options);
 
         if(isBadError()) {
@@ -125,7 +112,7 @@ void vectorize(image input, vectorize_options options) {
             return;
         }
         free_chunkmap(map);
-        map2->shape_list = NULL;    
+        map2->shape_list = NULL;
     }
 
     int code = getLastError();
@@ -140,9 +127,23 @@ void vectorize(image input, vectorize_options options) {
     }
 
     for(int i = 0; i < options.thresholds; ++i) {
-        pthread_t current = threads[i];
-        pthread_join(current, NULL);
+        LayerOperation current = operations[i];
+        pthread_join(current->thread, NULL);
+        windback_lists(current.layer->map);
+
+        write_svg_file(output, map, options);
+
+        if(isBadError()) {
+            LOG_ERR("write_svg_file failed with code: %d", getLastError());
+            finish_svg_file(output);
+            free_chunkmap(map);
+            free_thresholds_array(thresholds);
+            return;
+        }
+        free_chunkmap(current->layer->map);
+        current->layer->map->shape_list = NULL;
     }
+
     finish_svg_file(output);
     free_thresholds_array(thresholds);
     LOG_INFO("vectorization complete");
