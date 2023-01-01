@@ -351,21 +351,14 @@ void find_shapes(
     }
 }
 
-void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {  
+void make_triangle(Layer* layer, pixelchunk* currentchunk_p) {  
     int top_location_x = currentchunk_p->location.x;
     int top_location_y = currentchunk_p->location.y + 1;
 
     int right_location_x = currentchunk_p->location.x + 1;
     int right_location_y = currentchunk_p->location.y;
 
-    if(top_location_x < quadrant->bounds.startingX || top_location_x >= quadrant->bounds.endingX || 
-        top_location_y < quadrant->bounds.startingY || top_location_y >= quadrant->bounds.endingY ||
-        right_location_x < quadrant->bounds.startingX || right_location_x >= quadrant->bounds.endingX ||
-        right_location_y < quadrant->bounds.startingY || right_location_y >= quadrant->bounds.endingY) 
-    {
-        return;
-    }
-    pixelchunk* top_vertex = &(quadrant->map->groups_array_2d[top_location_x][top_location_y]);
+    pixelchunk* top_vertex = &(layer->map->groups_array_2d[top_location_x][top_location_y]);
     pixelchunk* right_vertex = &(quadrant->map->groups_array_2d[right_location_x][right_location_y]);
 
     if(currentchunk_p->shape_chunk_in == NULL) { //sanity check isolated chunk
