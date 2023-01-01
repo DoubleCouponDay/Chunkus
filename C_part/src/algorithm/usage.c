@@ -33,8 +33,8 @@ void windback_lists(chunkmap* map) {
 }
 
 void* process_in_thread(void* arg) {
-    Quadrant* quadrant = (Quadrant*)arg;
-    fill_quadrant(quadrant);
+    Layer* layer = (Layer*)arg;
+    process_layer(layer);
     
     if (isBadError())
     {
@@ -100,7 +100,7 @@ void vectorize(image input, vectorize_options options) {
             currentThread, layer
         };
         LOG_INFO("filling chunkmap");
-        pthread_create(&currentThread, NULL, process_in_thread, &quadrant1);
+        pthread_create(&currentThread, NULL, process_in_thread, &layer);
 
         if(isBadError()) {
             LOG_ERR("write_svg_file failed with code: %d", getLastError());

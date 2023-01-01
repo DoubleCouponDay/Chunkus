@@ -412,76 +412,68 @@ void make_triangle(Quadrant* quadrant, pixelchunk* currentchunk_p) {
 }
 
 void process_layer(Layer* layer) {
-    LOG_INFO("Filling quadrant: %s", quadrant->name);
+    LOG_INFO("Filling layer: %d", layer->layer_index);
     long count = 0;
     int tenth_count = 0;
-    int tenth_of_map = (int)floor(quadrant->map->map_width * quadrant->map->map_height / 10.f);
-
-    // check if quadrant is actually big enough
-    if (quadrant->bounds.endingX - quadrant->bounds.startingX <= 1 || quadrant->bounds.endingY - quadrant->bounds.startingY <= 1)
-    {
-        LOG_ERR("quadrant '%s' is not big enough!", quadrant->name);
-        setError(ASSUMPTION_WRONG);
-        return;
-    }
+    int tenth_of_map = (int)floor(layer->map->map_width * layer->map->map_height / 10.f);
     
-    for(int map_y = quadrant->bounds.startingY; map_y < quadrant->bounds.endingY; ++map_y)
+    for(int map_y = 0; map_y < layer->map.map_height; ++map_y)
     {
-        for(int map_x = quadrant->bounds.startingX; map_x < quadrant->bounds.endingX; ++map_x)
+        for(int map_x = 0; map_x < layer->bounds.map_width; ++map_x)
         {
             ++count;
 
             if (tenth_of_map > 0 && count % tenth_of_map == 0)
             {
                 ++tenth_count;
-                LOG_INFO("%s progress: %d0%%", quadrant->name, tenth_count);
+                LOG_INFO("layer: %d progress: %d0%%", layer->layer_index, tenth_count);
             }
-            pixelchunk* currentchunk_p = &(quadrant->map->groups_array_2d[map_x][map_y]);
+            pixelchunk* currentchunk_p = &(layer->map->groups_array_2d[map_x][map_y]);
 
             find_shapes(
-                quadrant,
+                layer,
                 currentchunk_p,
                 map_x, map_y,
-                quadrant->options->threshold);
+                layer->options->threshold);
 
             int code = getLastError();
 
             if (isBadError())
             {
-                LOG_ERR("%s find_shapes failed with code: %d", quadrant->name, code);
+                LOG_ERR("layer: %d, find_shapes failed with code: %d", layer->layer_index, code);
                 return;
             }
 
-            else if(quadrant->options->step_index > 0 && count >= quadrant->options->step_index) {
-                LOG_INFO("%s: step_index reached: %d\n", quadrant->name, count);
+            else if(layer->options->step_index > 0 && count >= layer->options->step_index) {
+                LOG_INFO("layer: %d, step_index reached: %d\n", layer->layer_index, count);
                 return;
             }
         }
     }
 
-    if(quadrant->options->threshold != 0) { //only draw triangles on the top layer
+    if(layer->options->threshold != 0) { //only draw triangles on the top layer
         return;
     }
-    LOG_INFO("%s: making triangles", quadrant->name);
+    LOG_INFO("layer: %d, making triangles", layer->layer_index);
 
-    for(int map_y = quadrant->bounds.startingY; map_y < quadrant->bounds.endingY; ++map_y)
+    for(int map_y = 0; map_y < layer->map.map_height; ++map_y)
     {
-        for(int map_x = quadrant->bounds.startingX; map_x < quadrant->bounds.endingX; ++map_x)
+        for(int map_x = 0; map_x < layer->bounds.map_width; ++map_x)
         {
             ++count;
-            pixelchunk* currentchunk_p = &(quadrant->map->groups_array_2d[map_x][map_y]);
-            make_triangle(quadrant, currentchunk_p);
+            pixelchunk* currentchunk_p = &(layer->map->groups_array_2d[map_x][map_y]);
+            make_triangle(layer, currentchunk_p);
 
             int code = getLastError();
 
             if (isBadError())
             {
-                LOG_ERR("%s find_shapes failed with code: %d", quadrant->name, code);
+                LOG_ERR("layer: %d, find_shapes failed with code: %d", layer->layer_index, code);
                 return;
             }
 
-            else if(quadrant->options->step_index > 0 && count >= quadrant->options->step_index) {
-                LOG_INFO("%s: step_index reached: %d\n", quadrant->name, count);
+            else if(layer->options->step_index > 0 && count >= layer->options->step_index) {
+                LOG_INFO("layer: %d, step_index reached: %d\n", layer->layer_index, count);
                 return;
             }
         }

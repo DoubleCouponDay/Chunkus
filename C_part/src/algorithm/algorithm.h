@@ -5,7 +5,7 @@
 #include "../image.h"
 
 typedef struct Layer {
-    int layerIndex;
+    int layer_index;
     chunkmap* map;
     vectorize_options* options;
 } Layer;
