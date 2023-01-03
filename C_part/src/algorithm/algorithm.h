@@ -10,4 +10,5 @@ typedef struct Layer {
     vectorize_options* options;
 } Layer;
 
+void zip_seam(pixelchunk* chunk_to_zip, pixelchunk* adjacent);
 void process_layer(Layer* layer);
