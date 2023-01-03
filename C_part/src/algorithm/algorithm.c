@@ -137,15 +137,9 @@ void make_triangle(Layer* layer, pixelchunk* currentchunk_p) {
 
     pixelchunk* top_vertex = &(layer->map->groups_array_2d[top_location_x][top_location_y]);
     pixelchunk* right_vertex = &(layer->map->groups_array_2d[right_location_x][right_location_y]);
-
-    if(currentchunk_p->shape_chunk_in == NULL) { //sanity check isolated chunk
-        chunkshape* new_shape = add_new_shape(layer->map, currentchunk_p->average_colour);
-        layer->map->shape_list = new_shape;
-
-    }
-
-    else if(currentchunk_p->shape_chunk_in->boundaries_length != 1 &&
-            currentchunk_p->shape_chunk_in->boundaries_length != 2)  //sadly this can add the same chunk to its own boundary twice
+    
+    if(currentchunk_p->shape_chunk_in->boundaries_length != 1 &&
+        currentchunk_p->shape_chunk_in->boundaries_length != 2)  //sadly this can add the same chunk to its own boundary twice
     {
         //only form triangle on unformed chunks        
         return;
