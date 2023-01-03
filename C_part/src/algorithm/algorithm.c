@@ -186,9 +186,9 @@ void process_layer(Layer* layer) {
     int tenth_count = 0;
     int tenth_of_map = (int)floor(layer->map->map_width * layer->map->map_height / 10.f);
     
-    for(int map_y = 0; map_y < layer->map.map_height; ++map_y)
+    for(int map_y = 0; map_y < layer->map->map_height; ++map_y)
     {
-        for(int map_x = 0; map_x < layer->bounds.map_width; ++map_x)
+        for(int map_x = 0; map_x < layer->map->map_width; ++map_x)
         {
             ++count;
 
@@ -225,9 +225,9 @@ void process_layer(Layer* layer) {
     }
     LOG_INFO("layer: %d, making triangles", layer->layer_index);
 
-    for(int map_y = 0; map_y < layer->map.map_height; ++map_y)
+    for(int map_y = 0; map_y < layer->map->map_height; ++map_y)
     {
-        for(int map_x = 0; map_x < layer->bounds.map_width; ++map_x)
+        for(int map_x = 0; map_x < layer->map->map_width; ++map_x)
         {
             ++count;
             pixelchunk* currentchunk_p = &(layer->map->groups_array_2d[map_x][map_y]);
