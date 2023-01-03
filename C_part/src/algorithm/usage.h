@@ -10,8 +10,8 @@
 #include "./algorithm.h"
 
 typedef struct LayerOperation {
-    pthread_t thread;
-    Layer layer;
+    pthread_t* thread;
+    Layer* layer;
 } LayerOperation;
 
 void vectorize(image input, vectorize_options options);

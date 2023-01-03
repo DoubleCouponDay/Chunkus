@@ -22,12 +22,16 @@
 const char* OUTPUT_PNG_PATH = "output.png";
 
 void free_layeroperations(LayerOperation* operations_p, int length) {
+    LOG_INFO("freeing layeroperations array");
     LayerOperation* next;
     
     for(int i = 0; i < length; ++i) {
         next = operations_p[i];
+        free(next->thread);
+        free(next->layer);
         free(next);
     }
+    free(operations_p);
 }
 
 void windback_lists(chunkmap* map) {
@@ -53,6 +57,17 @@ void* process_in_thread(void* arg) {
     pthread_exit(NULL);
 }
 
+LayerOperation* create_layeroperation() {
+    LOG_INFO("creating layeroperation");
+    LayerOperation* output = calloc(1, sizeof(LayerOperation));
+    output->thread = calloc(1, sizeof(pthread_t));
+    output->layer = calloc(1, sizeof(Layer));
+    output->layer->layer_index = options.threshold;
+    output->layer->map = map;
+    output->layer->options = &options;
+    return output;
+}
+
 void vectorize(image input, vectorize_options options) {
     LOG_INFO("quantizing image to %d colours", options.num_colours);
     LOG_INFO("thresholds: %d", options.thresholds);
@@ -65,7 +80,7 @@ void vectorize(image input, vectorize_options options) {
     }
     int map_width = get_map_width(input, options);
     int map_height = get_map_height(input, options);
-    FILE* output = start_svg_file(map_width, map_height, OUTPUT_PATH);
+    FILE* output_file = start_svg_file(map_width, map_height, OUTPUT_PATH);
 
     if(isBadError()) {
         LOG_ERR("start_svg_file failed with code: %d", getLastError());
@@ -77,10 +92,11 @@ void vectorize(image input, vectorize_options options) {
 
     if(isBadError()) {
         LOG_ERR("quantize_image failed with %d", getLastError());
-        finish_svg_file(output);
+        finish_svg_file(output_file);
         free_thresholds_array(thresholds);
         return;
     }
+    LOG_INFO("creating layeroperation array");
     LayerOperation* operations_p = calloc(1, sizeof(LayerOperation) * options.thresholds);
     int index = 0;
 
@@ -93,27 +109,21 @@ void vectorize(image input, vectorize_options options) {
         if (isBadError())
         {
             LOG_ERR("generate_chunkmap failed with code: %d", getLastError());
-            finish_svg_file(output);
+            finish_svg_file(output_file);
             free_chunkmap(map);
             free_thresholds_array(thresholds);
             return;
-        }
+        }        
+        LayerOperation* currentoperation = create_layeroperation();
+        operations_p[index] = currentoperation;
+        ++index;
 
-        LOG_INFO("creating map");
-        chunkmap* mapCopy = generate_chunkmap(map->input, options);
-        Layer layer = {options.thresold, mapCopy, &options};
-        LOG_INFO("creating thread");
-        pthread_t currentThread;
-        
-        operations_p[index] = {
-            currentThread, layer
-        };
         LOG_INFO("filling chunkmap");
-        pthread_create(&currentThread, NULL, process_in_thread, &layer);
+        pthread_create(currentoperation->thread, NULL, process_in_thread, currentoperation->layer);
 
         if(isBadError()) {
             LOG_ERR("write_svg_file failed with code: %d", getLastError());
-            finish_svg_file(output);
+            finish_svg_file(output_file);
             free_chunkmap(map);
             free_thresholds_array(thresholds);
             return;
@@ -125,7 +135,7 @@ void vectorize(image input, vectorize_options options) {
     if (isBadError())
     {
         LOG_ERR("a thread encountered an error.");
-        finish_svg_file(output);
+        finish_svg_file(output_file);
         free_chunkmap(map);
         free_thresholds_array(thresholds);
         return;
@@ -135,11 +145,11 @@ void vectorize(image input, vectorize_options options) {
         LayerOperation current = operations_p[i];
         pthread_join(current.thread, NULL);
         windback_lists(current.layer->map);
-        write_svg_file(output, map, options);
+        write_svg_file(output_file, map, options);
 
         if(isBadError()) {
             LOG_ERR("write_svg_file failed with code: %d", getLastError());
-            finish_svg_file(output);
+            finish_svg_file(output_file);
             free_chunkmap(map);
             free_thresholds_array(thresholds);
             return;
@@ -148,7 +158,7 @@ void vectorize(image input, vectorize_options options) {
         current.layer->map->shape_list = NULL;
     }
 
-    finish_svg_file(output);
+    finish_svg_file(output_file);
     free_thresholds_array(thresholds);
     free_layeroperations(operations_p, options.thresholds);
     LOG_INFO("vectorization complete");
