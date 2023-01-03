@@ -27,7 +27,7 @@ pixelchunk* get_at(Layer* layer, int x, int y)
     {
         return NULL;
     }
-    return &quad->map->groups_array_2d[x][y];
+    return &layer->map->groups_array_2d[x][y];
 }
 
 /// @brief returns the info about the first dissimilar chunk
