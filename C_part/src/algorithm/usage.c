@@ -21,7 +21,15 @@
 
 const char* OUTPUT_PNG_PATH = "output.png";
 
-///warning: winding back lists before threads have finished is bad
+void free_layeroperations(LayerOperation* operations_p, int length) {
+    LayerOperation* next;
+    
+    for(int i = 0; i < length; ++i) {
+        next = operations_p[i];
+        free(next);
+    }
+}
+
 void windback_lists(chunkmap* map) {
     map->shape_list = map->first_shape;
     chunkshape* current = map->first_shape;
@@ -73,7 +81,7 @@ void vectorize(image input, vectorize_options options) {
         free_thresholds_array(thresholds);
         return;
     }
-    LayerOperation operations[options.thresholds] = {};
+    LayerOperation* operations_p = calloc(1, sizeof(LayerOperation) * options.thresholds);
     int index = 0;
 
     for(int i = options.thresholds - 1; i >= 0; --i) { //put larger shapes first so that they appear underneath
@@ -97,7 +105,7 @@ void vectorize(image input, vectorize_options options) {
         LOG_INFO("creating thread");
         pthread_t currentThread;
         
-        operations[index] = {
+        operations_p[index] = {
             currentThread, layer
         };
         LOG_INFO("filling chunkmap");
@@ -124,7 +132,7 @@ void vectorize(image input, vectorize_options options) {
     }
 
     for(int i = 0; i < options.thresholds; ++i) {
-        LayerOperation current = operations[i];
+        LayerOperation current = operations_p[i];
         pthread_join(current.thread, NULL);
         windback_lists(current.layer->map);
         write_svg_file(output, map, options);
@@ -142,5 +150,6 @@ void vectorize(image input, vectorize_options options) {
 
     finish_svg_file(output);
     free_thresholds_array(thresholds);
+    free_layeroperations(operations_p, options.thresholds);
     LOG_INFO("vectorization complete");
 }
