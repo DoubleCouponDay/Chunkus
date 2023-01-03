@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include <nanosvg.h>
+#include <pthread.h>
 
 #include "usage.h"
 #include "../image.h"

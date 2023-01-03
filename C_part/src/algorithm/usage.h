@@ -3,9 +3,11 @@
 #include <stdio.h>
 #include <math.h>
 #include <nanosvg.h>
+#include <pthread.h>
 
 #include "../image.h"
 #include "../chunkmap.h"
+#include "./algorithm.h"
 
 typedef struct LayerOperation {
     pthread_t thread;
