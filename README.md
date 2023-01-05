@@ -10,15 +10,11 @@ This was a group project written by Samuel, Joshua, Matthew.
 
 Set the `CHUNKUS` environment variable to the value of your discord bot's secret token.
 
-### Installing GCC
+### Install C Compiler for Windows
 
-    + install chocolatey
++ Install Visual Studio Community Edition
++ Add the MSVC C++ Build Tools Individual Component
 
-    + use choco to install mingw
-
-    + add the choco path to the `PATH` environment variable
-
-        `C:\ProgramData\chocolatey\bin`
 
 ### Installing Rust
 
