@@ -139,7 +139,7 @@ void vectorize(image input, vectorize_options options) {
         if(isBadError()) {
             LOG_ERR("write_svg_file failed with code: %d", getLastError());
             finish_svg_file(output_file);
-            free_chunkmap(map);
+            free_chunkmap(current.layer->map);
             free_thresholds_array(thresholds);
             return;
         }
