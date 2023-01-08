@@ -26,7 +26,7 @@ void free_layeroperations(LayerOperation* operations_p, int length) {
     LayerOperation* next;
     
     for(int i = 0; i < length; ++i) {
-        next = operations_p[i];
+        next = &operations_p[i];
         free(next->thread);
         free(next->layer);
         free(next);
@@ -57,7 +57,7 @@ void* process_in_thread(void* arg) {
     pthread_exit(NULL);
 }
 
-LayerOperation* create_layeroperation() {
+LayerOperation* create_layeroperation(chunkmap* map, vectorize_options options) {
     LOG_INFO("creating layeroperation");
     LayerOperation* output = calloc(1, sizeof(LayerOperation));
     output->thread = calloc(1, sizeof(pthread_t));
@@ -114,8 +114,8 @@ void vectorize(image input, vectorize_options options) {
             free_thresholds_array(thresholds);
             return;
         }        
-        LayerOperation* currentoperation = create_layeroperation();
-        operations_p[index] = currentoperation;
+        LayerOperation* currentoperation = create_layeroperation(map, options);
+        operations_p[index] = *currentoperation;
         ++index;
 
         LOG_INFO("filling chunkmap");
@@ -130,22 +130,11 @@ void vectorize(image input, vectorize_options options) {
         }
     }
 
-    int code = getLastError();
-
-    if (isBadError())
-    {
-        LOG_ERR("a thread encountered an error.");
-        finish_svg_file(output_file);
-        free_chunkmap(map);
-        free_thresholds_array(thresholds);
-        return;
-    }
-
     for(int i = 0; i < options.thresholds; ++i) {
         LayerOperation current = operations_p[i];
-        pthread_join(current.thread, NULL);
+        pthread_join(*current.thread, NULL);
         windback_lists(current.layer->map);
-        write_svg_file(output_file, map, options);
+        write_svg_file(output_file, current.layer->map, options);
 
         if(isBadError()) {
             LOG_ERR("write_svg_file failed with code: %d", getLastError());
