@@ -1,0 +1,11 @@
+refactor plan
+    rework multithreading assumptions in usage.c
+
+    ensure that layeroperations are performed in parallel and are freed correctly
+
+    rework outfile file writing so that it can start writing the lowest layer as soon as possible
+        some multithreaded datastructure required. mailbox / actor model?
+
+    rework algorithm.c to use aggregated layer operations
+
+    sort.c is good to go
