@@ -53,7 +53,7 @@ fn choose_u32(input: u32, constant: u32) -> String {
     }
 }
 
-pub async fn insert_params(mut data: RwLockWriteGuard<'_, TypeMap>, input: VectorizeOptions) -> ParsedOptions {
+pub fn insert_params(mut data: RwLockWriteGuard<'_, TypeMap>, input: VectorizeOptions) -> ParsedOptions {
     println!("inserting params. shouldcrash: {}", input.shouldcrash);
 
     let options = ParsedOptions {
@@ -64,6 +64,12 @@ pub async fn insert_params(mut data: RwLockWriteGuard<'_, TypeMap>, input: Vecto
     };
     data.insert::<VectorizeOptionsKey>(options.clone());
     options
+}
+
+pub fn insert_parsed_params(mut data: RwLockWriteGuard<'_, TypeMap>, input: ParsedOptions) {
+    println!("inserting params. shouldcrash: {}", input.shouldcrash);
+    data.insert::<VectorizeOptionsKey>(input.clone());
+    ()
 }
 
 pub async fn get_params(ctx: &Context) -> ParsedOptions {

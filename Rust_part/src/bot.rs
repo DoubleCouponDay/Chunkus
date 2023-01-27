@@ -21,6 +21,7 @@ use serenity::{
         },
     }},
     model::{
+        id::UserId,
         channel::{
             Message,
         }, 
@@ -40,11 +41,13 @@ use crate::options::{
     VectorizeOptions,
     ParsedOptions,
     insert_params,
+    insert_parsed_params,
     get_params,
     DEFAULT_CHUNK_SIZE,
     DEFAULT_THRESHOLDS,
     DEFAULT_COLOURS
 };
+use crate::secrettoken::getappid;
 
 pub const START_MESSAGE: &'static str = "Working on it...";
 pub const END_MESSAGE: &'static str = "Here's your result.";
@@ -56,17 +59,19 @@ struct MsgUpdate;
 pub struct DefaultHandler;
 
 #[group]
-#[commands(vectorize, vectorizerparams)]
+#[commands(vectorize, vectorizerparams, chunksize, thresholds, numcolours)]
 struct General;
 
 pub async fn create_vec_bot(token: &str, shouldcrash: bool) -> Client
 {
     println!("creating vec bot...");
+    let appid = Some(UserId::from(getappid().parse::<u64>().expect("Not given valid bot user id!")));
+
     let framework = StandardFramework::new().configure(|c: &mut Configuration | c
-            .prefix("!")
             .with_whitespace(true)
             .case_insensitivity(true)
             .allow_dm(false)
+            .on_mention(appid)
         )
         .group(&GENERAL_GROUP);
 
@@ -90,7 +95,7 @@ pub async fn initialize_bot(client: &Client, shouldcrash: bool) {
         data.insert::<MsgListen>(HashSet::<MessageId>::new());
         data.insert::<MsgUpdate>(HashMap::<MessageId, MessageUpdateEvent>::new());
         let params = VectorizeOptions {chunksize: DEFAULT_CHUNK_SIZE, thresholds: DEFAULT_THRESHOLDS, numcolours: DEFAULT_COLOURS, shouldcrash};
-        insert_params(data, params).await;
+        insert_params(data, params);
 }
 
 #[async_trait]
@@ -236,16 +241,80 @@ async fn wait_for_message_update(msg_id: MessageId, ctx: &Context) -> Result<Mes
 }
 
 #[command]
+async fn thresholds(ctx: &Context, _msg: &Message, args: Args) -> CommandResult
+{
+    println!("Command 'thresholds' called");
+
+    let mut mutable_args = args;
+
+    let input = match mutable_args.single::<u32>() {
+        Ok(e) => e,
+        Err(err) => { 
+            eprintln!("Given invalid threshold!: {}", err); 
+            return Ok(());
+        }
+    };
+
+    let mut params = get_params(ctx).await;
+    params.thresholds = input.to_string();
+    let data_write = ctx.data.write().await;
+    insert_parsed_params(data_write, params);
+
+    Ok(())
+}
+
+#[command]
+async fn chunksize(ctx: &Context, _msg: &Message, args: Args) -> CommandResult
+{
+    println!("Command 'chunksize' called");
+
+    let mut mutable_args = args;
+
+    let input = match mutable_args.single::<u32>() {
+        Ok(e) => e,
+        Err(err) => { 
+            eprintln!("Given invalid chunksize!: {}", err); 
+            return Ok(());
+        }
+    };
+
+    let mut params = get_params(ctx).await;
+    params.chunksize = input.to_string();
+    let data_write = ctx.data.write().await;
+    insert_parsed_params(data_write, params);
+
+    Ok(())
+}
+
+#[command]
+async fn numcolours(ctx: &Context, _msg: &Message, args: Args) -> CommandResult
+{
+    println!("Command 'numcolours' called");
+
+    let mut mutable_args = args;
+
+    let input = match mutable_args.single::<u32>() {
+        Ok(e) => e,
+        Err(err) => { 
+            eprintln!("Given invalid numcolours!: {}", err); 
+            return Ok(());
+        }
+    };
+
+    let mut params = get_params(ctx).await;
+    params.numcolours = input.to_string();
+    let data_write = ctx.data.write().await;
+    insert_parsed_params(data_write, params);
+
+    Ok(())
+}
+
+#[command]
 #[aliases("params")]
 async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 {
     println!("vectorizeparams command");
-    // let mentions_me = msg.mentions_me(&ctx).await;
 
-    // if mentions_me.unwrap_or_default() == false {
-    //     println!("message did not mention me.");
-    //     return Ok(());
-    // }
     let mut mutable = args;
     let possiblechunksize = mutable.single::<u32>();
     let possiblethreshold = mutable.single::<u32>();
@@ -257,9 +326,9 @@ async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandRe
             chunksize: possiblechunksize.unwrap(), 
             thresholds: possiblethreshold.unwrap(),
             numcolours: possiblecolours.unwrap(),
-            shouldcrash: false, //VP will never be called during a crash test. crashing cannot occur with user facing calls
+            shouldcrash: false, //MVP will never be called during a crash test. crashing cannot occur with user facing calls
         };
-        let parsed = insert_params(data_write, params).await;
+        let parsed = insert_params(data_write, params);
         
         let result = msg.reply(
             &ctx.http, 
@@ -283,12 +352,6 @@ async fn vectorizerparams(ctx: &Context, msg: &Message, args: Args) -> CommandRe
 async fn vectorize(ctx: &Context, msg: &Message) -> CommandResult
 {   
     println!("vectorize command");
-    // let mentions_me = msg.mentions_me(&ctx).await;
-
-    // if mentions_me.unwrap_or_default() == false {
-    //     println!("message did not mention me.");
-    //     return Ok(());
-    // }
 
     let mut embed_urls: Vec<String> = vec![];
     if msg.embeds.len() < 1 && msg.attachments.len() < 1 // No embed, lets wait for an on_update
