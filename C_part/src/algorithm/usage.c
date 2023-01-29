@@ -65,6 +65,8 @@ LayerOperation* create_layeroperation(chunkmap* map, vectorize_options options) 
     output->layer->layer_index = options.threshold;
     output->layer->map = map;
     output->layer->options = &options;
+    output->layer->boundaries = NULL;
+    output->layer->non_boundaries = NULL;
     return output;
 }
 

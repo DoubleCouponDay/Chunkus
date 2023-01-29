@@ -39,95 +39,6 @@ void zip_seam(pixelchunk* chunk_to_zip, pixelchunk* adjacent) {
     }
 }
 
-/// @brief returns whether the current chunk was added to the boundary or not
-/// @param layer 
-/// @param shape 
-/// @param chunk 
-/// @param allow_multiple_shapes 
-/// @return 
-bool add_chunk_to_boundary(Layer* layer, chunkshape* shape, pixelchunk* chunk, bool allow_multiple_shapes) {
-    bool current_sorted = false;
-    if(shape == NULL || chunk == NULL) { //sanity check
-        LOG_ERR("add_chunk_to_boundary given null pointer!");
-        setError(ASSUMPTION_WRONG);
-        return current_sorted;
-    }
-    
-    else if(chunk->boundary_chunk_in != NULL && allow_multiple_shapes == false) { //chunk already in boundary or in another shapes boundaries
-        return current_sorted;
-    }
-    if(shape->boundaries == NULL) {
-        pixelchunk_list* new = create_boundaryitem(chunk);
-        shape->first_boundary = new;
-        shape->boundaries = new;
-    }
-    
-    ++shape->boundaries_length;
-    if(isBadError()) {
-        LOG_ERR("layer: %d, sort_boundary_chunk failed with code: %d", layer->layer_index, getLastError());
-        return current_sorted;
-    }
-    chunk->shape_chunk_in = NULL; //just paranoid that add_chunk_to_shape will fail
-    return current_sorted;
-}
-
-
-void find_shapes(
-    Layer* layer, 
-    pixelchunk* current,
-    int map_x, int map_y, 
-    float threshold) {
-
-    if(map_x == 0 || map_x == (layer->map->map_width - 1) ||
-        map_y == 0 || map_y == (layer->map->map_height - 1)) 
-    {
-
-        if(isBadError()) {
-            LOG_ERR("layer: %d, enlarge_border failed with code: %d", layer->layer_index, getLastError());
-            return;
-        }
-    }
-
-    for (int adjacent_y = -1; adjacent_y < 2; ++adjacent_y)
-    {
-        for (int adjacent_x = -1; adjacent_x < 2; ++adjacent_x)
-        {
-            if (adjacent_x == 0 && adjacent_y == 0)
-                continue; //skip center pixel
-            
-            int adjacent_index_x = map_x + adjacent_x;
-            int adjacent_index_y = map_y + adjacent_y;
-
-            //prevent out of bounds index
-            if (adjacent_index_x < 0 || 
-                adjacent_index_y < 0 ||
-                adjacent_index_x >= layer->map->map_width ||  
-                adjacent_index_y >= layer->map->map_height)
-                continue;
-
-            pixelchunk* adjacent = &(layer->map->groups_array_2d[adjacent_index_x][adjacent_index_y]);
-
-            //make a shape out of two adjacent chunks
-            if (colours_are_similar(current->average_colour, adjacent->average_colour, threshold)) {
-
-                if(isBadError()) {
-                    LOG_ERR("layer: %d, enlarge_shape failed with code: %d", layer->layer_index, getLastError());
-                    return;
-                }
-            }
-
-            //define a boundary between two chunks
-            else {
-                
-                if(isBadError()) {
-                    LOG_ERR("layer: %d, enlarge_border failed with code: %d", layer->layer_index, getLastError());
-                    return;
-                }
-            }
-        }
-    }
-}
-
 void make_triangle(Layer* layer, pixelchunk* currentchunk_p) {  
     int top_location_x = currentchunk_p->location.x;
     int top_location_y = currentchunk_p->location.y + 1;
@@ -179,7 +90,7 @@ void process_layer(Layer* layer) {
     long count = 0;
     int tenth_count = 0;
     int tenth_of_map = (int)floor(layer->map->map_width * layer->map->map_height / 10.f);
-    
+     
     for(int map_y = 0; map_y < layer->map->map_height; ++map_y)
     {
         for(int map_x = 0; map_x < layer->map->map_width; ++map_x)
@@ -193,21 +104,7 @@ void process_layer(Layer* layer) {
             }
             pixelchunk* currentchunk_p = &(layer->map->groups_array_2d[map_x][map_y]);
 
-            find_shapes(
-                layer,
-                currentchunk_p,
-                map_x, map_y,
-                layer->options->threshold);
-
-            int code = getLastError();
-
-            if (isBadError())
-            {
-                LOG_ERR("layer: %d, find_shapes failed with code: %d", layer->layer_index, code);
-                return;
-            }
-
-            else if(layer->options->step_index > 0 && count >= layer->options->step_index) {
+            if(layer->options->step_index > 0 && count >= layer->options->step_index) {
                 LOG_INFO("layer: %d, step_index reached: %d\n", layer->layer_index, count);
                 return;
             }
@@ -219,27 +116,5 @@ void process_layer(Layer* layer) {
     }
     LOG_INFO("layer: %d, making triangles", layer->layer_index);
 
-    for(int map_y = 0; map_y < layer->map->map_height; ++map_y)
-    {
-        for(int map_x = 0; map_x < layer->map->map_width; ++map_x)
-        {
-            ++count;
-            pixelchunk* currentchunk_p = &(layer->map->groups_array_2d[map_x][map_y]);
-            make_triangle(layer, currentchunk_p);
-
-            int code = getLastError();
-
-            if (isBadError())
-            {
-                LOG_ERR("layer: %d, find_shapes failed with code: %d", layer->layer_index, code);
-                return;
-            }
-
-            else if(layer->options->step_index > 0 && count >= layer->options->step_index) {
-                LOG_INFO("layer: %d, step_index reached: %d\n", layer->layer_index, count);
-                return;
-            }
-        }
-    }
     return;
 }
