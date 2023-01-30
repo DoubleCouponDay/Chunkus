@@ -24,7 +24,7 @@ run the follow command:
 
 if you are on windows:
 
-+ install vc++ build tools from a vs installer
++ install MSVC build tools from a Visual Studio installer
     rustup toolchain install stable-x86_64-pc-windows-gnu
 
 + run the following command:
