@@ -45,11 +45,6 @@ void fill_chunk(int x, int y, image input, vectorize_options options, pixelchunk
     if (node_height > options.chunk_size)
         node_height = options.chunk_size;
     
-    chunk->pixels_array_2d = calloc(1, sizeof(pixel*) * node_width);
-    
-    for(int i = 0; i < node_width; ++i) {
-        chunk->pixels_array_2d[i] = &input.pixels_array_2d[x_offset + i][y_offset];
-    }
     int count = node_width * node_height;
 
     // Calculate the average of all these pixels
@@ -94,7 +89,6 @@ void fill_chunk(int x, int y, image input, vectorize_options options, pixelchunk
         (byte)((float)average_b / (float)count) 
     };
     chunk->average_colour = average_p;
-    chunk->shape_chunk_in = NULL;
 }
 
 chunkmap* generate_chunkmap(image input, vectorize_options options)
@@ -163,8 +157,6 @@ void free_chunkmap(chunkmap* map_p)
         for (int y = 0; y < map_p->map_height; ++y)
         {
             pixelchunk* current = &map_p->groups_array_2d[x][y];
-            free(current->pixels_array_2d);
-            current->shape_chunk_in = NULL;
             current->boundary_chunk_in = NULL;
         }
 
@@ -183,7 +175,7 @@ void free_chunkmap(chunkmap* map_p)
         while (current)
         {
             free_pixelchunklist(current->boundaries);
-            free_pixelchunklist(current->chunks);
+            
             next = current->next;
             free(current);
             current = next;
@@ -201,18 +193,6 @@ vector2 create_vector_between_chunks(pixelchunk* initial, pixelchunk* final) {
     int y_diff = final->location.y - initial->location.y;
     vector2 diff = { x_diff, y_diff };
     return diff;
-}
-
-float calculate_angle_between(pixelchunk* eligible, pixelchunk* subject, pixelchunk* previous) {
-    int eligible_x_diff = eligible->location.x - subject->location.x;
-    int eligible_y_diff = eligible->location.y - subject->location.y;
-    vector2 subject_to_eligible = { eligible_x_diff, eligible_y_diff };
-    vector2 previous_to_subject;
-    if (previous)
-        previous_to_subject = create_vector_between_chunks(previous, subject);
-    else
-        previous_to_subject = subject_to_eligible;
-    return vec_angle_between(previous_to_subject, subject_to_eligible);
 }
 
 pixelchunk_list* create_boundaryitem(pixelchunk* chunk) {
