@@ -19,24 +19,22 @@ Set the `CHUNKUS` environment variable to the value of your discord bot's secret
 
 ### Installing Rust
 
-run the follow command:
+On Linux, run the follow commands:
 
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-if you are on windows:
-
-+ install MSVC build tools from a Visual Studio installer
-    rustup toolchain install stable-x86_64-pc-windows-gnu
-
-+ run the following command:
-	
-        rustup default stable-x86_64-pc-windows-gnu
-
-If you are on linux:
 
     rustup default stable
 
     sudo apt install libssl-dev
+
+if you are on windows:
+
++ install MSVC build tools from a Visual Studio installer
+
++ run the following commands:
+    rustup default stable-x86_64-pc-windows-gnu
+
+    rustup toolchain install stable-x86_64-pc-windows-gnu
 
 ### Installing OpenGL
 
