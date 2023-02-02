@@ -20,5 +20,5 @@ typedef struct splits
     int splits_width;
 } splits;
 
-void split_chunks(chunkmap* map, splits* splits_out);
+void split_chunks(chunkmap* map, splits* splits_out, float threshold);
 void free_splits(splits* splits);
