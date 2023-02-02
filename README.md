@@ -10,12 +10,19 @@ This was a group project written by Samuel, Joshua, Matthew.
 
 Set the `CHUNKUS` environment variable to the value of your discord bot's secret token.
 
-### Install C Compiler for Windows
+### Installing C
+On Windows:
 
 + Install Visual Studio Community Edition
 + Add the MSVC C++ Build Tools Individual Component
 + Install Cmake using Chocolatey
-+ Install Git using its downloadable installer GUI
++ Install Git using Chocolatey
+
+On Linux:
+
+    sudo apt update -y
+
+    sudo apt install git cmake build-essential
 
 ### Installing Rust
 
@@ -29,20 +36,18 @@ On Linux, run the follow commands:
 
 if you are on windows:
 
-+ install MSVC build tools from a Visual Studio installer
+    + Download and run the rustup installer.
 
-+ run the following commands:
-    rustup default stable-x86_64-pc-windows-gnu
+    + run the following commands:
+        rustup toolchain install stable-msvc
 
-    rustup toolchain install stable-x86_64-pc-windows-gnu
+        rustup default stable-msvc
 
 ### Installing OpenGL
 
 On linux run the following to install OpenGL:
-
-    sudo apt update -y
-
-    sudo apt install git cmake build-essential mesa-common-dev libxi-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev -y
+ 
+    sudo apt install mesa-common-dev libxi-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev -y
 
 On Windows, OpenGL should already be available.
 	
