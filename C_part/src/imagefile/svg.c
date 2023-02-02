@@ -18,7 +18,7 @@ const int NEW_LINE_LENGTH = 4;
 const char* NEW_LINE = "\n";
 const int NEW_LINE_LENGTH = 2;
 #elif __unix__
-const NEW_LINE = "This repo is not for you, Macintosh";
+const NEW_LINE = "This repo is not for you";
 const int NEW_LINE_LENGTH = 0;
 #endif
 
