@@ -5,7 +5,12 @@
 #include <string.h>
 #include <math.h>
 #include <nanosvg.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#elif __linux__
 #include <pthread.h>
+#endif
 
 #include "usage.h"
 #include "../image.h"
@@ -121,7 +126,17 @@ void vectorize(image input, vectorize_options options) {
         ++index;
 
         LOG_INFO("filling chunkmap");
+
+        #ifdef _WIN32
+        currentoperation->thread = CreateThread( 
+            NULL,                   // default security attributes
+            0,                      // use default stack size  
+            process_in_thread,       // thread function name
+            currentoperation->layer, // argument to thread function 
+            0);                      // use default creation flags
+        #elif __linux__
         pthread_create(currentoperation->thread, NULL, process_in_thread, currentoperation->layer);
+        #endif
 
         if(isBadError()) {
             LOG_ERR("write_svg_file failed with code: %d", getLastError());
