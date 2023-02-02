@@ -13,7 +13,7 @@ echo "Building zlib..."
 cd zlib
 git checkout v1.2.12
 cmake -B build -G "Visual Studio 17 2022" -D CMAKE_INSTALL_PREFIX="install"
-cmake --build build -j4
+cmake --build build -j4 --config Release
 cmake --install build
 
 echo "Building libpng..."
