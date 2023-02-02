@@ -5,10 +5,12 @@
 #include <stdlib.h>
 
 splits* create_splits(int width, int height);
+void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offset_x, int offset_y, float threshold);
+bool are_two_colours_similar(pixel a, pixel b, float threshold);
 
-void split_chunks(chunkmap* map, splits* splits_out)
+void split_chunks(chunkmap* map, splits* splits_out, float threshold)
 {
-    splits_out = create_splits(map->map_width);
+    splits_out = create_splits(map->map_width, map->map_height);
 
     int x_offsets[8] = { -1, 0, +1, +1, +1, 0, -1, -1 };
     int y_offsets[8] = { +1, +1, +1, 0, -1, -1, -1, 0 };
@@ -19,18 +21,37 @@ void split_chunks(chunkmap* map, splits* splits_out)
         {
             for (int i = 0; i < 8; ++i)
             {
-                split_node* node = &splits_out->splits[i]->nodes[x][y];
-                node->color = map->groups_array_2d[x][y].color;
-                int final_x = x + x_offsets[i];
-                int final_y = y + y_offsets[i];
-
-                if (final_x < 0 || final_x >= map->map_width ||
-                    final_y < 0 || final_y >= map->map_height) {
-                    node->is_boundary = true;
-                }
+                split_single_chunk(map, &splits_out->splits[i], x, y, x_offsets[i], y_offsets[i], threshold);
             }
         }
     }
+}
+
+void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offset_x, int offset_y, float threshold)
+{
+    split_node* node = &split_out->nodes[x][y];
+    node->color = map->groups_array_2d[x][y].average_colour;
+    int final_x = x + offset_x;
+    int final_y = y + offset_y;
+
+    if (final_x < 0 || final_x >= map->map_width ||
+        final_y < 0 || final_y >= map->map_height) {
+        node->is_boundary = true;
+    }
+
+    pixel a = map->groups_array_2d[final_x][final_y].average_colour;
+    pixel b = map->groups_array_2d[x][y].average_colour;
+
+    node->is_boundary = are_two_colours_similar(a, b, threshold);
+}
+
+bool are_two_colours_similar(pixel a, pixel b, float threshold)
+{
+    int r_diff = (int)a.r - (int)b.r;
+    int g_diff = (int)a.g - (int)b.g;
+    int b_diff = (int)a.b - (int)b.b;
+    int mag_2 = r_diff * r_diff + g_diff * g_diff + b_diff * b_diff;
+    return (float)mag_2 < threshold;
 }
 
 splits* create_splits(int width, int height)
@@ -38,11 +59,11 @@ splits* create_splits(int width, int height)
     splits* out = calloc(1, sizeof(splits));
     for (int i = 0; i < 8; ++i)
     {
-        split* thisSplit = &(*out)[i];
+        split* thisSplit = &out->splits[i];
         thisSplit->nodes = calloc(width, sizeof(split_node*));
         for (int x = 0; x < width; ++x)
         {
-            thisSplit.nodes[x] = calloc(height, sizeof(split_node));
+            thisSplit->nodes[x] = calloc(height, sizeof(split_node));
         }
     }
     out->splits_width = width;
@@ -60,7 +81,7 @@ void free_splits(splits* splits)
     }
 
     for (int i = 0; i < 8; ++i) {
-        split* s = &(*splits)[i];
+        split* s = &splits->splits[i];
         if (!s->nodes)
             continue;
         for (int x = 0; x < splits->splits_width; ++x) {
