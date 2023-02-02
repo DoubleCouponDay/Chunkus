@@ -14,7 +14,8 @@ Set the `CHUNKUS` environment variable to the value of your discord bot's secret
 
 + Install Visual Studio Community Edition
 + Add the MSVC C++ Build Tools Individual Component
-
++ Install Cmake using Chocolatey
++ Install Git using its downloadable installer GUI
 
 ### Installing Rust
 
