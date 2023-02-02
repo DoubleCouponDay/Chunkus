@@ -86,11 +86,13 @@ void write_svg_file(FILE* output, chunkmap* map, vectorize_options options) {
             continue;
         }
         pixelchunk_list* currentpath = currentshape->first_boundary;
-
+        pixel pix = { 0, 0, 0, 0 };
+        if (currentshape->boundaries_length > 0)
+            pix = currentshape->boundaries->chunk_p->average_colour;
         int colour = NSVG_RGB(
-            currentshape->colour.r,            
-            currentshape->colour.g,
-            currentshape->colour.b
+            pix.r,            
+            pix.g,
+            pix.b
         );
         fprintf(output, "<path fill=\"#");
         fprintf(output, "%06X", colour);
