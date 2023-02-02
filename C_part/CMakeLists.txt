@@ -66,7 +66,7 @@ target_include_directories(vec_test PUBLIC "${TURBOJPEG_PATH}/include")
 # Most dependent first (most dependencies)
 
 message("linking libpng...")
-    find_library(LIBPNG_LIB NAMES libpng16.a png16.a libpng.a png.a PATHS "${LIBPNG_PATH}" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
+    find_library(LIBPNG_LIB NAMES libpng16.lib libpng16.a png16.a libpng.a png.a PATHS "${LIBPNG_PATH}" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
     find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
 
     target_link_libraries(vec PUBLIC ${LIBPNG_LIB})
@@ -76,7 +76,7 @@ message("linking libpng...")
 
 message("linking turbojpeg...")
     message("jpeg_path: ${TURBOJPEG_PATH}")
-    find_library(TURBOJPEG_LIB NAMES turbojpeg.a libturbojpeg.a PATHS "${TURBOJPEG_PATH}/lib" "${TURBOJPEG_PATH}/lib32" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
+    find_library(TURBOJPEG_LIB NAMES turbojpeg.lib turbojpeg.a libturbojpeg.a PATHS "${TURBOJPEG_PATH}/lib" "${TURBOJPEG_PATH}/lib32" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
     find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${TURBOJPEG_PATH}/include" NO_DEFAULT_PATH REQUIRED)
 
     target_link_libraries(vec       PUBLIC  ${TURBOJPEG_LIB})
@@ -85,7 +85,7 @@ message("linking turbojpeg...")
     message("turbojpeg header at: ${TURBOJPEG_HEADER}")
 
 message("linking zlib...")
-    find_library(ZLIB_LIB NAMES libzlib.a zlib.a libz.a libzlibstatic.a zlibstatic.a PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
+    find_library(ZLIB_LIB NAMES zlib.lib libzlib.a zlib.a libz.a libzlibstatic.a zlibstatic.a PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
     
     target_link_libraries(vec       PUBLIC  ${ZLIB_LIB})
     target_link_libraries(vec_test PRIVATE ${ZLIB_LIB})

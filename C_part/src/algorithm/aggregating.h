@@ -1,5 +1,8 @@
+#pragma once
+
 #include <stdlib.h>
+#include <stdio.h>
 
-void OR_64( reg1) {
+#include "../chunkmap.h"
 
-}
+void OR_64(chunkmap* map);
