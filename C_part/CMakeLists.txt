@@ -101,6 +101,11 @@ message("linking pthread...")
     target_link_libraries(vec       PUBLIC  pthread)
     target_link_libraries(vec_test PRIVATE pthread)
 
+if (MSVC)
+    target_compile_options(vec PUBLIC "/experimental:preprocessor")
+    message("Compiling with MSVC preprocessor flag")
+endif()
+
 # Public header v
 
 set_target_properties(vec PROPERTIES PUBLIC_HEADER "./src/entrypoint.h")
