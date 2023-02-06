@@ -24,17 +24,19 @@ const int NEW_LINE_LENGTH = 0;
 
 void clear_svg_file(const char* filename) {
     LOG_INFO("clearing old output svg file");
-    FILE* output = fopen(filename, "w+");
+    FILE* output = 0;
+    int err = fopen_s(&output, filename, "w+");
     
-    if(output)
+    if(!err && output)
         fclose(output);
 }
 
 FILE* start_svg_file(int map_width, int map_height, const char* filename) {
     clear_svg_file(filename);
-    FILE* output = fopen(filename, "a+"); 
+    FILE* output = 0;
+    int err = fopen_s(&output, filename, "a+"); 
 
-    if(output == NULL) {
+    if(err || output == NULL) {
         LOG_ERR("failed to open file: %s", filename);
         setError(ASSUMPTION_WRONG);
         return NULL;

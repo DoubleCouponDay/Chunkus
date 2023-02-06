@@ -70,7 +70,10 @@ void generateBitmapImage(unsigned char* image, int height, int width, const char
 
     int stride = (widthInBytes) + paddingSize;
 
-    FILE* imageFile = fopen(imageFileName, "wb");
+    FILE* imageFile = 0;
+    int err = fopen_s(&imageFile, imageFileName, "wb");
+    if (err != 0 || imageFile == 0)
+        return;
 
     unsigned char* fileHeader = createBitmapFileHeader(height, stride);
     fwrite(fileHeader, 1, FILE_HEADER_SIZE, imageFile);
