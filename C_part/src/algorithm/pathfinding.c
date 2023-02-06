@@ -1,12 +1,12 @@
 #include "pathfinding.h"
 
+#include "sort.h"
 
 
-void pathfind_shape(chunkshape* shape, pixelchunk* initial, pathfind_input border_lookup);
 bool chunk_is_border(pixelchunk* chunk, pathfind_input border_lookup);
 chunkshape* create_chunkshape(chunkmap* target_map);
 
-void pathfind_shapes(chunkmap* map, pathfind_input border_lookup)
+void pathfind_shapes(Layer* layer, chunkmap* map, pathfind_input border_lookup)
 {
     for (int x = 0; x < map->map_width; ++x)
     {
@@ -23,15 +23,9 @@ void pathfind_shapes(chunkmap* map, pathfind_input border_lookup)
                 continue;
 
             chunkshape* shape = create_chunkshape(map);
-            pathfind_shape(shape, chunk, border_lookup);
+            pathfind_shape(layer, shape, chunk);
         }
     }
-}
-
-
-void pathfind_shape(chunkshape* shape, pixelchunk* initial, pathfind_input border_lookup)
-{
-
 }
 
 bool chunk_is_border(pixelchunk* chunk, pathfind_input border_lookup)
@@ -41,7 +35,7 @@ bool chunk_is_border(pixelchunk* chunk, pathfind_input border_lookup)
     // return chunk->is_boundary;
     // or:
     // return border_lookup[chunk->location.x][chunk->location.y].is_boundary;
-    return false;
+    return border_lookup[chunk->location.x][chunk->location.y].is_boundary;    
 }
 
 chunkshape* create_chunkshape(chunkmap* target_map)
@@ -54,8 +48,11 @@ chunkshape* create_chunkshape(chunkmap* target_map)
     new_shape->next = 0;
     new_shape->path_closed = false;
 
-    // TODO: properly append to chunkmap's shape_list (and first_shape) structure
-    //if (target_map->shape_list)
+    if (!target_map->first_shape)
+        target_map->first_shape = new_shape;
+    if (target_map->shape_list)
+        target_map->shape_list->next = new_shape;
+    target_map->shape_list = new_shape;
     return new_shape;
 }
 
