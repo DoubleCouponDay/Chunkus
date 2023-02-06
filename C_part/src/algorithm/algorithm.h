@@ -1,6 +1,5 @@
 #pragma once
 #include <nanosvg.h>
-#include <pthread.h>
 #include "../chunkmap.h"
 #include "../image.h"
 

@@ -121,7 +121,9 @@
         "pthread.h": "c",
         "map": "c",
         "sort.h": "c",
-        "algorithm.h": "c"
+        "algorithm.h": "c",
+        "windows.h": "c",
+        "thread": "c"
     },
     "C_Cpp.default.intelliSenseMode": "windows-gcc-x64",
     "C_Cpp.intelliSenseEngineFallback": "Enabled",

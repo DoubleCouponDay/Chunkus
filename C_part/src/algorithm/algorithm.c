@@ -7,7 +7,6 @@
 #include <string.h>
 #include <math.h>
 #include <nanosvg.h>
-#include <pthread.h>
 
 #include "../image.h"
 #include "../chunkmap.h"
@@ -36,52 +35,6 @@ void zip_seam(pixelchunk* chunk_to_zip, pixelchunk* adjacent) {
         float offset_y = get_border_zip_offset(diff.y);
         chunk_to_zip->border_location.x = chunk_to_zip->border_location.x + offset_x;
         chunk_to_zip->border_location.y = chunk_to_zip->border_location.y + offset_y;
-    }
-}
-
-void make_triangle(Layer* layer, pixelchunk* currentchunk_p) {  
-    int top_location_x = currentchunk_p->location.x;
-    int top_location_y = currentchunk_p->location.y + 1;
-
-    int right_location_x = currentchunk_p->location.x + 1;
-    int right_location_y = currentchunk_p->location.y;
-
-    pixelchunk* top_vertex = &(layer->map->groups_array_2d[top_location_x][top_location_y]);
-    pixelchunk* right_vertex = &(layer->map->groups_array_2d[right_location_x][right_location_y]);
-    
-    if(currentchunk_p->shape_chunk_in->boundaries_length != 1 &&
-        currentchunk_p->shape_chunk_in->boundaries_length != 2)  //sadly this can add the same chunk to its own boundary twice
-    {
-        //only form triangle on unformed chunks        
-        return;
-    }
-
-    else if(currentchunk_p->boundary_chunk_in == NULL) {
-        add_chunk_to_boundary(layer, currentchunk_p->shape_chunk_in, currentchunk_p, true);
-    }
-    chunkshape* triangle = currentchunk_p->shape_chunk_in;
-
-    if(top_vertex->shape_chunk_in == NULL) {
-        top_vertex->shape_chunk_in = triangle;
-        add_chunk_to_boundary(layer, triangle, top_vertex, true);
-    }
-
-    else {
-        add_chunk_to_boundary(layer, triangle, top_vertex, true);
-    }
-
-    if(right_vertex->shape_chunk_in == NULL) {
-        right_vertex->shape_chunk_in = triangle;
-        add_chunk_to_boundary(layer, triangle, right_vertex, true);
-    }
-
-    else {
-        add_chunk_to_boundary(layer, triangle, right_vertex, true);
-    }
-    
-    if(isBadError()) {
-        LOG_ERR("add_chunk_to_boundary failed with code: %d", getLastError());
-        return;
     }
 }
 

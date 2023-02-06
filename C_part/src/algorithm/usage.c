@@ -7,7 +7,9 @@
 #include <nanosvg.h>
 
 #ifdef _WIN32
-#include <windows.h>
+#include <process.h>
+#include <Handleapi.h>
+#include <vadefs.h>
 #elif __linux__
 #include <pthread.h>
 #endif
@@ -32,7 +34,11 @@ void free_layeroperations(LayerOperation* operations_p, int length) {
     
     for(int i = 0; i < length; ++i) {
         next = &operations_p[i];
+        #ifdef _WIN32
+        CloseHandle(next->thread);
+        #elif __linux__
         free(next->thread);
+        #endif
         free(next->layer);
         free(next);
     }
@@ -57,15 +63,27 @@ void* process_in_thread(void* arg) {
     if (isBadError())
     {
         LOG_ERR("fill_chunkmap failed with code %d", getLastError());
+        #ifdef _WIN32
+        _endthreadex(NULL);
+        #elif __linux__
         pthread_exit(NULL);
+        #endif
     }
+    #ifdef _WIN32
+    _endthreadex(NULL);
+    #elif __linux__
     pthread_exit(NULL);
+    #endif
 }
 
 LayerOperation* create_layeroperation(chunkmap* map, vectorize_options options) {
     LOG_INFO("creating layeroperation");
     LayerOperation* output = calloc(1, sizeof(LayerOperation));
+    #ifdef _WIN32
+    output->thread = NULL;
+    #elif __linux__
     output->thread = calloc(1, sizeof(pthread_t));
+    #endif
     output->layer = calloc(1, sizeof(Layer));
     output->layer->layer_index = options.threshold;
     output->layer->map = map;
@@ -128,12 +146,14 @@ void vectorize(image input, vectorize_options options) {
         LOG_INFO("filling chunkmap");
 
         #ifdef _WIN32
-        currentoperation->thread = CreateThread( 
-            NULL,                   // default security attributes
-            0,                      // use default stack size  
-            process_in_thread,       // thread function name
-            currentoperation->layer, // argument to thread function 
-            0);                      // use default creation flags
+        currentoperation->thread = _beginthreadex(
+            NULL, //handle cannot be inherited by child processes
+            0, //stack size
+            process_in_thread, //threads start address
+            currentoperation->layer, //thread argument
+            0, //default init flags; start immediately
+            NULL //thread identifier not used
+        );
         #elif __linux__
         pthread_create(currentoperation->thread, NULL, process_in_thread, currentoperation->layer);
         #endif
@@ -149,7 +169,11 @@ void vectorize(image input, vectorize_options options) {
 
     for(int i = 0; i < options.thresholds; ++i) {
         LayerOperation current = operations_p[i];
+        #ifdef _WIN32
+        WaitForSingleObjectEx(current->thread, INFINITE, false);
+        #elif __linux__
         pthread_join(*current.thread, NULL);
+        #endif
         windback_lists(current.layer->map);
         write_svg_file(output_file, current.layer->map, options);
 
