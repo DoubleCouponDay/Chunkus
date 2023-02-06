@@ -4,6 +4,15 @@
 
 #include <stdlib.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <process.h>
+#include <Handleapi.h>
+#include <vadefs.h>
+#elif __linux__
+#include <pthread.h>
+#endif
+
 splits* create_splits(int width, int height);
 void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offset_x, int offset_y, float threshold_2);
 bool are_two_colours_similar(pixel a, pixel b, float threshold_2);
