@@ -15,7 +15,6 @@
 
 splits* create_splits(int width, int height);
 void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offset_x, int offset_y, float threshold_2);
-bool are_two_colours_similar(pixel a, pixel b, float threshold_2);
 
 typedef struct split_data
 {
@@ -48,7 +47,7 @@ void split_chunks(chunkmap* map, splits* splits_out, float threshold)
         t_dat->split = &splits_out->splits[i];
         t_dat->x_offset = x_offsets[i];
         t_dat->y_offset = y_offsets[i];
-        t_dat->threshold_2 = threshold;
+        t_dat->threshold = threshold;
         // spawn thread 
 
         #if _WIN32
@@ -87,7 +86,7 @@ void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offse
     pixel a = map->groups_array_2d[final_x][final_y].average_colour;
     pixel b = map->groups_array_2d[x][y].average_colour;
 
-    node->is_boundary = are_two_colours_similar(a, b, threshold_2);
+    node->is_boundary = colours_are_similar(a, b, threshold_2);
 }
 
 splits* create_splits(int width, int height)

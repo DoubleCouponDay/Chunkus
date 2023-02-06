@@ -35,7 +35,7 @@ bool chunk_is_border(pixelchunk* chunk, pathfind_input border_lookup)
     // return chunk->is_boundary;
     // or:
     // return border_lookup[chunk->location.x][chunk->location.y].is_boundary;
-    return border_lookup[chunk->location.x][chunk->location.y].is_boundary;    
+    return false; 
 }
 
 chunkshape* create_chunkshape(chunkmap* target_map)

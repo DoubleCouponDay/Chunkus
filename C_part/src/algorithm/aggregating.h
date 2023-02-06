@@ -4,5 +4,6 @@
 #include <stdio.h>
 
 #include "../chunkmap.h"
+#include "splitting.h"
 
-void OR_64(chunkmap* map);
+uint64_t* OR_64(splits* input, int width, int height);

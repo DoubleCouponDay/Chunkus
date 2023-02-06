@@ -1,6 +1,6 @@
 #pragma once
 
-#include "image.h"
+#include "../image.h"
 #include "chunkmap.h"
 
 typedef struct split_node

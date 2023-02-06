@@ -124,7 +124,12 @@
         "algorithm.h": "c",
         "windows.h": "c",
         "thread": "c",
-        "filesystem": "c"
+        "filesystem": "c",
+        "splitting.h": "c",
+        "format": "c",
+        "xlocmon": "c",
+        "xlocnum": "c",
+        "xloctime": "c"
     },
     "C_Cpp.default.intelliSenseMode": "windows-gcc-x64",
     "C_Cpp.intelliSenseEngineFallback": "Enabled",
