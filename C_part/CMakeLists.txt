@@ -32,7 +32,8 @@ else()
 endif()
     
 # Include directories v
-target_include_directories(vec PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(vec PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_include_directories(vec_test PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 target_include_directories(vec       PUBLIC "../../nanosvg/install/include/nanosvg")
 target_include_directories(vec_test PUBLIC "../../nanosvg/install/include/nanosvg")
