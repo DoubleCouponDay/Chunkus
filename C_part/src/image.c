@@ -11,9 +11,10 @@
 #include "utility/error.h"
 
 FILE* openfile(const char* fileaddress) {
-    FILE* file_p = fopen(fileaddress, "rb");
+    FILE* file_p = 0;
+    int err = fopen_s(&file_p, fileaddress, "rb");
 
-    if (!file_p) {
+    if (err || !file_p) {
         LOG_ERR("Could not open file '%s' for reading", fileaddress);
         setError(ASSUMPTION_WRONG);
         return NULL;
@@ -87,7 +88,7 @@ bool colours_are_similar(pixel color_a, pixel color_b, float max_distance)
     diff.r = (int)color_a.r - (int)color_b.r;
     diff.g = (int)color_a.g - (int)color_b.g;
     diff.b = (int)color_a.b - (int)color_b.b;
-    float abc = sqrtf(pow(diff.r, 2) + pow(diff.g, 2) + pow(diff.b, 2));
+    float abc = sqrtf(powf(diff.r, 2) + powf(diff.g, 2) + powf(diff.b, 2));
     return abc <= max_distance; // If difference less than the threshold
 }
 

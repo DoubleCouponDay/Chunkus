@@ -19,7 +19,7 @@ void free_template(char* data) {
 }
 
 char* format_template(char* template, int width, int height) {
-	int extra_len = strlen(template) + 40;
+	int extra_len = (int)strlen(template) + 40;
 	char *modified_template = calloc(extra_len, sizeof(char));
 	snprintf(modified_template, extra_len, template, (float)width, (float)height, (float)width, (float)height);
 
@@ -32,9 +32,9 @@ char* gettemplate(int width, int height) {
     FILE* fp = NULL;
 	size_t size;
 	char* data = NULL;
-	fp = fopen(TEMPLATE_PATH, "rb");
+	int err = fopen_s(&fp, TEMPLATE_PATH, "rb");
 
-	if(fp == NULL) { //still null after trying fix
+	if(err != 0 || fp == NULL) { //still null after trying fix
         LOG_ERR("could not find svg template file.");
         setError(TEMPLATE_FILE_NOT_FOUND);
 		return NULL;

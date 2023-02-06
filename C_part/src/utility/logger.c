@@ -16,7 +16,8 @@ void open_log(const char* filename)
     if (logfile)
         fclose(logfile);
     
-    logfile = fopen(filename, "w");
+    logfile = 0;
+    int err = fopen_s(&logfile, filename, "w");
 }
 
 void close_log()
@@ -44,12 +45,14 @@ void logger(const char* tag, const char* message, ...) {
     va_start(args, message);
 
     time_t now;
-    struct tm * timeinfo;
+    struct tm timeinfo;
     char time_buffer[100];
 
     time(&now);
-    timeinfo = localtime(&now);
-    strftime(time_buffer, 100, "%b %e %T", timeinfo);
+    int err = localtime_s(&timeinfo, &now);
+    if (!err)
+        return;
+    strftime(time_buffer, 100, "%b %e %T", &timeinfo);
 
     //print to log file
     fprintf(logfile, "%s [%s]: ", time_buffer, tag);

@@ -231,9 +231,10 @@ void write_image_to_png(image img, const char* fileaddress)
         return;
     }
 
-    FILE* fp = fopen(fileaddress, "wb");
+    FILE* fp = 0;
+    int err = fopen_s(&fp, fileaddress, "wb");
 
-    if (!fp)
+    if (err || !fp)
     {
         LOG_ERR("File: %s not found", fileaddress);
         setError(READ_FILE_ERROR);
@@ -312,9 +313,10 @@ void write_image_to_png(image img, const char* fileaddress)
 
 void write_bytes_to_png(unsigned char* data, int width, int height, const char* fileaddress)
 {
-    FILE* fp = fopen(fileaddress, "wb");
+    FILE* fp = 0;
+    int err = fopen_s(&fp, fileaddress, "wb");
 
-    if (!fp)
+    if (err || !fp)
     {
         LOG_ERR("File: %s not found", fileaddress);
         setError(READ_FILE_ERROR);

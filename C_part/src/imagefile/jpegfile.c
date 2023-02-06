@@ -1,5 +1,6 @@
 #include "jpegfile.h"
 
+#include <math.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -117,8 +118,8 @@ image convert_jpeg_to_image(const char* fileaddress) {
 	}
 	LOG_INFO("decompressing jpeg content...");
 	tjscalingfactor scalingFactor = scalingFactors[8]; //{1, 1}
-	float scaledWidth = TJSCALED(width, scalingFactor);
-	float scaledHeight = TJSCALED(height, scalingFactor);
+	int scaledWidth = (int)ceilf(TJSCALED((float)width, scalingFactor));
+	int scaledHeight = (int)ceilf(TJSCALED((float)height, scalingFactor));
 	int pixelFormat = TJPF_RGB;
 	int pitch = tjPixelSize[pixelFormat];
 	int flags = TJFLAG_ACCURATEDCT; //use the most accurate IDCT algorithm
