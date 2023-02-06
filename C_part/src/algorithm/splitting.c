@@ -5,12 +5,13 @@
 #include <stdlib.h>
 
 splits* create_splits(int width, int height);
-void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offset_x, int offset_y, float threshold);
-bool are_two_colours_similar(pixel a, pixel b, float threshold);
+void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offset_x, int offset_y, float threshold_2);
+bool are_two_colours_similar(pixel a, pixel b, float threshold_2);
 
 void split_chunks(chunkmap* map, splits* splits_out, float threshold)
 {
     splits_out = create_splits(map->map_width, map->map_height);
+    float threshold_2 = threshold * threshold;
 
     int x_offsets[8] = { -1, 0, +1, +1, +1, 0, -1, -1 };
     int y_offsets[8] = { +1, +1, +1, 0, -1, -1, -1, 0 };
@@ -21,13 +22,13 @@ void split_chunks(chunkmap* map, splits* splits_out, float threshold)
         {
             for (int i = 0; i < 8; ++i)
             {
-                split_single_chunk(map, &splits_out->splits[i], x, y, x_offsets[i], y_offsets[i], threshold);
+                split_single_chunk(map, &splits_out->splits[i], x, y, x_offsets[i], y_offsets[i], threshold_2);
             }
         }
     }
 }
 
-void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offset_x, int offset_y, float threshold)
+void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offset_x, int offset_y, float threshold_2)
 {
     split_node* node = &split_out->nodes[x][y];
     node->color = map->groups_array_2d[x][y].average_colour;
@@ -42,16 +43,16 @@ void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offse
     pixel a = map->groups_array_2d[final_x][final_y].average_colour;
     pixel b = map->groups_array_2d[x][y].average_colour;
 
-    node->is_boundary = are_two_colours_similar(a, b, threshold);
+    node->is_boundary = are_two_colours_similar(a, b, threshold_2);
 }
 
-bool are_two_colours_similar(pixel a, pixel b, float threshold)
+bool are_two_colours_similar(pixel a, pixel b, float threshold_2)
 {
     int r_diff = (int)a.r - (int)b.r;
     int g_diff = (int)a.g - (int)b.g;
     int b_diff = (int)a.b - (int)b.b;
     int mag_2 = r_diff * r_diff + g_diff * g_diff + b_diff * b_diff;
-    return (float)mag_2 < threshold;
+    return (float)mag_2 < threshold_2;
 }
 
 splits* create_splits(int width, int height)
