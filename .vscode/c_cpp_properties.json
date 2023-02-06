@@ -1,11 +1,9 @@
 {
     "configurations": [
         {
-            "name": "Windows",
-            "configurationProvider": "ms-vscode.cmake-tools",
-            "cStandard": "c17",
-            "cppStandard": "c++17",
-            "compilerPath": "C:/ProgramData/chocolatey/bin/g++.exe"
+            "name": "CMake",
+            "compileCommands": "${config:cmake.buildDirectory}/compile_commands.json",
+            "configurationProvider": "ms-vscode.cmake-tools"
         },
         {
             "name": "Linux",
@@ -19,6 +17,13 @@
             "compilerPath": "/usr/bin/gcc",
             "intelliSenseMode": "linux-gcc-x64",
             "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+        },
+        {
+            "name": "Windows",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "compilerPath": "C:/ProgramData/chocolatey/bin/g++.exe"
         }
     ],
     "version": 4
