@@ -87,7 +87,7 @@ bool colours_are_similar(pixel color_a, pixel color_b, float max_distance)
     diff.r = (int)color_a.r - (int)color_b.r;
     diff.g = (int)color_a.g - (int)color_b.g;
     diff.b = (int)color_a.b - (int)color_b.b;
-    float abc = sqrtf(pow(diff.r, 2) + pow(diff.g, 2) + pow(diff.b, 2));
+    float abc = sqrtf(powf(diff.r, 2) + powf(diff.g, 2) + powf(diff.b, 2));
     return abc <= max_distance; // If difference less than the threshold
 }
 

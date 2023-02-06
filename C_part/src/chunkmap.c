@@ -12,7 +12,7 @@
 float distance_between(pixelchunk* a, pixelchunk* b) {
     int x = abs(a->location.x - b->location.x);
     int y = abs(a->location.y - b->location.y);
-    return sqrtf((x * x) + (y * y));
+    return sqrtf((float)((x * x) + (y * y)));
 }
 
 int get_map_width(image input, vectorize_options options) {
@@ -191,7 +191,7 @@ void free_chunkmap(chunkmap* map_p)
 vector2 create_vector_between_chunks(pixelchunk* initial, pixelchunk* final) {
     int x_diff = final->location.x - initial->location.x;
     int y_diff = final->location.y - initial->location.y;
-    vector2 diff = { x_diff, y_diff };
+    vector2 diff = { (float)x_diff, (float)y_diff };
     return diff;
 }
 

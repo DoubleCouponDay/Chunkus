@@ -4,7 +4,7 @@
 #include "defines.h"
 
 float getpi(){
-    float pi = 3.14159265358979323846;
+    float pi = 3.14159265358979323846f;
     return pi;
 }
 
