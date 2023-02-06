@@ -98,9 +98,11 @@ if (NOT WIN32)
     target_link_libraries(vec_test PUBLIC m)
 endif()
 
-message("linking pthread...")
+if (NOT MSVC)
+    message("linking pthread...")
     target_link_libraries(vec       PUBLIC  pthread)
     target_link_libraries(vec_test PRIVATE pthread)
+endif()
 
 if (MSVC)
     target_compile_options(vec PUBLIC "/experimental:preprocessor")

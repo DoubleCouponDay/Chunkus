@@ -7,6 +7,7 @@
 #include <nanosvg.h>
 
 #ifdef _WIN32
+#include <windows.h>
 #include <process.h>
 #include <Handleapi.h>
 #include <vadefs.h>
@@ -50,7 +51,6 @@ void windback_lists(chunkmap* map) {
     chunkshape* current = map->first_shape;
 
     while(current != NULL) {
-        current->chunks = current->first_chunk;
         current->boundaries = current->first_boundary;
         current = current->next;
     }
@@ -170,7 +170,7 @@ void vectorize(image input, vectorize_options options) {
     for(int i = 0; i < options.thresholds; ++i) {
         LayerOperation current = operations_p[i];
         #ifdef _WIN32
-        WaitForSingleObjectEx(current->thread, INFINITE, false);
+        WaitForSingleObjectEx(current.thread, INFINITE, false);
         #elif __linux__
         pthread_join(*current.thread, NULL);
         #endif

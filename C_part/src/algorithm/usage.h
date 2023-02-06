@@ -5,6 +5,7 @@
 #include <nanosvg.h>
 
 #ifdef _WIN32
+#include <windows.h>
 #include <process.h>
 #include <Handleapi.h>
 #include <vadefs.h>
