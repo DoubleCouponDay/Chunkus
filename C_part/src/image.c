@@ -82,14 +82,13 @@ int calculate_int_units(int subject) {
     return sum;
 }
 
-bool colours_are_similar(pixel color_a, pixel color_b, float max_distance)
+bool colours_are_similar(pixel a, pixel b, float threshold_2)
 {
-    pixel diff;
-    diff.r = (int)color_a.r - (int)color_b.r;
-    diff.g = (int)color_a.g - (int)color_b.g;
-    diff.b = (int)color_a.b - (int)color_b.b;
-    float abc = sqrtf(powf(diff.r, 2) + powf(diff.g, 2) + powf(diff.b, 2));
-    return abc <= max_distance; // If difference less than the threshold
+    int r_diff = (int)a.r - (int)b.r;
+    int g_diff = (int)a.g - (int)b.g;
+    int b_diff = (int)a.b - (int)b.b;
+    int mag_2 = r_diff * r_diff + g_diff * g_diff + b_diff * b_diff;
+    return (float)mag_2 < threshold_2;
 }
 
 image create_image(int width, int height)

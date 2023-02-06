@@ -23,7 +23,7 @@ typedef struct split_data
     split* split;
     int x_offset;
     int y_offset;
-    float threshold_2;
+    float threshold;
 } split_data;
 
 void thread_split(void* split_data);
@@ -31,12 +31,15 @@ void thread_split(void* split_data);
 void split_chunks(chunkmap* map, splits* splits_out, float threshold)
 {
     splits_out = create_splits(map->map_width, map->map_height);
-    float threshold_2 = threshold * threshold;
 
     int x_offsets[8] = { -1, 0, +1, +1, +1, 0, -1, -1 };
     int y_offsets[8] = { +1, +1, +1, 0, -1, -1, -1, 0 };
     split_data thread_data[8] = { 0 };
-    // pthread_t threads[8] = { 0 };
+    #ifdef _WIN32
+    uintptr_t threads[8] = { 0 };
+    #elif __linux__
+    pthread_t threads[8] = { 0 };
+    #endif
 
     for (int i = 0; i < 8; ++i)
     {
@@ -45,15 +48,27 @@ void split_chunks(chunkmap* map, splits* splits_out, float threshold)
         t_dat->split = &splits_out->splits[i];
         t_dat->x_offset = x_offsets[i];
         t_dat->y_offset = y_offsets[i];
-        t_dat->threshold_2 = threshold_2;
+        t_dat->threshold_2 = threshold;
         // spawn thread 
-        // threads[i] = pthread_create(thread_split, t_dat);
+
+        #if _WIN32
+        threads[i] = _beginthreadex(NULL, 0, thread_split, t_dat, 0, NULL);
+        #elif __linux__
+        threads[i] = (pthread_t*) calloc(1, sizeof(pthread_t));
+        pthread_create(threads[i], NULL, thread_split, t_dat);
+        #endif
     }
 
     for (int i = 0; i < 8; ++i)
     {
         // join all threads
-        // pthread_join(threads[i]);
+        #ifdef _WIN32
+        WaitForSingleObjectEx((HANDLE)threads[i], INFINITE, false);
+        CloseHandle(threads[i]);
+        #elif __linux__
+        pthread_join(threads[i]);
+        free(threads[i]);
+        #endif
     }
 }
 
@@ -75,25 +90,16 @@ void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offse
     node->is_boundary = are_two_colours_similar(a, b, threshold_2);
 }
 
-bool are_two_colours_similar(pixel a, pixel b, float threshold_2)
-{
-    int r_diff = (int)a.r - (int)b.r;
-    int g_diff = (int)a.g - (int)b.g;
-    int b_diff = (int)a.b - (int)b.b;
-    int mag_2 = r_diff * r_diff + g_diff * g_diff + b_diff * b_diff;
-    return (float)mag_2 < threshold_2;
-}
-
 splits* create_splits(int width, int height)
 {
     splits* out = calloc(1, sizeof(splits));
     for (int i = 0; i < 8; ++i)
     {
         split* thisSplit = &out->splits[i];
-        thisSplit->nodes = calloc(width, sizeof(split_node*));
+        thisSplit->nodes = calloc(1, width * sizeof(split_node*));
         for (int x = 0; x < width; ++x)
         {
-            thisSplit->nodes[x] = calloc(height, sizeof(split_node));
+            thisSplit->nodes[x] = calloc(1, height * sizeof(split_node));
         }
     }
     out->splits_width = width;
@@ -119,11 +125,11 @@ void free_splits(splits* splits)
                 continue;
             free(s->nodes[x]);
         }
+        free(s->nodes);
     }
 
     free(splits);
 }
-
 
 void thread_split(void* data)
 {
@@ -133,8 +139,7 @@ void thread_split(void* data)
     {
         for (int y = 0; y < dat.map->map_height; ++y)
         {
-            split_single_chunk(dat.map, dat.split, x, y, dat.x_offset, dat.y_offset, dat.threshold_2);
+            split_single_chunk(dat.map, dat.split, x, y, dat.x_offset, dat.y_offset, dat.threshold);
         }
     }
 }
-

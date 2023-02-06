@@ -15,7 +15,8 @@ float pickon_exponential_curve(int x) {
     float denominator = plusone * logf(2);
     float division = numerator / denominator;
     float exponent = division * (float)x;
-    return (float)-1 + powf(2, exponent);
+    float output = (float)-1 + powf(2, exponent);
+    return output * output;
 }
 
 bool outofbounds(int number) {

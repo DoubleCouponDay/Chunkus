@@ -176,4 +176,3 @@ install(FILES "test/test.png" DESTINATION bin)
 install(FILES "test/test2.png" DESTINATION bin)
 install(FILES "test/test3.png" DESTINATION bin)
 install(FILES "test/test.jpeg" DESTINATION bin)
-
