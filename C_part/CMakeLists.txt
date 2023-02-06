@@ -130,20 +130,26 @@ install(
     RUNTIME DESTINATION bin
 )
 
-set(LIB_EXTENSION ".a") # Setting a variable in case we ever need to change it
+if (MSVC)
+    set(LIB_PREFIX "")
+    set(LIB_EXTENSION ".lib") # Setting a variable in case we ever need to change it
+else()
+    set(LIB_PREFIX "lib")
+    set(LIB_EXTENSION ".a")
+endif()
 
 install(
     FILES
     ${ZLIB_LIB}
     DESTINATION lib
-    RENAME libzlib${LIB_EXTENSION}
+    RENAME ${LIB_PREFIX}zlib${LIB_EXTENSION}
 )
 
 install(
     FILES
     ${LIBPNG_LIB}
     DESTINATION lib
-    RENAME libpng16${LIB_EXTENSION}
+    RENAME ${LIB_PREFIX}png16${LIB_EXTENSION}
 )
 
 install(
@@ -156,7 +162,7 @@ install(
     FILES
     ${TURBOJPEG_LIB}
     DESTINATION lib
-    RENAME libturbojpeg${LIB_EXTENSION}
+    RENAME ${LIB_PREFIX}turbojpeg${LIB_EXTENSION}
 )
 
 install(
