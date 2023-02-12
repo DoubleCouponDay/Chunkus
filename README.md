@@ -35,7 +35,7 @@ On Linux, run the follow commands:
 
     rustup default stable
 
-    sudo apt install libssl-dev
+    sudo apt install build-essential libssl-dev
 
 if you are on windows:
 
@@ -53,10 +53,6 @@ On linux run the following to install OpenGL:
     sudo apt install mesa-common-dev libxi-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev -y
 
 On Windows, OpenGL should already be available.
-	
-### Rust installation on linux
-		
-    sudo apt install build-essential libssl-dev -y
 
 ### Installing Docker
 
