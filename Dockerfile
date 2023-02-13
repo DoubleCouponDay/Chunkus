@@ -15,6 +15,10 @@ RUN apt-get install libx11-dev -y
 RUN apt-get install libgl1-mesa-dev -y
 RUN apt-get install libglu1-mesa-dev -y
 
+#opencl dependencies
+RUN apt-get install libxrandr-dev -y
+RUN apt-get install libudev-dev -y
+
 RUN rustup target add x86_64-unknown-linux-musl && \
     rustup default stable
 
@@ -25,7 +29,8 @@ RUN git clone https://github.com/madler/zlib.git && \
     git clone https://github.com/memononen/nanosvg.git && \ 
     git clone https://github.com/FreeGLUTProject/freeglut.git && \ 
     git clone https://github.com/sammycage/lunasvg.git && \ 
-    git clone https://github.com/winlibs/libjpeg.git
+    git clone https://github.com/winlibs/libjpeg.git && \
+    git clone https://github.com/KhronosGroup/OpenCL-SDK.git
 
 RUN echo "Building zlib..."
 WORKDIR /zlib
@@ -68,6 +73,13 @@ RUN git checkout libjpeg-turbo-2.1.0
 RUN cmake -B build -G "Unix Makefiles"
 RUN cmake --build build -j4
 RUN cmake --install build --prefix install
+
+Run echo "Building OpenCL..."
+WORKDIR /OpenCL-SDK
+git checkout v2022.09.30
+cmake -G "Unix Makefiles" -D CMAKE_INSTALL_PREFIX=install -B build -S ./
+cmake --build build -j4 --config Release --target install -- /m /v:minimal
+cmake --install build --prefix install
 
 COPY ./ /Chunkus
 

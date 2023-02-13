@@ -54,6 +54,12 @@ On linux run the following to install OpenGL:
 
 On Windows, OpenGL should already be available.
 
+###Installing OpenCL
+
+On linux run the following commands:
+
+    sudo apt install libgl1-mesa-dev libglu1-mesa-dev -y
+
 ### Installing Docker
 
 Run the following command:
