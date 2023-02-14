@@ -50,12 +50,12 @@ cmake -B build -G "Unix Makefiles"
 cmake --build build -j4 --config Release
 cmake --install build --prefix install
 
-echo "Building opencl..."
-cd ../OpenCL-SDK
-git checkout v2022.09.30
-cmake -G "Unix Makefiles" -D CMAKE_INSTALL_PREFIX=install -B build -S ./
-cmake --build build -j4 --config Release --target install -- /m /v:minimal
-cmake --install build --prefix install
+# echo "Building opencl..."
+# cd ../OpenCL-SDK
+# git checkout v2022.09.30
+# cmake -G "Unix Makefiles" -D CMAKE_INSTALL_PREFIX=install -B build -S ./
+# cmake --build build -j4 --config Release --target install -- /m /v:minimal
+# cmake --install build --prefix install
 
 echo "building Chunkus..."
 cd ../Chunkus

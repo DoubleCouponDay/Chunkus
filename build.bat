@@ -51,12 +51,12 @@ cmake -B build -G "Visual Studio 17 2022"
 cmake --build build -j4 --config Release
 cmake --install build --prefix install
 
-echo "Building opencl..."
-cd ../OpenCL-SDK
-git checkout v2022.09.30
-cmake -G "Visual Studio 17 2022" -D CMAKE_INSTALL_PREFIX=install -B build -S ./
-cmake --build build -j4 --config Release --target install -- /m /v:minimal
-cmake --install build --prefix install
+@REM echo "Building opencl..."
+@REM cd ../OpenCL-SDK
+@REM git checkout v2022.09.30
+@REM cmake -G "Visual Studio 17 2022" -D CMAKE_INSTALL_PREFIX=install -B build -S ./
+@REM cmake --build build -j4 --config Release --target install -- /m /v:minimal
+@REM cmake --install build --prefix install
 
 echo "building Chunkus..."
 cd ../Chunkus
