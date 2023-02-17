@@ -8,19 +8,20 @@
 #include "../chunkmap.h"
 #include "splitting.h"
 
-uint64_t getslice(split* input, int startindex, int endindex, int width, int height) {  
-    if(endindex - startindex == 64) {
-        uint64_t buffers[64];
-        int bitshift = 63;
-        int offset = 0;
-        
-        for(int i = 0 ; i < 64; ++i) {
-            uint64t currentbuffer = ((uint64_t)input.nodes[startindex][height].is_boundary) << bitshift);
-            buffers[i] = currentbuffer;
-            --bitshift;
-            ++offset;
-        }
+uint64_t getslice(split* input, int startindex, int endindex, int widthstart, int heightstart) {  
+    int size = endindex - startindex;
+
+    uint64_t output;
+    int bitshift = 63;
+    int offset = 0;
+    
+    for(int i = 0 ; i < 8; ++i) {
+        uint64t currentbuffer = ((uint64_t)input.nodes[startindex + offset][height].is_boundary) << bitshift);
+        buffers[i] = currentbuffer;
+        --bitshift;
+        ++offset;
     }
+    return
 }
 
 /// @brief returns a 2D array of ints
