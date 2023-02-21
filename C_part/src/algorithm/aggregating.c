@@ -18,6 +18,7 @@ uint64_t getslice(split* input, int startindex, int endindex, int height) {
     if(size >= bitshift) { //size cannot be larger than 64
         LOG_ERR("ERROR: buffer size is larger than processor architecture");
         setError(ASSUMPTION_WRONG);
+        return -1;
     }
     
     for(int i = 0 ; i < size; ++i) { //if size loops 64 times max it will guarantee the correct max amount of loops
