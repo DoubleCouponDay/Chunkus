@@ -55,4 +55,3 @@ chunkshape* create_chunkshape(chunkmap* target_map)
     target_map->shape_list = new_shape;
     return new_shape;
 }
-
