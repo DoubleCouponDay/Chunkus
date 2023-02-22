@@ -74,10 +74,7 @@ uint64_t* OR_64(splits* input, int width, int height) {
         uint64_t remainder = aggregatedata(input, startindex, endindex, y);
         uint64_t* remainder_p = &remainder;
         int remaindersize = endindex - startindex;
-
-        for(int i = 0; i < remaindersize; ++i) {
-            memcpy(output[y], remainder_p, sizeof(bool) * remaindersize);
-        }
+        memcpy(output[y], remainder_p, sizeof(bool) * remaindersize);
     }
 }
 
