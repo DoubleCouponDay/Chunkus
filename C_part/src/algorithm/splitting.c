@@ -13,8 +13,39 @@
 #include <pthread.h>
 #endif
 
-splits* create_splits(int width, int height);
-void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offset_x, int offset_y, float threshold_2);
+splits* create_splits(int width, int height)
+{
+    splits* out = calloc(1, sizeof(splits));
+    for (int i = 0; i < 8; ++i)
+    {
+        split* thisSplit = &out->splits[i];
+        thisSplit->nodes = calloc(1, width * sizeof(split_node*));
+        for (int x = 0; x < width; ++x)
+        {
+            thisSplit->nodes[x] = calloc(1, height * sizeof(split_node));
+        }
+    }
+    out->splits_width = width;
+    return out;
+}
+
+void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offset_x, int offset_y, float threshold_2)
+{
+    split_node* node = &split_out->nodes[x][y];
+    node->color = map->groups_array_2d[x][y].average_colour;
+    int final_x = x + offset_x;
+    int final_y = y + offset_y;
+
+    if (final_x < 0 || final_x >= map->map_width ||
+        final_y < 0 || final_y >= map->map_height) {
+        node->is_boundary = true;
+    }
+
+    pixel a = map->groups_array_2d[final_x][final_y].average_colour;
+    pixel b = map->groups_array_2d[x][y].average_colour;
+
+    node->is_boundary = colours_are_similar(a, b, threshold_2);
+}
 
 typedef struct split_data
 {
@@ -25,7 +56,23 @@ typedef struct split_data
     float threshold;
 } split_data;
 
-void thread_split(void* split_data);
+void thread_split(void* data)
+{
+    split_data dat = *(split_data*)(data);
+
+    for (int x = 0; x < dat.map->map_width; ++x)
+    {
+        for (int y = 0; y < dat.map->map_height; ++y)
+        {
+            split_single_chunk(dat.map, dat.split, x, y, dat.x_offset, dat.y_offset, dat.threshold);
+        }
+    }
+    #ifdef _WIN32
+    _endthreadex(NULL);
+    #elif __linux__
+    pthread_exit(NULL);
+    #endif
+}
 
 void split_chunks(chunkmap* map, splits* splits_out, float threshold)
 {
@@ -71,40 +118,6 @@ void split_chunks(chunkmap* map, splits* splits_out, float threshold)
     }
 }
 
-void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offset_x, int offset_y, float threshold_2)
-{
-    split_node* node = &split_out->nodes[x][y];
-    node->color = map->groups_array_2d[x][y].average_colour;
-    int final_x = x + offset_x;
-    int final_y = y + offset_y;
-
-    if (final_x < 0 || final_x >= map->map_width ||
-        final_y < 0 || final_y >= map->map_height) {
-        node->is_boundary = true;
-    }
-
-    pixel a = map->groups_array_2d[final_x][final_y].average_colour;
-    pixel b = map->groups_array_2d[x][y].average_colour;
-
-    node->is_boundary = colours_are_similar(a, b, threshold_2);
-}
-
-splits* create_splits(int width, int height)
-{
-    splits* out = calloc(1, sizeof(splits));
-    for (int i = 0; i < 8; ++i)
-    {
-        split* thisSplit = &out->splits[i];
-        thisSplit->nodes = calloc(1, width * sizeof(split_node*));
-        for (int x = 0; x < width; ++x)
-        {
-            thisSplit->nodes[x] = calloc(1, height * sizeof(split_node));
-        }
-    }
-    out->splits_width = width;
-    return out;
-}
-
 void free_splits(splits* splits)
 {
     if (!splits)
@@ -126,19 +139,5 @@ void free_splits(splits* splits)
         }
         free(s->nodes);
     }
-
     free(splits);
-}
-
-void thread_split(void* data)
-{
-    split_data dat = *(split_data*)(data);
-
-    for (int x = 0; x < dat.map->map_width; ++x)
-    {
-        for (int y = 0; y < dat.map->map_height; ++y)
-        {
-            split_single_chunk(dat.map, dat.split, x, y, dat.x_offset, dat.y_offset, dat.threshold);
-        }
-    }
 }

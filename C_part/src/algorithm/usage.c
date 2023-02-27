@@ -56,7 +56,7 @@ void windback_lists(chunkmap* map) {
     }
 }
 
-void* process_in_thread(void* arg) {
+void process_in_thread(void* arg) {
     Layer* layer = (Layer*)arg;
     process_layer(layer);
     
