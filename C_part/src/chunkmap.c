@@ -152,18 +152,16 @@ void free_chunkmap(chunkmap* map_p)
     }
     LOG_INFO("freeing chunkmap");
 
-    for (int x = 0; x < map_p->map_width; ++x)
-    {
-        for (int y = 0; y < map_p->map_height; ++y)
-        {
-            pixelchunk* current = &map_p->groups_array_2d[x][y];
-            current->boundary_chunk_in = NULL;
-        }
-
-        free(map_p->groups_array_2d[x]);
-    }
-
     if(map_p->groups_array_2d) {
+        for (int x = 0; x < map_p->map_width; ++x)
+        {
+            for (int y = 0; y < map_p->map_height; ++y)
+            {
+                pixelchunk* current = &map_p->groups_array_2d[x][y];
+                current->boundary_chunk_in = NULL;
+            }
+            free(map_p->groups_array_2d[x]);
+        }
         free(map_p->groups_array_2d);
     }
     
