@@ -8,7 +8,7 @@
 #include "../utility/logger.h"
 #include "../utility/error.h"
 
-uint64_t getslice(split* input, int startindex, int endindex, int height) {  
+uint64_t getslice(split input, int startindex, int endindex, int height) {  
     int size = endindex - startindex;
 
     uint64_t output;
@@ -22,7 +22,7 @@ uint64_t getslice(split* input, int startindex, int endindex, int height) {
     }
     
     for(int i = 0 ; i < size; ++i) { //if size loops 64 times max it will guarantee the correct max amount of loops
-        uint64_t currentbuffer = ((uint64_t)input.nodes[startindex + offset][height].is_boundary) << bitshift);
+        uint64_t currentbuffer = ((uint64_t)(input.nodes[startindex + offset][height].is_boundary)) << bitshift;
         output |= currentbuffer;
         --bitshift; //bitshift caps out at 0
         ++offset;
@@ -30,15 +30,15 @@ uint64_t getslice(split* input, int startindex, int endindex, int height) {
     return output;
 }
 
-uint64_t aggregatedata(splits** input, int startindex, int endindex, int y) {
-    uint64_t split1slice = getslice(input.splits[0], startindex, endindex, y);
-    uint64_t split2slice = getslice(input.splits[1], startindex, endindex, y);
-    uint64_t split3slice = getslice(input.splits[2], startindex, endindex, y);
-    uint64_t split4slice = getslice(input.splits[3], startindex, endindex, y);
-    uint64_t split5slice = getslice(input.splits[4], startindex, endindex, y);
-    uint64_t split6slice = getslice(input.splits[5], startindex, endindex, y);
-    uint64_t split7slice = getslice(input.splits[6], startindex, endindex, y);
-    uint64_t split8slice = getslice(input.splits[7], startindex, endindex, y);
+uint64_t aggregatedata(splits* input, int startindex, int endindex, int y) {
+    uint64_t split1slice = getslice(input->splits[0], startindex, endindex, y);
+    uint64_t split2slice = getslice(input->splits[1], startindex, endindex, y);
+    uint64_t split3slice = getslice(input->splits[2], startindex, endindex, y);
+    uint64_t split4slice = getslice(input->splits[3], startindex, endindex, y);
+    uint64_t split5slice = getslice(input->splits[4], startindex, endindex, y);
+    uint64_t split6slice = getslice(input->splits[5], startindex, endindex, y);
+    uint64_t split7slice = getslice(input->splits[6], startindex, endindex, y);
+    uint64_t split8slice = getslice(input->splits[7], startindex, endindex, y);
     uint64_t aggregate = split1slice | split2slice | split3slice | split4slice | split5slice | split6slice | split7slice | split8slice;
     return aggregate;
 }
@@ -48,7 +48,7 @@ uint64_t aggregatedata(splits** input, int startindex, int endindex, int y) {
 /// @param width 
 /// @param height 
 /// @return 
-uint64_t* OR_64(splits* input, int width, int height) {
+bool** OR_64(splits* input, int width, int height) {
     //1. take each row in 64 bit slices
     //2. make 8 variables for each slice
     //3. bitwise OR them together
@@ -76,12 +76,16 @@ uint64_t* OR_64(splits* input, int width, int height) {
         int remaindersize = endindex - startindex;
         memcpy(output[y], remainder_p, sizeof(bool) * remaindersize);
     }
+    return output;
 }
 
-void free_aggregate(bool** input, int width, int length) {
-    for(int x = 0; x < width; ++x) {
-        for(int y = 0; y < height; ++y) {
-            free()
-        }
+void free_aggregate(bool** input, int width) {
+    if(input == NULL) {
+        return;
     }
+    for(int x = 0; x < width; ++x) {
+        bool* currentX = input[width];
+        free(currentX);
+    }
+    free(input);
 }

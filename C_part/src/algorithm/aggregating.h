@@ -8,4 +8,6 @@
 
 #define MAX_BITS 64
 
-uint64_t* OR_64(splits* input, int width, int height);
+bool** OR_64(splits* input, int width, int height);
+
+void free_aggregate(bool** input);
