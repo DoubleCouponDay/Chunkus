@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "../chunkmap.h"
 #include "splitting.h"
@@ -43,7 +44,7 @@ uint64_t aggregatedata(splits* input, int startindex, int endindex, int y) {
     return aggregate;
 }
 
-/// @brief returns a 2D array of ints
+/// @brief returns a 2D array of bools
 /// @param input 
 /// @param width 
 /// @param height 
