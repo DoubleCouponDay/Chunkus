@@ -10,4 +10,4 @@
 
 bool** OR_64(splits* input, int width, int height);
 
-void free_aggregate(bool** input);
+void free_aggregate(bool** input, int width);
