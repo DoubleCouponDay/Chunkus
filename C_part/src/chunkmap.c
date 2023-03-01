@@ -134,6 +134,24 @@ chunkmap* generate_chunkmap(image input, vectorize_options options)
     return output;
 }
 
+chunkshape* generate_chunkshape(chunkmap* target_map)
+{
+    chunkshape* new_shape = calloc(1, sizeof(chunkshape));
+
+    new_shape->boundaries = 0;
+    new_shape->boundaries_length = 0;
+    new_shape->first_boundary = 0;
+    new_shape->next = 0;
+    new_shape->path_closed = false;
+
+    if (!target_map->first_shape)
+        target_map->first_shape = new_shape;
+    if (target_map->shape_list)
+        target_map->shape_list->next = new_shape;
+    target_map->shape_list = new_shape;
+    return new_shape;
+}
+
 void free_pixelchunklist(pixelchunk_list* linkedlist) {
     pixelchunk_list* current = linkedlist;
 

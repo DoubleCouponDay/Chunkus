@@ -10,8 +10,6 @@
 extern "C" {
 #endif
 
-struct chunkshape; //allows circular reference
-
 typedef struct 
 {
     pixel average_colour;
@@ -48,6 +46,7 @@ typedef struct chunkmap
 int get_map_width(image input, vectorize_options options);
 int get_map_height(image input, vectorize_options options);
 chunkmap* generate_chunkmap(image inputimage_p, vectorize_options options);
+chunkshape* generate_chunkshape(chunkmap* target_map);
 void free_chunkmap(chunkmap* map_p);
 void free_pixelchunklist(pixelchunk_list* linkedlist);
 vector2 create_vector_between_chunks(pixelchunk* initial, pixelchunk* final);

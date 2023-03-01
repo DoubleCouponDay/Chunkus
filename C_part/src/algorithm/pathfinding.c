@@ -1,37 +1,11 @@
 #include "pathfinding.h"
 
-#include "sort.h"
 #include <stdbool.h>
 
-bool chunk_is_border(pixelchunk* chunk, pathfind_input border_lookup)
-{
-    // TODO: .... not sure where 'is_boundary' properties are stored yet
-    // Perhaps:
-    // return chunk->is_boundary;
-    // or:
-    // return border_lookup[chunk->location.x][chunk->location.y].is_boundary;
-    return false; 
-}
+#include "sort.h"
+#include "../chunkmap.h"
 
-chunkshape* create_chunkshape(chunkmap* target_map)
-{
-    chunkshape* new_shape = calloc(1, sizeof(chunkshape));
-
-    new_shape->boundaries = 0;
-    new_shape->boundaries_length = 0;
-    new_shape->first_boundary = 0;
-    new_shape->next = 0;
-    new_shape->path_closed = false;
-
-    if (!target_map->first_shape)
-        target_map->first_shape = new_shape;
-    if (target_map->shape_list)
-        target_map->shape_list->next = new_shape;
-    target_map->shape_list = new_shape;
-    return new_shape;
-}
-
-void pathfind_shapes(Layer* layer, chunkmap* map, bool** border_lookup)
+void pathfind_shapes(Layer* layer, chunkmap* map, bool** aggregation)
 {
     for (int x = 0; x < map->map_width; ++x)
     {
@@ -39,15 +13,10 @@ void pathfind_shapes(Layer* layer, chunkmap* map, bool** border_lookup)
         {
             pixelchunk* chunk = &map->groups_array_2d[x][y];
 
-            // Skip chunks already in shapes
-            if (chunk->boundary_chunk_in)
-                continue;
-            
-            // Skip chunks that aren't borders/boundaries
-            if (chunk_is_border(chunk, border_lookup) == false)
+            if (chunk->boundary_chunk_in == true || aggregation[x][y] == false)
                 continue;
 
-            chunkshape* shape = create_chunkshape(map);
+            chunkshape* shape = generate_chunkshape(map);
             pathfind_shape(layer, shape, chunk);
         }
     }
