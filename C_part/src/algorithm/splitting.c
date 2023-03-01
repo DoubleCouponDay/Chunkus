@@ -29,7 +29,7 @@ splits* create_splits(int width, int height)
     return out;
 }
 
-void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offset_x, int offset_y, float threshold_2)
+void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offset_x, int offset_y, float threshold)
 {
     split_node* node = &split_out->nodes[x][y];
     node->color = map->groups_array_2d[x][y].average_colour;
@@ -44,7 +44,7 @@ void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offse
     pixel a = map->groups_array_2d[final_x][final_y].average_colour;
     pixel b = map->groups_array_2d[x][y].average_colour;
 
-    node->is_boundary = colours_are_similar(a, b, threshold_2);
+    node->is_boundary = colours_are_similar(a, b, threshold);
 }
 
 typedef struct split_data

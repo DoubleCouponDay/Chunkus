@@ -82,13 +82,13 @@ int calculate_int_units(int subject) {
     return sum;
 }
 
-bool colours_are_similar(pixel a, pixel b, float threshold_2)
+bool colours_are_similar(pixel a, pixel b, float threshold)
 {
     int r_diff = (int)a.r - (int)b.r;
     int g_diff = (int)a.g - (int)b.g;
     int b_diff = (int)a.b - (int)b.b;
     int mag_2 = r_diff * r_diff + g_diff * g_diff + b_diff * b_diff;
-    return (float)mag_2 < threshold_2;
+    return (float)mag_2 < threshold;
 }
 
 image create_image(int width, int height)

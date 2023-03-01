@@ -78,7 +78,7 @@ pixelF convert_colour_to_pixelf(colour input);
 FILE* openfile(const char* fileaddress); //b mode prevents windows corruption
 bool pixelf_equal(pixelF a, pixelF b);
 int calculate_int_units(int subject);
-bool colours_are_similar(pixel color_a, pixel color_b, float threshold_2);
+bool colours_are_similar(pixel color_a, pixel color_b, float threshold);
 char* rgb_to_string(pixel* input);
 image create_image(int width, int height);
 void free_image_contents(image img);
