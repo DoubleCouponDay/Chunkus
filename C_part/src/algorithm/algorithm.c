@@ -63,11 +63,4 @@ void process_layer(Layer* layer) {
             }
         }
     }
-
-    if(layer->options->threshold != 0) { //only draw triangles on the top layer
-        return;
-    }
-    LOG_INFO("layer: %d, making triangles", layer->layer_index);
-
-    return;
 }
