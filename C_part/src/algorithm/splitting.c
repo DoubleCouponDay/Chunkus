@@ -78,16 +78,16 @@ void split_chunks(chunkmap* map, splits* splits_out, float threshold)
 {
     splits_out = create_splits(map->map_width, map->map_height);
 
-    int x_offsets[8] = { -1, 0, +1, +1, +1, 0, -1, -1 };
-    int y_offsets[8] = { +1, +1, +1, 0, -1, -1, -1, 0 };
-    split_data thread_data[8] = { 0 };
+    int x_offsets[NUM_SPLITS] = { -1, 0, +1, +1, +1, 0, -1, -1 };
+    int y_offsets[NUM_SPLITS] = { +1, +1, +1, 0, -1, -1, -1, 0 };
+    split_data thread_data[NUM_SPLITS] = { 0 };
     #ifdef _WIN32
-    uintptr_t threads[8] = { 0 };
+    uintptr_t threads[NUM_SPLITS] = { 0 };
     #elif __linux__
-    pthread_t threads[8] = { 0 };
+    pthread_t threads[NUM_SPLITS] = { 0 };
     #endif
 
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < NUM_SPLITS; ++i)
     {
         split_data* t_dat = &thread_data[i];
         t_dat->map = map;
@@ -95,7 +95,6 @@ void split_chunks(chunkmap* map, splits* splits_out, float threshold)
         t_dat->x_offset = x_offsets[i];
         t_dat->y_offset = y_offsets[i];
         t_dat->threshold = threshold;
-        // spawn thread 
 
         #if _WIN32
         threads[i] = _beginthreadex(NULL, 0, thread_split, t_dat, 0, NULL);

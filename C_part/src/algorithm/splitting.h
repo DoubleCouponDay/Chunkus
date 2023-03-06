@@ -3,6 +3,10 @@
 #include "../image.h"
 #include "chunkmap.h"
 
+#ifndef splitting
+#define NUM_SPLITS 8
+#endif
+
 typedef struct split_node
 {
     pixel color;
@@ -16,7 +20,7 @@ typedef struct split
 
 typedef struct splits
 {
-    split splits[8];
+    split splits[NUM_SPLITS];
     int splits_width;
 } splits;
 
