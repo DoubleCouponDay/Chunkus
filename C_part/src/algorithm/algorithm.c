@@ -16,6 +16,7 @@
 #include "../sort.h"
 #include "../utility/vec.h"
 #include "./splitting.h"
+#include "./aggregating.h"
 
 const float ZIP_DISTANCE = 0.5;
 
@@ -41,7 +42,9 @@ void zip_seam(pixelchunk* chunk_to_zip, pixelchunk* adjacent) {
 
 void process_layer(Layer* layer) {
     LOG_INFO("Filling layer: %d", layer->layer_index);
-    splits splitsoutput;
-    splitsoutput.splits_width = 0;
-    split_chunks(layer->map, &splitsoutput, layer->options->threshold);
+    splits* splits = split_chunks(layer->map, layer->options->threshold);
+    bool** aggregate = OR_64(splits, layer->map->map_width, layer->map->map_height);
+
+    free_splits(splits);
+    free_aggregate(aggregate, layer->map->map_width);
 }

@@ -74,9 +74,9 @@ void thread_split(void* data)
     #endif
 }
 
-void split_chunks(chunkmap* map, splits* splits_out, float threshold)
+splits* split_chunks(chunkmap* map, float threshold)
 {
-    splits_out = create_splits(map->map_width, map->map_height);
+    splits* splits_out = create_splits(map->map_width, map->map_height);
 
     int x_offsets[NUM_SPLITS] = { -1, 0, +1, +1, +1, 0, -1, -1 };
     int y_offsets[NUM_SPLITS] = { +1, +1, +1, 0, -1, -1, -1, 0 };
@@ -115,6 +115,7 @@ void split_chunks(chunkmap* map, splits* splits_out, float threshold)
         free(threads[i]);
         #endif
     }
+    return splits_out;
 }
 
 void free_splits(splits* splits)
