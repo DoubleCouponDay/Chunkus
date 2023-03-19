@@ -17,6 +17,7 @@
 #include "../utility/vec.h"
 #include "./splitting.h"
 #include "./aggregating.h"
+#include "./pathfinding.h"
 
 const float ZIP_DISTANCE = 0.5;
 
@@ -44,7 +45,7 @@ void process_layer(Layer* layer) {
     LOG_INFO("Filling layer: %d", layer->layer_index);
     splits* splits = split_chunks(layer->map, layer->options->threshold);
     bool** aggregate = OR_64(splits, layer->map->map_width, layer->map->map_height);
-
+    pathfind_shapes(layer, layer->map, aggregate);
     free_splits(splits);
     free_aggregate(aggregate, layer->map->map_width);
 }
