@@ -12,8 +12,9 @@ void pathfind_shapes(Layer* layer, chunkmap* map, bool** aggregation)
         for (int y = 0; y < map->map_height; ++y)
         {
             pixelchunk* chunk = &map->groups_array_2d[x][y];
+            bool is_boundary = aggregation[x][y];
 
-            if (chunk->boundary_chunk_in != NULL || aggregation[x][y] == false)
+            if (chunk->boundary_chunk_in != NULL || is_boundary == false)
                 continue;
 
             chunkshape* shape = generate_chunkshape(map);
