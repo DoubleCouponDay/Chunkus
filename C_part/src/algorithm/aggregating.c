@@ -3,11 +3,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "../chunkmap.h"
 #include "splitting.h"
 #include "../utility/logger.h"
 #include "../utility/error.h"
+
 
 uint64_t getslice(split input, int startindex, int endindex, int height) {  
     int size = endindex - startindex;
