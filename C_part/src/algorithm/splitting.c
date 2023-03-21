@@ -49,14 +49,14 @@ void split_single_chunk(chunkmap* map, split* split_out, int x, int y, int offse
 
 typedef struct split_data
 {
-    const chunkmap* map;
+    chunkmap* map;
     split* split;
     int x_offset;
     int y_offset;
     float threshold;
 } split_data;
 
-void thread_split(void* data)
+void* thread_split(void* data)
 {
     split_data dat = *(split_data*)(data);
 
@@ -84,7 +84,7 @@ splits* split_chunks(chunkmap* map, float threshold)
     #ifdef _WIN32
     uintptr_t threads[NUM_SPLITS] = { 0 };
     #elif __linux__
-    pthread_t threads[NUM_SPLITS] = { 0 };
+    pthread_t* threads[NUM_SPLITS] = { 0 };
     #endif
 
     for (int i = 0; i < NUM_SPLITS; ++i)
@@ -111,8 +111,8 @@ splits* split_chunks(chunkmap* map, float threshold)
         WaitForSingleObjectEx((HANDLE)threads[i], INFINITE, false);
         CloseHandle(threads[i]);
         #elif __linux__
-        pthread_join(threads[i]);
-        free(threads[i]);
+        pthread_join(*threads[i], NULL);
+        free((void*)*threads[i]);
         #endif
     }
     return splits_out;
