@@ -15,6 +15,7 @@ On Windows:
 
 + Install Visual Studio Community Edition
 + Add the MSVC C++ Build Tools Individual Component
++ Add the Windows SDK Individual Component
 + Install Git using Chocolatey
 + Install Cmake using Chocolatey
 + add the Cmake folder to your PATH environment variable
