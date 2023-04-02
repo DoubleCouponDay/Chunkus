@@ -1,10 +1,12 @@
-echo on
+@echo off
+::disables echoing so that good looking outputs make it through to std out
 
-if ( "$~#" == "0" ) then (
+if "%1"=="" (
+    echo "Error: No arguments provided."
     echo "Usage: ./build.sh <buildtype>"
     echo "buildtype can be Debug or Release"
-    exit /b 1
-endif
+    exit 1
+)
 
 set buildtype=%1
 echo "building type: %buildtype%"
