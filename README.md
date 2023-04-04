@@ -155,8 +155,6 @@ You can easily debug the C tests with Visual Studio Code.
 
     + In the `Run and Debug` side menu, select the launch task `(Windows) Launch Tests`, which can be configured in the `.vscode/launch.json file`. 
 
-Currently, only windows tests have been confirmed to work.
-
 ## Rust Tests
 ---
 
