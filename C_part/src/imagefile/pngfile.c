@@ -16,7 +16,7 @@ bool file_is_png(const char* fileaddress) {
         LOG_ERR("openfile failed");
         return false;
     }
-    fread(header, 1, 8, file_p);
+    size_t ignored = fread(header, 1, 8, file_p);
     fclose(file_p);
     return (bool)png_sig_cmp(header, 0, 8) == 0;
 }
