@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.13.4)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(NDEBUG "1")
+endif()
+
 project("vec" "C")
 
 file(GLOB headersglob 

@@ -33,7 +33,7 @@ void clear_logfile() {
     open_log(LOG_PATH);
 }
 
-#if defined(_DEBUG) || defined(DEBUG)
+#ifndef NDEBUG
 void logger(const char* tag, const char* message, ...) {
     if (!logfile)
     {
