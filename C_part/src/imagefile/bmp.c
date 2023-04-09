@@ -70,23 +70,23 @@ void generateBitmapImage(unsigned char* image, int height, int width, const char
 
     int stride = (widthInBytes) + paddingSize;
 
-    FILE* imageFile = 0;
-    int err = fopen_s(&imageFile, imageFileName, "wb");
-    if (err != 0 || imageFile == 0)
+    FILE* file_p = fopen(imageFileName, "wb");
+
+    if (file_p == NULL)
         return;
 
     unsigned char* fileHeader = createBitmapFileHeader(height, stride);
-    fwrite(fileHeader, 1, FILE_HEADER_SIZE, imageFile);
+    fwrite(fileHeader, 1, FILE_HEADER_SIZE, file_p);
 
     unsigned char* infoHeader = createBitmapInfoHeader(height, width);
-    fwrite(infoHeader, 1, INFO_HEADER_SIZE, imageFile);
+    fwrite(infoHeader, 1, INFO_HEADER_SIZE, file_p);
 
     for (int i = 0; i < height; i++) {
-        fwrite(image + (i*widthInBytes), BYTES_PER_PIXEL, width, imageFile);
-        fwrite(padding, 1, paddingSize, imageFile);
+        fwrite(image + (i*widthInBytes), BYTES_PER_PIXEL, width, file_p);
+        fwrite(padding, 1, paddingSize, file_p);
     }
 
-    fclose(imageFile);
+    fclose(file_p);
 }
 
 

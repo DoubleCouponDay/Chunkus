@@ -231,10 +231,9 @@ void write_image_to_png(image img, const char* fileaddress)
         return;
     }
 
-    FILE* fp = 0;
-    int err = fopen_s(&fp, fileaddress, "wb");
+    FILE* file_p = fopen(fileaddress, "wb");
 
-    if (err || !fp)
+    if (!file_p)
     {
         LOG_ERR("File: %s not found", fileaddress);
         setError(READ_FILE_ERROR);
@@ -265,7 +264,7 @@ void write_image_to_png(image img, const char* fileaddress)
         return;
     }
 
-    png_init_io(png_ptr, fp);
+    png_init_io(png_ptr, file_p);
 
     // Output 8bit RGBA
     png_set_IHDR(
@@ -306,17 +305,16 @@ void write_image_to_png(image img, const char* fileaddress)
     }
     free(row_pointers);
 
-    fclose(fp);
+    fclose(file_p);
 
     png_destroy_write_struct(&png_ptr, &info_ptr);
 }
 
 void write_bytes_to_png(unsigned char* data, int width, int height, const char* fileaddress)
 {
-    FILE* fp = 0;
-    int err = fopen_s(&fp, fileaddress, "wb");
+    FILE* file_p = fopen(fileaddress, "wb");
 
-    if (err || !fp)
+    if (file_p == NULL)
     {
         LOG_ERR("File: %s not found", fileaddress);
         setError(READ_FILE_ERROR);
@@ -347,7 +345,7 @@ void write_bytes_to_png(unsigned char* data, int width, int height, const char* 
         return;
     }
 
-    png_init_io(png_ptr, fp);
+    png_init_io(png_ptr, file_p);
 
     // Output 8bit RGBA
     png_set_IHDR(
@@ -387,7 +385,7 @@ void write_bytes_to_png(unsigned char* data, int width, int height, const char* 
     }
     free(row_pointers);
 
-    fclose(fp);
+    fclose(file_p);
 
     png_destroy_write_struct(&png_ptr, &info_ptr);
 }

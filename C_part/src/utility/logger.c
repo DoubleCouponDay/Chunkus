@@ -8,23 +8,22 @@
 
 #include "error.h"
 
-FILE* logfile = 0;
+FILE* logfile = NULL;
 const char* LOG_PATH = "log.txt";
 
 void open_log(const char* filename)
 {
-    if (logfile)
+    if (logfile != NULL)
         fclose(logfile);
     
-    logfile = 0;
-    int err = fopen_s(&logfile, filename, "w");
+    logfile = fopen(filename, "w");
 }
 
 void close_log()
 {
     if (logfile)
         fclose(logfile);
-    logfile = 0;
+    logfile = NULL;
 }
 
 void clear_logfile() {

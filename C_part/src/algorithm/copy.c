@@ -29,12 +29,11 @@ char* format_template(char* template, int width, int height) {
 
 ///nanosvg copypaste
 char* gettemplate(int width, int height) {
-    FILE* fp = NULL;
 	size_t size;
 	char* data = NULL;
-	int err = fopen_s(&fp, TEMPLATE_PATH, "rb");
+	FILE* fp = fopen(TEMPLATE_PATH, "rb");
 
-	if(err != 0 || fp == NULL) { //still null after trying fix
+	if(fp == NULL) { //still null after trying fix
         LOG_ERR("could not find svg template file.");
         setError(TEMPLATE_FILE_NOT_FOUND);
 		return NULL;

@@ -11,10 +11,9 @@
 #include "utility/error.h"
 
 FILE* openfile(const char* fileaddress) {
-    FILE* file_p = 0;
-    int err = fopen_s(&file_p, fileaddress, "rb");
+    FILE* file_p = fopen(fileaddress, "rb");
 
-    if (err || !file_p) {
+    if (file_p == NULL) {
         LOG_ERR("Could not open file '%s' for reading", fileaddress);
         setError(ASSUMPTION_WRONG);
         return NULL;
