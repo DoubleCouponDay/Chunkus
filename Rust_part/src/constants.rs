@@ -21,6 +21,7 @@ pub enum FfiResult {
     LowBoundariesCreated,
     RGBAUnsupported,    
     GreyscaleUnsupported,
+    CantLog,
     UnknownError
 }
 
@@ -40,6 +41,7 @@ impl From<i32> for FfiResult {
             10 => FfiResult::LowBoundariesCreated,
             11 => FfiResult::RGBAUnsupported,
             12 => FfiResult::GreyscaleUnsupported,
+            13 => FfiResult::CantLog,
             _ => FfiResult::UnknownError
         }
     }
@@ -74,6 +76,7 @@ fn ffiresult_to_string(input: &FfiResult) -> &'static str {
         FfiResult::LowBoundariesCreated => "LowBoundariesCreated",
         FfiResult::RGBAUnsupported => "RGBAUnsupported",
         FfiResult::GreyscaleUnsupported => "GreyscaleUnsupported",
-        FfiResult::UnknownError => "UnknownError"
+        FfiResult::UnknownError => "UnknownError",
+        FfiResult::CantLog => "CantLog"
     }
 }

@@ -44,13 +44,16 @@ void logger(const char* tag, const char* message, ...) {
     va_start(args, message);
 
     time_t now;
-    struct tm timeinfo;
     char time_buffer[100];
 
     time(&now);
-    int err = localtime_s(&timeinfo, &now);
-    if (!err)
+    struct tm* timeinfo = localtime(&now);
+
+    if(timeinfo == NULL)
+    {
+        setError(CANT_LOG);
         return;
+    }
     strftime(time_buffer, 100, "%b %e %T", &timeinfo);
 
     //print to log file

@@ -13,7 +13,8 @@ enum vectorizing_opcodes {
     NOT_PNG_OR_JPEG,
     LOW_BOUNDARIES_CREATED,
     RGBA_UNSUPPORTED,
-    GREYSCALE_UNSUPPORTED
+    GREYSCALE_UNSUPPORTED,
+    CANT_LOG
 };
 
 int isBadError();

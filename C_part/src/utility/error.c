@@ -1,7 +1,5 @@
 #include "error.h"
 
-#include "logger.h"
-
 int error_code = SUCCESS_CODE;
 
 int isBadError() {
