@@ -16,7 +16,8 @@
 splits* create_splits(int width, int height)
 {
     splits* out = calloc(1, sizeof(splits));
-    for (int i = 0; i < 8; ++i)
+
+    for (int i = 0; i < NUM_SPLITS; ++i)
     {
         split* thisSplit = &out->splits[i];
         thisSplit->nodes = calloc(1, width * sizeof(split_node*));
