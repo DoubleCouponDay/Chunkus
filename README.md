@@ -17,10 +17,16 @@ On Windows:
 + Add the MSVC C++ Build Tools Individual Component
 + Add the Windows SDK Individual Component
 + Install Git using Chocolatey
-+ Install Cmake using Chocolatey
-+ add the Cmake folder to your PATH environment variable
 
-    `C:\Program Files\CMake\bin`
+    choco install git
+
++ Install Cmake using Chocolatey
+
+    choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+
++ Set the `CMAKE_C_COMPILER` to this:
+
+    C:\Program Files\CMake\bin\cmake.exe
 
 On Linux:
 
