@@ -10,8 +10,8 @@
 #include "../utility/logger.h"
 #include "../utility/error.h"
 
-
-uint64_t getslice(split input, int startindex, int endindex, int height) {  
+uint64_t getslice(split input, int startindex, int endindex, int height) {
+    LOG_INFO("");
     int size = endindex - startindex;
 
     uint64_t output;
@@ -34,6 +34,7 @@ uint64_t getslice(split input, int startindex, int endindex, int height) {
 }
 
 uint64_t aggregatedata(splits* input, int startindex, int endindex, int y) {
+    LOG_INFO("");
     uint64_t split1slice = getslice(input->splits[0], startindex, endindex, y);
     uint64_t split2slice = getslice(input->splits[1], startindex, endindex, y);
     uint64_t split3slice = getslice(input->splits[2], startindex, endindex, y);
@@ -43,6 +44,7 @@ uint64_t aggregatedata(splits* input, int startindex, int endindex, int y) {
     uint64_t split7slice = getslice(input->splits[6], startindex, endindex, y);
     uint64_t split8slice = getslice(input->splits[7], startindex, endindex, y);
     uint64_t aggregate = split1slice | split2slice | split3slice | split4slice | split5slice | split6slice | split7slice | split8slice;
+    LOG_INFO("aggregate: %d", aggregate);
     return aggregate;
 }
 
@@ -57,13 +59,16 @@ bool** OR_64(splits* input, int width, int height) {
     //3. bitwise OR them together
     //4. write to a single chunkmap
     //5. do it for every slice in the current row
+    LOG_INFO("");
     bool** output = calloc(1, sizeof(bool*) * height);
 
     for(int y = 0; y < height; ++y) {
         int startindex = 0;
         int endindex = startindex + MAX_BITS;
+        int column_size = ceil(width);
+        LOG_INFO("column_size: %d", column_size);
+        output[y] = calloc(1, column_size);
 
-        output[y] = calloc(1, sizeof(bool) * width);
         //write 64b aggregates
         while(endindex < width) {
             uint64_t aggregate = aggregatedata(input, startindex, endindex, y);
@@ -78,11 +83,14 @@ bool** OR_64(splits* input, int width, int height) {
         uint64_t* remainder_p = &remainder;
         int remaindersize = endindex - startindex;
         memcpy(output[y], remainder_p, sizeof(bool) * remaindersize);
+        LOG_INFO("output[y]: %s", output[y]);
     }
     return output;
 }
 
 void free_aggregate(bool** input, int width) {
+    LOG_INFO("");
+
     if(input == NULL) {
         return;
     }
