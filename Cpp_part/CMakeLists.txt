@@ -6,16 +6,13 @@ cmake_minimum_required (VERSION 3.13.4)
 cmake_policy(SET CMP0091 NEW)
 
 project("vec_step" CXX)
-message("creating vec_step.exe build...'")
+message("creating vec_step.exe build...")
 set(VC_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 file(GLOB_RECURSE VC_SRCS "${VC_SRC_DIR}/*.cpp")
 file(GLOB_RECURSE VC_HDRS "${VC_SRC_DIR}/*.h")
 
 add_executable(vec_step ${VC_SRCS})
-
-install(TARGETS vec_step
-		DESTINATION bin)
 
 set_target_properties(vec_step
 	PROPERTIES
@@ -121,3 +118,6 @@ install(
 	DESTINATION bin
 	RENAME turbojpeg${LIB_EXTENSION}
 )
+
+install(TARGETS vec_step
+		DESTINATION bin)
