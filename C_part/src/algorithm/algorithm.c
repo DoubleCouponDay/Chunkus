@@ -13,7 +13,6 @@
 #include "../utility/logger.h"
 #include "../utility/error.h"
 #include "copy.h"
-#include "../sort.h"
 #include "../utility/vec.h"
 #include "./splitting.h"
 #include "./aggregating.h"
