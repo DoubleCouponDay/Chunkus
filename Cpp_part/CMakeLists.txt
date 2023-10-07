@@ -96,7 +96,6 @@ message("linking turbojpeg...")
     message("Turbojpeg at: ${TURBOJPEG_LIB}")
     message("turbojpeg header at: ${TURBOJPEG_HEADER}")
 
-
 if (MSVC)
     set(LIB_PREFIX "lib")
     set(LIB_EXTENSION ".dll") # Setting a variable in case we ever need to change it

@@ -6,7 +6,6 @@ The main algorithm is written in C. It is linked with a discord bot written in R
 This was a group project written by Samuel, Joshua, Matthew.
 
 ## Building Requirements
----
 
 Set the `CHUNKUS` environment variable to the value of your discord bot's secret token.
 
@@ -68,12 +67,6 @@ On Windows, OpenGL should already be available.
 On linux run the following commands:
 
     sudo apt install libgl1-mesa-dev libglu1-mesa-dev -y
-
-### Installing Docker
-
-Run the following command:
-
-    curl -sSL https://get.docker.com | sh
 
 ## Building the C Code
 ---
