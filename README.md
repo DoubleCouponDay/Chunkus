@@ -26,7 +26,9 @@ On Windows:
 
 + Set the `CMAKE_C_COMPILER` to this:
 
-    C:\Program Files\CMake\bin\cmake.exe
+    C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.37.32822\bin\Hostx64\x64\cl.exe
+
+    the path may vary depending on your MSVC version.
 
 On Linux:
 

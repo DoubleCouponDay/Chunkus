@@ -120,7 +120,6 @@
         "defines.h": "c",
         "pthread.h": "c",
         "map": "c",
-        "sort.h": "c",
         "algorithm.h": "c",
         "windows.h": "c",
         "thread": "c",
