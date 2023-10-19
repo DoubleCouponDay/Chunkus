@@ -135,8 +135,8 @@ install(
 )
 
 if (MSVC)
-    set(LIB_PREFIX "lib")
-    set(LIB_EXTENSION ".dll") # Setting a variable in case we ever need to change it
+    set(LIB_PREFIX "")
+    set(LIB_EXTENSION ".lib") # Setting a variable in case we ever need to change it
 else()
     set(LIB_PREFIX "lib")
     set(LIB_EXTENSION ".a")
