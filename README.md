@@ -187,3 +187,14 @@ You can use the `vec_step` GUI to step through frames on a specified iteration c
 Open the Desktop App by running this:
 
     ./build/bin/vec_step ./build/bin/test.png
+
+
+## FAQ
+
+### Why do we need .a library files from our Windows build instead of our Linux Build?
+
+Our current Rust build script will not link with .dll files as we are static linking.
+
+### Why are we using MSBuild instead of MingW?
+
+We could potentially be using OpenCL in the future. Its CmakeLists.txt only works with MSBuild.
