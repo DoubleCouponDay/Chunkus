@@ -25,15 +25,9 @@ set(TEST_SRCS ${testglob} ${sourceglob})
 
 add_executable(vec_test ${TEST_SRCS})
 
-if(BUILD_SHARED_LIBS)
-    message("Building vec as shared library")
-    add_library(vec SHARED ${sourceglob} ${headersglob})
-    add_compile_definitions(vec VEC_EXPORTDLL)
-else()
-    message("Build vec as a static library")
-    add_library(vec STATIC ${sourceglob} ${headersglob})
-    add_compile_definitions(vec VEC_NOEXPORTDLL)
-endif()
+message("Building vec as a static library...")
+add_library(vec STATIC ${sourceglob} ${headersglob})
+add_compile_definitions(vec VEC_NOEXPORTDLL)
     
 # Include directories v
 target_include_directories(vec PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
@@ -73,33 +67,19 @@ target_include_directories(vec_test PUBLIC "${TURBOJPEG_PATH}/include")
 
 message("linking libpng...")
 	message("png_path: ${LIBPNG_PATH}")
-
-	if(MSVC)
-		message("using png .dll")
-		find_library(LIBPNG_LIB NAMES libpng16.dll png16.dll PATHS "${LIBPNG_PATH}/bin" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
-		find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
-	else()
-		message("using png .lib")
-		find_library(LIBPNG_LIB NAMES libpng16.lib libpng16.a png16.a libpng.a png.a libpng16.dll.a PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
-		find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
-	endif()
-
-    target_link_libraries(vec PUBLIC ${LIBPNG_LIB})
+    message("using png .lib")
+    find_library(LIBPNG_LIB NAMES libpng16 png16 libpng16.lib libpng16.a png16.a libpng.a png.a libpng16.dll.a PATHS "${LIBPNG_PATH}" NO_DEFAULT_PATH REQUIRED NO_CACHE) #the windows build only produces libpng16, not libpng
+    find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED NO_CACHE)
     message("Png at: ${LIBPNG_LIB}")
     message("Png header at: ${LIBPNG_HEADER}")
+    target_link_libraries(vec PUBLIC ${LIBPNG_LIB})
 
 message("linking turbojpeg...")
     message("jpeg_path: ${TURBOJPEG_PATH}")
 
-	if(MSVC)
-		message("using jpg .dll")
-		find_library(TURBOJPEG_LIB NAMES turbojpeg.dll libturbojpeg.dll PATHS "${TURBOJPEG_PATH}/bin" "${TURBOJPEG_PATH}/lib32" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
-		find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${LIBJPEG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
-	else()
-		message("using jpg .lib")
-		find_library(TURBOJPEG_LIB NAMES turbojpeg.lib turbojpeg.a libturbojpeg.a PATHS "${TURBOJPEG_PATH}/lib" "${TURBOJPEG_PATH}/lib32" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
-		find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${LIBJPEG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
-	endif()
+    message("using jpg .lib")
+    find_library(TURBOJPEG_LIB NAMES turbojpeg.lib turbojpeg.a libturbojpeg.a PATHS "${TURBOJPEG_PATH}/lib" "${TURBOJPEG_PATH}/lib32" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
+    find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${LIBJPEG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
 
     target_link_libraries(vec PUBLIC ${TURBOJPEG_LIB})
     message("Turbojpeg at: ${TURBOJPEG_LIB}")

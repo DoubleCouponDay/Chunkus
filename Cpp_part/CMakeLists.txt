@@ -22,7 +22,7 @@ set_target_properties(vec_step
 
 set(LIBPNG_PATH "../../libpng/png-install")
 set(LIBPNG_INCLUDEPATH "${LIBPNG_PATH}/include")
-set(TURBOJPEG_PATH "../../libjpeg/install")
+set(TURBOJPEG_PATH "../../libjpeg/install/bin")
 set(LIBJPEG_INCLUDEPATH "${TURBOJPEG_PATH}/include")
 
 set(OpenGL_GL_PREFERENCE "LEGACY")
@@ -86,16 +86,22 @@ message("linking libpng...")
 
 	if(MSVC)
 		message("using png .dll")
-		find_library(LIBPNG_LIB NAMES libpng16.dll png16.dll PATHS "${LIBPNG_PATH}/bin" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
+		find_file(LIBPNG_LIBtoo NAMES libpng16.dll png16.dll libpng16 png16 PATHS "${LIBPNG_PATH}/bin" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
 		find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
+	
+		install(
+			FILES
+			${LIBPNG_LIBtoo}
+			DESTINATION bin
+		)
 	else()
 		message("using png .lib")
-		find_library(LIBPNG_LIB NAMES libpng16.lib libpng16.a png16.a libpng.a png.a libpng16.dll.a PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
+		find_library(LIBPNG_LIBtoo NAMES libpng16.lib libpng16.a png16.a libpng.a png.a libpng16.dll.a PATHS "${LIBPNG_PATH}/bin" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
 		find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
+		target_link_libraries(vec_step PUBLIC ${LIBPNG_LIBtoo})
 	endif()
 
-    target_link_libraries(vec_step PUBLIC ${LIBPNG_LIB})
-    message("Png at: ${LIBPNG_LIB}")
+    message("Png at: ${LIBPNG_LIBtoo}")
     message("Png header at: ${LIBPNG_HEADER}")
 
 message("linking turbojpeg...")
@@ -104,17 +110,24 @@ message("linking turbojpeg...")
 
 	if(MSVC)
 		message("using jpg .dll")
-		find_library(TURBOJPEG_LIB NAMES turbojpeg.dll libturbojpeg.dll PATHS "${TURBOJPEG_PATH}/bin" "${TURBOJPEG_PATH}/lib32" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
+		find_file(TURBOJPEG_LIBtoo NAMES turbojpeg.dll libturbojpeg.dll PATHS "${TURBOJPEG_PATH}/bin" "${TURBOJPEG_PATH}/lib32" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
 		find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${LIBJPEG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
+	
+		install(
+			FILES
+			${TURBOJPEG_LIBtoo}
+			DESTINATION bin
+		)
 	else()
 		message("using jpg .lib")
-		find_library(TURBOJPEG_LIB NAMES turbojpeg.lib turbojpeg.a libturbojpeg.a PATHS "${TURBOJPEG_PATH}/lib" "${TURBOJPEG_PATH}/lib32" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
+		find_library(TURBOJPEG_LIBtoo NAMES turbojpeg.lib turbojpeg.a libturbojpeg.a PATHS "${TURBOJPEG_PATH}/lib" "${TURBOJPEG_PATH}/lib32" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
 		find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${LIBJPEG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
+		target_link_libraries(vec_step PUBLIC ${TURBOJPEG_LIBtoo})
 	endif()
 
-    target_link_libraries(vec_step PUBLIC ${TURBOJPEG_LIB})
-    message("Turbojpeg at: ${TURBOJPEG_LIB}")
+    message("Turbojpeg at: ${TURBOJPEG_LIBtoo}")
     message("turbojpeg header at: ${TURBOJPEG_HEADER}")
+
 
 if (MSVC)
     set(LIB_PREFIX "lib")
@@ -128,15 +141,3 @@ message("Installing vec_step...")
 
 install(TARGETS vec_step
 		DESTINATION bin)
-
-install(
-	FILES
-	${LIBPNG_LIB}
-	DESTINATION bin
-)
-
-install(
-    FILES
-    ${TURBOJPEG_LIB}
-    DESTINATION bin
-)
