@@ -22,7 +22,7 @@ set_target_properties(vec_step
 
 set(LIBPNG_PATH "../../libpng/png-install")
 set(LIBPNG_INCLUDEPATH "${LIBPNG_PATH}/include")
-set(TURBOJPEG_PATH "../../libjpeg/install/bin")
+set(TURBOJPEG_PATH "../../libjpeg/install")
 set(LIBJPEG_INCLUDEPATH "${TURBOJPEG_PATH}/include")
 
 set(OpenGL_GL_PREFERENCE "LEGACY")
