@@ -23,7 +23,7 @@
             "configurationProvider": "ms-vscode.cmake-tools",
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "compilerPath": "C:/ProgramData/chocolatey/bin/g++.exe"
+            "compilerPath": "C:/Program Files/CMake/bin/cl.exe"
         }
     ],
     "version": 4
