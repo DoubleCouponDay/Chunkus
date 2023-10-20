@@ -20,9 +20,10 @@ set_target_properties(vec_step
 		CXX_STANDARD_REQUIRED YES
 		CXX_EXTENSIONS NO)
 
-# if (BUILD_SHARED_LIBS)
-# 	add_compile_definitions(vec_step PUBLIC VECG_INTEROP)
-# endif()
+set(LIBPNG_PATH "../../libpng/png-install")
+set(LIBPNG_INCLUDEPATH "${LIBPNG_PATH}/include")
+set(TURBOJPEG_PATH "../../libjpeg/install")
+set(LIBJPEG_INCLUDEPATH "${TURBOJPEG_PATH}/include")
 
 set(OpenGL_GL_PREFERENCE "LEGACY")
 
@@ -35,35 +36,35 @@ if (NOT FreeGLUT_FOUND)
 	message("Couldn't find a built GLUT installation, please install freeglut alongside this repo")
 else()
 	message("Found Freeglut installation.")
-	target_link_libraries(vec_step PRIVATE FreeGLUT::freeglut)
+	target_link_libraries(vec_step PUBLIC FreeGLUT::freeglut)
 	target_include_directories(vec_step PRIVATE $<TARGET_PROPERTY:FreeGLUT::freeglut,INTERFACE_INCLUDE_DIRECTORIES>)
 	install(FILES $<TARGET_RUNTIME_DLLS:vec_step> DESTINATION bin)
 endif()
 
-target_link_libraries(vec_step PRIVATE ${OPENGL_LIBRARIES})
+target_link_libraries(vec_step PUBLIC ${OPENGL_LIBRARIES})
 
 find_package(LUNASVG QUIET)
 
 if (NOT LUNASVG_FOUND)
 	message("linking lunasvg...")
 
-	# if (BUILD_SHARED_LIBS)
-	# 	set(BUILD_SHARED_LIBS ON CACHE BOOL "Force Build Shared Libs on" FORCE)
-	# endif()
+	if (BUILD_SHARED_LIBS)
+		set(BUILD_SHARED_LIBS ON CACHE BOOL "Force Build Shared Libs on" FORCE)
+	endif()
 	add_subdirectory(../../lunasvg ./lunasvg)
 
 	target_include_directories(vec_step PRIVATE $<TARGET_PROPERTY:lunasvg,INTERFACE_INCLUDE_DIRECTORIES>)
-	target_link_libraries(vec_step PRIVATE lunasvg)
+	target_link_libraries(vec_step PUBLIC lunasvg)
 else()
 	message("Using installed lunasvg...")
 	target_include_directories(vec_step PRIVATE ${LUNASVG_INCLUDE_DIRS})
-	target_link_libraries(vec_step PRIVATE ${LUNASVG_LIBRARIES})
+	target_link_libraries(vec_step PUBLIC ${LUNASVG_LIBRARIES})
 endif()
 
 if (TARGET vec)
 	message("Found vec")
 	if(NOT VEC_HOTRELOAD)
-		target_link_libraries(vec_step PRIVATE vec)
+		target_link_libraries(vec_step PUBLIC vec)
 	endif()
 	target_include_directories(vec_step PRIVATE $<TARGET_PROPERTY:vec,INTERFACE_INCLUDE_DIRECTORIES>)
 
@@ -76,12 +77,22 @@ endif()
 set_property(TARGET vec_step PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 if (UNIX)
-	target_link_libraries(vec_step PRIVATE dl)
+	target_link_libraries(vec_step PUBLIC dl)
 endif(UNIX)
 
 message("linking libpng...")
-    find_library(LIBPNG_LIB NAMES libpng16.lib libpng16.a png16.a libpng.a png.a libpng16.dll.a PATHS "${LIBPNG_PATH}" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
-    find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
+	message("png_path: ${LIBPNG_PATH}")
+	target_include_directories(vec PUBLIC "${LIBPNG_INCLUDEPATH}")
+
+	if(MSVC)
+		message("using png .dll")
+		find_library(LIBPNG_LIB NAMES libpng16.dll png16.dll PATHS "${LIBPNG_PATH}/bin" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
+		find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
+	else()
+		message("using png .lib")
+		find_library(LIBPNG_LIB NAMES libpng16.lib libpng16.a png16.a libpng.a png.a libpng16.dll.a PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
+		find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
+	endif()
 
     target_link_libraries(vec_step PUBLIC ${LIBPNG_LIB})
     message("Png at: ${LIBPNG_LIB}")
@@ -89,10 +100,19 @@ message("linking libpng...")
 
 message("linking turbojpeg...")
     message("jpeg_path: ${TURBOJPEG_PATH}")
-    find_library(TURBOJPEG_LIB NAMES turbojpeg.lib turbojpeg.a libturbojpeg.a PATHS "${TURBOJPEG_PATH}/lib" "${TURBOJPEG_PATH}/lib32" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
-    find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${TURBOJPEG_PATH}/include" NO_DEFAULT_PATH REQUIRED)
+	target_include_directories(vec PUBLIC "${LIBJPEG_INCLUDEPATH}")
 
-    target_link_libraries(vec_step PRIVATE ${TURBOJPEG_LIB})
+	if(MSVC)
+		message("using jpg .dll")
+		find_library(TURBOJPEG_LIB NAMES turbojpeg.dll libturbojpeg.dll PATHS "${TURBOJPEG_PATH}/bin" "${TURBOJPEG_PATH}/lib32" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
+		find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${LIBJPEG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
+	else()
+		message("using jpg .lib")
+		find_library(TURBOJPEG_LIB NAMES turbojpeg.lib turbojpeg.a libturbojpeg.a PATHS "${TURBOJPEG_PATH}/lib" "${TURBOJPEG_PATH}/lib32" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
+		find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${LIBJPEG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
+	endif()
+
+    target_link_libraries(vec_step PUBLIC ${TURBOJPEG_LIB})
     message("Turbojpeg at: ${TURBOJPEG_LIB}")
     message("turbojpeg header at: ${TURBOJPEG_HEADER}")
 
@@ -104,19 +124,19 @@ else()
     set(LIB_EXTENSION ".a")
 endif()
 
+message("Installing vec_step...")
+
+install(TARGETS vec_step
+		DESTINATION bin)
+
 install(
 	FILES
 	${LIBPNG_LIB}
 	DESTINATION bin
-	RENAME ${LIB_PREFIX}png16${LIB_EXTENSION}
 )
 
 install(
-	FILES
-	${TURBOJPEG_LIB}
-	DESTINATION bin
-	RENAME turbojpeg${LIB_EXTENSION}
+    FILES
+    ${TURBOJPEG_LIB}
+    DESTINATION bin
 )
-
-install(TARGETS vec_step
-		DESTINATION bin)

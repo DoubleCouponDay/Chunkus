@@ -188,7 +188,6 @@ Open the Desktop App by running this:
 
     ./build/bin/vec_step ./build/bin/test.png
 
-
 ## FAQ
 
 ### Why do we need .a library files from our Windows build instead of our Linux Build?
