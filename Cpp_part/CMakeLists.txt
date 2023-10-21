@@ -103,7 +103,6 @@ message("linking libpng...")
 
     message("Png at: ${LIBPNG_LIBtoo}")
     message("Png header at: ${LIBPNG_HEADER}")
-	target_link_libraries(vec_step PUBLIC ${LIBPNG_LIBtoo})
 
 message("linking turbojpeg...")
     message("jpeg_path: ${TURBOJPEG_PATH}")
@@ -127,7 +126,6 @@ message("linking turbojpeg...")
 
     message("Turbojpeg at: ${TURBOJPEG_LIBtoo}")
     message("turbojpeg header at: ${TURBOJPEG_HEADER}")
-	target_link_libraries(vec_step PUBLIC ${TURBOJPEG_LIBtoo})
 
 if (MSVC)
     set(LIB_PREFIX "lib")
