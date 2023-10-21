@@ -43,8 +43,8 @@ find_path(RPI_PATH NAMES libpng16.a "../../libpng/png-install/lib/aarch64-linux-
 message("RPI_PATH: ${RPI_PATH}")
 
 if(RPI_PATH STREQUAL "RPI_PATH-NOTFOUND")
-    set(LIBPNG_PATH "../../libpng/png-install/lib")
-    set(LIBPNG_INCLUDEPATH "../../libpng/png-install/include")
+    set(LIBPNG_PATH "../../libpng/png-install")
+    set(LIBPNG_INCLUDEPATH "${LIBPNG_PATH}/include")
 else()
     message("aarch64-linux-gnu libpng install detected")
     set(LIBPNG_PATH "../../libpng/png-install/lib/aarch64-linux-gnu")
@@ -59,8 +59,8 @@ target_include_directories(vec_test PUBLIC "${LIBPNG_INCLUDEPATH}")
 
 set(TURBOJPEG_PATH "../../libjpeg/install")
 set(LIBJPEG_INCLUDEPATH "${TURBOJPEG_PATH}/include")
-target_include_directories(vec       PUBLIC "${TURBOJPEG_PATH}/include")
-target_include_directories(vec_test PUBLIC "${TURBOJPEG_PATH}/include")
+target_include_directories(vec       PUBLIC "${LIBJPEG_INCLUDEPATH}")
+target_include_directories(vec_test PUBLIC "${LIBJPEG_INCLUDEPATH}")
 
 # Libraries v
 # Most dependent first (most dependencies)
@@ -68,11 +68,12 @@ target_include_directories(vec_test PUBLIC "${TURBOJPEG_PATH}/include")
 message("linking libpng...")
 	message("png_path: ${LIBPNG_PATH}")
     message("using png .lib")
-    find_library(LIBPNG_LIB NAMES libpng16 png16 libpng16.lib libpng16.a png16.a libpng.a png.a libpng16.dll.a PATHS "${LIBPNG_PATH}" NO_DEFAULT_PATH REQUIRED NO_CACHE) #the windows build only produces libpng16, not libpng
+    find_library(LIBPNG_LIB NAMES libpng16 png16 libpng16.lib libpng16.a png16.a libpng.a png.a libpng16.dll.a PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED NO_CACHE) #the windows build only produces libpng16, not libpng
     find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED NO_CACHE)
     message("Png at: ${LIBPNG_LIB}")
     message("Png header at: ${LIBPNG_HEADER}")
     target_link_libraries(vec PUBLIC ${LIBPNG_LIB})
+    target_link_libraries(vec_test PUBLIC ${LIBPNG_LIB})
 
 message("linking turbojpeg...")
     message("jpeg_path: ${TURBOJPEG_PATH}")
@@ -80,10 +81,10 @@ message("linking turbojpeg...")
     message("using jpg .lib")
     find_library(TURBOJPEG_LIB NAMES turbojpeg.lib turbojpeg.a libturbojpeg.a PATHS "${TURBOJPEG_PATH}/lib" "${TURBOJPEG_PATH}/lib32" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
     find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${LIBJPEG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
-
-    target_link_libraries(vec PUBLIC ${TURBOJPEG_LIB})
     message("Turbojpeg at: ${TURBOJPEG_LIB}")
     message("turbojpeg header at: ${TURBOJPEG_HEADER}")
+    target_link_libraries(vec PUBLIC ${TURBOJPEG_LIB})
+    target_link_libraries(vec_test PUBLIC ${TURBOJPEG_LIB})
 
 message("linking zlib...")
     find_library(ZLIB_LIB NAMES zlib.lib libzlib.a zlib.a libz.a libzlibstatic.a zlibstatic.a PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)
