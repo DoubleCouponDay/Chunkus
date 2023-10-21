@@ -131,7 +131,7 @@ message("installing zlib...")
 	install(FILES ${TURBOJPEG_HEADER} DESTINATION bin)
 
 	if(MSVC)
-		file_file(ZLIB_LIBtoo NAMES zlib.dll libzlib.dll PATHS "../../zlib/install/bin" NO_DEFAULT_PATH REQUIRED)
+		find_file(ZLIB_LIBtoo NAMES zlib.dll libzlib.dll PATHS "../../zlib/install/bin" NO_DEFAULT_PATH REQUIRED)
 		install(FILES ${ZLIB_LIBtoo} DESTINATION bin)
 
 	else()
