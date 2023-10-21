@@ -128,7 +128,7 @@ message("installing turbojpeg...")
 
 message("installing zlib...")
 	find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${LIBJPEG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
-	install(FILES ${TURBOJPEG_HEADER} destination bin)
+	install(FILES ${TURBOJPEG_HEADER} DESTINATION bin)
 
 	if(MSVC)
 		file_file(ZLIB_LIBtoo NAMES zlib.dll libzlib.dll PATHS "../../zlib/install/bin" NO_DEFAULT_PATH REQUIRED)
