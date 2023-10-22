@@ -114,7 +114,7 @@ You should receive a message with `output.svg.xz` compressed file and a preview 
 ## Params: 
 Sets the parameters to use with the algorithm.
 
-`!params [chunksize] [thresholds] [olours]` eg. 
+`!params [chunk size] [thresholds] [olours]` eg. 
 
     @Chunkus !params 1 20 256
 
