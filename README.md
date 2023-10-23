@@ -194,6 +194,10 @@ Open the Desktop App by running this:
 
 Our current Rust build script will not link with .dll files as we are static linking.
 
+### Why did we initiall choose MingW for our Build Generator?
+
+Visual Studio Code is our primary IDE and it can only debug C/C++ if you build with MingW.
+
 ### Why are we using MSBuild instead of MingW?
 
 We could potentially be using OpenCL in the future. Its CmakeLists.txt only works with MSBuild.
