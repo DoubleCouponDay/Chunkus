@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
   LOG_INFO("args: ");
 
   for (int i = 0; i < argc; ++i) {
-    LOG_INFO("%s, ", argv[i]);
+    LOG_INFO("%s", argv[i]);
   }
 
   char* png[] = { "test.png", NULL };

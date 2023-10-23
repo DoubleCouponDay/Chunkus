@@ -2025,7 +2025,6 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
   }
 
   fflush(stderr);
-  fprintf(MUNIT_OUTPUT_FILE, "Running test suite with seed 0x%08" PRIx32 "...\n", runner.seed);
 
   munit_test_runner_run(&runner);
 
