@@ -1,9 +1,5 @@
 #[cfg(target_os = "windows")]
-use winapi::{
-    shared::{
-        minwindef
-    },
-};
+use winapi::shared::minwindef;
 
 #[cfg(target_os = "windows")]
 use ntapi::ntrtl::RtlNtStatusToDosError;

@@ -2,7 +2,7 @@
 #[cfg(test)]
 mod tests {
     use chunkus::{
-        core::{do_vectorize},
+        core::do_vectorize,
         options::ParsedOptions,
         constants::FfiResult
     };

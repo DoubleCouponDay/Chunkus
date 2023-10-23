@@ -1,7 +1,7 @@
 use std::{
     collections::{HashSet, HashMap}, 
     fs::{File, read},
-    io::{Write},
+    io::Write,
     ops::Add, 
     path::Path, 
     time::{Duration, Instant}};
@@ -11,7 +11,7 @@ use serenity::{
     client::{
         Client, ClientBuilder, Context, EventHandler
     }, 
-    framework::{standard::{
+    framework::standard::{
         Configuration,
         CommandResult,
         Args,
@@ -19,12 +19,10 @@ use serenity::{
         macros::{
             group, command,
         },
-    }},
+    },
     model::{
         id::UserId,
-        channel::{
-            Message,
-        }, 
+        channel::Message, 
         prelude::{MessageId, MessageUpdateEvent}
     }, 
     prelude::{TypeMapKey, TypeMap, GatewayIntents}

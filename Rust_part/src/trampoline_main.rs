@@ -1,13 +1,7 @@
 
-use serenity::{
-    framework::standard::{
-        CommandResult
-    }
-};
+use serenity::framework::standard::CommandResult;
 use chunkus::{
-    trampoline::{
-        create_trampoline_bot
-    }, 
+    trampoline::create_trampoline_bot, 
     secrettoken::gettoken
 };
 use std::env::args;

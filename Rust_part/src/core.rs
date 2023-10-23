@@ -1,13 +1,11 @@
 use std::ffi::CString;
 use std::ptr::{self};
-use crate::constants::{
-    FfiResult
-};
-use crate::options::{ParsedOptions};
+use crate::constants::FfiResult;
+use crate::options::ParsedOptions;
 
 mod ffimodule
 {
-    use libc::{c_int};
+    use libc::c_int;
 
     #[link(name = "vec", kind = "static")] 
     #[link(name = "png16", kind = "static")]

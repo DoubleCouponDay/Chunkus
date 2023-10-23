@@ -5,9 +5,7 @@ use serenity::framework::StandardFramework;
 use serenity::model::id::ChannelId;
 use serenity::{
     async_trait,
-    model::{
-        prelude::Message
-    },
+    model::prelude::Message,
 };
 use std::collections::HashSet;
 use std::sync::Arc;
