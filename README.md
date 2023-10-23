@@ -1,15 +1,17 @@
 # Chunkus #
-converts PNG and JPEG image files to Scalable Vector Graphic (SVG) image files.
+
+Converts PNG and JPEG image files to Scalable Vector Graphic (SVG) image files.
 
 The main algorithm is written in C. It is linked with a discord bot written in Rust. The "vec_step" debugger is written in C++ which can be used for debugging the svg output.
 
 This was a group project written by Samuel, Joshua, Matthew.
 
-## Building Requirements
+## Requirements
 
 Set the `CHUNKUS` environment variable to the value of your discord bot's secret token.
 
-### Installing C
+### Installing C requirements on Windows
+
 On Windows:
 
 + Install Visual Studio Community Edition
@@ -29,21 +31,15 @@ On Windows:
 
     the path may vary depending on your MSVC version.
 
+### Installing C requirements on Linux
+
 On Linux:
 
     sudo apt update -y
 
     sudo apt install git cmake build-essential
 
-### Installing Rust
-
-On Linux, run the follow commands:
-
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-    rustup default stable
-
-    sudo apt install build-essential libssl-dev
+### Installing Rust requirements on Windows
 
 if you are on windows:
 
@@ -54,23 +50,25 @@ if you are on windows:
 
         rustup default stable-msvc
 
-### Installing OpenGL
+### Installing Rust Requirements on Linux
 
-On linux run the following to install OpenGL:
+On Linux, run the follow commands:
+
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+    rustup default stable
+
+    sudo apt install build-essential libssl-dev
+
+### Installing OpenGL on Linux
+
+On linux, run the following to install OpenGL:
  
     sudo apt install mesa-common-dev libxi-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev -y
 
 On Windows, OpenGL should already be available.
 
-###Installing OpenCL
-
-On linux run the following commands:
-
-    sudo apt install libgl1-mesa-dev libglu1-mesa-dev -y
-
-## Building the C Code
----
-
+## Building the C part
 
 Use a terminal to execute the `build.bat` / `build.sh` depending on your operating system type. It must be executed from the root directory.
 
@@ -84,8 +82,8 @@ windows:
 
 The C code builds to `C_part\build`.
 
-## Building the Rust code 
----
+## Building the Rust part 
+
 
 The rust component links to the C code, which depends on libpng, which depends on zlib.
 
@@ -96,13 +94,13 @@ In the `Rust_part` folder, run:
 The rust part builds to `/Rust_part/target/{BUILD_MODE}/` where BUILD_MODE = (debug|release)
 
 ## Running Chunkus
----
+
 
 `cargo run --bin trampoline`
 
 ## Commands 
----
-## Vec: 
+
+### Vec: 
 Goes through all attachments of the command message, executes the algorithm on them and returns the output  
 
 `!vec [attachment or URL]`  
@@ -111,21 +109,23 @@ Goes through all attachments of the command message, executes the algorithm on t
 
 You will receive a message with `output.svg.xz` compressed file and a preview png attached.
   
-## Params: 
+### Params: 
 Sets the parameters to use with the algorithm.
 
-`!params [chunk size] [thresholds] [colours]` eg.
+`!params [chunk size] [thresholds] [colours]`
 
     @Chunkus !params 1 20 256
 
 You should receive a confirmation message telling you what you set the parameters to.
 
-### Chunk Size 
+- [chunk size]
+
 Chunk size is amount of width and height in the algorithm's smallest image unit. An image is broken up into chunks, where a higher number improves speed while reducing quality (and losing information).
 
 Increase this if reducing the output image size would increase the speed of image processing.
 
-### Thresholds
+- [thresholds]
+
 Thresholds is an int between 0 and 441. It is the number of threshold layers to be taking from an exponential curve.
 one threshold layer is the magnitude of the difference between colours with 3 components (RGB). 
 you can use the pythagorean theorem in 3 dimensions to calculate this by:
@@ -138,7 +138,8 @@ you can use the pythagorean theorem in 3 dimensions to calculate this by:
 
 Use this if you want increase the accuracy of the output image.
 
-### Colours
+- [colours]
+
 The number of colours that are available in the output image. 
 
 Use this if reducing the colour complexity would increase the speed of image processing.
@@ -194,7 +195,7 @@ Open the Desktop App by running this:
 
 Our current Rust build script will not link with .dll files as we are static linking.
 
-### Why did we initiall choose MingW for our Build Generator?
+### Why did we initially choose MingW for our Build Generator?
 
 Visual Studio Code is our primary IDE and it can only debug C/C++ if you build with MingW.
 
