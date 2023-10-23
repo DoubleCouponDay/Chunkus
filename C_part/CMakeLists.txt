@@ -1,5 +1,15 @@
 cmake_minimum_required(VERSION 2.8.12)
 
+cmake_policy(SET CMP0091 NEW)
+cmake_policy(SET CMP0079 NEW)
+cmake_policy(SET CMP0074 NEW)
+cmake_policy(SET CMP0048 NEW)
+
+if(MSVC)
+    add_compile_options(/GS) #check for buffer overruns
+    add_compile_options(/RTCs) #check for runtime errors
+endif()
+
 project("vec" "C")
 message("creating vec.lib and vec_test.exe builds...")
 file(GLOB headersglob 
@@ -64,20 +74,18 @@ target_include_directories(vec_test PUBLIC "${LIBJPEG_INCLUDEPATH}")
 message("linking libpng...")
 	message("png_path: ${LIBPNG_PATH}")
     message("using png .lib")
-    find_library(LIBPNG_LIB NAMES libpng16 png16 libpng16.lib libpng16.a png16.a libpng.a png.a libpng16.dll.a PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED NO_CACHE) #the windows build only produces libpng16, not libpng
+
+    if(MSVC)
+        find_library(LIBPNG_LIB NAMES libpng16_static.lib PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED NO_CACHE)
+    else()
+        find_library(LIBPNG_LIB NAMES libpng16 png16 libpng16.lib libpng16.a png16.a libpng.a png.a libpng16.dll.a PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED NO_CACHE) #the windows build only produces libpng16, not libpng
+    endif()
+
     find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED NO_CACHE)
     message("Png at: ${LIBPNG_LIB}")
     message("Png header at: ${LIBPNG_HEADER}")
     target_link_libraries(vec PUBLIC ${LIBPNG_LIB})
     target_link_libraries(vec_test PUBLIC ${LIBPNG_LIB})
-
-	if(MSVC)
-        message("using png .dll for windows tests")
-        find_file(LIBPNG_LIBtoo NAMES libpng16.dll png16.dll libpng16 png16 PATHS "${LIBPNG_PATH}/bin" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
-        find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
-        install(FILES ${LIBPNG_LIBtoo} DESTINATION bin)
-        install(FILES ${LIBPNG_LIBtoo} DESTINATION "bin/../../")
-    endif()
 
 message("linking turbojpeg...")
     message("jpeg_path: ${TURBOJPEG_PATH}")
@@ -96,7 +104,6 @@ message("linking turbojpeg...")
         install(FILES ${TURBOJPEG_LIBtoo} DESTINATION bin)
         install(FILES ${TURBOJPEG_LIBtoo} DESTINATION "bin/../../")
     endif()
-
 
 message("linking zlib...")
     find_library(ZLIB_LIB NAMES zlib.lib libzlib.a zlib.a libz.a libzlibstatic.a zlibstatic.a PATHS "../../zlib/install/lib" NO_DEFAULT_PATH REQUIRED)

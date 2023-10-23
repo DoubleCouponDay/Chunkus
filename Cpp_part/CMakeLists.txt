@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.12)
 
 cmake_policy(SET CMP0091 NEW)
+cmake_policy(SET CMP0079 NEW)
+cmake_policy(SET CMP0074 NEW)
+cmake_policy(SET CMP0048 NEW)
 
 project("vec_step" CXX)
 message("creating vec_step.exe build...")
@@ -81,11 +84,14 @@ message("installing libpng...")
 	message("png_path: ${LIBPNG_PATH}")
 	target_include_directories(vec PUBLIC "${LIBPNG_INCLUDEPATH}")
 
-	if(NOT MSVC)
-		message("using png .lib")
-		find_library(LIBPNG_LIB NAMES libpng16.lib libpng16.a png16.a libpng.a png.a libpng16.dll.a PATHS "${LIBPNG_PATH}/bin" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
-		find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
-	endif()
+	message("png_path: ${LIBPNG_PATH}")
+    message("using png .lib")
+    find_library(LIBPNG_LIB NAMES libpng16_static.lib PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED NO_CACHE)
+    find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED NO_CACHE)
+    message("Png at: ${LIBPNG_LIB}")
+    message("Png header at: ${LIBPNG_HEADER}")
+    target_link_libraries(vec PUBLIC ${LIBPNG_LIB})
+    target_link_libraries(vec_test PUBLIC ${LIBPNG_LIB})
 
     message("Png at: ${LIBPNG_LIB}")
     message("Png header at: ${LIBPNG_HEADER}")
