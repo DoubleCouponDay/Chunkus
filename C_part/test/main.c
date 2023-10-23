@@ -36,12 +36,12 @@ int main(int argc, char** argv) {
   char* png[] = { "./install/bin/test.png", NULL };
   char* chunkSize[] = { "1", NULL };
   char* thresholds[] = { "5", NULL };
-  char* png_output[] = { "output.png", NULL };
+  char* png_output[] = { "./install/bin/output.png", NULL };
   char* num_colours[] = { "256", NULL };
-  char* jpeg[] = { "test.jpeg", NULL };
-  char* bmp_output[] = { "output.bmp", NULL };
-  char* png2[] = { "test2.png", NULL };
-  char* png3[] = { "test3.png", NULL };
+  char* jpeg[] = { "./install/bin/test.jpeg", NULL };
+  char* bmp_output[] = { "./install/bin/output.bmp", NULL };
+  char* png2[] = { "./install/bin/test2.png", NULL };
+  char* png3[] = { "./install/bin/test3.png", NULL };
 
   MunitParameterEnum test_params[] = { 
     { 

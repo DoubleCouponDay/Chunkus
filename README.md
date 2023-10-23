@@ -146,9 +146,11 @@ Use this if reducing the colour complexity would increase the speed of image pro
 ## C Tests
 ---
 
-There are multiple ways to test the Vectorization functionality.
-
 The C code contains a test suite `vec_test.exe` which can run all C tests or just one, when given a test name. The test names can be found in `C_part/tests/main.c`.
+
+`vec_test.exe` is designed to be executed from the root folder.
+
+    install\bin\vec_test read_png
 
 You can easily debug the C tests with Visual Studio Code, on Linux. 
 
