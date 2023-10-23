@@ -197,3 +197,7 @@ Our current Rust build script will not link with .dll files as we are static lin
 ### Why are we using MSBuild instead of MingW?
 
 We could potentially be using OpenCL in the future. Its CmakeLists.txt only works with MSBuild.
+
+### Why can't I see printfs in the console?
+
+Chunkus was probably built in Release mode. Run `debug.bat`|`sh` instead. This will also prevent debug assertions.
