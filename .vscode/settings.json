@@ -128,7 +128,8 @@
         "format": "c",
         "xlocmon": "c",
         "xlocnum": "c",
-        "xloctime": "c"
+        "xloctime": "c",
+        "time.h": "c"
     },
     "C_Cpp.default.intelliSenseMode": "windows-gcc-x64",
     "C_Cpp.intelliSenseEngineFallback": "Enabled",

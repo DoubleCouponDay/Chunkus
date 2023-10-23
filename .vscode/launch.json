@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Tests",
+            "name": "Linux: Launch Tests",
             "type": "cppdbg",
             "request": "launch",
             "args": [],
@@ -14,22 +14,10 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "windows": {
-                "name": "Launch Tests",
-                "type": "cppdbg",
-                "request": "launch",
-                "program": "${workspaceFolder}/install/bin/vec_test.exe",
-                "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe"
-            },
-            "linux": {
-                "name": "Launch Tests",
-                "type": "cppdbg",
-                "request": "launch",
-                "program": "${workspaceFolder}/install/bin/vec_test"
-            }
+            "program": "${workspaceFolder}/install/bin/vec_test"
         },
         {
-            "name": "Launch one test",
+            "name": "Linux: Launch one test",
             "type": "cppdbg",
             "request": "launch",
             "args": ["png_to_svg"],
@@ -37,19 +25,7 @@
             "cwd": "${workspaceFolder}/install/bin",
             "externalConsole": false,
             "MIMode": "gdb",
-            "windows": {
-                "name": "Launch Tests",
-                "type": "cppdbg",
-                "request": "launch",
-                "program": "${workspaceFolder}/install/bin/vec_test.exe",
-                "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe"
-            },
-            "linux": {
-                "name": "Launch Tests",
-                "type": "cppdbg",
-                "request": "launch",
-                "program": "${workspaceFolder}/install/bin/vec_test"
-            }
+            "program": "${workspaceFolder}/install/bin/vec_test"
         },
         {
             "name": "debug vec_step.exe",
@@ -60,19 +36,7 @@
             "cwd": "${workspaceFolder}/install/bin",
             "externalConsole": false,
             "MIMode": "gdb",
-            "windows": {
-                "name": "Launch Tests",
-                "type": "cppdbg",
-                "request": "launch",
-                "program": "${workspaceFolder}/install/bin/vec_step.exe",
-                "miDebuggerPath": "C:/ProgramData/chocolatey/bin/gdb.exe"
-            },
-            "linux": {
-                "name": "Launch Tests",
-                "type": "cppdbg",
-                "request": "launch",
-                "program": "${workspaceFolder}/install/bin/vec_step"
-            }
+            "program": "${workspaceFolder}/install/bin/vec_step"
         }
     ]
 }
