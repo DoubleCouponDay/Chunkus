@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13.4)
+cmake_minimum_required(VERSION 2.8.12)
 
 project("vec" "C")
 message("creating vec.lib and vec_test.exe builds...")
