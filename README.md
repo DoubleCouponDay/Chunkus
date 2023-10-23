@@ -197,7 +197,7 @@ Build in CMake with the Visual Studio Generator.
 
 Open the built solution in visual studio.
 
-Copy `libpng16.dll`, `turbojpeg.dll` and `zlib.dll` from the `install\bin\` folder into the `build\C_part\` folder.
+Copy `libpng16.dll`, `turbojpeg.dll` and `zlib.dll` from the `install\bin\` folder into the root folder.
 
 In VS, set the startup project to `vec`.
 
