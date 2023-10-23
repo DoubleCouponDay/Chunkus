@@ -53,7 +53,7 @@ void logger(const char* tag, const char* message, ...) {
         setError(CANT_LOG);
         return;
     }
-    strftime(time_buffer, 100, "%b %e %T", &timeinfo);
+    strftime(time_buffer, 100, "%b %e %T", timeinfo);
 
     //print to log file
     fprintf(logfile, "%s [%s]: ", time_buffer, tag);
