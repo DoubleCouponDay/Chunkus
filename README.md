@@ -189,6 +189,20 @@ Open the Desktop App by running this:
 
     ./build/bin/vec_step ./build/bin/test.png
 
+## Debugging on Windows
+
+Ensure the Desktop Development for C++ package is installed through VS Installer.
+
+Build in CMake with the Visual Studio Generator.
+
+Open the built solution in visual studio.
+
+Copy `libpng16.dll`, `turbojpeg.dll` and `zlib.dll` from the `install\bin\` folder into the `build\C_part\` folder.
+
+In VS, set the startup project to `vec`.
+
+Press F5 to start debugging.
+
 ## FAQ
 
 ### Why do we need .a library files from our Windows build instead of our Linux Build?
