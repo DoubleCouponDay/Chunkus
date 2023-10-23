@@ -109,12 +109,12 @@ Goes through all attachments of the command message, executes the algorithm on t
 
     !vec https://cdn.discordapp.com/attachments/787470274261549056/807847299752394773/ginormous.png  
 
-You should receive a message with `output.svg.xz` compressed file and a preview png attached.
+You will receive a message with `output.svg.xz` compressed file and a preview png attached.
   
 ## Params: 
 Sets the parameters to use with the algorithm.
 
-`!params [chunk size] [thresholds] [olours]` eg. 
+`!params [chunk size] [thresholds] [colours]` eg.
 
     @Chunkus !params 1 20 256
 
@@ -197,3 +197,7 @@ Our current Rust build script will not link with .dll files as we are static lin
 ### Why are we using MSBuild instead of MingW?
 
 We could potentially be using OpenCL in the future. Its CmakeLists.txt only works with MSBuild.
+
+### I ran vec_test.exe and vec_step.exe but they didn't log anything. Why?
+
+Check the c_part/cmakelists.txt for the NDEBUG and set it to `Debug`.
