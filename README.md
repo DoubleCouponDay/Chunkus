@@ -95,7 +95,6 @@ The rust part builds to `/Rust_part/target/{BUILD_MODE}/` where BUILD_MODE = (de
 
 ## Running Chunkus
 
-
 `cargo run --bin trampoline`
 
 ## Commands 
@@ -195,11 +194,13 @@ Ensure the Desktop Development for C++ package is installed through VS Installer
 
 Build in CMake with the Visual Studio Generator.
 
-Open the built solution in visual studio.
+Open the `Chunkus` solution in visual studio, from the `build` folder.
 
 Copy `libpng16.dll`, `turbojpeg.dll` and `zlib.dll` from the `install\bin\` folder into the root folder.
 
 In VS, set the startup project to `vec`.
+
+In the Debugging settings, set the Current Working Directory to `${project}../../`. This allows running tests from the root folder.
 
 Press F5 to start debugging.
 

@@ -129,7 +129,8 @@
         "xlocmon": "c",
         "xlocnum": "c",
         "xloctime": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "xiosbase": "c"
     },
     "C_Cpp.default.intelliSenseMode": "windows-gcc-x64",
     "C_Cpp.intelliSenseEngineFallback": "Enabled",

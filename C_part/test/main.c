@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
     LOG_INFO("%s", argv[i]);
   }
 
-  char* png[] = { "test.png", NULL };
+  char* png[] = { "./install/bin/test.png", NULL };
   char* chunkSize[] = { "1", NULL };
   char* thresholds[] = { "5", NULL };
   char* png_output[] = { "output.png", NULL };
