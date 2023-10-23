@@ -109,7 +109,7 @@ message("linking zlib...")
     message("Zlib at: ${ZLIB_LIB}")
 
 	if(MSVC)
-        mesesage("using zlib.dll for windows tests")
+        message("using zlib.dll for windows tests")
 		find_file(ZLIB_LIBtoo NAMES zlib.dll libzlib.dll PATHS "../../zlib/install/bin" NO_DEFAULT_PATH REQUIRED)
 		install(FILES ${ZLIB_LIBtoo} DESTINATION bin)
         install(FILES ${TURBOJPEG_LIBtoo} DESTINATION "bin/../../")
