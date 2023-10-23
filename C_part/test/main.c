@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
   MunitTest png2_to_svg = { "png2_to_svg", can_convert_png2_to_svg, tear4setup, tear4teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest png3_to_svg = { "png3_to_svg", can_convert_png3_to_svg, tear4setup, tear4teardown, MUNIT_TEST_OPTION_NONE, test_params };
 
-  MunitTest jpeg_to_image = { "jpeg_to_image", can_read_jpeg, tear1setup, tear1teardown, MUNIT_TEST_OPTION_NONE, test_params };
+  MunitTest read_jpeg = { "read_jpeg", can_read_jpeg, tear1setup, tear1teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest jpeg_to_bmp = { "jpeg_to_bmp", can_convert_jpeg_to_bmp, tear3setup, tear3teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest jpeg_to_nsvg = { "jpeg_to_nsvg", can_vectorize_jpeg, tear4setup, tear4teardown, MUNIT_TEST_OPTION_NONE, test_params };
   MunitTest jpeg_to_svg = { "jpeg_to_svg", can_convert_jpeg_to_svg, tear4setup, tear4teardown, MUNIT_TEST_OPTION_NONE, test_params};
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
     {png2_to_svg.name, png2_to_svg},
     {png3_to_svg.name, png3_to_svg},
 
-    {jpeg_to_image.name, jpeg_to_image},
+    {read_jpeg.name, read_jpeg},
     {jpeg_to_bmp.name, jpeg_to_bmp},
     {jpeg_to_nsvg.name, jpeg_to_nsvg},
     {jpeg_to_svg.name, jpeg_to_svg}
