@@ -59,13 +59,7 @@ void logger(const char* tag, const char* message, ...) {
     fprintf(logfile, "%s [%s]: ", time_buffer, tag);
     vfprintf(logfile, message, args); 
     fprintf(logfile, "\n");
-
-    //print to console
-    #ifdef SHOULD_PRINT
-        printf(logfile, "%s [%s]: ", time_buffer, tag);
-        vprintf(logfile, message, args); 
-        printf(logfile, "\n");
-    #endif
+    
     fflush(logfile);
     va_end(args);
 }

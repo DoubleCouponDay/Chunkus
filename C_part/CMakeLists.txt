@@ -173,8 +173,3 @@ install(FILES "test/test.png" DESTINATION bin)
 install(FILES "test/test2.png" DESTINATION bin)
 install(FILES "test/test3.png" DESTINATION bin)
 install(FILES "test/test.jpeg" DESTINATION bin)
-
-#Setup terminal printing in debug mode
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(SHOULD_PRINT "1")
-endif()
