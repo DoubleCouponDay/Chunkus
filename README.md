@@ -151,11 +151,11 @@ There are multiple ways to test the Vectorization functionality.
 
 The C code contains a test suite `vec_test.exe` which can run all C tests or just one, when given a test name. The test names can be found in `C_part/tests/main.c`.
 
-You can easily debug the C tests with Visual Studio Code. 
+You can easily debug the C tests with Visual Studio Code, on Linux. 
 
     + run the `.\build.bat` script at least once then run `.\debug.bat` to generate debugging symbols.
 
-    + In the `Run and Debug` side menu, select the launch task `(Windows) Launch Tests`, which can be configured in the `.vscode/launch.json file`. 
+    + In the `Run and Debug` side menu, select the launch task `Linux: Launch Tests`, which can be configured in the `.vscode/launch.json file`. 
 
 ## Rust Tests
 ---

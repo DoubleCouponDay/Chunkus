@@ -25,6 +25,7 @@
 #include "../src/utility/logger.h"
 
 int main(int argc, char** argv) {
+  clear_logfile();
   LOG_INFO("test runner initializing... ");
   LOG_INFO("args: ");
 
