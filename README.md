@@ -197,7 +197,3 @@ Our current Rust build script will not link with .dll files as we are static lin
 ### Why are we using MSBuild instead of MingW?
 
 We could potentially be using OpenCL in the future. Its CmakeLists.txt only works with MSBuild.
-
-### I ran vec_test.exe and vec_step.exe but they didn't log anything. Why?
-
-Check the c_part/cmakelists.txt for the NDEBUG and set it to `Debug`.

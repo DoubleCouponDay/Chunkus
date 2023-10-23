@@ -139,7 +139,6 @@
     "cmake.buildArgs": [
         "-DCMAKE_CXX_COMPILER=g++", 
         "-DCMAKE_C_COMPILER=gcc",
-        "-DCMAKE_BUILD_TYPE=Debug", 
         "-DCMAKE_INSTALL_PREFIX=\"${workspaceFolder}/install\"",
         "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
     ],

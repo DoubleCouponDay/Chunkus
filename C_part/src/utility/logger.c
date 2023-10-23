@@ -33,7 +33,6 @@ void clear_logfile() {
     open_log(LOG_PATH);
 }
 
-#ifndef NDEBUG
 void logger(const char* tag, const char* message, ...) {
     if (!logfile)
     {
@@ -69,6 +68,3 @@ void logger(const char* tag, const char* message, ...) {
     fflush(logfile);
     va_end(args);
 }
-#else
-void logger(const char* tag, const char* message, ...) {}
-#endif
