@@ -75,7 +75,6 @@ message("linking libpng...")
         message("using png .dll for windows tests")
         find_file(LIBPNG_LIBtoo NAMES libpng16.dll png16.dll libpng16 png16 PATHS "${LIBPNG_PATH}/bin" NO_DEFAULT_PATH REQUIRED) #the windows build only produces libpng16, not libpng
         find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
-
         install(FILES ${LIBPNG_LIBtoo} DESTINATION bin)
         install(FILES ${LIBPNG_LIBtoo} DESTINATION "bin/../../")
     endif()
@@ -94,8 +93,6 @@ message("linking turbojpeg...")
     if(MSVC)
         message("using turbojpeg.dll for windows tests")
         find_file(TURBOJPEG_LIBtoo NAMES turbojpeg.dll libturbojpeg.dll PATHS "${TURBOJPEG_PATH}/bin" "${TURBOJPEG_PATH}/lib32" "${TURBOJPEG_PATH}/lib64" NO_DEFAULT_PATH REQUIRED)
-        find_file(TURBOJPEG_HEADER NAMES turbojpeg.h PATHS "${LIBJPEG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED)
-
         install(FILES ${TURBOJPEG_LIBtoo} DESTINATION bin)
         install(FILES ${TURBOJPEG_LIBtoo} DESTINATION "bin/../../")
     endif()
@@ -111,8 +108,8 @@ message("linking zlib...")
 	if(MSVC)
         message("using zlib.dll for windows tests")
 		find_file(ZLIB_LIBtoo NAMES zlib.dll libzlib.dll PATHS "../../zlib/install/bin" NO_DEFAULT_PATH REQUIRED)
-		install(FILES ${ZLIB_LIBtoo} DESTINATION bin)
-        install(FILES ${TURBOJPEG_LIBtoo} DESTINATION "bin/../../")
+        install(FILES ${ZLIB_LIBtoo} DESTINATION bin)
+        install(FILES ${ZLIB_LIBtoo} DESTINATION "bin/../../")
     endif()
 
 if(NOT WIN32)
@@ -167,7 +164,6 @@ install(
     DESTINATION lib
     RENAME ${LIB_PREFIX}zlib${LIB_EXTENSION}
 )
-install(FILES ${ZLIB_LIB} DESTINATION "bin/../../")
 
 install(
     FILES
@@ -175,7 +171,6 @@ install(
     DESTINATION lib
     RENAME ${LIB_PREFIX}png16${LIB_EXTENSION}
 )
-
 
 install(
     FILES
