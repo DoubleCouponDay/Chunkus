@@ -8,16 +8,14 @@
 #include <array>
 #include <algorithm>
 #include <filesystem>
-
 #include <GL/freeglut.h>
-
 #include <lunasvg.h>
 
 #include "texture.h"
 #include "gl.h"
 
 #include "../../C_part/src/entrypoint.h"
-
+#include "../../C_part/src/utility/logger.h"
 #include "gui_data.h"
 #include "interop.h"
 
@@ -417,16 +415,20 @@ void onMouseWheel(int button, int dir, int x, int y)
 
 int main(int argc, char** argv)
 {
-	if (argc < 1)
-		return -1;
+	if (argc < 1) {
+		auto message = "Missing arguments to command line tool.";
+		std::cerr << message << std::endl;
+		exit(-1);
+	}
 
 	auto exe_path = std::filesystem::path(argv[0]);
 	auto exe_dir = exe_path.parent_path();
 	auto exe_dir_name = exe_dir.string();
 
 	if(argc < 2) {
-		std::cerr << "error: missing absolute path to image." << std::endl; 
-		exit(1);
+		auto message = "warning: missing absolute path to image.";
+		std::cerr << message << std::endl;
+		exit(-1);
 	}
 	auto image_path = std::filesystem::path(argv[1]);
 
