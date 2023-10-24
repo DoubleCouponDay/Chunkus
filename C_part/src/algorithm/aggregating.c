@@ -43,7 +43,19 @@ uint64_t aggregatedata(splits* input, int startindex, int endindex, int y) {
     uint64_t split6slice = getslice(input->splits[5], startindex, endindex, y);
     uint64_t split7slice = getslice(input->splits[6], startindex, endindex, y);
     uint64_t split8slice = getslice(input->splits[7], startindex, endindex, y);
+
+    #if SIMD_X86_64
+    #include <immintrin.h>
+    __m64 _mm_or_si64(__m64 a, __m64 b); //using MMX extensions
+    
+    #elif SIMD_ARM 
+    #include <immintrin.h>
+    uint64x1_t vorr_u64(uint64x1_t a, uint64x1_t b); //using NEON extensions
+    
+    #else
     uint64_t aggregate = split1slice | split2slice | split3slice | split4slice | split5slice | split6slice | split7slice | split8slice;
+    #endif
+    
     LOG_INFO("aggregate: %d", aggregate);
     return aggregate;
 }

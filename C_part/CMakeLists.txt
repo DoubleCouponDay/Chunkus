@@ -29,6 +29,22 @@ file(GLOB testglob
     
 set(TEST_SRCS ${testglob} ${sourceglob})
 
+# Set Processor Architecture directive
+if(MSVC)
+    execute_process(COMMAND "echo %PROCESSOR_ARCHITECTURE%" OUTPUT_VARIABLE cpu_arch)
+    message("CPU Architecture: ${cpu_arch}")
+else()
+    execute_process(COMMAND "uname -m" OUTPUT_VARIABLE cpu_arch)
+    message("CPU Architecture: ${cpu_arch}")
+endif()
+
+if(simd_support)
+    set(SIMD_SUPPORT 1)
+
+else()
+    unset(SIMD_SUPPORT)
+endif()
+
 add_executable(vec_test ${TEST_SRCS})
 
 message("Building vec as a static library...")
