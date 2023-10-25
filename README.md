@@ -8,6 +8,8 @@ This was a group project written by Samuel, Joshua, Matthew.
 
 ## Requirements
 
+WARNING: Please note that SIMD instructions are used and Intel Microprocessors without the MMX extension will not work.
+
 Set the `CHUNKUS` environment variable to the value of your discord bot's secret token.
 
 ### Installing C requirements on Windows

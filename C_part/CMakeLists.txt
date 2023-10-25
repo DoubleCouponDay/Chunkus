@@ -7,7 +7,6 @@ cmake_policy(SET CMP0091 NEW) #use abstraction runtime flags with MSVC
 
 if(MSVC)
     add_compile_options(/GS) #check for buffer overruns
-    add_compile_options(/RTCs) #check for runtime errors
 endif()
 
 project("vec" "C")

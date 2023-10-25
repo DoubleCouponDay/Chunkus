@@ -35,29 +35,41 @@ uint64_t getslice(split input, int startindex, int endindex, int height) {
 
 uint64_t aggregatedata(splits* input, int startindex, int endindex, int y) {
     LOG_INFO("");
-    uint64_t split1slice = getslice(input->splits[0], startindex, endindex, y);
-    uint64_t split2slice = getslice(input->splits[1], startindex, endindex, y);
-    uint64_t split3slice = getslice(input->splits[2], startindex, endindex, y);
-    uint64_t split4slice = getslice(input->splits[3], startindex, endindex, y);
-    uint64_t split5slice = getslice(input->splits[4], startindex, endindex, y);
-    uint64_t split6slice = getslice(input->splits[5], startindex, endindex, y);
-    uint64_t split7slice = getslice(input->splits[6], startindex, endindex, y);
-    uint64_t split8slice = getslice(input->splits[7], startindex, endindex, y);
+    uint64_t splitslice1 = getslice(input->splits[0], startindex, endindex, y);
+    uint64_t splitslice2 = getslice(input->splits[1], startindex, endindex, y);
+    uint64_t splitslice3 = getslice(input->splits[2], startindex, endindex, y);
+    uint64_t splitslice4 = getslice(input->splits[3], startindex, endindex, y);
+    uint64_t splitslice5 = getslice(input->splits[4], startindex, endindex, y);
+    uint64_t splitslice6 = getslice(input->splits[5], startindex, endindex, y);
+    uint64_t splitslice7 = getslice(input->splits[6], startindex, endindex, y);
+    uint64_t splitslice8 = getslice(input->splits[7], startindex, endindex, y);
 
     #if SIMD_X86_64
-    #include <immintrin.h>
-    __m64 _mm_or_si64(__m64 a, __m64 b); //using MMX extensions
+    #include <mmintrin.h>
+    __m64 aggregated = _mm_or_si64(splitslice1, splitslice2); //using MMX extensions
+    __m64 aggregated2 = _mm_or_si64(aggregated, splitslice3);
+    __m64 aggregated3 = _mm_or_si64(aggregated2, split2slice4);
+    __m64 aggregated4 = _mm_or_si64(aggregated3, split2slice5);
+    __m64 aggregated5 = _mm_or_si64(aggregated4, split2slice6);
+    __m64 aggregated6 = _mm_or_si64(aggregated5, split2slice7);
+    __m64 aggregated_final = _mm_or_si64(aggregated6, split2slice8);
     
-    #elif SIMD_ARM 
-    #include <immintrin.h>
-    uint64x1_t vorr_u64(uint64x1_t a, uint64x1_t b); //using NEON extensions
-    
+    #elif SIMD_ARM
+    #include <arm_neon.h>
+    uint64x1_t aggregated = vorr_u64(splitslice1, splitslice2); //using NEON extensions
+    uint64x1_t aggregated2 = vorr_u64(aggregated, splitslice3);
+    uint64x1_t aggregated3 = vorr_u64(aggregated2, splitslice4);
+    uint64x1_t aggregated4 = vorr_u64(aggregated3, splitslice5);
+    uint64x1_t aggregated5 = vorr_u64(aggregated4, splitslice6);
+    uint64x1_t aggregated6 = vorr_u64(aggregated5, splitslice7);
+    uint64x1_t aggregated_final = vorr_u64(aggregated6, splitslice8);
+
     #else
-    uint64_t aggregate = split1slice | split2slice | split3slice | split4slice | split5slice | split6slice | split7slice | split8slice;
+    uint64_t aggregated_final = splitslice1 | splitslice2 | splitslice3 | splitslice4 | splitslice5 | splitslice6 | splitslice7 | splitslice8;
     #endif
     
-    LOG_INFO("aggregate: %d", aggregate);
-    return aggregate;
+    LOG_INFO("aggregate: %d", aggregated_final);
+    return aggregated_final;
 }
 
 /// @brief returns a 2D array of bools
