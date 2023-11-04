@@ -14,7 +14,7 @@
 
 const char *format1_p = "png";
 const char *format2_p = "jpeg";
-const int DEFAULT_CHUNKSIZE = 1;
+const int DEFAULT_CHUNKSIZE = 20;
 const int DEFAULT_COLOURS = 256;
 
 int execute_program(vectorize_options options) {
