@@ -117,8 +117,6 @@ Sets the parameters to use with the algorithm.
 
     @Chunkus !params 1 20 256
 
-You should receive a confirmation message telling you what you set the parameters to.
-
 - [chunk size]
 
 Chunk size is amount of width and height in the algorithm's smallest image unit. An image is broken up into chunks, where a higher number improves speed while reducing quality (and losing information).
@@ -141,7 +139,7 @@ Use this if you want increase the accuracy of the output image.
 
 - [colours]
 
-The number of colours that are available in the output image. 
+The number of colours that are available for an output image. 
 
 Use this if reducing the colour complexity would increase the speed of image processing.
 
