@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 2.8.12...2.8.12)
 
 cmake_policy(SET CMP0048 NEW) #manage version numbers in project() calls
 cmake_policy(SET CMP0074 NEW) #use <PackageName>_ROOT variables with find_package() calls
