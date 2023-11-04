@@ -200,8 +200,6 @@ Build in CMake with the Visual Studio Generator.
 
 Open the `Chunkus` solution in visual studio, from the `build` folder.
 
-Copy `libpng16.dll`, `turbojpeg.dll` and `zlib.dll` from the `install\bin\` folder into the root folder.
-
 In VS, set the startup project to `vec`.
 
 In the Debugging settings, set the Current Working Directory to `${project}../../`. This allows running tests from the root folder.
