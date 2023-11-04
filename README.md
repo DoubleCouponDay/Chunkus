@@ -82,7 +82,7 @@ windows:
 
     .\build.bat
 
-The C code builds to `C_part\build`.
+The C code builds to `C_part\build`. It has to build all the dependencies and link them which can take about a minute. For a faster build time, run `debug.bat|sh` instead.
 
 ## Building the Rust part 
 
