@@ -1,11 +1,6 @@
 {
     "configurations": [
         {
-            "name": "CMake",
-            "compileCommands": "${config:cmake.buildDirectory}/compile_commands.json",
-            "configurationProvider": "ms-vscode.cmake-tools"
-        },
-        {
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/C_part/",
@@ -23,7 +18,14 @@
             "configurationProvider": "ms-vscode.cmake-tools",
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "compilerPath": "C:/Program Files/CMake/bin/cl.exe"
+            "compilerPath": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Msbuild\\Current\\Bin\\msbuild.exe",
+            "includePath": [
+                "${workspaceFolder}/C_part/",
+                "${workspaceFolder}/Cpp_part/",
+                "${workspaceFolder}/../nanosvg/src",
+                "${workspaceFolder}/../libpng",
+                "${workspaceFolder}/../libpng/png-install/include/libpng16"
+            ]
         }
     ],
     "version": 4

@@ -134,7 +134,7 @@
         "immintrin.h": "c"
     },
     "C_Cpp.default.intelliSenseMode": "windows-gcc-x64",
-    "C_Cpp.intelliSenseEngineFallback": "Enabled",
+    "C_Cpp.intelliSenseEngineFallback": "enabled",
     "cmake.autoSelectActiveFolder": false,
     "cmake.sourceDirectory": "${workspaceFolder}",
     "cmake.buildDirectory": "${workspaceFolder}/build",
