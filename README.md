@@ -214,10 +214,10 @@ Our current Rust build script will not link with .dll files as we are static lin
 
 Visual Studio Code is our primary IDE and it can only debug C/C++ if you build with MingW.
 
-### Why are we using MSBuild instead of MingW?
+### Why are we using MSBuild instead of MingW on Windows?
 
 We could potentially be using OpenCL in the future. Its CmakeLists.txt only works with MSBuild.
 
 ### Why can't I see printfs in the console?
 
-Chunkus was probably built in Release mode. Run `debug.bat`|`sh` instead. This will also prevent debug assertions.
+Running `vec_text` will smother calls to `printf`` but you can still use `LOG_INFO()`.
