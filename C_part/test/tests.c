@@ -24,7 +24,6 @@
 #include "../src/algorithm/algorithm.h"
 #include "../src/utility/logger.h"
 #include "../src/imagefile/jpegfile.h"
-#include "../src/algorithm/thresholds.h"
 
 MunitResult can_test(const MunitParameter params[], void* data) {
   LOG_INFO("test 1 passed");
