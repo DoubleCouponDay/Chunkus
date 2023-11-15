@@ -35,11 +35,15 @@ On Windows:
 
 ### Installing C requirements on Linux
 
-On Linux:
+On Debian Linux:
 
     sudo apt update -y
 
     sudo apt install git cmake build-essential
+
+On Arch Linux:
+
+    sudo snap install --classic cmake
 
 ### Installing Rust requirements on Windows
 
