@@ -75,7 +75,7 @@ void* thread_split(void* data)
     #endif
 }
 
-splits* split_chunks(chunkmap* map, float threshold)
+splits* split_chunks(chunkmap* map)
 {
     splits* splits_out = create_splits(map->map_width, map->map_height);
 
