@@ -83,10 +83,14 @@ endif(UNIX)
 message("installing libpng...")
 	message("png_path: ${LIBPNG_PATH}")
 	target_include_directories(vec PUBLIC "${LIBPNG_INCLUDEPATH}")
-
-	message("png_path: ${LIBPNG_PATH}")
     message("using png .lib")
-    find_library(LIBPNG_LIB NAMES libpng16_static.lib PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED NO_CACHE)
+
+    if(MSVC)
+        find_library(LIBPNG_LIB NAMES libpng16_static.lib PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED NO_CACHE) #the windows build only produces libpng16, not libpng
+    else()
+        find_library(LIBPNG_LIB NAMES libpng16.lib libpng16.a png16.a libpng.a png.a libpng16.dll.a PATHS "${LIBPNG_PATH}/lib" NO_DEFAULT_PATH REQUIRED NO_CACHE) 
+    endif()
+
     find_file(LIBPNG_HEADER NAMES png.h PATHS "${LIBPNG_INCLUDEPATH}" NO_DEFAULT_PATH REQUIRED NO_CACHE)
     message("Png at: ${LIBPNG_LIB}")
     message("Png header at: ${LIBPNG_HEADER}")
