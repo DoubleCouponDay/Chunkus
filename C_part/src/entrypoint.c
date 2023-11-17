@@ -78,6 +78,14 @@ int entrypoint(int argc, char* argv[]) {
 
 	LOG_INFO("Vectorizing with input: '%s', chunk size: '%d', colours: %d", input_file_path, chunk_size, num_colours);
 
+	#if SIMD_X86_64
+	LOG_INFO("Using I64 SIMD instructions");
+
+	#elif SIMD_ARM
+	LOG_INFO("Using ARM SIMD instructions");
+
+	#endif
+
 	vectorize_options options = {
 		input_file_path,
 		chunk_size,
